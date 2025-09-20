@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <Views Id="Views">
+    <DetailView Id="Bulletin_DetailView">
+      <Items Id="Items">
+        <PropertyEditor Id="HeaderCompact" ReadOnly="True" ShowCaption="False" />
+        <PropertyEditor Id="BrutFiscal" ReadOnly="True" />
+        <PropertyEditor Id="BrutSocial" ReadOnly="True" />
+        <PropertyEditor Id="NetAPayer" ReadOnly="True" />
+      </Items>
+      <Layout Id="Layout">
+        <LayoutGroup Id="Root" Direction="Vertical">
+          <LayoutGroup Id="HeaderRow" Direction="Horizontal" ShowCaption="False" Index="0">
+            <LayoutItem Id="liHeader" ViewItem="HeaderCompact" Index="0" />
+            <LayoutItem Id="liParts" ViewItem="NombrePartsFiscales" Index="1" />
+            <LayoutItem Id="liStatut" ViewItem="Statut" Index="2" />
+          </LayoutGroup>
+          <LayoutItem Id="liLignes" ViewItem="Lignes" Index="1" RelativeSize="78" />
+          <LayoutGroup Id="FooterTotals" Direction="Horizontal" ShowCaption="False" Index="2" RelativeSize="22">
+            <LayoutItem Id="liBrutFiscal" ViewItem="BrutFiscal" Index="0" />
+            <LayoutItem Id="liBrutSocial" ViewItem="BrutSocial" Index="1" />
+            <LayoutItem Id="liNetAPayer" ViewItem="NetAPayer" Index="2" />
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+    <ListView Id="Bulletin_Lignes_ListView" IsRootView="False">
+      <Columns Id="Columns">
+        <ColumnInfo Id="IsSystem" VisibleIndex="10" />
+        <ColumnInfo Id="Reference" VisibleIndex="3" />
+        <ColumnInfo Id="Source" VisibleIndex="9" />
+        <ColumnInfo Id="Rubrique" VisibleIndex="1" />
+        <ColumnInfo Id="OrdreCalcul" VisibleIndex="0" />
+        <ColumnInfo Id="Base" VisibleIndex="4" />
+        <ColumnInfo Id="Taux" VisibleIndex="5" />
+        <ColumnInfo Id="Montant" VisibleIndex="6" />
+        <ColumnInfo Id="MontantEmployeur" VisibleIndex="7" />
+        <ColumnInfo Id="Sens" VisibleIndex="2" />
+        <ColumnInfo Id="SectionImpression" VisibleIndex="8" />
+      </Columns>
+    </ListView>
+    <ListView Id="ParametresPaie_ListView" IsRootView="True" />
+    <ListView Id="Salarie_Generation_ListView" IsRootView="True">
+      <Filters Id="Filters">
+        <Filter Id="Actifs" IsDefault="True" />
+      </Filters>
+    </ListView>
+  </Views>
+</Application>

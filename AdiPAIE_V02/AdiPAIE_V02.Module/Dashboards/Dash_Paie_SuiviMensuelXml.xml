@@ -1,0 +1,140 @@
+﻿<Dashboard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.devexpress.com/dashboard/2016/dashboard">
+	<Title Text="Paie — Suivi mensuel" />
+	<DataSources>
+		<!-- DataSource XAF/XPO : objet 'Bulletin' -->
+		<ObjectDataSource ComponentName="odsBulletin" Name="Bulletin" DataSource="AdiPAIE_V02.Module.BusinessObjects.Bulletin, AdiPAIE_V02.Module">
+			<CalculatedFields>
+				<CalculatedField Name="TotalRetenuesAll" DataType="Decimal" Expression="[TotalRetenuesFiscales] + [TotalCotisationsSociales] + [TotalAutresRetenues]" />
+			</CalculatedFields>
+		</ObjectDataSource>
+	</DataSources>
+
+	<Parameters>
+		<Parameter Name="pAnnee" Description="Année" Type="System.Int32" Value="2025" />
+		<Parameter Name="pMois"  Description="Mois"  Type="System.Int32" Value="9"    />
+	</Parameters>
+
+	<Items>
+		<!-- 1) Net à payer par salarié -->
+		<Chart ComponentName="chartNet" Name="Net à payer par salarié" DataSource="odsBulletin">
+			<FilterString>[Annee] = ?pAnnee And [Mois] = ?pMois</FilterString>
+			<Arguments>
+				<Dimension DataMember="Salarie.FullName" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="Bar">
+							<Value>
+								<Measure DataMember="NetAPayer" SummaryType="Sum" />
+							</Value>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="true" />
+		</Chart>
+
+		<!-- 2) Décomposition par salarié : Gains / Retenues / Net -->
+		<Chart ComponentName="chartDecomp" Name="Décomposition par salarié" DataSource="odsBulletin">
+			<FilterString>[Annee] = ?pAnnee And [Mois] = ?pMois</FilterString>
+			<Arguments>
+				<Dimension DataMember="Salarie.FullName" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="StackedBar">
+							<Value>
+								<Measure DataMember="TotalGains" SummaryType="Sum" />
+							</Value>
+							<Name>Gains</Name>
+						</Simple>
+						<Simple SeriesType="StackedBar">
+							<Value>
+								<Measure DataMember="TotalRetenuesAll" SummaryType="Sum" />
+							</Value>
+							<Name>Retenues (toutes)</Name>
+						</Simple>
+						<Simple SeriesType="StackedBar">
+							<Value>
+								<Measure DataMember="NetAPayer" SummaryType="Sum" />
+							</Value>
+							<Name>Net à payer</Name>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="true" />
+		</Chart>
+
+		<!-- 3) Tableau de synthèse -->
+		<Grid ComponentName="gridSynth" Name="Synthèse des bulletins" DataSource="odsBulletin">
+			<FilterString>[Annee] = ?pAnnee And [Mois] = ?pMois</FilterString>
+			<Columns>
+				<GridDimensionColumn>
+					<Dimension DataMember="Salarie.FullName" />
+					<WidthType>Weight</WidthType>
+					<Weight>25</Weight>
+				</GridDimensionColumn>
+
+				<GridMeasureColumn>
+					<Measure DataMember="TotalGains" SummaryType="Sum" />
+					<WidthType>Weight</WidthType>
+					<Weight>15</Weight>
+				</GridMeasureColumn>
+				<GridMeasureColumn>
+					<Measure DataMember="TotalRetenuesFiscales" SummaryType="Sum" />
+					<WidthType>Weight</WidthType>
+					<Weight>13</Weight>
+				</GridMeasureColumn>
+				<GridMeasureColumn>
+					<Measure DataMember="TotalCotisationsSociales" SummaryType="Sum" />
+					<WidthType>Weight</WidthType>
+					<Weight>13</Weight>
+				</GridMeasureColumn>
+				<GridMeasureColumn>
+					<Measure DataMember="TotalAutresRetenues" SummaryType="Sum" />
+					<WidthType>Weight</WidthType>
+					<Weight>13</Weight>
+				</GridMeasureColumn>
+				<GridMeasureColumn>
+					<Measure DataMember="NetAPayer" SummaryType="Sum" />
+					<WidthType>Weight</WidthType>
+					<Weight>15</Weight>
+				</GridMeasureColumn>
+			</Columns>
+			<ShowCaption>true</ShowCaption>
+		</Grid>
+
+		<!-- 4) Carte KPI Net global du mois -->
+		<Cards ComponentName="cardsKpi" Name="KPI — Net global" DataSource="odsBulletin">
+			<FilterString>[Annee] = ?pAnnee And [Mois] = ?pMois</FilterString>
+			<DataItems>
+				<Measure DataMember="NetAPayer" SummaryType="Sum" UniqueName="msNet" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="msNet" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+	</Items>
+
+	<LayoutTree>
+		<LayoutGroup Orientation="Vertical">
+			<LayoutGroup Orientation="Horizontal" Weight="55">
+				<LayoutItem DashboardItem="chartNet"    Weight="55" />
+				<LayoutItem DashboardItem="chartDecomp" Weight="45" />
+			</LayoutGroup>
+			<LayoutGroup Orientation="Horizontal" Weight="45">
+				<LayoutItem DashboardItem="gridSynth" Weight="70" />
+				<LayoutItem DashboardItem="cardsKpi"  Weight="30" />
+			</LayoutGroup>
+		</LayoutGroup>
+	</LayoutTree>
+</Dashboard>

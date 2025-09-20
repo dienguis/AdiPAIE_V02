@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <Views Id="Views">
+    <ListView Id="Bulletin_Lignes_ListView" IsRootView="False">
+      <Columns Id="Columns">
+        <ColumnInfo Id="IsSystem" VisibleIndex="10" />
+        <ColumnInfo Id="Reference" VisibleIndex="3" />
+        <ColumnInfo Id="Source" VisibleIndex="9" />
+        <ColumnInfo Id="Rubrique" VisibleIndex="1" />
+        <ColumnInfo Id="OrdreCalcul" VisibleIndex="0" />
+        <ColumnInfo Id="Base" VisibleIndex="4" />
+        <ColumnInfo Id="Taux" VisibleIndex="5" />
+        <ColumnInfo Id="Montant" VisibleIndex="6" />
+        <ColumnInfo Id="MontantEmployeur" VisibleIndex="7" />
+        <ColumnInfo Id="Sens" VisibleIndex="2" />
+        <ColumnInfo Id="SectionImpression" VisibleIndex="8" />
+      </Columns>
+    </ListView>
+    <ListView Id="ParametresPaie_ListView" IsRootView="True" />
+    <ListView Id="Salarie_ListView" IsRoot="True" EnableMasterDetailMode="False">
+      <Columns Id="Columns">
+        <ColumnInfo Id="colDisplayName" PropertyName="DisplayName" Index="0" Caption="Nom complet" />
+        <ColumnInfo Id="colMatricule" PropertyName="Matricule" Index="1" Caption="Matricule" />
+      </Columns>
+    </ListView>
+    <ListView Id="Salarie_Generation_ListView" IsRootView="True">
+      <Filters Id="Filters">
+        <Filter Id="Actifs" IsDefault="True" />
+      </Filters>
+    </ListView>
+  </Views>
+</Application>
