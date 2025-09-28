@@ -1,7 +1,9 @@
-﻿using DevExpress.Data.Filtering;
+﻿using AdiPAIE_V02.Module.Utils;
+using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Editors;
 using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
@@ -9,7 +11,7 @@ using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using System;
 using System.ComponentModel;
-using DevExpress.ExpressApp.Editors;
+using System.Globalization;
 using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
@@ -46,13 +48,20 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         string libelle;
         [RuleRequiredField, Size(100)]
-        public string Libelle
+    public string Libelle
+    {
+        get => libelle;
+        set
         {
-            get => libelle;
-            set => SetPropertyValue(nameof(Libelle), ref libelle, value?.Trim());
+            var v = value?.Trim();
+            if (!string.IsNullOrEmpty(v))
+                v = TextCaseFr.ToTitleCaseFrPreserveAcronyms(v); // 👈 normalise tout de suite
+            SetPropertyValue(nameof(Libelle), ref libelle, v);
         }
+    }
 
-        [PersistentAlias("Concat(Code, ' - ', Libelle)")]
+
+    [PersistentAlias("Concat(Code, ' - ', Libelle)")]
         [VisibleInListView(false), VisibleInDetailView(false)]
         [VisibleInLookupListView(true)]
         public string DisplayName => Convert.ToString(EvaluateAlias(nameof(DisplayName)));
@@ -79,6 +88,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
             if (propertyName == nameof(TypeRef) && !IsLoading && !IsSaving && TypeRef != null)
                 AppliquerDefautsDuType();
+
+
         }
 
         // ---------------------------
@@ -164,6 +175,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                     throw new UserFriendlyException(
                         $"Une rubrique canonique '{Canonique}' existe déjà : {duplicate.Code} - {duplicate.Libelle}.");
             }
+
+            if (!string.IsNullOrWhiteSpace(Libelle))
+            {
+                var norm = TextCaseFr.ToTitleCaseFrPreserveAcronyms(Libelle);
+                if (!string.Equals(Libelle, norm, StringComparison.Ordinal))
+                    Libelle = norm;
+            }
+
         }
 
         // ---------------------------
@@ -263,5 +282,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Association("Rubrique-RubriqueComptes"), Aggregated]
         public XPCollection<RubriqueCompte> RubriqueComptes
             => GetCollection<RubriqueCompte>(nameof(RubriqueComptes));
+
+    
+       
+        
+
     }
 }

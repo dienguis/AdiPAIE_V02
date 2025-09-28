@@ -15,6 +15,7 @@ namespace AdiPAIE_V02.Win
     // For more typical usage scenarios, be sure to check out https://docs.devexpress.com/eXpressAppFramework/DevExpress.ExpressApp.Win.WinApplication._members
     public class AdiPAIE_V02WindowsFormsApplication : WinApplication
     {
+
         public AdiPAIE_V02WindowsFormsApplication()
         {
             SplashScreen = new DXSplashScreen(typeof(XafSplashScreen), new DefaultOverlayFormOptions());

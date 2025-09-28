@@ -1,8 +1,9 @@
-﻿using System.Configuration;
-using DevExpress.ExpressApp;
+﻿using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.Design;
 using DevExpress.ExpressApp.MultiTenancy;
+using DevExpress.ExpressApp.ReportsV2;
+using DevExpress.ExpressApp.ReportsV2.Win;
 using DevExpress.ExpressApp.Security;
 using DevExpress.ExpressApp.Win;
 using DevExpress.ExpressApp.Win.ApplicationBuilder;
@@ -11,6 +12,7 @@ using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using DevExpress.XtraEditors;
 using Microsoft.Extensions.DependencyInjection;
+using System.Configuration;
 
 namespace AdiPAIE_V02.Win
 {
@@ -63,7 +65,10 @@ namespace AdiPAIE_V02.Win
                 })
                 .AddViewVariants()
                 .Add<AdiPAIE_V02.Module.AdiPAIE_V02Module>()
+
+  
                 .Add<AdiPAIE_V02WinModule>();
+
 
             builder.AddMultiTenancy()
                 .WithHostDatabaseConnectionString(connectionString)

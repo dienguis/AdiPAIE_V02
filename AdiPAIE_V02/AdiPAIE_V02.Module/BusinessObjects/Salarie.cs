@@ -107,7 +107,18 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [RuleUniqueValue(DefaultContexts.Save, CustomMessageTemplate = "Cet matricul est déjà utilisé par un autre salarié.")]
         public string Matricule { get => matricule; set => SetPropertyValue(nameof(Matricule), ref matricule, value); }
 
-        public Civilite Civilite { get => civilite; set => SetPropertyValue(nameof(Civilite), ref civilite, value); }
+        [XafDisplayName("Civilité")]
+        [ModelDefault("PropertyEditorType", "DevExpress.ExpressApp.Editors.EnumPropertyEditor")]
+        public Civilite Civilite
+        {
+            get => civilite;
+            set
+            {
+                var old = civilite;
+                SetPropertyValue(nameof(Civilite), ref civilite, value);
+                if (old != value) SyncSexeFromCivilite(); // garder cohérence
+            }
+        }
 
         [Size(50)]
         public string Nationalite { get => nationalite; set => SetPropertyValue(nameof(Nationalite), ref nationalite, value); }
@@ -330,6 +341,21 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [NonPersistent, XafDisplayName("TRIMF (parts)")]
         public int TrimfParts => Math.Min(5, 1 + NbConjointsInactifsACharge);
 
+
+
+        Sexe sexe;
+        [XafDisplayName("Sexe")]
+        [ModelDefault("PropertyEditorType", "DevExpress.ExpressApp.Editors.EnumPropertyEditor")]
+        public Sexe Sexe
+        {
+            get => sexe;
+            set
+            {
+                var old = sexe;
+                SetPropertyValue(nameof(Sexe), ref sexe, value);
+                if (old != value) SyncCiviliteFromSexe(); // garder cohérence
+            }
+        }
         // --- Cohérence automatique depuis l’Echelon (sans auto-modifier marié/conjoints) ---
         protected override void OnChanged(string propertyName, object oldValue, object newValue)
         {
@@ -480,12 +506,83 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             return pp?.ModeleAuto_Defaut_AvantageVehicule ?? 0m;
         }
 
+        // ================== Sync helpers ==================
+        bool _syncing;
+
+        void SyncCiviliteFromSexe()
+        {
+            if (_syncing) return;
+            _syncing = true;
+            try
+            {
+                switch (Sexe)
+                {
+                    case Sexe.Masculin:
+                        if (Civilite != Civilite.Monsieur) Civilite = Civilite.Monsieur;
+                        break;
+                    case Sexe.Feminin:
+                        // Par défaut on met "Madame" (laisse l’utilisateur changer en "Mademoiselle" si besoin)
+                        if (Civilite != Civilite.Madame && Civilite != Civilite.Mademoiselle)
+                            Civilite = Civilite.Madame;
+                        break;
+                    default:
+                        // Inconnu → ne force pas la civilité, laisse telle quelle
+                        break;
+                }
+            }
+            finally { _syncing = false; }
+        }
+        void SyncSexeFromCivilite()
+        {
+            if (_syncing) return;
+            _syncing = true;
+            try
+            {
+                switch (Civilite)
+                {
+                    case Civilite.Monsieur:
+                        if (Sexe != Sexe.Masculin) Sexe = Sexe.Masculin;
+                        break;
+                    case Civilite.Madame:
+                    case Civilite.Mademoiselle:
+                        if (Sexe != Sexe.Feminin) Sexe = Sexe.Feminin;
+                        break;
+                    default:
+                        // Autre → ne force pas le sexe (laisse Inconnu ou ce qui est saisi)
+                        break;
+                }
+            }
+            finally { _syncing = false; }
+        }
 
         //ADIENG 11/09/2025 AJOUT FIN
+        [XafDisplayName("Département")]
+        [Association("Departement-Salaries")]
+        [DataSourceCriteria("Actif = True")]  // ne montrer que les départements actifs
+        public Departement Departement
+        {
+            get => departement;
+            set => SetPropertyValue(nameof(Departement), ref departement, value);
+        }
+        private Departement departement;
+
+        [XafDisplayName("Fonction")]
+        [Association("Fonction-Salaries")]
+        [DataSourceCriteria("Actif = True")]  // ne montrer que les fonctions actives
+        public Fonction Fonction
+        {
+            get => fonction;
+            set => SetPropertyValue(nameof(Fonction), ref fonction, value);
+        }
+        private Fonction fonction;
+
 
     }
 
-    public enum Civilite { Monsieur, Madame, Mademoiselle }
-    public enum Sexe { Masculin, [XafDisplayName("Féminin")] Feminin }
+    public enum Civilite { Monsieur=0, Madame=1, Mademoiselle =2}
+    public enum Sexe { Masculin=0, [XafDisplayName("Féminin")] Feminin =1 }
+
+
+
 
 }

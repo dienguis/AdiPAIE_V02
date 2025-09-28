@@ -123,5 +123,7 @@ namespace AdiPAIE_V02.Module.Domain
         public enum CongeStatut { Brouillon = 0, Soumis = 1, Approuve = 2, Rejete = 3, Annule = 4 }
         public enum CongeImpactSalaire { Paye = 0, Impaye = 1, Partiel = 2 } // Partiel = maintien % (ex: maladie)
         public enum PretNature { Pret = 0, AvanceSalaire = 1 }
+
+
     }
 }

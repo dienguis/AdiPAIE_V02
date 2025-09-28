@@ -116,7 +116,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 [ImageEditor(ListViewImageEditorCustomHeight = 40, DetailViewImageEditorFixedHeight = 120)]
 public byte[] LogoImage { get; set; }
 
-// DateCreation DATETIME NOT NULL (DEFAULT GETDATE())
+
+
+        // DateCreation DATETIME NOT NULL (DEFAULT GETDATE())
         private DateTime _DateCreation;
 
         [Browsable(false)]                 // cache dans toutes les vues (Detail/List/Lookup)

@@ -19,7 +19,9 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
+    [DefaultClassOptions]
     [DefaultProperty(nameof(DisplayName))]
+    [ImageName("BO_Person")]
     public class Bulletin : BaseObject
     {
         public Bulletin(Session session) : base(session) { }
@@ -128,6 +130,66 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [NonPersistent]
         public string DisplayName => $"{Salarie?.FullName} - {Periode}";
 
+        // --- Synthèse fiscale (mois & cumul annuel) ---
+        [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [XafDisplayName("TRIMF (mois)")]
+        public decimal TRIMF_Mois { get => trimfMois; set => SetPropertyValue(nameof(TRIMF_Mois), ref trimfMois, value); }
+        private decimal trimfMois;
+
+        [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [XafDisplayName("IR (mois)")]
+        public decimal IR_Mois { get => irMois; set => SetPropertyValue(nameof(IR_Mois), ref irMois, value); }
+        private decimal irMois;
+
+        [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [XafDisplayName("Cumul TRIMF (YTD)")]
+        public decimal TRIMF_CumulAnnee { get => trimfCumul; set => SetPropertyValue(nameof(TRIMF_CumulAnnee), ref trimfCumul, value); }
+        private decimal trimfCumul;
+
+        [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [XafDisplayName("Cumul IR (YTD)")]
+        public decimal IR_CumulAnnee { get => irCumul; set => SetPropertyValue(nameof(IR_CumulAnnee), ref irCumul, value); }
+        private decimal irCumul;
+
+        // --- IPRES (parts salariales) ---
+        [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [XafDisplayName("IPRES RG (mois)")]
+        public decimal IPRES_RG_Mois { get => ipresRgMois; set => SetPropertyValue(nameof(IPRES_RG_Mois), ref ipresRgMois, value); }
+        private decimal ipresRgMois;
+
+        [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [XafDisplayName("Cumul IPRES RG (YTD)")]
+        public decimal IPRES_RG_CumulAnnee { get => ipresRgCumul; set => SetPropertyValue(nameof(IPRES_RG_CumulAnnee), ref ipresRgCumul, value); }
+        private decimal ipresRgCumul;
+
+        [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [XafDisplayName("IPRES RC (mois)")]
+        public decimal IPRES_RC_Mois { get => ipresRcMois; set => SetPropertyValue(nameof(IPRES_RC_Mois), ref ipresRcMois, value); }
+        private decimal ipresRcMois;
+
+        [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [XafDisplayName("Cumul IPRES RC (YTD)")]
+        public decimal IPRES_RC_CumulAnnee { get => ipresRcCumul; set => SetPropertyValue(nameof(IPRES_RC_CumulAnnee), ref ipresRcCumul, value); }
+        private decimal ipresRcCumul;
+
+        // --- Cumuls YTD (mois inclus) ---
+        [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [XafDisplayName("Cumul Brut Fiscal (YTD)")]
+        public decimal BrutFiscal_CumulAnnee { get => bfCumul; set => SetPropertyValue(nameof(BrutFiscal_CumulAnnee), ref bfCumul, value); }
+        private decimal bfCumul;
+
+        [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [XafDisplayName("Cumul Brut Social (YTD)")]
+        public decimal BrutSocial_CumulAnnee { get => bsCumul; set => SetPropertyValue(nameof(BrutSocial_CumulAnnee), ref bsCumul, value); }
+        private decimal bsCumul;
+
+        // --- Cumul Net à payer (YTD) ---
+        [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [XafDisplayName("Cumul Net à payer (YTD)")]
+        public decimal NetAPayer_CumulAnnee { get => netCumul; set => SetPropertyValue(nameof(NetAPayer_CumulAnnee), ref netCumul, value); }
+        private decimal netCumul;
+
+
         public override void AfterConstruction()
         {
             base.AfterConstruction();
@@ -191,6 +253,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 if (Salarie == null) throw new UserFriendlyException("Salarié obligatoire.");
                 if (Annee <= 0 || Mois <= 0) throw new UserFriendlyException("Période invalide.");
                 RecalculerCotisationsEtTotaux();
+                UpdateSyntheseFiscale(); 
             }
         }
 
@@ -362,6 +425,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 CalculerRetenuePrets();
 
                 RecalculerTotaux();
+                UpdateSyntheseFiscale();
             }
             finally { _recalcLock = false; }
         }
@@ -580,6 +644,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             l.MontantEmployeur = Math.Round(brutSocial * tPat / 100m, 0, MidpointRounding.AwayFromZero);
             l.IsSystem = true;
         }
+
 
         // ===== TRIMF =====
         private bool ShouldRegularizeTRIMF()
@@ -961,6 +1026,72 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             var ln = FindLine(rc);
             if (ln != null && !ln.IsDeleted)
                 ln.Delete(); // XPO: supprime l’objet (agrégé -> OK)
+        }
+        private void UpdateSyntheseFiscale()
+        {
+            // --- MOIS COURANT (ce bulletin) ---
+            TRIMF_Mois = SumMontantByCriteria(
+                CriteriaOperator.Parse("Bulletin = ? AND Rubrique.Canonique = ?", this, RubriqueCanonique.TRIMF));
+
+            IR_Mois = SumMontantByCriteria(
+                CriteriaOperator.Parse("Bulletin = ? AND Rubrique.Canonique = ?", this, RubriqueCanonique.IRPP));
+
+            IPRES_RG_Mois = SumMontantByCriteria(
+                CriteriaOperator.Parse("Bulletin = ? AND Rubrique.Canonique = ?", this, RubriqueCanonique.IPRES_RG));
+
+            IPRES_RC_Mois = SumMontantByCriteria(
+                CriteriaOperator.Parse("Bulletin = ? AND Rubrique.Canonique = ?", this, RubriqueCanonique.IPRES_RC));
+
+            // --- CUMUL ANNUEL (même salarié, même année, jusqu’au mois courant inclus) ---
+            TRIMF_CumulAnnee = SumMontantByCriteria(
+                CriteriaOperator.Parse(
+                    "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND Rubrique.Canonique = ?",
+                    Salarie, Annee, Mois, RubriqueCanonique.TRIMF));
+
+            IR_CumulAnnee = SumMontantByCriteria(
+                CriteriaOperator.Parse(
+                    "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND Rubrique.Canonique = ?",
+                    Salarie, Annee, Mois, RubriqueCanonique.IRPP));
+
+            IPRES_RG_CumulAnnee = SumMontantByCriteria(
+                CriteriaOperator.Parse(
+                    "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND Rubrique.Canonique = ?",
+                    Salarie, Annee, Mois, RubriqueCanonique.IPRES_RG));
+
+            IPRES_RC_CumulAnnee = SumMontantByCriteria(
+                CriteriaOperator.Parse(
+                    "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND Rubrique.Canonique = ?",
+                    Salarie, Annee, Mois, RubriqueCanonique.IPRES_RC));
+
+            BrutFiscal_CumulAnnee = SumMontantByCriteria(
+                   CriteriaOperator.Parse(
+                       "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND " +
+                       "Rubrique.BrutFiscal = True AND Rubrique.TypeCalcul <> ?",
+                       Salarie, Annee, Mois, RubriqueTypeCalcul.Retenue));
+
+            BrutSocial_CumulAnnee = SumMontantByCriteria(
+                CriteriaOperator.Parse(
+                    "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND " +
+                    "Rubrique.BrutSocial = True AND Rubrique.TypeCalcul <> ?",
+                    Salarie, Annee, Mois, RubriqueTypeCalcul.Retenue));
+            NetAPayer_CumulAnnee = Convert.ToDecimal(
+    Session.Evaluate(
+        typeof(Bulletin),
+        CriteriaOperator.Parse("Sum(Iif(IsNull(NetAPayer), 0, NetAPayer))"),
+        CriteriaOperator.Parse("Salarie = ? AND Annee = ? AND Mois <= ?", Salarie, Annee, Mois)
+    ) ?? 0m
+);
+
+        }
+
+
+
+        private decimal SumMontantByCriteria(CriteriaOperator criteria)
+        {
+            // Agrégat SQL côté serveur, null-safe sur Montant
+            var expr = CriteriaOperator.Parse("Sum(Iif(IsNull(Montant), 0, Montant))");
+            var result = Session.Evaluate(typeof(BulletinLigne), expr, criteria);
+            return result is decimal d ? d : Convert.ToDecimal(result ?? 0m);
         }
 
     }

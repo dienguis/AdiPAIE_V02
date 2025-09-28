@@ -1,8 +1,12 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.Domain;
+using AdiPAIE_V02.Module.Properties;
+using AdiPAIE_V02.Module.Reports;
 using AdiPAIE_V02.Module.Services;
+using AdiPAIE_V02.Module.Utils;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.Dashboards;
 using DevExpress.ExpressApp.MultiTenancy;
 using DevExpress.ExpressApp.Security;
 using DevExpress.ExpressApp.Security.Strategy;
@@ -16,11 +20,8 @@ using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using DevExpress.Xpo;
 using DevExpress.Xpo.Metadata;
 using Microsoft.Extensions.DependencyInjection;
-
-using DevExpress.ExpressApp.Dashboards;
-
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
-using AdiPAIE_V02.Module.Properties;
+
 
 namespace AdiPAIE_V02.Module.DatabaseUpdate
 {
@@ -71,8 +72,11 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
 
             ObjectSpace.CommitChanges();
 
-            //Security Implementatation 10/09/2025 ADIENG
+            //Security Implementatation 10/09/2025
+            //
             //ADIENG TEST DATAT 28/08/2025 TOP
+
+
             EnsureUniqueIndexPeriodePaie_CompanyYearMonth();
             var os = ObjectSpace;
             var xpOs = (XPObjectSpace)ObjectSpace;
@@ -130,6 +134,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 // ==================
                 var tBrute = EnsureTypeRef(os, "BRUTE", "Éléments bruts", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, true, true);
                 var tIndImpos = EnsureTypeRef(os, "INDEM_IMPOSA", "Indemnités imposables", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, true, true);
+                var tAvNatureImpos = EnsureTypeRef(os, "AvNatImpos", "Av Nature Impos", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, true, false);
                 var tIndNonImp = EnsureTypeRef(os, "INDEM_NON_IMPOSA", "Indemnités non imposables", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, false, true);
                 var tCotSoc = EnsureTypeRef(os, "COTSOC", "Cotisations sociales", gCotSocial, RubriqueTypeCalcul.Retenue, SensAssiette.Moins, false, false);
                 var tCotFis = EnsureTypeRef(os, "COTFISC", "Cotisation fiscales", gRetFiscal, RubriqueTypeCalcul.Retenue, SensAssiette.Moins, false, false);
@@ -164,7 +169,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 var rHS50 = EnsureRubrique(os, "HS50", "Heures sup 50%", tBrute, ordre: 121, taux1: 50m, debitDefaut: c661100, creditDefaut: c421100);
                 var rHS100 = EnsureRubrique(os, "HS100", "Heures sup 100%", tBrute, ordre: 122, taux1: 100m, debitDefaut: c661100, creditDefaut: c421100);
 
-                var rAVVeh = EnsureRubrique(os, "AV_NAT_VEH", "Avantage en nature - véhicule", tBrute,
+                var rAVVeh = EnsureRubrique(os, "AV_NAT_VEH", "Avantage en nature - véhicule", tAvNatureImpos,
                                          ordre: 180, canon: RubriqueCanonique.AvantageNatureVehicule, debitDefaut: c661100, creditDefaut: c421100);
                 var rAVTel = EnsureRubrique(os, "AV_TEL", "Avantage en nature - téléphone", tBrute, ordre: 182, debitDefaut: c661100, creditDefaut: c421100);
 
@@ -230,6 +235,19 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             CreateOrUpdateDashboard(os, "Paie — IR & TRIMF", Resources.Dash_Paie_FiscaliteXml);
 
             os.CommitChanges();
+
+            // Normaliser tous les libellés existants (one-shot)
+            var rubs = ObjectSpace.GetObjectsQuery<Rubrique>().ToList();
+            foreach (var r in rubs)
+            {
+                var norm = TextCaseFr.ToTitleCaseFrPreserveAcronyms (r.Libelle); // même logique que LibelleTitre
+                if (!string.Equals(r.Libelle, norm, StringComparison.Ordinal))
+                {
+                    r.Libelle = norm;
+                }
+            }
+            if (ObjectSpace.IsModified) ObjectSpace.CommitChanges();
+
             //ADIENG TEST DATAT 28/08/2025 END 
 
             if (!ObjectSpace.CanInstantiate(typeof(ApplicationUser)))
@@ -278,9 +296,33 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
 
             ObjectSpace.CommitChanges();
 #endif
-            //ADIENG 27/08/2025 DEBUT  FIXER LES RUBRIQUES ESSENTIEL
+          //ADIENG 27/08/2025 DEBUT  FIXER LES RUBRIQUES ESSENTIEL
+          //  CreateReports();
+
+         //ObjectSpace.CommitChanges();
+
+            foreach (var r in rubs)
+            {
+                var norm = TextCaseFr.ToTitleCaseFrPreserveAcronyms(r.Libelle);
+                if (!string.Equals(r.Libelle, norm, StringComparison.Ordinal))
+                    r.Libelle = norm;
+            }
+            if (ObjectSpace.IsModified) ObjectSpace.CommitChanges();
+
             //ADIENG 27/08/2025 FIN
         }
+
+        // Copie de la méthode utilitaire utilisée par LibelleTitre (sans dépendre d'une instance)
+   
+        //private void CreateReports()
+        //{
+        //    var name = "Bulletin A4 (simple)";
+        //    var old = ObjectSpace.FirstOrDefault<ReportDataV2>(r => r.DisplayName == name);
+        //    if (old != null) ObjectSpace.Delete(old); // pour être 100% sûr de repartir propre
+
+        //    var rpt = ReportTemplates.CreateBulletinA4_Simple(); // version SANS paramètre
+        //    ReportsV2Helper.SaveToReportsV2(ObjectSpace, rpt, name, typeof(Bulletin));
+        //}
 
         public override void UpdateDatabaseBeforeUpdateSchema()
         {

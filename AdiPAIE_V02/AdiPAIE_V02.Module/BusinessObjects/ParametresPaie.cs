@@ -507,5 +507,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         private string signatoryTitle;
 
+   
+
+    
+ 
+
     }
 }
