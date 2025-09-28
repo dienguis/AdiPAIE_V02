@@ -41,25 +41,47 @@ namespace AdiPAIE_V02.Module.Controllers
             e.DialogController.SaveOnAccept = true;
         }
 
-        private void OnExecute(object sender, PopupWindowShowActionExecuteEventArgs e) {
+        private void OnExecute(object sender, PopupWindowShowActionExecuteEventArgs e)
+        {
             var prm = e.PopupWindowViewCurrentObject as TestEmailParams;
             if (prm == null) return;
 
             var p = (ParametresPaie)View.CurrentObject;
-            if (p == null) throw new UserFriendlyException("Paramètres SMTP introuvables.");
+            if (p == null) throw new UserFriendlyException("Paramètres e-mail introuvables.");
             if (string.IsNullOrWhiteSpace(prm.To)) throw new UserFriendlyException("Veuillez renseigner le destinataire.");
 
-            try {
+            try
+            {
                 var senderSvc = p.CreateEmailSender();
-                senderSvc.Send(prm.To, prm.Subject ?? "Test SMTP AdiPAIE", prm.BodyHtml ?? "<b>Ça fonctionne !</b>");
-                Application.ShowViewStrategy.ShowMessage("Email de test envoyé.", InformationType.Success, 3000, InformationPosition.Top);
+                Application.ShowViewStrategy.ShowMessage("Envoi en cours...", InformationType.Info, 1500, InformationPosition.Top);
+
+                // ⚠️ Envoi en tâche pour éviter tout blocage UI
+                System.Threading.Tasks.Task.Run(() => {
+                    senderSvc.Send(
+                        prm.To,
+                        prm.Subject ?? "Test AdiPAIE",
+                        prm.BodyHtml ?? "<b>Ça fonctionne !</b>"
+                    );
+                })
+                .ContinueWith(t => {
+                    if (t.Exception != null)
+                    {
+                        var ex = t.Exception.GetBaseException();
+                        Application.ShowViewStrategy.ShowMessage("Échec : " + ex.Message, InformationType.Error, 5000, InformationPosition.Top);
+                        throw new UserFriendlyException("Échec de l'envoi : " + ex.Message, ex);
+                    }
+                    else
+                    {
+                        Application.ShowViewStrategy.ShowMessage("Email de test envoyé.", InformationType.Success, 3000, InformationPosition.Top);
+                    }
+                }, System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext());
             }
-            catch (SmtpException ex) {
-                throw new UserFriendlyException("L'envoi a échoué. Vérifiez la configuration SMTP.", ex);
-            }
-            catch (Exception ex) {
-                throw new UserFriendlyException("Erreur lors de l'envoi de l'email de test.", ex);
+            catch (Exception ex)
+            {
+                var msg = ex.InnerException?.Message ?? ex.Message;
+                throw new UserFriendlyException("Erreur lors de l'envoi : " + msg, ex);
             }
         }
+
     }
 }

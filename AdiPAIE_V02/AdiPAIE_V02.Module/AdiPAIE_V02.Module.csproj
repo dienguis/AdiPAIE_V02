@@ -42,8 +42,9 @@
     <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="25.1.*" />
     <PackageReference Include="DevExpress.Persistent.Base" Version="25.1.*" />
     <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="25.1.*" />
-    <PackageReference Include="Azure.Identity" Version="1.14.2" />
+    <PackageReference Include="Azure.Identity" Version="1.16.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageReference Include="Microsoft.Graph" Version="5.93.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.0" />
     
   </ItemGroup>

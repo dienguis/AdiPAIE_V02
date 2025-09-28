@@ -452,9 +452,23 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             if (!EmailActif)
                 throw new UserFriendlyException("La messagerie n'est pas activée dans Paramètres de paie.");
 
+            if (EmailProviderKind == EmailProvider.Graph)
+            {
+                if (string.IsNullOrWhiteSpace(GraphTenantId) ||
+                    string.IsNullOrWhiteSpace(GraphClientId) ||
+                    string.IsNullOrWhiteSpace(GraphClientSecret))
+                    throw new UserFriendlyException("Renseignez TenantId / ClientId / ClientSecret (Graph).");
+
+                var fromUpn = string.IsNullOrWhiteSpace(GraphFromUserUpn) ? MailFromAddress : GraphFromUserUpn;
+                if (string.IsNullOrWhiteSpace(fromUpn))
+                    throw new UserFriendlyException("Renseignez l’expéditeur (MailFromAddress ou GraphFromUserUpn).");
+
+                return new GraphEmailSender(GraphTenantId, GraphClientId, GraphClientSecret, fromUpn);
+            }
+
+            // --- Fallback SMTP (existant) ---
             if (string.IsNullOrWhiteSpace(SmtpHost))
                 throw new UserFriendlyException("Saisissez l'hôte SMTP dans Paramètres de paie.");
-
             if (string.IsNullOrWhiteSpace(MailFromAddress))
                 throw new UserFriendlyException("Saisissez l'adresse 'De' (MailFromAddress) dans Paramètres de paie.");
 
@@ -467,6 +481,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 from: MailFromAddress
             );
         }
+
+
         [ImageEditor(ListViewImageEditorCustomHeight = 60, DetailViewImageEditorFixedHeight = 160)]
         public byte[] LogoImage
         {
@@ -507,10 +523,42 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         private string signatoryTitle;
 
-   
 
-    
- 
+        public enum EmailProvider { Smtp = 0, Graph = 1 }
+
+        [XafDisplayName("Fournisseur e-mail")]
+        public EmailProvider EmailProviderKind
+        {
+            get => emailProviderKind;
+            set => SetPropertyValue(nameof(EmailProviderKind), ref emailProviderKind, value);
+        }
+        private EmailProvider emailProviderKind;
+
+        [Size(200)]
+        [XafDisplayName("Graph – Tenant ID")]
+        public string GraphTenantId { get => graphTenantId; set => SetPropertyValue(nameof(GraphTenantId), ref graphTenantId, value?.Trim()); }
+        private string graphTenantId;
+
+        [Size(200)]
+        [XafDisplayName("Graph – Client ID (App)")]
+        public string GraphClientId { get => graphClientId; set => SetPropertyValue(nameof(GraphClientId), ref graphClientId, value?.Trim()); }
+        private string graphClientId;
+
+        [Size(400)]
+        [ModelDefault("IsPassword", "True")]
+        [XafDisplayName("Graph – Client Secret")]
+        public string GraphClientSecret { get => graphClientSecret; set => SetPropertyValue(nameof(GraphClientSecret), ref graphClientSecret, value); }
+        private string graphClientSecret;
+
+        [Size(200)]
+        [XafDisplayName("Graph – Envoyer en tant que (UPN)")]
+        public string GraphFromUserUpn { get => graphFromUpn; set => SetPropertyValue(nameof(GraphFromUserUpn), ref graphFromUpn, value?.Trim()); }
+        private string graphFromUpn;
+
+
+
+
+
 
     }
 }

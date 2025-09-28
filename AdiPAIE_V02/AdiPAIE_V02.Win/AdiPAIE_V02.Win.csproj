@@ -28,6 +28,7 @@
     <EmbeddedResource Include="Images\ExpressAppLogo.png" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.16.0" />
     <PackageReference Include="DevExpress.ExpressApp" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Chart.Win" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="25.1.*" />
@@ -51,6 +52,7 @@
     <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="25.1.*" />
     <PackageReference Include="DevExpress.RichEdit.Export" Version="25.1.*" />
     <PackageReference Include="DevExpress.Win.Design" Version="25.1.*" />
+    <PackageReference Include="Microsoft.Graph" Version="5.93.0" />
     
   </ItemGroup>
   <ItemGroup>
