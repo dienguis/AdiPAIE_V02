@@ -49,6 +49,7 @@ namespace AdiPAIE_V02.Win
                     options.EnableInplaceReports = true;
                     options.ReportDataType = typeof(DevExpress.Persistent.BaseImpl.ReportDataV2);
                     options.ReportStoreMode = DevExpress.ExpressApp.ReportsV2.ReportStoreModes.XML;
+
                 })
                 .AddScheduler()
 #if DEBUG
