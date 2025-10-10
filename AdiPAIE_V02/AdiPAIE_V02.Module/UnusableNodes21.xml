@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <Views Id="Views">
+    <ListView Id="Bulletin_Lignes_ListView" IsRootView="False">
+      <Columns Id="Columns">
+        <ColumnInfo Id="IsSystem" VisibleIndex="11" Visible="False" />
+        <ColumnInfo Id="OrdreLigne" Visible="False" />
+        <ColumnInfo Id="Reference" VisibleIndex="2" Visible="False" />
+        <ColumnInfo Id="RoleCanonique" Visible="False" />
+        <ColumnInfo Id="Rubrique" VisibleIndex="0" />
+        <ColumnInfo Id="SectionImpression" Visible="False" />
+        <ColumnInfo Id="Source" VisibleIndex="10" Visible="False" />
+        <ColumnInfo Id="TypeCalcul" VisibleIndex="9" />
+        <ColumnInfo Id="DisplayName" VisibleIndex="3" />
+        <ColumnInfo Id="OrdreCalcul" VisibleIndex="8" />
+        <ColumnInfo Id="Base" VisibleIndex="4" />
+        <ColumnInfo Id="Taux" VisibleIndex="5" />
+        <ColumnInfo Id="Montant" VisibleIndex="6" />
+        <ColumnInfo Id="MontantEmployeur" VisibleIndex="7" />
+        <ColumnInfo Id="Sens" VisibleIndex="1" />
+        <ColumnInfo Id="SectionImpressionKey" Visible="False" />
+      </Columns>
+    </ListView>
+    <ListView Id="BulletinLigne_ListView">
+      <Columns Id="Columns">
+        <ColumnInfo Id="IsSystem" Visible="False" />
+        <ColumnInfo Id="OrdreLigne" Visible="False" />
+        <ColumnInfo Id="RoleCanonique" Visible="False" />
+      </Columns>
+    </ListView>
+    <ListView Id="ParametresPaie_ListView" IsRootView="True" />
+    <ListView Id="Salarie_Generation_ListView" IsRootView="True">
+      <Filters Id="Filters">
+        <Filter Id="Actifs" IsDefault="True" />
+      </Filters>
+    </ListView>
+    <ListView Id="Salarie_ListView" IsRoot="True" EnableMasterDetailMode="False" />
+    <DetailView Id="SimulationSursalaire_DetailView">
+      <Items Id="Items">
+        <PropertyEditor Id="NetCible" IsRequired="True" />
+      </Items>
+      <Layout Id="Layout">
+        <LayoutGroup Id="Main">
+          <LayoutGroup Id="HeaderGroup" Caption="Salarié" ShowCaption="True" Direction="Horizontal">
+            <LayoutItem Id="Salarie" ViewItem="Salarie" RelativeSize="70" />
+            <LayoutItem Id="PartsFiscales" ViewItem="PartsFiscales" RelativeSize="30" />
+          </LayoutGroup>
+          <LayoutGroup Id="PeriodeGroup" Caption="Période de simulation" ShowCaption="True" Direction="Horizontal">
+            <LayoutItem Id="Mois" ViewItem="Mois" RelativeSize="50" />
+            <LayoutItem Id="Annee" ViewItem="Annee" RelativeSize="50" />
+          </LayoutGroup>
+          <LayoutGroup Id="InputGroup" Caption="Objectif" ShowCaption="True">
+            <LayoutItem Id="NetCible" ViewItem="NetCible" />
+          </LayoutGroup>
+          <LayoutGroup Id="ElementsFixesGroup" Caption="Éléments de paie actuels (fixes)" ShowCaption="True" Direction="Vertical">
+            <LayoutItem Id="SalaireBase" ViewItem="SalaireBase" />
+            <LayoutItem Id="IndemniteLogement" ViewItem="IndemniteLogement" />
+            <LayoutItem Id="PrimeAnciennete" ViewItem="PrimeAnciennete" />
+            <LayoutItem Id="PrimeTransport" ViewItem="PrimeTransport" />
+            <LayoutItem Id="AvantageVehicule" ViewItem="AvantageVehicule" />
+          </LayoutGroup>
+          <LayoutGroup Id="ResultatsGroup" Caption="✓ Résultats du calcul" ShowCaption="True" Direction="Vertical">
+            <LayoutItem Id="SursalaireCalcule" ViewItem="SursalaireCalcule" />
+            <LayoutItem Id="NetObtenu" ViewItem="NetObtenu" />
+            <LayoutItem Id="EcartNet" ViewItem="EcartNet" />
+          </LayoutGroup>
+          <LayoutGroup Id="DetailsGroup" Caption="Détails du calcul" ShowCaption="True" Direction="Vertical">
+            <LayoutItem Id="BrutFiscalEstime" ViewItem="BrutFiscalEstime" />
+            <LayoutItem Id="BrutSocialEstime" ViewItem="BrutSocialEstime" />
+            <LayoutItem Id="TotalCotisationsSociales" ViewItem="TotalCotisationsSociales" />
+            <LayoutItem Id="TRIMFEstime" ViewItem="TRIMFEstime" />
+            <LayoutItem Id="IRPPEstime" ViewItem="IRPPEstime" />
+          </LayoutGroup>
+          <LayoutGroup Id="LogGroup" Caption="Trace du calcul" ShowCaption="True">
+            <LayoutItem Id="DetailCalcul" ViewItem="DetailCalcul" />
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+    <DetailView Id="ProfilSimulationNP_DetailView">
+      <Items Id="Items">
+        <PropertyEditor Id="Echelon" LookupProperty="Libelle" />
+      </Items>
+    </DetailView>
+  </Views>
+</Application>

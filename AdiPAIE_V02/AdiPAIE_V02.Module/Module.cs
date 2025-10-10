@@ -13,17 +13,14 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using DevExpress.Xpo;
+using AdiPAIE_V02.Module.BusinessObjects; // ← AJOUTER
 
 namespace AdiPAIE_V02.Module
 {
-    // For more typical usage scenarios, be sure to check out https://docs.devexpress.com/eXpressAppFramework/DevExpress.ExpressApp.ModuleBase.
     public sealed class AdiPAIE_V02Module : ModuleBase
     {
         public AdiPAIE_V02Module()
         {
-            //
-            // AdiPAIE_V02Module
-            //
             AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.ModelDifference));
             AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.ModelDifferenceAspect));
             AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.BaseObject));
@@ -35,6 +32,13 @@ namespace AdiPAIE_V02.Module
             AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.Event));
             AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.Resource));
             AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.HCategory));
+
+            // ========== AJOUTER ICI ==========
+            //AdditionalExportedTypes.Add(typeof(SimulationSursalaire));
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.SimulationSursalaire));
+
+            // =================================
+
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.SystemModule.SystemModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Security.SecurityModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.AuditTrail.AuditTrailModule));
@@ -56,16 +60,36 @@ namespace AdiPAIE_V02.Module
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Validation.ValidationModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.ViewVariantsModule.ViewVariantsModule));
         }
+
         public override IEnumerable<ModuleUpdater> GetModuleUpdaters(IObjectSpace objectSpace, Version versionFromDB)
         {
             ModuleUpdater updater = new DatabaseUpdate.Updater(objectSpace, versionFromDB);
             return new ModuleUpdater[] { updater };
         }
+
         public override void Setup(XafApplication application)
         {
             base.Setup(application);
-            // Manage various aspects of the application UI and behavior at the module level.
+
+            // ========== AJOUTER ==========
+            application.SetupComplete += Application_SetupComplete;
+            // =============================
         }
+
+        // ========== AJOUTER CETTE MÉTHODE ==========
+        private void Application_SetupComplete(object sender, EventArgs e)
+        {
+            var app = (XafApplication)sender;
+
+            // Enregistrer le NonPersistentObjectSpaceProvider si pas déjà présent
+            if (!app.ObjectSpaceProviders.OfType<NonPersistentObjectSpaceProvider>().Any())
+            {
+                var npos = new NonPersistentObjectSpaceProvider(app.TypesInfo, null);
+                app.ObjectSpaceProviders.Add(npos);
+            }
+        }
+        // ===========================================
+
         public override void CustomizeTypesInfo(ITypesInfo typesInfo)
         {
             base.CustomizeTypesInfo(typesInfo);

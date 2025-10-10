@@ -577,6 +577,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         private Fonction fonction;
 
 
+        [Size(2048)]   // clé chiffrée (Base64)
+        public string PayslipKeyEnc { get; set; }
+
+        public DateTime? PayslipKeyAssignedOn { get; set; }
+
+        [Association("Salarie-Simulations")]
+        public XPCollection<SimulationSursalaire> Simulations
+    => GetCollection<SimulationSursalaire>(nameof(Simulations));
+
     }
 
     public enum Civilite { Monsieur=0, Madame=1, Mademoiselle =2}

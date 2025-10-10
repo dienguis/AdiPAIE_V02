@@ -189,6 +189,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public decimal NetAPayer_CumulAnnee { get => netCumul; set => SetPropertyValue(nameof(NetAPayer_CumulAnnee), ref netCumul, value); }
         private decimal netCumul;
 
+        //Archivage PDF
+        private FileData _pdfArchive;
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        public FileData PdfArchive
+        {
+            get => _pdfArchive;
+            set => SetPropertyValue(nameof(PdfArchive), ref _pdfArchive, value);
+        }
 
         public override void AfterConstruction()
         {

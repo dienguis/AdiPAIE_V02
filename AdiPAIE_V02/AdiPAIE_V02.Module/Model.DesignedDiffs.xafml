@@ -168,11 +168,9 @@
                 <LayoutItem Id="TotalRetenuesFiscales" Removed="True" />
               </LayoutGroup>
               <LayoutGroup Id="Bulletin_col2" RelativeSize="30.54082714740191" Caption="Bulletin_col2">
-                <LayoutItem Id="NetAPayer" RelativeSize="100" Index="0" />
                 <LayoutItem Id="IPRES_RG_Mois" Index="1" RelativeSize="74.11764705882354" Removed="True" />
                 <LayoutItem Id="IPRES_RG_CumulAnnee" Index="2" RelativeSize="55.294117647058826" Removed="True" />
                 <LayoutItem Id="TRIMF_Mois" Index="2" RelativeSize="44.11764705882353" Removed="True" />
-                <LayoutItem Id="BrutSocial" RelativeSize="14.814814814814815" Index="3" Removed="True" />
                 <LayoutItem Id="IPRES_RC_Mois" Index="3" RelativeSize="36.470588235294116" Removed="True" />
                 <LayoutItem Id="IR_Mois" Index="3" RelativeSize="28.94736842105263" Removed="True" />
                 <LayoutItem Id="DisplayName" RelativeSize="23.91304347826087" Index="4" Removed="True" />
@@ -526,84 +524,86 @@
         <PropertyEditor Id="LastName" Caption="Nom" />
         <PropertyEditor Id="MiddleName" Removed="True" />
         <PropertyEditor Id="NombrePartsFiscales" EditMask="n1" />
+        <PropertyEditor Id="PayslipKeyAssignedOn" Caption="Clé attribuée le " AllowEdit="False" />
         <PropertyEditor Id="SalaireBase" DisplayFormat="N0" EditMask="N0" />
       </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100">
           <TabbedGroup Id="Item1" CaptionLocation="Top" Index="0" RelativeSize="100" IsNewNode="True">
             <LayoutGroup Id="SimpleEditors" ShowCaption="True" Caption="Identification" Index="0" RelativeSize="100" IsNewNode="True">
-              <LayoutGroup Id="Person" ShowCaption="False" Direction="Horizontal" Index="0" RelativeSize="31.428571428571427" IsNewNode="True">
-                <LayoutGroup Id="Person_col1" ShowCaption="False" Index="0" RelativeSize="66.11398963730569" IsNewNode="True">
+              <LayoutGroup Id="Person" ShowCaption="False" Direction="Horizontal" Index="0" RelativeSize="20.224719101123597" IsNewNode="True">
+                <LayoutGroup Id="Person_col1" ShowCaption="False" Index="0" RelativeSize="66.08391608391608" IsNewNode="True">
                   <LayoutGroup Id="Auto884d5e58-9fe3-4b3a-9b8d-33a13eeea155" ShowCaption="False" Caption="Auto884d5e58-9fe3-4b3a-9b8d-33a13eeea155(6)" Direction="Vertical" Index="0" RelativeSize="24.242424242424242" IsNewNode="True">
                     <LayoutItem Id="Matricule" ViewItem="Matricule" Index="0" RelativeSize="100" IsNewNode="True" />
                   </LayoutGroup>
                   <LayoutGroup Id="Autobc3160c1-b2cf-449b-8964-fb4198a3f649" ShowCaption="False" Caption="Autobc3160c1-b2cf-449b-8964-fb4198a3f649(8)" Direction="Horizontal" Index="1" RelativeSize="22.727272727272727" IsNewNode="True">
-                    <LayoutItem Id="Civilite" ViewItem="Civilite" Index="0" RelativeSize="50.470219435736674" IsNewNode="True" />
-                    <LayoutItem Id="Sexe" ViewItem="Sexe" Index="1" RelativeSize="49.529780564263326" IsNewNode="True" />
+                    <LayoutItem Id="Civilite" ViewItem="Civilite" Index="0" RelativeSize="50.58201058201058" IsNewNode="True" />
+                    <LayoutItem Id="Sexe" ViewItem="Sexe" Index="1" RelativeSize="49.41798941798942" IsNewNode="True" />
                   </LayoutGroup>
                   <LayoutItem Id="FirstName" ViewItem="FirstName" Index="2" RelativeSize="16.161616161616163" IsNewNode="True" />
                   <LayoutItem Id="LastName" ViewItem="LastName" Index="3" RelativeSize="16.161616161616163" IsNewNode="True" />
                   <LayoutItem Id="FullName" ViewItem="FullName" Index="4" RelativeSize="20.707070707070706" IsNewNode="True" />
                 </LayoutGroup>
-                <LayoutGroup Id="Person_col2" ShowCaption="False" Direction="Horizontal" Index="1" RelativeSize="33.8860103626943" IsNewNode="True">
-                  <LayoutGroup Id="Autoe31683e7-34ca-4caa-bcf3-41c2112c4e6d" ShowCaption="False" Caption="Autoe31683e7-34ca-4caa-bcf3-41c2112c4e6d(13)" Index="0" RelativeSize="70.03058103975535" IsNewNode="True">
+                <LayoutGroup Id="Person_col2" ShowCaption="False" Direction="Horizontal" Index="1" RelativeSize="33.91608391608391" IsNewNode="True">
+                  <LayoutGroup Id="Autoe31683e7-34ca-4caa-bcf3-41c2112c4e6d" ShowCaption="False" Caption="Autoe31683e7-34ca-4caa-bcf3-41c2112c4e6d(13)" Index="0" RelativeSize="70.30927835051547" IsNewNode="True">
                     <LayoutItem Id="Birthday" ViewItem="Birthday" Index="0" RelativeSize="22.22222222222222" IsNewNode="True" />
                     <LayoutItem Id="Email" ViewItem="Email" Index="1" RelativeSize="16.161616161616163" IsNewNode="True" />
                     <LayoutItem Id="Nationalite" ViewItem="Nationalite" Index="2" RelativeSize="16.161616161616163" IsNewNode="True" />
                     <LayoutItem Id="IsActif" ViewItem="IsActif" Index="3" RelativeSize="45.45454545454545" IsNewNode="True" />
                   </LayoutGroup>
-                  <LayoutItem Id="Photo" ShowCaption="False" ViewItem="Photo" Index="1" RelativeSize="29.96941896024465" IsNewNode="True" />
+                  <LayoutItem Id="Photo" ShowCaption="False" ViewItem="Photo" Index="1" RelativeSize="29.690721649484537" IsNewNode="True" />
                 </LayoutGroup>
               </LayoutGroup>
-              <LayoutItem Id="Item3" Index="1" RelativeSize="1.746031746031746" IsNewNode="True" />
-              <LayoutGroup Id="Item4" ShowCaption="False" CaptionLocation="Top" Direction="Horizontal" Index="2" RelativeSize="7.142857142857143" IsNewNode="True">
-                <LayoutItem Id="Address1" ViewItem="Address1" Index="0" RelativeSize="46.52849740932643" IsNewNode="True" />
-                <LayoutItem Id="Address2" ViewItem="Address2" Index="1" RelativeSize="53.47150259067357" IsNewNode="True" />
+              <LayoutItem Id="Item3" Index="1" RelativeSize="1.940755873340143" IsNewNode="True" />
+              <LayoutGroup Id="Item4" ShowCaption="False" CaptionLocation="Top" Direction="Horizontal" Index="2" RelativeSize="4.59652706843718" IsNewNode="True">
+                <LayoutItem Id="Address1" ViewItem="Address1" Index="0" RelativeSize="46.36363636363637" IsNewNode="True" />
+                <LayoutItem Id="Address2" ViewItem="Address2" Index="1" RelativeSize="53.63636363636363" IsNewNode="True" />
               </LayoutGroup>
-              <LayoutGroup Id="Auto1c84c9ae-25b5-40ea-a5d9-e38077412ab3" ShowCaption="False" Caption="Auto1c84c9ae-25b5-40ea-a5d9-e38077412ab3(23)" Direction="Horizontal" Index="3" RelativeSize="36.03174603174603" IsNewNode="True">
-                <LayoutItem Id="Notes" ViewItem="Notes" CaptionLocation="Top" Index="0" RelativeSize="46.52849740932643" IsNewNode="True" />
-                <LayoutItem Id="PhoneNumbers" ShowCaption="True" ViewItem="PhoneNumbers" CaptionLocation="Top" Index="1" RelativeSize="53.47150259067357" IsNewNode="True" />
+              <LayoutGroup Id="Auto1c84c9ae-25b5-40ea-a5d9-e38077412ab3" ShowCaption="False" Caption="Auto1c84c9ae-25b5-40ea-a5d9-e38077412ab3(23)" Direction="Horizontal" Index="3" RelativeSize="44.024514811031665" IsNewNode="True">
+                <LayoutItem Id="Notes" ViewItem="Notes" CaptionLocation="Top" Index="0" RelativeSize="46.36363636363637" IsNewNode="True" />
+                <LayoutItem Id="PhoneNumbers" ShowCaption="True" ViewItem="PhoneNumbers" CaptionLocation="Top" Index="1" RelativeSize="53.63636363636363" IsNewNode="True" />
               </LayoutGroup>
-              <LayoutItem Id="CreePar" ViewItem="CreePar" Index="4" RelativeSize="5.079365079365079" IsNewNode="True" />
-              <LayoutItem Id="DateCreation" ViewItem="DateCreation" Index="5" RelativeSize="5.079365079365079" IsNewNode="True" />
-              <LayoutItem Id="Item2" Index="6" RelativeSize="13.492063492063492" IsNewNode="True" />
+              <LayoutItem Id="CreePar" ViewItem="CreePar" Index="4" RelativeSize="3.268641470888662" IsNewNode="True" />
+              <LayoutItem Id="DateCreation" ViewItem="DateCreation" Index="5" RelativeSize="3.268641470888662" IsNewNode="True" />
+              <LayoutItem Id="PayslipKeyAssignedOn" ViewItem="PayslipKeyAssignedOn" Index="6" RelativeSize="3.268641470888662" IsNewNode="True" />
+              <LayoutItem Id="Item2" Index="7" RelativeSize="19.40755873340143" IsNewNode="True" />
             </LayoutGroup>
             <LayoutGroup Id="Item5" ShowCaption="True" CaptionLocation="Top" Direction="Vertical" Index="1" Caption="Contrat" RelativeSize="100" IsNewNode="True">
               <LayoutGroup Id="Item7" ShowCaption="False" CaptionLocation="Top" Index="0" RelativeSize="100" IsNewNode="True">
-                <LayoutGroup Id="Autob971cfd7-2d98-47dc-a3a7-41fb1d28a56b" ShowCaption="False" Caption="Autob971cfd7-2d98-47dc-a3a7-41fb1d28a56b(29)" Direction="Horizontal" Index="0" RelativeSize="7.619047619047619" IsNewNode="True">
-                  <LayoutItem Id="DateEmbauche" ViewItem="DateEmbauche" Index="0" RelativeSize="49.32642487046632" IsNewNode="True" />
-                  <LayoutItem Id="Anciennete" ViewItem="Anciennete" Index="1" RelativeSize="50.67357512953368" IsNewNode="True" />
+                <LayoutGroup Id="Autob971cfd7-2d98-47dc-a3a7-41fb1d28a56b" ShowCaption="False" Caption="Autob971cfd7-2d98-47dc-a3a7-41fb1d28a56b(29)" Direction="Horizontal" Index="0" RelativeSize="4.902962206332993" IsNewNode="True">
+                  <LayoutItem Id="DateEmbauche" ViewItem="DateEmbauche" Index="0" RelativeSize="49.16083916083916" IsNewNode="True" />
+                  <LayoutItem Id="Anciennete" ViewItem="Anciennete" Index="1" RelativeSize="50.83916083916084" IsNewNode="True" />
                 </LayoutGroup>
-                <LayoutGroup Id="Auto946be153-fbbc-43ce-b238-2e0d86b0952b" ShowCaption="False" Caption="Auto946be153-fbbc-43ce-b238-2e0d86b0952b(32)" Direction="Horizontal" Index="1" RelativeSize="7.142857142857143" IsNewNode="True">
-                  <LayoutItem Id="DateSortie" ViewItem="DateSortie" Index="0" RelativeSize="49.32642487046632" IsNewNode="True" />
-                  <LayoutItem Id="Item12" Index="1" RelativeSize="50.67357512953368" IsNewNode="True" />
+                <LayoutGroup Id="Auto946be153-fbbc-43ce-b238-2e0d86b0952b" ShowCaption="False" Caption="Auto946be153-fbbc-43ce-b238-2e0d86b0952b(32)" Direction="Horizontal" Index="1" RelativeSize="4.59652706843718" IsNewNode="True">
+                  <LayoutItem Id="DateSortie" ViewItem="DateSortie" Index="0" RelativeSize="49.16083916083916" IsNewNode="True" />
+                  <LayoutItem Id="Item12" Index="1" RelativeSize="50.83916083916084" IsNewNode="True" />
                 </LayoutGroup>
-                <LayoutItem Id="Fonction" ViewItem="Fonction" Index="2" RelativeSize="5.079365079365079" IsNewNode="True" />
-                <LayoutItem Id="Item6" Index="3" RelativeSize="80.15873015873017" IsNewNode="True" />
+                <LayoutItem Id="Fonction" ViewItem="Fonction" Index="2" RelativeSize="3.268641470888662" IsNewNode="True" />
+                <LayoutItem Id="Item6" Index="3" RelativeSize="87.23186925434116" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
             <LayoutGroup Id="Item8" ShowCaption="True" CaptionLocation="Top" Direction="Vertical" Index="2" Caption="Famille / Conjoints" RelativeSize="100" IsNewNode="True">
               <LayoutGroup Id="Item9" ShowCaption="False" CaptionLocation="Top" Index="0" RelativeSize="100" Caption="Item9" Direction="Vertical" IsNewNode="True">
-                <LayoutGroup Id="Auto25a3f413-ab3d-4225-aacd-28485c797765" ShowCaption="False" Caption="Auto25a3f413-ab3d-4225-aacd-28485c797765(36)" Direction="Horizontal" Index="0" RelativeSize="13.492063492063492" IsNewNode="True">
-                  <LayoutGroup Id="Auto6b58b92a-1c54-4694-8720-2373a791f21d" ShowCaption="False" Caption="Auto6b58b92a-1c54-4694-8720-2373a791f21d(37)" Index="0" RelativeSize="49.32642487046632" IsNewNode="True">
-                    <LayoutItem Id="Satut         l" ViewItem="SatutMarital" Index="0" RelativeSize="51.76470588235294" IsNewNode="True" />
+                <LayoutGroup Id="Auto25a3f413-ab3d-4225-aacd-28485c797765" ShowCaption="False" Caption="Auto25a3f413-ab3d-4225-aacd-28485c797765(36)" Direction="Horizontal" Index="0" RelativeSize="8.682328907048008" IsNewNode="True">
+                  <LayoutGroup Id="Auto6b58b92a-1c54-4694-8720-2373a791f21d" ShowCaption="False" Caption="Auto6b58b92a-1c54-4694-8720-2373a791f21d(37)" Index="0" RelativeSize="49.16083916083916" IsNewNode="True">
+                    <LayoutItem Id="SatutMarital" ViewItem="SatutMarital" Index="0" RelativeSize="51.76470588235294" IsNewNode="True" />
                     <LayoutItem Id="NbConjointsActuels" ViewItem="NbConjointsActuels" Index="1" RelativeSize="48.23529411764706" IsNewNode="True" />
                   </LayoutGroup>
-                  <LayoutGroup Id="Auto7899b599-ba12-4938-b4cf-982f99320f37" ShowCaption="False" Caption="Auto7899b599-ba12-4938-b4cf-982f99320f37(40)" Index="1" RelativeSize="50.67357512953368" IsNewNode="True">
+                  <LayoutGroup Id="Auto7899b599-ba12-4938-b4cf-982f99320f37" ShowCaption="False" Caption="Auto7899b599-ba12-4938-b4cf-982f99320f37(40)" Index="1" RelativeSize="50.83916083916084" IsNewNode="True">
                     <LayoutItem Id="NombreEnfant" ViewItem="NombreEnfant" Index="0" RelativeSize="51.76470588235294" IsNewNode="True" />
                     <LayoutItem Id="NbConjointsInactifsACharge" ViewItem="NbConjointsInactifsACharge" Index="1" RelativeSize="48.23529411764706" IsNewNode="True" />
                   </LayoutGroup>
                 </LayoutGroup>
-                <LayoutGroup Id="Item10" ShowCaption="False" CaptionLocation="Top" Index="1" RelativeSize="86.5079365079365" Caption="Item10" IsNewNode="True">
-                  <LayoutItem Id="Item11" Index="0" RelativeSize="7.889908256880734" IsNewNode="True" />
-                  <LayoutItem Id="Conjoints" ViewItem="Conjoints" Index="1" RelativeSize="92.11009174311927" IsNewNode="True" />
+                <LayoutGroup Id="Item10" ShowCaption="False" CaptionLocation="Top" Index="1" RelativeSize="91.317671092952" Caption="Item10" IsNewNode="True">
+                  <LayoutItem Id="Item11" Index="0" RelativeSize="7.941834451901566" IsNewNode="True" />
+                  <LayoutItem Id="Conjoints" ViewItem="Conjoints" Index="1" RelativeSize="92.05816554809843" IsNewNode="True" />
                 </LayoutGroup>
               </LayoutGroup>
             </LayoutGroup>
             <LayoutGroup Id="Item13" ShowCaption="True" CaptionLocation="Top" Direction="Vertical" Index="3" Caption="Rémunération" RelativeSize="100" IsNewNode="True">
               <LayoutGroup Id="Item14" ShowCaption="False" CaptionLocation="Top" Index="0" RelativeSize="100" Caption="Item14" Direction="Vertical" IsNewNode="True">
-                <LayoutGroup Id="Autobd51bd69-956b-4562-866e-1e312542d90f" ShowCaption="False" Caption="Autobd51bd69-956b-4562-866e-1e312542d90f(50)" Direction="Horizontal" Index="0" RelativeSize="33.80952380952381" IsNewNode="True">
-                  <LayoutGroup Id="Autob0f7bace-0137-49cf-825f-e5e34258ec12" ShowCaption="False" Caption="Autob0f7bace-0137-49cf-825f-e5e34258ec12(51)" Index="0" RelativeSize="49.32642487046632" IsNewNode="True">
+                <LayoutGroup Id="Autobd51bd69-956b-4562-866e-1e312542d90f" ShowCaption="False" Caption="Autobd51bd69-956b-4562-866e-1e312542d90f(50)" Direction="Horizontal" Index="0" RelativeSize="21.756894790602654" IsNewNode="True">
+                  <LayoutGroup Id="Autob0f7bace-0137-49cf-825f-e5e34258ec12" ShowCaption="False" Caption="Autob0f7bace-0137-49cf-825f-e5e34258ec12(51)" Index="0" RelativeSize="49.16083916083916" IsNewNode="True">
                     <LayoutItem Id="Echelon" ViewItem="Echelon" Index="0" RelativeSize="20.657276995305164" IsNewNode="True" />
                     <LayoutItem Id="IndemniteLogement" ViewItem="IndemniteLogement" Index="1" RelativeSize="15.023474178403756" IsNewNode="True" />
                     <LayoutItem Id="Categories" ViewItem="Categories" Index="2" RelativeSize="15.023474178403756" IsNewNode="True" />
@@ -611,37 +611,37 @@
                     <LayoutItem Id="PossedeVehicule" ViewItem="PossedeVehicule" Index="4" RelativeSize="15.023474178403756" IsNewNode="True" />
                     <LayoutItem Id="PrimeTransport" ViewItem="PrimeTransport" Index="5" RelativeSize="19.248826291079812" IsNewNode="True" />
                   </LayoutGroup>
-                  <LayoutGroup Id="Auto4a2c463f-8f6e-40b3-bf78-ccc3fceec432" ShowCaption="False" Caption="Auto4a2c463f-8f6e-40b3-bf78-ccc3fceec432(55)" Index="1" RelativeSize="50.67357512953368" IsNewNode="True">
+                  <LayoutGroup Id="Auto4a2c463f-8f6e-40b3-bf78-ccc3fceec432" ShowCaption="False" Caption="Auto4a2c463f-8f6e-40b3-bf78-ccc3fceec432(55)" Index="1" RelativeSize="50.83916083916084" IsNewNode="True">
                     <LayoutItem Id="SalaireBase" ViewItem="SalaireBase" Index="0" RelativeSize="20.657276995305164" IsNewNode="True" />
                     <LayoutItem Id="Base30Jour" ViewItem="Base30Jour" Index="1" RelativeSize="15.023474178403756" IsNewNode="True" />
                     <LayoutItem Id="Convention" ViewItem="Convention" Index="2" RelativeSize="15.023474178403756" IsNewNode="True" />
                     <LayoutItem Id="AvantageVehicule" ViewItem="AvantageVehicule" Index="3" RelativeSize="49.29577464788732" IsNewNode="True" />
                   </LayoutGroup>
                 </LayoutGroup>
-                <LayoutItem Id="Item15" Index="1" RelativeSize="66.19047619047619" IsNewNode="True" />
+                <LayoutItem Id="Item15" Index="1" RelativeSize="78.24310520939734" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
             <LayoutGroup Id="Item17" ShowCaption="True" CaptionLocation="Top" Direction="Vertical" Index="4" Caption="Pièces &amp; Identifiants" RelativeSize="100" IsNewNode="True">
-              <LayoutGroup Id="Item18" ShowCaption="False" CaptionLocation="Top" Index="0" RelativeSize="13.492063492063492" Caption="Item18" Direction="Horizontal" IsNewNode="True">
-                <LayoutGroup Id="Autoeb28a10d-23ca-4b2b-94b1-32cadc42a985" ShowCaption="False" Caption="Autoeb28a10d-23ca-4b2b-94b1-32cadc42a985(64)" Index="0" RelativeSize="49.637305699481864" IsNewNode="True">
+              <LayoutGroup Id="Item18" ShowCaption="False" CaptionLocation="Top" Index="0" RelativeSize="8.682328907048008" Caption="Item18" Direction="Horizontal" IsNewNode="True">
+                <LayoutGroup Id="Autoeb28a10d-23ca-4b2b-94b1-32cadc42a985" ShowCaption="False" Caption="Autoeb28a10d-23ca-4b2b-94b1-32cadc42a985(64)" Index="0" RelativeSize="49.58041958041958" IsNewNode="True">
                   <LayoutItem Id="NumeroCNI" ViewItem="NumeroCNI" Index="0" RelativeSize="51.76470588235294" IsNewNode="True" />
                   <LayoutItem Id="CaisseSecurite" ViewItem="CaisseSecurite" Index="1" RelativeSize="48.23529411764706" IsNewNode="True" />
                 </LayoutGroup>
-                <LayoutGroup Id="Autob4267d9a-bf76-47b4-98f9-7f750de86d54" ShowCaption="False" Caption="Autob4267d9a-bf76-47b4-98f9-7f750de86d54(67)" Index="1" RelativeSize="50.362694300518136" IsNewNode="True">
+                <LayoutGroup Id="Autob4267d9a-bf76-47b4-98f9-7f750de86d54" ShowCaption="False" Caption="Autob4267d9a-bf76-47b4-98f9-7f750de86d54(67)" Index="1" RelativeSize="50.41958041958042" IsNewNode="True">
                   <LayoutItem Id="NumeroIPRESS" ViewItem="NumeroIPRESS" Index="0" RelativeSize="51.76470588235294" IsNewNode="True" />
                   <LayoutItem Id="Item19" Index="1" RelativeSize="48.23529411764706" IsNewNode="True" />
                 </LayoutGroup>
               </LayoutGroup>
-              <LayoutItem Id="Item16" Index="1" RelativeSize="86.5079365079365" IsNewNode="True" />
+              <LayoutItem Id="Item16" Index="1" RelativeSize="91.317671092952" IsNewNode="True" />
             </LayoutGroup>
             <LayoutGroup Id="Item20" ShowCaption="True" CaptionLocation="Top" Direction="Horizontal" Index="5" Caption="Calculs fiscaux" RelativeSize="100" IsNewNode="True">
-              <LayoutItem Id="NombrePartsFiscales" ViewItem="NombrePartsFiscales" Index="0" RelativeSize="49.4300518134715" IsNewNode="True" />
-              <LayoutItem Id="TrimfParts" ViewItem="TrimfParts" Index="1" RelativeSize="50.5699481865285" IsNewNode="True" />
+              <LayoutItem Id="NombrePartsFiscales" ViewItem="NombrePartsFiscales" Index="0" RelativeSize="49.37062937062937" IsNewNode="True" />
+              <LayoutItem Id="TrimfParts" ViewItem="TrimfParts" Index="1" RelativeSize="50.62937062937063" IsNewNode="True" />
             </LayoutGroup>
             <LayoutGroup Id="Item21" ShowCaption="True" CaptionLocation="Top" Direction="Vertical" Index="6" Caption="Modèle &amp; Bulletins" RelativeSize="100" IsNewNode="True">
-              <LayoutItem Id="Modeles" ViewItem="Modeles" Index="0" RelativeSize="42.698412698412696" ShowCaption="True" CaptionLocation="Top" IsNewNode="True" />
-              <LayoutItem Id="Item22" Index="1" RelativeSize="5.238095238095238" IsNewNode="True" />
-              <LayoutItem Id="Bulletins" ViewItem="Bulletins" Index="2" RelativeSize="52.06349206349206" ShowCaption="True" CaptionLocation="Top" IsNewNode="True" />
+              <LayoutItem Id="Modeles" ViewItem="Modeles" Index="0" RelativeSize="42.59448416751788" ShowCaption="True" CaptionLocation="Top" IsNewNode="True" />
+              <LayoutItem Id="Item22" Index="1" RelativeSize="5.107252298263535" IsNewNode="True" />
+              <LayoutItem Id="Bulletins" ViewItem="Bulletins" Index="2" RelativeSize="52.29826353421859" ShowCaption="True" CaptionLocation="Top" IsNewNode="True" />
             </LayoutGroup>
           </TabbedGroup>
           <LayoutGroup Id="SimpleEditors" Removed="True" />
@@ -695,6 +695,95 @@
       <Filters IsNewNode="True">
         <Filter Id="Actifs" Criteria="IsActif = True" IsNewNode="True" />
       </Filters>
+    </ListView>
+    <DetailView Id="SimulationSursalaire_DetailView">
+      <Items>
+        <PropertyEditor Id="BrutFiscalEstime" PropertyName="BrutFiscalEstime" Caption="Brut fiscal estimé" />
+        <PropertyEditor Id="BrutSocialEstime" PropertyName="BrutSocialEstime" Caption="Brut social estimé" />
+        <PropertyEditor Id="DetailCalcul" PropertyName="DetailCalcul" Caption="Journal du calcul itératif" RowCount="10" />
+        <PropertyEditor Id="EcartNet" PropertyName="EcartNet" Caption="Écart avec l'objectif (FCFA)" />
+        <PropertyEditor Id="IRPPEstime" PropertyName="IRPPEstime" Caption="IRPP estimé" />
+        <PropertyEditor Id="NetCible" PropertyName="NetCible" Caption="Net à payer souhaité (FCFA)" IsRequired="True" />
+        <PropertyEditor Id="NetObtenu" PropertyName="NetObtenu" Caption="Net obtenu (FCFA)" />
+        <PropertyEditor Id="SursalaireCalcule" PropertyName="SursalaireCalcule" Caption="➤ SURSALAIRE À APPLIQUER (FCFA)" />
+        <PropertyEditor Id="TotalCotisationsSociales" PropertyName="TotalCotisationsSociales" Caption="Cotisations sociales (IPRES + CSS)" />
+        <PropertyEditor Id="TRIMFEstime" PropertyName="TRIMFEstime" Caption="TRIMF estimé" />
+      </Items>
+      <Layout>
+        <LayoutGroup Id="Main" RelativeSize="100">
+          <LayoutGroup Id="SimpleEditors" RelativeSize="55.05952380952381">
+            <LayoutGroup Id="SimulationSursalaire" RelativeSize="62.972972972972975">
+              <LayoutGroup Id="SimulationSursalaire_col1" RelativeSize="66.43356643356644">
+                <LayoutItem Id="Annee" RelativeSize="15.714285714285714" Index="0" Removed="True" />
+                <LayoutGroup Id="Auto18090203-47ac-4d0e-94c6-e21db4d0fe5e" ShowCaption="False" Caption="" Direction="Horizontal" Index="0" RelativeSize="23.91304347826087" IsNewNode="True">
+                  <LayoutItem Id="Annee" ViewItem="Annee" Index="0" RelativeSize="50.526315789473685" IsNewNode="True" />
+                  <LayoutItem Id="Mois" ViewItem="Mois" Index="1" RelativeSize="49.473684210526315" IsNewNode="True" />
+                </LayoutGroup>
+                <LayoutGroup Id="Autoff9b91d8-22e4-4f9f-b11e-94794de7686a" ShowCaption="False" Caption="" Index="1" RelativeSize="76.08695652173913" IsNewNode="True">
+                  <LayoutItem Id="Salarie" ViewItem="Salarie" Index="0" RelativeSize="22.857142857142858" IsNewNode="True" />
+                  <LayoutItem Id="NetCible" ViewItem="NetCible" Index="1" RelativeSize="22.857142857142858" IsNewNode="True" />
+                  <LayoutGroup Id="Auto163afa99-2c3f-4080-a850-9c1b140e0790" ShowCaption="False" Caption="" Direction="Horizontal" Index="2" RelativeSize="22.857142857142858" IsNewNode="True">
+                    <LayoutItem Id="SalaireBase" ViewItem="SalaireBase" Index="0" RelativeSize="50.526315789473685" IsNewNode="True" />
+                    <LayoutItem Id="IndemniteLogement" ViewItem="IndemniteLogement" Index="1" RelativeSize="49.473684210526315" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Auto9f5149a7-fa96-4a5a-a8e6-7606c4f6b85c" ShowCaption="False" Caption="" Direction="Horizontal" Index="3" RelativeSize="31.428571428571427" IsNewNode="True">
+                    <LayoutItem Id="PrimeAnciennete" ViewItem="PrimeAnciennete" Index="0" RelativeSize="50.526315789473685" IsNewNode="True" />
+                    <LayoutItem Id="PrimeTransport" ViewItem="PrimeTransport" Index="1" RelativeSize="49.473684210526315" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+                <LayoutItem Id="CreatedBy" RelativeSize="9.30232558139535" Index="1" Removed="True" />
+                <LayoutItem Id="Salarie" RelativeSize="12.903225806451612" Index="1" Removed="True" />
+                <LayoutItem Id="Mois" RelativeSize="11.428571428571429" Index="2" Removed="True" />
+                <LayoutItem Id="NetCible" RelativeSize="12.903225806451612" Index="2" Removed="True" />
+                <LayoutItem Id="PrimeAnciennete" RelativeSize="14.814814814814815" Index="2" Removed="True" />
+                <LayoutItem Id="PrimeTransport" RelativeSize="20.37037037037037" Index="3" Removed="True" />
+                <LayoutItem Id="SalaireBase" RelativeSize="12.903225806451612" Index="3" Removed="True" />
+                <LayoutItem Id="IndemniteLogement" RelativeSize="12.903225806451612" Index="4" Removed="True" />
+                <LayoutItem Id="CreatedOn" RelativeSize="9.30232558139535" Removed="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="SimulationSursalaire_col2" RelativeSize="33.56643356643357">
+                <LayoutItem Id="PartsFiscales" RelativeSize="14.102564102564102" Index="0" Removed="True" />
+                <LayoutItem Id="SursalaireCalcule" RelativeSize="23.91304347826087" Index="0" />
+                <LayoutItem Id="BrutFiscalEstime" RelativeSize="11.428571428571429" Index="1" Removed="True" />
+                <LayoutItem Id="BrutSocialEstime" RelativeSize="11.428571428571429" Index="1" Removed="True" />
+                <LayoutItem Id="IRPPEstime" RelativeSize="11.428571428571429" Index="1" Removed="True" />
+                <LayoutItem Id="NetObtenu" RelativeSize="17.391304347826086" Index="1" />
+                <LayoutItem Id="TotalCotisationsSociales" RelativeSize="11.428571428571429" Index="1" Removed="True" />
+                <LayoutItem Id="EcartNet" RelativeSize="58.69565217391305" Index="2" />
+                <LayoutItem Id="TRIMFEstime" RelativeSize="11.428571428571429" Index="2" Removed="True" />
+                <LayoutItem Id="AvantageVehicule" RelativeSize="12.790697674418604" Removed="True" />
+              </LayoutGroup>
+            </LayoutGroup>
+            <LayoutGroup Id="Auto1e747a35-4e1e-40db-9a03-6dd03b2ff99f" ShowCaption="False" Caption="" Direction="Horizontal" Index="1" RelativeSize="25.945945945945947" IsNewNode="True">
+              <LayoutGroup Id="Auto87171a35-e1b3-4312-a37e-940d4946311f" ShowCaption="False" Caption="" Index="0" RelativeSize="42.68707482993197" IsNewNode="True">
+                <LayoutItem Id="PartsFiscales" ViewItem="PartsFiscales" Index="0" RelativeSize="33.333333333333336" IsNewNode="True" />
+                <LayoutItem Id="BrutFiscalEstime" ViewItem="BrutFiscalEstime" Index="1" RelativeSize="33.333333333333336" IsNewNode="True" />
+                <LayoutItem Id="TRIMFEstime" ViewItem="TRIMFEstime" Index="2" RelativeSize="33.333333333333336" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="Auto7170b7ce-f1bb-4eef-9aa6-ae84c1870142" ShowCaption="False" Caption="" Index="1" RelativeSize="57.31292517006803" IsNewNode="True">
+                <LayoutItem Id="AvantageVehicule" ViewItem="AvantageVehicule" Index="0" RelativeSize="33.333333333333336" IsNewNode="True" />
+                <LayoutItem Id="BrutSocialEstime" ViewItem="BrutSocialEstime" Index="1" RelativeSize="33.333333333333336" IsNewNode="True" />
+                <LayoutItem Id="IRPPEstime" ViewItem="IRPPEstime" Index="2" RelativeSize="33.333333333333336" IsNewNode="True" />
+              </LayoutGroup>
+            </LayoutGroup>
+            <LayoutItem Id="TotalCotisationsSociales" ViewItem="TotalCotisationsSociales" Index="2" RelativeSize="11.08108108108108" IsNewNode="True" />
+          </LayoutGroup>
+          <LayoutGroup Id="SizeableEditors" Caption="Journal du calcul itératif" RelativeSize="44.94047619047619">
+            <LayoutItem Id="DetailCalcul" Removed="True" />
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+    <ListView Id="SimulationSursalaire_ListView" IsGroupPanelVisible="True">
+      <Columns>
+        <ColumnInfo Id="Salarie" PropertyName="Salarie" Width="200" />
+        <ColumnInfo Id="Annee" PropertyName="Annee" Width="60" />
+        <ColumnInfo Id="Mois" PropertyName="Mois" Width="60" />
+        <ColumnInfo Id="NetCible" PropertyName="NetCible" Width="120" />
+        <ColumnInfo Id="SursalaireCalcule" PropertyName="SursalaireCalcule" Width="120" />
+        <ColumnInfo Id="NetObtenu" PropertyName="NetObtenu" Width="120" />
+        <ColumnInfo Id="EcartNet" PropertyName="EcartNet" Width="100" />
+      </Columns>
     </ListView>
   </Views>
 </Application>
