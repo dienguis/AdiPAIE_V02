@@ -217,26 +217,39 @@
     </ListView>
     <ListView Id="Bulletin_ListView">
       <Columns>
+        <ColumnInfo Id="BrutFiscal_CumulAnnee" Index="-1" />
+        <ColumnInfo Id="BrutSocial_CumulAnnee" Index="-1" />
         <ColumnInfo Id="BulletinModeleSource" Index="-1" />
         <ColumnInfo Id="DateDebut" Index="-1" Width="141" />
         <ColumnInfo Id="DateFin" Index="-1" />
         <ColumnInfo Id="HeaderCompact" Index="-1" />
+        <ColumnInfo Id="IPRES_RC_CumulAnnee" Index="-1" />
+        <ColumnInfo Id="IPRES_RC_Mois" Index="-1" />
+        <ColumnInfo Id="IPRES_RG_CumulAnnee" Index="-1" />
+        <ColumnInfo Id="IPRES_RG_Mois" Index="-1" />
+        <ColumnInfo Id="IR_CumulAnnee" Index="-1" />
+        <ColumnInfo Id="IR_Mois" Index="-1" />
         <ColumnInfo Id="MoisEnd" Index="-1" />
         <ColumnInfo Id="MoisStart" Width="145" Index="-1" />
+        <ColumnInfo Id="NetAPayer_CumulAnnee" Index="-1" />
+        <ColumnInfo Id="PdfArchive" Index="-1" />
         <ColumnInfo Id="Periode" Index="-1" Width="140" />
         <ColumnInfo Id="PeriodeKey" Index="-1" Width="119" />
         <ColumnInfo Id="Salarie" Index="-1" Width="165" />
+        <ColumnInfo Id="TotalAutresRetenues" Index="-1" Width="119" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="TotalCotisationsSociales" Index="-1" Width="110" DisplayFormat="{0:N0}" EditMask="N0" SortIndex="0" SortOrder="Ascending" />
+        <ColumnInfo Id="TotalGains" Index="-1" Width="135" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="TotalRetenuesFiscales" Index="-1" Width="144" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="TRIMF_CumulAnnee" Index="-1" />
+        <ColumnInfo Id="DisplayName" SortIndex="-1" SortOrder="None" />
         <ColumnInfo Id="Annee" Index="1" />
         <ColumnInfo Id="Mois" Index="2" Width="104" />
         <ColumnInfo Id="Statut" Index="3" />
         <ColumnInfo Id="NetAPayer" Index="4" Width="134" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="TotalGains" Index="5" Width="135" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="TotalRetenuesFiscales" Index="6" Width="144" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="TotalCotisationsSociales" Index="7" Width="110" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="TotalAutresRetenues" Index="8" Width="119" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="BrutFiscal" Index="9" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="BrutSocial" Index="10" Width="106" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="NombrePartsFiscales" Index="11" />
+        <ColumnInfo Id="BrutFiscal" Index="5" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="BrutSocial" Index="6" Width="106" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="NombrePartsFiscales" Index="7" />
+        <ColumnInfo Id="TRIMF_Mois" Index="8" />
       </Columns>
     </ListView>
     <DetailView Id="BulletinLigne_DetailView">
@@ -751,7 +764,6 @@
                 <LayoutItem Id="TotalCotisationsSociales" RelativeSize="11.428571428571429" Index="1" Removed="True" />
                 <LayoutItem Id="EcartNet" RelativeSize="58.69565217391305" Index="2" />
                 <LayoutItem Id="TRIMFEstime" RelativeSize="11.428571428571429" Index="2" Removed="True" />
-                <LayoutItem Id="AvantageVehicule" RelativeSize="12.790697674418604" Removed="True" />
               </LayoutGroup>
             </LayoutGroup>
             <LayoutGroup Id="Auto1e747a35-4e1e-40db-9a03-6dd03b2ff99f" ShowCaption="False" Caption="" Direction="Horizontal" Index="1" RelativeSize="25.945945945945947" IsNewNode="True">
