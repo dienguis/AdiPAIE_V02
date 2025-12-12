@@ -42,7 +42,8 @@ namespace AdiPAIE_V02.Module.Controllers
             if (b == null) return;
 
             // S'assure que les totaux sont à jour
-            b.RecalculerTotaux();
+           // b.RecalculerTotaux();
+            b.RecalculerSurGrilleExistante();
 
             var ecr = ExportComptableService.GenererEcriturePourBulletin(os, b);
 

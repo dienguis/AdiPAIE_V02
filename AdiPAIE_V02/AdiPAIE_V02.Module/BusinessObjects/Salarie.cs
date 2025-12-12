@@ -1,4 +1,5 @@
 ﻿using AdiPAIE_V02.Module.Domain;
+using AdiPAIE_V02.Module.Services;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ConditionalAppearance;
@@ -585,6 +586,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Association("Salarie-Simulations")]
         public XPCollection<SimulationSursalaire> Simulations
     => GetCollection<SimulationSursalaire>(nameof(Simulations));
+
+
 
     }
 

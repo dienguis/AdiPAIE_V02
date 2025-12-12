@@ -213,8 +213,32 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             if (NombrePartsFiscales <= 0m) NombrePartsFiscales = 1m;
         }
 
-        [Action(Caption = "Recalculer totaux", ImageName = "Action_Refresh", AutoCommit = true)]
-        public void RecalculerTotaux()
+        [Action(
+    Caption = "Recalculer depuis les données salarié",
+    ImageName = "Reset",
+    AutoCommit = true,
+    ToolTip = "Recharge les montants standards (salaire, logement, ancienneté, etc.) depuis le salarié, puis recalcule toutes les cotisations et totaux."
+)]
+        public void ActionRecalculerDepuisParametrageSalarie()
+        {
+            RecalculerDepuisParametrage(); // appelle RecalculerCotisationsEtTotaux(true)
+        }
+
+
+        [Action(
+    Caption = "Recalculer (grille actuelle)",
+    ImageName = "Action_Refresh",
+    AutoCommit = true
+)]
+        public void ActionRecalculerGrille()
+        {
+            RecalculerSurGrilleExistante();
+        }
+
+
+        //   [Action(Caption = "Recalculer totaux", ImageName = "Action_Refresh", AutoCommit = true)]
+        //public void RecalculerTotaux()
+        private void RecalculerTotauxDepuisLignes()
         {
             decimal gains = 0m, retFisc = 0m, cotSoc = 0m, autresRet = 0m;
             decimal bf = 0m, bs = 0m;
@@ -260,10 +284,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             {
                 if (Salarie == null) throw new UserFriendlyException("Salarié obligatoire.");
                 if (Annee <= 0 || Mois <= 0) throw new UserFriendlyException("Période invalide.");
-                RecalculerCotisationsEtTotaux();
-                UpdateSyntheseFiscale(); 
+               // RecalculerCotisationsEtTotaux();
+                RecalculerSurGrilleExistante();
+                //UpdateSyntheseFiscale(); 
             }
         }
+
+
 
         public void RemplacerLignesIssuesDuModele(bool onlyIncludeDefault = false)
         {
@@ -272,7 +299,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             Session.FlushChanges();
 
             CopierDepuisModele(null, overwriteExistingLines: false, onlyIncludeDefault: onlyIncludeDefault);
-            RecalculerTotaux();
+           // RecalculerTotaux();
+            RecalculerSurGrilleExistante();
         }
 
         BulletinModele bulletinModeleSource;
@@ -408,18 +436,26 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             }
 
             // 5) Recalcule les totaux
-            RecalculerTotaux();
+           // RecalculerTotaux();
+            RecalculerSurGrilleExistante();
         }
 
         // ========================= MOTEUR =========================
         bool _recalcLock;
 
-        public void RecalculerCotisationsEtTotaux()
+        public void RecalculerCotisationsEtTotaux(bool depuisParametrage)
         {
-            if (_recalcLock) return; _recalcLock = true;
+            if (_recalcLock) return;
+            _recalcLock = true;
             try
             {
-                RecalculerGainsStandards();
+             
+                // Ici : on ne touche aux gains standards QUE si on veut repartir du paramétrage
+                if (depuisParametrage)
+                {
+                    RecalculerGainsStandards();  // ou CopierDepuisModele, etc. suivant ton implémentation
+                }
+
                 var bf = CalculerBrutFiscal();
                 var bs = CalculerBrutSocial();
 
@@ -432,11 +468,27 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 // Prêts (une seule routine)
                 CalculerRetenuePrets();
 
-                RecalculerTotaux();
+                //RecalculerTotaux();
+                RecalculerTotauxDepuisLignes();
                 UpdateSyntheseFiscale();
             }
-            finally { _recalcLock = false; }
+            finally
+    {
+                _recalcLock = false;
+            }
         }
+
+        // Version par défaut = grille actuelle
+        public void RecalculerCotisationsEtTotaux()
+            => RecalculerCotisationsEtTotaux(false);
+
+        // Helpers lisibles
+        public void RecalculerDepuisParametrage()
+            => RecalculerCotisationsEtTotaux(true);
+
+        public void RecalculerSurGrilleExistante()
+            => RecalculerCotisationsEtTotaux(false);
+
 
         private void RecalculerGainsStandards()
         {
@@ -626,7 +678,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // CFCE : part employeur uniquement, base = Brut Fiscal (non tronquée)
-        private void CalculerCFCE(decimal brutFiscal)
+        private void CalculerCFCE(decimal brutSocial)
         {
             // Trouve la rubrique CFCE soit par canonique, soit par code
             var rub = new XPQuery<Rubrique>(Session)

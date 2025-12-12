@@ -28,7 +28,7 @@ namespace AdiPAIE_V02.Module.Services
             foreach (var b in bulletins)
             {
                 // Option : s'assurer que les totaux sont à jour
-                b.RecalculerTotaux();
+                b.RecalculerSurGrilleExistante();
 
                 // Génère l'écriture pour ce bulletin
                 var ecr = ExportComptableService.GenererEcriturePourBulletin(os, b);

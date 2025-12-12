@@ -28,7 +28,7 @@ namespace AdiPAIE_V02.Module.Services
             // ✨ centralise la copie + renseigne BulletinModeleSource
             bulletin.CopierDepuisModele(null, overwriteExistingLines, onlyIncludeDefault);
 
-            bulletin.RecalculerTotaux();
+            bulletin.RecalculerSurGrilleExistante();
             return bulletin;
         }
     }
