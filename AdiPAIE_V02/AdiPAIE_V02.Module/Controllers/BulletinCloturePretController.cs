@@ -172,7 +172,7 @@ namespace AdiPAIE_V02.Module.Controllers
             b.RecalculerSurGrilleExistante();
 
             // Statut
-            b.Statut = BulletinStatut.Valide; // ou Cloture si tu as ce statut
+            b.Statut = BulletinStatut.Cloture; // ou Cloture si tu as ce statut
 
             os.CommitChanges();
 

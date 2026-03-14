@@ -162,7 +162,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 b.CopierDepuisModele(null, overwriteExistingLines: false, onlyIncludeDefault: true);
 
                 if (prm.RecalculerApresCreation)
-                    b.RecalculerCotisationsEtTotaux();
+                b.RecalculerDepuisParametrage();
 
                 osBull.CommitChanges();
 

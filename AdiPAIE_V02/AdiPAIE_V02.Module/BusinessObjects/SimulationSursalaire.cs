@@ -142,6 +142,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [ModelDefault("DisplayFormat", "N0")]
         [ModelDefault("AllowEdit", "False")]
         [XafDisplayName("➤ SURSALAIRE CALCULÉ")]
+        [Appearance("Highlight_SursalaireCalcule", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
         public decimal SursalaireCalcule
         {
             get => _sursalaireCalcule;
@@ -196,7 +197,6 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         private decimal _netObtenu;
         [ModelDefault("DisplayFormat", "N0")]
         [ModelDefault("AllowEdit", "False")]
-        [Appearance("Highlight_NetObtenu", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
         public decimal NetObtenu
         {
             get => _netObtenu;

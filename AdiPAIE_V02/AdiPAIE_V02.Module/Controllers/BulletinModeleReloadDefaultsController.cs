@@ -39,7 +39,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             Rubrique rLOGT = FindRubrique(RubriqueCanonique.IndemniteLogement, "LOGT");
             Rubrique rSUR = FindRubrique(RubriqueCanonique.Sursalaire, "SURSAL");
             Rubrique rTRSP = FindRubrique(RubriqueCanonique.PrimeTransport, "TRANS");
-            Rubrique rAVNV = FindRubrique(RubriqueCanonique.AvantageNatureVehicule, "AV_NAT_VEH");
+          //  Rubrique rAVNV = FindRubrique(RubriqueCanonique.AvantageNatureVehicule, "AV_NAT_VEH");
 
     
         int touched = 0;
@@ -98,17 +98,17 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             }
 
             // 6) Avantage en nature véhicule — montant fixe (fallback 20 000 si null)
-            if (rAVNV != null)
-            {
-                var defVeh = m.Salarie?.AvantageVehicule ?? 20000m;
-                Upsert(m, rAVNV,
-                    baseDefaut: 0m,
-                    tauxDefaut: null,
-                    montantDefaut: defVeh,
-                    inclure: defVeh > 0m,
-                    reference: "[AUTO] Avantage véhicule");
-                touched++;
-            }
+            //if (rAVNV != null)
+            //{
+            //    var defVeh = m.Salarie?.AvantageVehicule ?? 20000m;
+            //    Upsert(m, rAVNV,
+            //        baseDefaut: 0m,
+            //        tauxDefaut: null,
+            //        montantDefaut: defVeh,
+            //        inclure: defVeh > 0m,
+            //        reference: "[AUTO] Avantage véhicule");
+            //    touched++;
+            //}
 
             os.CommitChanges();
             Application.ShowViewStrategy.ShowMessage(

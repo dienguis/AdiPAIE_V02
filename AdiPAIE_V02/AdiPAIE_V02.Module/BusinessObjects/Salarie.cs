@@ -105,7 +105,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Size(20)]
         [RuleRequiredField]
         // [Indexed(Unique = true, Name = "IX_Salarie_Matricule")]
-        [RuleUniqueValue(DefaultContexts.Save, CustomMessageTemplate = "Cet matricul est déjà utilisé par un autre salarié.")]
+        [RuleUniqueValue(DefaultContexts.Save, CustomMessageTemplate = "Cet matricule est déjà utilisé par un autre salarié.")]
         public string Matricule { get => matricule; set => SetPropertyValue(nameof(Matricule), ref matricule, value); }
 
         [XafDisplayName("Civilité")]
@@ -498,7 +498,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             Upsert(PaieConsts.Rubriques.SURSAL, 20, true);  // Sursalaire
             Upsert(PaieConsts.Rubriques.LOGT, 60, true);  // (si tu utilises LOGT)
             Upsert(PaieConsts.Rubriques.TRANS, 83, true);  // Prime de transport  
-            Upsert(PaieConsts.Rubriques.AV_NAT_VEH, 180, true);  // Avantage véhicule
+          //  Upsert(PaieConsts.Rubriques.AV_NAT_VEH, 180, true);  // Avantage véhicule
         }
 
         private static decimal ResolveAvantageVehiculeDefaut(Session session)
@@ -587,6 +587,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public XPCollection<SimulationSursalaire> Simulations
     => GetCollection<SimulationSursalaire>(nameof(Simulations));
 
+
+
+        [Association("Salarie-DossiersRH"), Aggregated]
+        public XPCollection<DossierSalarie> DossiersRH
+            => GetCollection<DossierSalarie>(nameof(DossiersRH));
 
 
     }

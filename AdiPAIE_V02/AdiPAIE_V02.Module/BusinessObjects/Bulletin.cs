@@ -1,6 +1,9 @@
-﻿using DevExpress.Data.Filtering;
+﻿using AdiPAIE_V02.Module.Domain;
+using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Editors;
 using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
@@ -11,9 +14,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using DevExpress.ExpressApp.Editors;
-using AdiPAIE_V02.Module.Domain;
-
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
@@ -22,6 +22,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     [DefaultClassOptions]
     [DefaultProperty(nameof(DisplayName))]
     [ImageName("BO_Person")]
+    [Appearance(
+    "Bulletin_ReadOnly_When_Closed",
+    AppearanceItemType = "ViewItem",
+    TargetItems = "*",
+    Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Cloture#",
+    Enabled = false,
+    Context = "DetailView"
+)]
     public class Bulletin : BaseObject
     {
         public Bulletin(Session session) : base(session) { }
@@ -169,23 +177,27 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [XafDisplayName("Cumul IPRES RC (YTD)")]
+        [ModelDefault("AllowEdit", "False")]
         public decimal IPRES_RC_CumulAnnee { get => ipresRcCumul; set => SetPropertyValue(nameof(IPRES_RC_CumulAnnee), ref ipresRcCumul, value); }
         private decimal ipresRcCumul;
 
         // --- Cumuls YTD (mois inclus) ---
         [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [XafDisplayName("Cumul Brut Fiscal (YTD)")]
+        [ModelDefault("AllowEdit", "False")]
         public decimal BrutFiscal_CumulAnnee { get => bfCumul; set => SetPropertyValue(nameof(BrutFiscal_CumulAnnee), ref bfCumul, value); }
         private decimal bfCumul;
 
         [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [XafDisplayName("Cumul Brut Social (YTD)")]
+        [ModelDefault("AllowEdit", "False")]
         public decimal BrutSocial_CumulAnnee { get => bsCumul; set => SetPropertyValue(nameof(BrutSocial_CumulAnnee), ref bsCumul, value); }
         private decimal bsCumul;
 
         // --- Cumul Net à payer (YTD) ---
         [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [XafDisplayName("Cumul Net à payer (YTD)")]
+        [ModelDefault("AllowEdit", "False")]
         public decimal NetAPayer_CumulAnnee { get => netCumul; set => SetPropertyValue(nameof(NetAPayer_CumulAnnee), ref netCumul, value); }
         private decimal netCumul;
 
@@ -525,22 +537,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             // On NE crée rien par défaut : on regarde s'il existe déjà une ligne
             var ancLine = FindLine(RubriqueCanonique.PrimeAnciennete);
 
-            //if (ancLine != null)
-            //{
-            //    if (anc >= 2 && anc <= 25)
-            //    {
-            //        ancLine.Base = Salarie?.SalaireBase ?? 0m;
-            //        ancLine.Taux = Math.Floor((decimal)anc);
-            //        ancLine.Montant = Math.Round(N(ancLine.Base) * N(ancLine.Taux) / 100m, 0, MidpointRounding.AwayFromZero);
-            //    }
-            //    else {ancLine.Base = 0m; ancLine.Taux = 0m; ancLine.Montant = 0m;
-            //          // valeur non éligible → SUPPRIMER la ligne si elle existe
-            //        ancLine.Delete();
-            //    }
-            //    ancLine.IsSystem = false;
-            //    if (!ancLine.OrdreCalcul.HasValue) ancLine.OrdreCalcul = ancLine.Rubrique?.OrdreAffichage;
-            //}
-
+ 
             if (anc >= 2 && anc <= 25)
             {
                 // créer si manquante

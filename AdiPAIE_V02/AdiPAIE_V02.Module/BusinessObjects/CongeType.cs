@@ -5,11 +5,13 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
+using System.ComponentModel;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions, XafDisplayName("Type de congé")]
+    [DefaultProperty(nameof(Libelle))]
     public class CongeType : BaseObject
     {
         public CongeType(Session s) : base(s) { }

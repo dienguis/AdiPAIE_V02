@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DevExpress.ExpressApp.DC;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -124,6 +125,35 @@ namespace AdiPAIE_V02.Module.Domain
         public enum CongeImpactSalaire { Paye = 0, Impaye = 1, Partiel = 2 } // Partiel = maintien % (ex: maladie)
         public enum PretNature { Pret = 0, AvanceSalaire = 1 }
 
+        public enum DossierCategorieDocument
+        {
+            [XafDisplayName("Administratif")]
+            Administratif = 0,
+
+            [XafDisplayName("Contractuel")]
+            Contractuel = 1,
+
+            [XafDisplayName("Médical")]
+            Medical = 2,
+
+            [XafDisplayName("Disciplinaire")]
+            Disciplinaire = 3,
+
+            [XafDisplayName("Formation / Diplômes")]
+            Formation = 4,
+
+            [XafDisplayName("Évaluation")]
+            Evaluation = 5,
+
+            [XafDisplayName("Paie")]
+            Paie = 6,
+
+            [XafDisplayName("Congé / Absence")]
+            CongeAbsence = 7,
+
+            [XafDisplayName("Autre")]
+            Autre = 8
+        }
 
     }
 }

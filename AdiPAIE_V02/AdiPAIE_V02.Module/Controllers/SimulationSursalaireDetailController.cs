@@ -25,8 +25,8 @@ namespace AdiPAIE_V02.Module.Controllers
             // Action 1 : Calculer
             _calculer = new SimpleAction(this, "SimCalcSursalaire", PredefinedCategory.Edit)
             {
-                Caption = "Calculer",
-                ImageName = "BO_Calculator",
+                Caption = "Calculer le Sursalaire",
+                ImageName = "Business_Calculator",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ToolTip = "Calcule le sursalaire pour atteindre le net cible"
             };

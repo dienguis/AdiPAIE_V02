@@ -14,15 +14,19 @@
     <Items>
       <Item Id="Paie" Caption="Paie" Index="0" ImageName="RecurringAppointment" IsNewNode="True">
         <Items IsNewNode="True">
-          <Item Id="Paie_Bulletins" Caption="Bulletins" ViewId="Bulletin_ListView" IsNewNode="True" />
-          <Item Id="Paie_GenererBulletins" Caption="Générer les bulletins" ViewId="Salarie_Generation_ListView" ImageName="Action_Printing_Preview" IsNewNode="True" />
-          <Item Id="Paie_SalariesPaie" Caption="Salariés (Paie)" ViewId="Salarie_Paie_ListView" ImageName="Employees" IsNewNode="True" />
+          <Item Id="Paie_Bulletins" Caption="Bulletins" ViewId="Bulletin_ListView" Index="1" IsNewNode="True" />
+          <Item Id="Paie_SalariesPaie" Caption="Salariés (Paie)" ViewId="Salarie_Paie_ListView" ImageName="Employees" Index="2" IsNewNode="True" />
+          <Item Id="PeriodePaie_ListView" ViewId="PeriodePaie_ListView" ObjectKey="" ImageName="SwitchTimeScalesTo" Index="3" IsNewNode="True" />
+          <Item Id="SimulationSursalaire_ListView" ViewId="SimulationSursalaire_ListView" ObjectKey="" ImageName="Business_Calculator" Index="4" IsNewNode="True" />
+          <Item Id="Paie_GenererBulletins" Caption="Générer les bulletins" ViewId="Salarie_Generation_ListView" ImageName="Action_Printing_Preview" Visible="False" IsNewNode="True" />
         </Items>
       </Item>
-      <Item Id="Traitement" Index="1" ImageName="Recurrence">
-        <Items>
+      <Item Id="Ressources humaines" Caption="Ressources humaines" Index="1" ImageName="BO_Dashboard" IsNewNode="True">
+        <Items IsNewNode="True">
+          <Item Id="Ref_Salaries" Caption="Salariés" ViewId="Salarie_ListView" ImageName="Employees" Index="0" IsNewNode="True" />
           <Item Id="CongeDemande_ListView" ViewId="CongeDemande_ListView" ObjectKey="" IsNewNode="True" />
-          <Item Id="JourFerie_ListView" ViewId="JourFerie_ListView" ObjectKey="" IsNewNode="True" />
+          <Item Id="DossierSalarie_ListView" ViewId="DossierSalarie_ListView" ObjectKey="" IsNewNode="True" />
+          <Item Id="Pret_ListView" ViewId="Pret_ListView" ObjectKey="" IsNewNode="True" />
           <Item Id="PretEcheance_ListView" ViewId="PretEcheance_ListView" ObjectKey="" IsNewNode="True" />
         </Items>
       </Item>
@@ -35,7 +39,6 @@
       </Item>
       <Item Id="Parametrage" Caption="Paramétrage" ImageName="ModelEditor_Settings" Index="2" IsNewNode="True">
         <Items IsNewNode="True">
-          <Item Id="Ref_Salaries" Caption="Salariés" ViewId="Salarie_ListView" ImageName="Employees" Index="0" IsNewNode="True" />
           <Item Id="CentreConstantesPaie_ListView" ViewId="CentreConstantesPaie_DetailView" ObjectKey="" IsNewNode="True" />
           <Item Id="Company_ListView" ViewId="Company_ListView" ImageName="BO_Organization_32x32" ObjectKey="" IsNewNode="True" />
           <Item Id="CongeType_ListView" ViewId="CongeType_ListView" ObjectKey="" IsNewNode="True" />
@@ -49,7 +52,6 @@
             </Items>
           </Item>
           <Item Id="DocumentTypeRef_ListView" ViewId="DocumentTypeRef_ListView" ObjectKey="" ImageName="Document Properties" IsNewNode="True" />
-          <Item Id="PeriodePaie_ListView" ViewId="PeriodePaie_ListView" ObjectKey="" ImageName="SwitchTimeScalesTo" IsNewNode="True" />
           <Item Id="PretType_ListView" ViewId="PretType_ListView" ObjectKey="" IsNewNode="True" />
           <Item Id="Ref_Categories" Caption="Catégories" ViewId="Categories_ListView" ImageName="BO_Category" IsNewNode="True" />
           <Item Id="Ref_Conventions" Caption="Conventions" ViewId="Convention_ListView" IsNewNode="True" />
@@ -64,12 +66,20 @@
           <Item Id="CongeDemande_ListView" Removed="True" />
           <Item Id="CongeType_ListView" Removed="True" />
           <Item Id="DocumentTypeRef_ListView" Removed="True" />
+          <Item Id="DossierSalarie_ListView" Removed="True" />
           <Item Id="IRReductionFamille_ListView" Removed="True" />
           <Item Id="JourFerie_ListView" Removed="True" />
           <Item Id="ParametresPaie_ListView" Removed="True" />
           <Item Id="PeriodePaie_ListView" Removed="True" />
           <Item Id="PretEcheance_ListView" Removed="True" />
           <Item Id="PretType_ListView" Removed="True" />
+          <Item Id="SimulationSursalaire_ListView" ImageName="Business_Calculator" Removed="True" />
+        </Items>
+      </Item>
+      <Item Id="Traitement" Index="10" ImageName="Recurrence">
+        <Items>
+          <Item Id="JourFerie_ListView" ViewId="JourFerie_ListView" ObjectKey="" IsNewNode="True" />
+          <Item Id="Pret_ListView" Removed="True" />
         </Items>
       </Item>
       <Item Id="Administration" Caption="Administration" IsNewNode="True">
@@ -709,7 +719,8 @@
         <Filter Id="Actifs" Criteria="IsActif = True" IsNewNode="True" />
       </Filters>
     </ListView>
-    <DetailView Id="SimulationSursalaire_DetailView">
+    <ListView Id="Salarie_Simulations_ListView" ImageName="Business_Calculator" />
+    <DetailView Id="SimulationSursalaire_DetailView" ImageName="Business_Calculator">
       <Items>
         <PropertyEditor Id="BrutFiscalEstime" PropertyName="BrutFiscalEstime" Caption="Brut fiscal estimé" />
         <PropertyEditor Id="BrutSocialEstime" PropertyName="BrutSocialEstime" Caption="Brut social estimé" />
@@ -797,5 +808,6 @@
         <ColumnInfo Id="EcartNet" PropertyName="EcartNet" Width="100" />
       </Columns>
     </ListView>
+    <ListView Id="SimulationSursalaire_LookupListView" ImageName="Business_Calculator" />
   </Views>
 </Application>
