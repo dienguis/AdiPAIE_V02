@@ -1,4 +1,5 @@
-﻿using AdiPAIE_V02.Module.Domain;
+﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
+using AdiPAIE_V02.Module.Domain;
 using AdiPAIE_V02.Module.Services;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
@@ -66,6 +67,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     TargetItems = nameof(AvantageVehicule),
     Criteria = nameof(PossedeVehicule) + " = False",
     Enabled = false)]
+
+    [RuleCriteria("Salarie_Manager_NotSelf",
+    DefaultContexts.Save,
+    "IsNull(Manager) OR Manager.Oid != Oid",
+    CustomMessageTemplate = "Un salarié ne peut pas être son propre responsable.")]
     public class Salarie : Person
     {
         public Salarie(Session session) : base(session) { }
@@ -186,7 +192,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         Echelons echelon;
         [ImmediatePostData]
         [Association("Echelons-Salaries")]
-        public Echelons Echelon
+          public Echelons Echelon
         {
             get => echelon;
             set => SetPropertyValue(nameof(Echelon), ref echelon, value);
@@ -592,6 +598,79 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Association("Salarie-DossiersRH"), Aggregated]
         public XPCollection<DossierSalarie> DossiersRH
             => GetCollection<DossierSalarie>(nameof(DossiersRH));
+
+        // 1. Entretiens annuels (évaluateur)
+        [Association("Salarie-Entretiens"), Aggregated]
+        [XafDisplayName("Entretiens annuels")]
+        public XPCollection<EntretienAnnuel> Entretiens => GetCollection<EntretienAnnuel>(nameof(Entretiens));
+
+        // 2. Entretiens où ce salarié est l'évaluateur (N+1)
+        [Association("Evaluateur-Entretiens")]
+        [XafDisplayName("Entretiens menés (évaluateur)")]
+        public XPCollection<EntretienAnnuel> EntretiensMenes => GetCollection<EntretienAnnuel>(nameof(EntretiensMenes));
+
+        // 3. Demandes d'attestation (espace salarié)
+        [Association("Salarie-DemandesAttestation"), Aggregated]
+        [XafDisplayName("Demandes d'attestation")]
+        public XPCollection<DemandeAttestation> DemandesAttestation => GetCollection<DemandeAttestation>(nameof(DemandesAttestation));
+
+        // 4. Notifications (portail self-service)
+        [Association("Salarie-Notifications"), Aggregated]
+        [XafDisplayName("Notifications")]
+        public XPCollection<NotificationSalarie> Notifications => GetCollection<NotificationSalarie>(nameof(Notifications));
+
+        // 5. Compteur pratique pour le badge "non lues"
+        [NonPersistent, XafDisplayName("Notifications non lues")]
+        public int NbNotificationsNonLues => Notifications.Count(n =>
+            n.Statut == AdiPAIE_V02.Module.Domain.DomainEnums.NotificationStatut.NonLue);
+
+
+        // ── Manager hiérarchique (N+1) ────────────────────────────────
+
+        /// <summary>
+        /// Responsable hiérarchique direct (N+1) du salarié.
+        /// Auto-référence : un Salarie pointe vers un autre Salarie.
+        /// Laissez vide si le salarié remonte directement au RH.
+        /// </summary>
+        [XafDisplayName("Responsable hiérarchique (N+1)")]
+           [DataSourceCriteria("IsActif = true")]
+        public Salarie Manager
+        {
+            get => manager;
+            set => SetPropertyValue(nameof(Manager), ref manager, value);
+        }
+        Salarie manager;
+
+        /// <summary>
+        /// Retourne la chaîne hiérarchique ascendante jusqu'à 2 niveaux.
+        /// Index 0 = N+1, Index 1 = N+2 (si Manager du Manager existe).
+        /// </summary>
+        public System.Collections.Generic.List<Salarie> GetManagerChain(int maxLevels = 2)
+        {
+            var chain = new System.Collections.Generic.List<Salarie>();
+            var current = this.Manager;
+            int level = 0;
+
+            while (current != null && level < maxLevels)
+            {
+                chain.Add(current);
+                current = current.Manager;
+                level++;
+            }
+            return chain;
+        }
+
+        /// <summary>
+        /// Retourne true si ce salarié est le manager (direct ou indirect) du salarié passé en paramètre.
+        /// Utilisé pour filtrer les demandes visibles par un responsable.
+        /// </summary>
+        public bool EstManagerDe(Salarie subordonne, int maxLevels = 2)
+        {
+            if (subordonne == null) return false;
+            var chain = subordonne.GetManagerChain(maxLevels);
+            return chain.Any(m => m.Oid == this.Oid);
+        }
+
 
 
     }

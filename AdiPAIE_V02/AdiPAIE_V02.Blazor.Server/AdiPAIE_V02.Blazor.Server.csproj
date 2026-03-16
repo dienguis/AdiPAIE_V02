@@ -30,6 +30,7 @@
     <PackageReference Include="DevExpress.ExpressApp.Scheduler.Blazor" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="25.1.*" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.4.1" />
     <PackageReference Include="Microsoft.Graph" Version="5.93.0" />
     
   </ItemGroup>

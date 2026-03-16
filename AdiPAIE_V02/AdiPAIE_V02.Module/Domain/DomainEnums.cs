@@ -155,5 +155,89 @@ namespace AdiPAIE_V02.Module.Domain
             Autre = 8
         }
 
+        // ===== Évaluation / Entretiens annuels =====
+
+        public enum EntretienStatut
+        {
+            Brouillon = 0,   // Créé par RH, non encore envoyé
+            PlanifieRH = 1,   // Date fixée, convocation envoyée
+            SaisieSalarie = 2,   // Formulaire auto-évaluation transmis au salarié
+            EnCours = 3,   // Entretien réalisé, saisie manager en cours
+            ValideManager = 4,   // Validé par le manager N+1
+            Cloture = 5    // Archivé - lecture seule
+        }
+        public enum NoteEvaluation
+        {
+            NonEvalue = 0,
+            Insuffisant = 1,
+            AProgresser = 2,
+            Satisfaisant = 3,
+            Bien = 4,
+            TresBien = 5
+        }
+
+        public enum ObjectifStatut
+        {
+            NonAtteint = 0,
+            PartiellemEntAtteint = 1,
+            Atteint = 2,
+            Depasse = 3
+        }
+
+        public enum CampagneStatut
+        {
+            Brouillon = 0,
+            Ouverte = 1,   // Entretiens en cours de création/envoi
+            EnCours = 2,   // Tous les entretiens lancés
+            Cloturee = 3    // Campagne archivée
+        }
+
+        public enum TypeCritere
+        {
+            Competence = 0,   // Savoir-faire technique
+            Comportement = 1,   // Savoir-être
+            ObjectifQuant = 2,   // Résultat mesurable
+            ObjectifQual = 3    // Résultat qualitatif
+        }
+
+        // ===== Espace salarié self-service =====
+
+        public enum AttestationNature
+        {
+            Travail = 0,   // Attestation de travail
+            Salaire = 1,   // Attestation de salaire (avec montants)
+            Conge = 2,   // Attestation de congé payé
+            Emploi = 3,   // Certificat d'emploi (fin de contrat)
+            Prise_En_Charge = 4    // Prise en charge assurance / logement
+        }
+
+        public enum DemandeStatut
+        {
+            // ── Niveaux hiérarchiques (avant RH) ──
+            EnAttenteN1 = 1,   // En attente de validation du manager N+1
+            EnAttenteN2 = 2,   // En attente de validation du manager N+2
+
+            // ── Circuit RH ────────────────────────
+            Soumise = 10,  // Validée par la hiérarchie (ou pas de hiérarchie) — visible RH
+            EnTraitement = 11,  // RH a pris en charge
+            Traitee = 20,  // Attestation générée et remise
+            Rejetee = 30   // Rejetée à n'importe quel niveau
+        }
+
+        public enum NotificationPriorite
+        {
+            Info = 0,
+            Important = 1,
+            Urgent = 2
+        }
+
+        public enum NotificationStatut
+        {
+            NonLue = 0,
+            Lue = 1,
+            Archivee = 2
+        }
+
+
     }
 }

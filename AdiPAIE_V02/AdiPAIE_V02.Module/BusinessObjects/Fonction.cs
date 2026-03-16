@@ -9,7 +9,8 @@ using System.ComponentModel;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions, XafDisplayName("Fonction")]
-    [DefaultProperty(nameof(Intitule))]
+    [DefaultProperty(nameof(DisplayName))]
+
     public class Fonction : BaseObject
     {
         public Fonction(Session session) : base(session) { }
@@ -34,6 +35,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(Intitule), ref intitule, value?.Trim());
         }
         string intitule;
+
+        [PersistentAlias("Concat(Code, ' - ', Intitule)")]
+        [VisibleInDetailView(false), VisibleInListView(false)]
+        [VisibleInLookupListView(true)]
+        public string DisplayName => Convert.ToString(EvaluateAlias(nameof(DisplayName)));
 
         [XafDisplayName("Actif")]
         public bool Actif

@@ -1,10 +1,12 @@
-﻿using System.ComponentModel;
-using System.Text;
-using DevExpress.ExpressApp;
+﻿using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Security;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using DevExpress.Xpo;
+using System.ComponentModel;
+using System.Text;
+using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
@@ -49,5 +51,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             result.User = this;
             return result;
         }
+
+
+        [XafDisplayName("Fiche salarié")]
+        public Salarie Salarie
+        {
+            get => salarie;
+            set => SetPropertyValue(nameof(Salarie), ref salarie, value);
+        }
+        Salarie salarie;
+
     }
 }

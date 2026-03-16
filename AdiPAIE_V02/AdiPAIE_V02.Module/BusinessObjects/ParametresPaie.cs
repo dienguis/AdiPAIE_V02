@@ -9,6 +9,7 @@ using DevExpress.Xpo;
 using System;
 using System.ComponentModel;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
+using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
@@ -557,8 +558,98 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
 
 
+        // ── Alertes Attestation ───────────────────────────────────────
+
+        /// <summary>
+        /// Délai en jours avant qu'une demande "Soumise" génère une alerte RH.
+        /// 0 = alertes désactivées.
+        /// </summary>
+        [Category("GRH - Alertes")]
+        [XafDisplayName("Délai alerte attestation (jours)")]
+        [ModelDefault("DisplayFormat", "N0")]
+        [RuleRange("ParametresPaie_DelaiAlerte_Range", DefaultContexts.Save, 0, 365,
+            CustomMessageTemplate = "Le délai doit être entre 0 et 365 jours.")]
+        public int DelaiAlertAttestationJours
+        {
+            get => delaiAlertAttestation;
+            set => SetPropertyValue(nameof(DelaiAlertAttestationJours), ref delaiAlertAttestation, value);
+        }
+        int delaiAlertAttestation = 2; // valeur par défaut : 2 jours
+
+        /// <summary>
+        /// Adresse email du ou des responsables RH qui reçoivent les alertes.
+        /// Plusieurs adresses séparées par un point-virgule.
+        /// Ex : rh@company.com;drh@company.com
+        /// </summary>
+        [Category("GRH - Alertes")]
+        [XafDisplayName("Email(s) RH pour alertes (séparés par ;)")]
+        [Size(500)]
+        public string EmailsRHAlertes
+        {
+            get => emailsRHAlertes;
+            set => SetPropertyValue(nameof(EmailsRHAlertes), ref emailsRHAlertes, value?.Trim());
+        }
+        string emailsRHAlertes;
+
+        /// <summary>
+        /// Heure de déclenchement du service d'alertes (0-23).
+        /// Par défaut : 8h du matin.
+        /// </summary>
+        [Category("GRH - Alertes")]
+        [XafDisplayName("Heure d'envoi des alertes (0-23)")]
+        [RuleRange("ParametresPaie_HeureAlerte_Range", DefaultContexts.Save, 0, 23)]
+        public int HeureEnvoiAlertes
+        {
+            get => heureEnvoiAlertes;
+            set => SetPropertyValue(nameof(HeureEnvoiAlertes), ref heureEnvoiAlertes, value);
+        }
+        int heureEnvoiAlertes = 8;
 
 
+        // ── Templates d'attestation ───────────────────────────────────
+
+        /// <summary>
+        /// Template Word (.docx) pour l'attestation de travail.
+        /// Le RH uploade ici le fichier Word avec les marqueurs {{...}}.
+        /// </summary>
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template attestation de travail (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [FileTypeFilter("Documents Word", "*.docx")]
+        public FileData TemplateAttestation
+        {
+            get => templateAttestation;
+            set => SetPropertyValue(nameof(TemplateAttestation), ref templateAttestation, value);
+        }
+        FileData templateAttestation;
+
+        /// <summary>
+        /// Template Word pour l'attestation de salaire.
+        /// </summary>
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template attestation de salaire (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [FileTypeFilter("Documents Word", "*.docx")]
+        public FileData TemplateAttestationSalaire
+        {
+            get => templateAttestationSalaire;
+            set => SetPropertyValue(nameof(TemplateAttestationSalaire), ref templateAttestationSalaire, value);
+        }
+        FileData templateAttestationSalaire;
+
+        /// <summary>
+        /// Template Word pour le certificat d'emploi (fin de contrat).
+        /// </summary>
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template certificat d'emploi (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [FileTypeFilter("Documents Word", "*.docx")]
+        public FileData TemplateCertificatEmploi
+        {
+            get => templateCertificatEmploi;
+            set => SetPropertyValue(nameof(TemplateCertificatEmploi), ref templateCertificatEmploi, value);
+        }
+        FileData templateCertificatEmploi;
 
     }
 }

@@ -21,12 +21,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     DefaultContexts.Save,
     "Code;Categories",
     SkipNullOrEmptyValues = false)]
-    [DefaultProperty("libelle")]
-    //[ImageName("BO_Contact")]
-    //[DefaultProperty("DisplayMemberNameForLookupEditorsOfThisType")]
-    //[DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.None)]
-    //[Persistent("DatabaseTableName")]
-    // Specify more UI options using a declarative approach (https://docs.devexpress.com/eXpressAppFramework/112701/business-model-design-orm/data-annotations-in-data-model).
+        [DefaultClassOptions, XafDisplayName("Echelons")]
+    [DefaultProperty(nameof(Libelle))]
+
     public class Echelons : BaseObject
     { // Inherit from a different class to provide a custom primary key, concurrency and deletion behavior, etc. (https://docs.devexpress.com/eXpressAppFramework/113146/business-model-design-orm/business-model-design-with-xpo/base-persistent-classes).
         // Use CodeRush to create XPO classes and properties with a few keystrokes.
@@ -58,6 +55,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [Size(100)]
         [RuleRequiredField]
+        [XafDisplayName("Intitulé")]
         public string Libelle
         {
             get => libelle;

@@ -1,4 +1,5 @@
-﻿using DevExpress.Data.Filtering;
+﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
+using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Model;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
@@ -160,5 +162,9 @@ public byte[] LogoImage { get; set; }
             }
         }
 
+
+        [Association("Company-Campagnes"), Aggregated]
+        [XafDisplayName("Campagnes d'évaluation")]
+        public XPCollection<CampagneEvaluation> CampagnesEvaluation => GetCollection<CampagneEvaluation>(nameof(CampagnesEvaluation));
     }
 }
