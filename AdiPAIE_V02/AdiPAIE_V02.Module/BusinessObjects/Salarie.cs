@@ -1,4 +1,4 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
+using AdiPAIE_V02.Module.BusinessObjects.RH;
 using AdiPAIE_V02.Module.Domain;
 using AdiPAIE_V02.Module.Services;
 using DevExpress.Data.Filtering;
@@ -21,57 +21,51 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 {
     //[DefaultClassOptions]
     [DefaultProperty(nameof(Person.FullName))]
-    // 🔒 Bloque l’enregistrement si un conjoint “en cours” existe et que l’état n’est pas “Marié”
     [RuleCriteria(
         "Salarie_MustBeMarried_IfAnyCurrentSpouse",
         DefaultContexts.Save,
         "Conjoints[IsNull(DateFinUnion)].Count() = 0 OR SatutMarital = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+SituationMaritale,Marie#",
         CustomMessageTemplate = "Impossible de quitter l'état 'Marié' tant qu'un conjoint est en cours."
     )]
-    // 🎛️ Grise le champ Situation Maritale si un conjoint “en cours” existe
     [Appearance(
         "Disable_SatutMarital_WhenCurrentSpouseExists",
         Criteria = "Conjoints[IsNull(DateFinUnion)].Count() > 0",
         Enabled = false,
         TargetItems = nameof(SatutMarital)
     )]
-    // 🎛️ Grise la collection Conjoints tant que l’état n’est pas “Marié”
     [Appearance(
         "Disable_Conjoints_When_NotMarried",
         Criteria = "SatutMarital <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+SituationMaritale,Marie#",
         Enabled = false,
         TargetItems = nameof(Conjoints)
     )]
-
-    // --- Validation : cohérence avec l’échelon choisi ---
     [RuleCriteria("Salarie_CatMustMatchEchelon",
         DefaultContexts.Save,
         "IsNull(Echelon) OR Categories = Echelon.Categories",
-        CustomMessageTemplate = "La catégorie du salarié doit correspondre à celle de l’échelon.")]
+        CustomMessageTemplate = "La catégorie du salarié doit correspondre à celle de l'échelon.")]
     [RuleCriteria("Salarie_ConvMustMatchEchelon",
         DefaultContexts.Save,
         "IsNull(Echelon) OR Convention = Echelon.Categories.Convention",
-        CustomMessageTemplate = "La convention du salarié doit correspondre à celle de l’échelon.")]
+        CustomMessageTemplate = "La convention du salarié doit correspondre à celle de l'échelon.")]
     [Appearance(
-    "DisablePrimeTransportWhenHasVehicle",
-    TargetItems = nameof(PrimeTransport),
-    Criteria    = nameof(PossedeVehicule) + " = True",
-    Enabled     = false)]
+        "DisablePrimeTransportWhenHasVehicle",
+        TargetItems = nameof(PrimeTransport),
+        Criteria = nameof(PossedeVehicule) + " = True",
+        Enabled = false)]
     [Appearance(
-    "DisablePrimeTransportWhenAvantageVehicule",
-    TargetItems = nameof(PrimeTransport),
-    Criteria = nameof(AvantageVehicule) + " > 0",
-    Enabled = false)]
+        "DisablePrimeTransportWhenAvantageVehicule",
+        TargetItems = nameof(PrimeTransport),
+        Criteria = nameof(AvantageVehicule) + " > 0",
+        Enabled = false)]
     [Appearance(
-    "DisableAvantageVehiculeWhenNoVehicle",
-    TargetItems = nameof(AvantageVehicule),
-    Criteria = nameof(PossedeVehicule) + " = False",
-    Enabled = false)]
-
+        "DisableAvantageVehiculeWhenNoVehicle",
+        TargetItems = nameof(AvantageVehicule),
+        Criteria = nameof(PossedeVehicule) + " = False",
+        Enabled = false)]
     [RuleCriteria("Salarie_Manager_NotSelf",
-    DefaultContexts.Save,
-    "IsNull(Manager) OR Manager.Oid != Oid",
-    CustomMessageTemplate = "Un salarié ne peut pas être son propre responsable.")]
+        DefaultContexts.Save,
+        "IsNull(Manager) OR Manager.Oid != Oid",
+        CustomMessageTemplate = "Un salarié ne peut pas être son propre responsable.")]
     public class Salarie : Person
     {
         public Salarie(Session session) : base(session) { }
@@ -87,14 +81,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         string creePar;
         DateTime dateCreation;
-
         int base30Jour;
         string numeroCNI;
         string numeroIPRESS;
         string caisseSecurite;
         decimal indemniteLogement;
         decimal salaireBase;
-
         Convention convention;
         Categories categories;
         bool isActif;
@@ -103,19 +95,16 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         int nombreEnfant;
         SituationMaritale satutMarital;
         string nationalite;
-
         Civilite civilite;
         string matricule;
 
-        // --- Identité ---
+        // ── Identité ──────────────────────────────────────────
         [Size(20)]
         [RuleRequiredField]
-        // [Indexed(Unique = true, Name = "IX_Salarie_Matricule")]
-        [RuleUniqueValue(DefaultContexts.Save, CustomMessageTemplate = "Cet matricule est déjà utilisé par un autre salarié.")]
+        [RuleUniqueValue(DefaultContexts.Save, CustomMessageTemplate = "Ce matricule est déjà utilisé par un autre salarié.")]
         public string Matricule { get => matricule; set => SetPropertyValue(nameof(Matricule), ref matricule, value); }
 
         [XafDisplayName("Civilité")]
-        [ModelDefault("PropertyEditorType", "DevExpress.ExpressApp.Editors.EnumPropertyEditor")]
         public Civilite Civilite
         {
             get => civilite;
@@ -123,7 +112,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             {
                 var old = civilite;
                 SetPropertyValue(nameof(Civilite), ref civilite, value);
-                if (old != value) SyncSexeFromCivilite(); // garder cohérence
+                if (old != value) SyncSexeFromCivilite();
             }
         }
 
@@ -145,33 +134,24 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [Action(Caption = "Activé", ImageName = "BO_Task", TargetObjectsCriteria = "IsActif=false", AutoCommit = true)]
         public void Active() => IsActif = true;
-
         [Action(Caption = "Désactivé", ImageName = "BO_Task", TargetObjectsCriteria = "IsActif=true", AutoCommit = true)]
         public void Desactive() => IsActif = false;
 
-        // --- Rémunération / rattachements ---
+        // ── Rémunération ──────────────────────────────────────
         [NonPersistent]
         public int Anciennete => AncienneteHelper.NombreAnnee(DateEmbauche, DateTime.Today);
 
-        [Appearance("Salaire_ReadOnly_When_EchelonSet",
-    Criteria = "Not IsNull(Echelon)", Enabled = false, TargetItems = nameof(SalaireBase))]
-        [Appearance("Indem_ReadOnly_When_EchelonSet",
-    Criteria = "Not IsNull(Echelon)", Enabled = false, TargetItems = nameof(IndemniteLogement))]
-
+        [Appearance("Salaire_ReadOnly_When_EchelonSet", Criteria = "Not IsNull(Echelon)", Enabled = false, TargetItems = nameof(SalaireBase))]
+        [Appearance("Indem_ReadOnly_When_EchelonSet", Criteria = "Not IsNull(Echelon)", Enabled = false, TargetItems = nameof(IndemniteLogement))]
         [DbType("decimal(18,0)")]
         public decimal SalaireBase { get => salaireBase; set => SetPropertyValue(nameof(SalaireBase), ref salaireBase, value); }
 
         [DbType("decimal(18,0)")]
         public decimal IndemniteLogement { get => indemniteLogement; set => SetPropertyValue(nameof(IndemniteLogement), ref indemniteLogement, value); }
 
-        [Size(50)]
-        public string CaisseSecurite { get => caisseSecurite; set => SetPropertyValue(nameof(CaisseSecurite), ref caisseSecurite, value); }
-
-        [Size(50)]
-        public string NumeroIPRESS { get => numeroIPRESS; set => SetPropertyValue(nameof(NumeroIPRESS), ref numeroIPRESS, value); }
-
-        [Size(50)]
-        public string NumeroCNI { get => numeroCNI; set => SetPropertyValue(nameof(NumeroCNI), ref numeroCNI, value); }
+        [Size(50)] public string CaisseSecurite { get => caisseSecurite; set => SetPropertyValue(nameof(CaisseSecurite), ref caisseSecurite, value); }
+        [Size(50)] public string NumeroIPRESS { get => numeroIPRESS; set => SetPropertyValue(nameof(NumeroIPRESS), ref numeroIPRESS, value); }
+        [Size(50)] public string NumeroCNI { get => numeroCNI; set => SetPropertyValue(nameof(NumeroCNI), ref numeroCNI, value); }
 
         public int Base30Jour { get => base30Jour; set => SetPropertyValue(nameof(Base30Jour), ref base30Jour, value); }
 
@@ -188,150 +168,198 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Size(50)]
         public string CreePar { get => creePar; set => SetPropertyValue(nameof(CreePar), ref creePar, value); }
 
-        // --- Echelon + alignement Catégorie/Convention ---
+        // ── Echelon / Catégorie / Convention ──────────────────
         Echelons echelon;
         [ImmediatePostData]
         [Association("Echelons-Salaries")]
-          public Echelons Echelon
+        public Echelons Echelon
         {
             get => echelon;
             set => SetPropertyValue(nameof(Echelon), ref echelon, value);
         }
 
-        //[Appearance("Categories_ReadOnly_When_EchelonSet", Criteria = "Not IsNull(Echelon)", Enabled = false, TargetItems = nameof(Categories))]
-
-        // --- Catégorie : toujours lecture seule ---
         [Association("Categories-Salaries")]
-        [ModelDefault("AllowEdit", "False")] // DetailView
-        [System.ComponentModel.ReadOnly(true)] // ListView (colonnes)
+        [ModelDefault("AllowEdit", "False")]
+        [System.ComponentModel.ReadOnly(true)]
         [Appearance("Categories_AlwaysReadOnly", Criteria = "True", Enabled = false, TargetItems = nameof(Categories))]
-
         public Categories Categories { get => categories; set => SetPropertyValue(nameof(Categories), ref categories, value); }
 
-        //  [Appearance("Convention_ReadOnly_When_EchelonSet", Criteria = "Not IsNull(Echelon)", Enabled = false, TargetItems = nameof(Convention))]
-
-        // --- Convention : toujours lecture seule --- 
         [ModelDefault("AllowEdit", "False")]
         [System.ComponentModel.ReadOnly(true)]
         [Appearance("Convention_AlwaysReadOnly", Criteria = "True", Enabled = false, TargetItems = nameof(Convention))]
         [Association("Convention-Salaries")]
         public Convention Convention { get => convention; set => SetPropertyValue(nameof(Convention), ref convention, value); }
 
-        // --- Modèle & bulletins ---
+        // ── Collections principales ───────────────────────────
         [Association("Salarie-Modele"), Aggregated]
         public XPCollection<BulletinModele> Modeles => GetCollection<BulletinModele>(nameof(Modeles));
 
         [Association("Salarie-Bulletins"), Aggregated]
         public XPCollection<Bulletin> Bulletins => GetCollection<Bulletin>(nameof(Bulletins));
 
-        // --- Conjoints (agrégat côté parent uniquement) ---
         [Association("Salarie-Conjoints"), Aggregated]
         public XPCollection<Conjoint> Conjoints => GetCollection<Conjoint>(nameof(Conjoints));
-
 
         [Association("Salarie-Prets")]
         public XPCollection<Pret> Prets => GetCollection<Pret>(nameof(Prets));
 
+        [Association("Salarie-Conges")]
+        public XPCollection<CongeDemande> Conges => GetCollection<CongeDemande>(nameof(Conges));
 
-        // Compteurs utiles
+        // ── Compteurs conjoints ───────────────────────────────
         [NonPersistent, XafDisplayName("Conjoints actuels")]
         public int NbConjointsActuels => Conjoints.Count(c => c.DateFinUnion == null);
 
-        [NonPersistent]
-        [XafDisplayName("Conjoints inactifs à charge")]
+        [NonPersistent, XafDisplayName("Conjoints inactifs à charge")]
         public int NbConjointsInactifsACharge
         {
             get
             {
-                // 1) ne JAMAIS lancer une requête pendant le chargement
                 if (Session?.IsObjectsLoading == true || IsLoading)
-                    return _nbConjointsCache; // 0 par défaut ou dernière valeur calculée
-
-                // 2) compte côté base, sans traverser la collection Conjoints
+                    return _nbConjointsCache;
                 var crit = CriteriaOperator.Parse(
-                  "Salarie = ? AND IsNull(DateFinUnion) AND Statut = ? AND ACharge = true",
-                  this, Domain.DomainEnums.StatutConjoint.Inactif
-                );
-
+                    "Salarie = ? AND IsNull(DateFinUnion) AND Statut = ? AND ACharge = true",
+                    this, Domain.DomainEnums.StatutConjoint.Inactif);
                 var res = Session.Evaluate(typeof(Conjoint), CriteriaOperator.Parse("Count()"), crit);
                 var n = (res is int i) ? i : (res is long l ? (int)l : 0);
-
-                // 3) petit cache simple pour éviter une rafale de requêtes UI
                 _nbConjointsCache = n;
                 return n;
             }
         }
         private int _nbConjointsCache = 0;
 
-        //ADIENG 11/09/2025 AJOUT AUTOMATISATION MODEL DEBUT
-        // … (vos membres existants)
-
+        // ── Rémunération complémentaire ───────────────────────
         [Category("Rémunération"), XafDisplayName("Sursalaire")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        public decimal Sursalaire
-        {
-            get => sursalaire;
-            set => SetPropertyValue(nameof(Sursalaire), ref sursalaire, value);
-        }
+        public decimal Sursalaire { get => sursalaire; set => SetPropertyValue(nameof(Sursalaire), ref sursalaire, value); }
         decimal sursalaire;
 
         [Category("Rémunération"), XafDisplayName("Prime de transport")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        public decimal PrimeTransport
-        {
-            get => primeTransport;
-            set => SetPropertyValue(nameof(PrimeTransport), ref primeTransport, value);
-        }
+        public decimal PrimeTransport { get => primeTransport; set => SetPropertyValue(nameof(PrimeTransport), ref primeTransport, value); }
         decimal primeTransport;
 
         [Category("Rémunération"), XafDisplayName("Avantage en nature - Véhicule")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        public decimal AvantageVehicule
-        {
-            get => avantageVehicule;
-            set => SetPropertyValue(nameof(AvantageVehicule), ref avantageVehicule, value);
-        }
-        decimal avantageVehicule ; // valeur par défaut SN actuelle
+        public decimal AvantageVehicule { get => avantageVehicule; set => SetPropertyValue(nameof(AvantageVehicule), ref avantageVehicule, value); }
+        decimal avantageVehicule;
 
         private bool _PossedeVehicule;
+        [ModelDefault("Caption", "Possède un véhicule")]
+        [ModelDefault("ImmediatePostData", "True")]
+        public bool PossedeVehicule { get => _PossedeVehicule; set => SetPropertyValue(nameof(PossedeVehicule), ref _PossedeVehicule, value); }
 
-       [ModelDefault("Caption", "Possède un véhicule")]
-        [ModelDefault("ImmediatePostData", "True")] // réaction immédiate en UI
-        public bool PossedeVehicule
-        {
-            get => _PossedeVehicule;
-            set => SetPropertyValue(nameof(PossedeVehicule), ref _PossedeVehicule, value);
-        }
-        // Validation métier : si PossedeVehicule = true → PrimeTransport doit être 0
         [RuleFromBoolProperty("Salarie_NoTransportWhenVehicle", DefaultContexts.Save,
             CustomMessageTemplate = "Prime de transport interdite si un véhicule est attribué.")]
-        public bool IsNoTransportWhenVehicle =>
-            !PossedeVehicule || PrimeTransport == 0m;
+        public bool IsNoTransportWhenVehicle => !PossedeVehicule || PrimeTransport == 0m;
 
-
-
-        //ADIENG 11/09/2025 AJOUT FIN
-
-        // Optionnel : invalider le cache quand un conjoint change (si tu exposes la collection)
-        protected override void OnLoaded()
+        // ── Sexe ──────────────────────────────────────────────
+        Sexe sexe;
+        [XafDisplayName("Sexe")]
+        public Sexe Sexe
         {
-            base.OnLoaded();
-            _nbConjointsCache = 0; // force un recalcul au 1er accès après chargement
+            get => sexe;
+            set
+            {
+                var old = sexe;
+                SetPropertyValue(nameof(Sexe), ref sexe, value);
+                if (old != value) SyncCiviliteFromSexe();
+            }
         }
-        protected override void OnSaving()
-        {
-            base.OnSaving();
-            if (!IsDeleted && !string.IsNullOrWhiteSpace(Email))
-                Email = Email.Trim().ToLowerInvariant();
 
+        // ── Département / Fonction ────────────────────────────
+        [XafDisplayName("Département")]
+        [Association("Departement-Salaries")]
+        [DataSourceCriteria("Actif = True")]
+        public Departement Departement
+        {
+            get => departement;
+            set => SetPropertyValue(nameof(Departement), ref departement, value);
         }
-        // Calculs fiscaux (affichage)
+        private Departement departement;
+
+        [XafDisplayName("Fonction")]
+        [Association("Fonction-Salaries")]
+        [DataSourceCriteria("Actif = True")]
+        public Fonction Fonction
+        {
+            get => fonction;
+            set => SetPropertyValue(nameof(Fonction), ref fonction, value);
+        }
+        private Fonction fonction;
+
+        // ── Sécurité bulletins ────────────────────────────────
+        [Size(2048)]
+        public string PayslipKeyEnc { get; set; }
+        public DateTime? PayslipKeyAssignedOn { get; set; }
+
+        // ── Simulations ───────────────────────────────────────
+        [Association("Salarie-Simulations")]
+        public XPCollection<SimulationSursalaire> Simulations
+            => GetCollection<SimulationSursalaire>(nameof(Simulations));
+
+        // ── GRH — Dossier / Entretiens / Attestations / Notifs ─
+        [Association("Salarie-DossiersRH"), Aggregated]
+        public XPCollection<DossierSalarie> DossiersRH
+            => GetCollection<DossierSalarie>(nameof(DossiersRH));
+
+        [Association("Salarie-Entretiens"), Aggregated]
+        [XafDisplayName("Entretiens annuels")]
+        public XPCollection<EntretienAnnuel> Entretiens => GetCollection<EntretienAnnuel>(nameof(Entretiens));
+
+        [Association("Evaluateur-Entretiens")]
+        [XafDisplayName("Entretiens menés (évaluateur)")]
+        public XPCollection<EntretienAnnuel> EntretiensMenes => GetCollection<EntretienAnnuel>(nameof(EntretiensMenes));
+
+        [Association("Salarie-DemandesAttestation"), Aggregated]
+        [XafDisplayName("Demandes d'attestation")]
+        public XPCollection<DemandeAttestation> DemandesAttestation => GetCollection<DemandeAttestation>(nameof(DemandesAttestation));
+
+        [Association("Salarie-Notifications"), Aggregated]
+        [XafDisplayName("Notifications")]
+        public XPCollection<NotificationSalarie> Notifications => GetCollection<NotificationSalarie>(nameof(Notifications));
+
+        [NonPersistent, XafDisplayName("Notifications non lues")]
+        public int NbNotificationsNonLues => Notifications.Count(n =>
+            n.Statut == Domain.DomainEnums.NotificationStatut.NonLue);
+
+        // ── Manager hiérarchique (N+1) ────────────────────────
+        [XafDisplayName("Responsable hiérarchique (N+1)")]
+        [DataSourceCriteria("IsActif = true")]
+        public Salarie Manager
+        {
+            get => manager;
+            set => SetPropertyValue(nameof(Manager), ref manager, value);
+        }
+        Salarie manager;
+
+        public System.Collections.Generic.List<Salarie> GetManagerChain(int maxLevels = 2)
+        {
+            var chain = new System.Collections.Generic.List<Salarie>();
+            var current = this.Manager;
+            int level = 0;
+            while (current != null && level < maxLevels)
+            {
+                chain.Add(current);
+                current = current.Manager;
+                level++;
+            }
+            return chain;
+        }
+
+        public bool EstManagerDe(Salarie subordonne, int maxLevels = 2)
+        {
+            if (subordonne == null) return false;
+            var chain = subordonne.GetManagerChain(maxLevels);
+            return chain.Any(m => m.Oid == this.Oid);
+        }
+
+        // ── Calculs fiscaux ───────────────────────────────────
         [NonPersistent, XafDisplayName("Nombre de parts fiscales")]
         [ModelDefault("DisplayFormat", "n1")]
-
         [DbType("decimal(18,2)")]
         public decimal NombrePartsFiscales
         {
@@ -348,140 +376,142 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [NonPersistent, XafDisplayName("TRIMF (parts)")]
         public int TrimfParts => Math.Min(5, 1 + NbConjointsInactifsACharge);
 
-
-
-        Sexe sexe;
-        [XafDisplayName("Sexe")]
-        [ModelDefault("PropertyEditorType", "DevExpress.ExpressApp.Editors.EnumPropertyEditor")]
-        public Sexe Sexe
+        // ── Overrides ─────────────────────────────────────────
+        protected override void OnLoaded()
         {
-            get => sexe;
-            set
-            {
-                var old = sexe;
-                SetPropertyValue(nameof(Sexe), ref sexe, value);
-                if (old != value) SyncCiviliteFromSexe(); // garder cohérence
-            }
+            base.OnLoaded();
+            _nbConjointsCache = 0;
         }
-        // --- Cohérence automatique depuis l’Echelon (sans auto-modifier marié/conjoints) ---
+
+        protected override void OnSaving()
+        {
+            base.OnSaving();
+            if (!IsDeleted && !string.IsNullOrWhiteSpace(Email))
+                Email = Email.Trim().ToLowerInvariant();
+        }
+
         protected override void OnChanged(string propertyName, object oldValue, object newValue)
         {
             base.OnChanged(propertyName, oldValue, newValue);
             if (IsDeleted) return;
 
-            // 1) Quand l'échelon change : aligner systématiquement
             if (propertyName == nameof(Echelon))
-            {
                 AlignerDepuisEchelon();
-            }
 
-            // 2) Si on touche Catégorie/Convention alors qu’un échelon est présent, réaligner (hors chargement/sauvegarde)
             if (!IsLoading && !IsSaving && Echelon != null &&
                 (propertyName == nameof(Categories) || propertyName == nameof(Convention)))
-            {
                 AlignerDepuisEchelon();
-            }
 
-            // --- Exclusivité & synchronisation véhicule / primes ---
             if (propertyName == nameof(PossedeVehicule))
             {
                 if (Equals(newValue, true))
                 {
-                    // Véhicule attribué → Prime transport = 0, avantage = valeur par défaut ParametresPaie
-                    if (PrimeTransport != 0m)
-                        PrimeTransport = 0m;
-
+                    if (PrimeTransport != 0m) PrimeTransport = 0m;
                     var defVeh = ResolveAvantageVehiculeDefaut(Session);
-                    if (AvantageVehicule != defVeh)
-                        AvantageVehicule = defVeh;
+                    if (AvantageVehicule != defVeh) AvantageVehicule = defVeh;
                 }
                 else
                 {
-                    // Pas de véhicule → avantage en nature = 0 (prime transport libre)
-                    if (AvantageVehicule != 0m)
-                        AvantageVehicule = 0m;
+                    if (AvantageVehicule != 0m) AvantageVehicule = 0m;
                 }
             }
             else if (propertyName == nameof(AvantageVehicule))
             {
-                // Saisie d'un avantage → couper la prime transport
-                if (Convert.ToDecimal(newValue) > 0m && PrimeTransport != 0m)
-                    PrimeTransport = 0m;
-
-                // Si on met un avantage > 0, on force PossedeVehicule = true
-                if (Convert.ToDecimal(newValue) > 0m && !PossedeVehicule)
-                    PossedeVehicule = true;
+                if (Convert.ToDecimal(newValue) > 0m && PrimeTransport != 0m) PrimeTransport = 0m;
+                if (Convert.ToDecimal(newValue) > 0m && !PossedeVehicule) PossedeVehicule = true;
             }
             else if (propertyName == nameof(PrimeTransport))
             {
-                // Saisie d'une prime transport → couper l’avantage
-                if (Convert.ToDecimal(newValue) > 0m && AvantageVehicule != 0m)
-                    AvantageVehicule = 0m;
-
-                // Si prime > 0, on force PossedeVehicule = false (logique exclusive)
-                if (Convert.ToDecimal(newValue) > 0m && PossedeVehicule)
-                    PossedeVehicule = false;
+                if (Convert.ToDecimal(newValue) > 0m && AvantageVehicule != 0m) AvantageVehicule = 0m;
+                if (Convert.ToDecimal(newValue) > 0m && PossedeVehicule) PossedeVehicule = false;
             }
-
         }
 
+        // ── Helpers privés ────────────────────────────────────
         private void AlignerDepuisEchelon()
         {
             if (Echelon == null) return;
-
-            // a) Toujours recaler Catégorie/Convention depuis l’échelon
-            if (!Equals(Categories, Echelon.Categories))
-                Categories = Echelon.Categories;
-
+            if (!Equals(Categories, Echelon.Categories)) Categories = Echelon.Categories;
             var conv = Echelon.Categories?.Convention;
-            if (conv != null && !Equals(Convention, conv))
-                Convention = conv;
-
-            // b) Toujours mettre à jour les montants depuis l’échelon
+            if (conv != null && !Equals(Convention, conv)) Convention = conv;
             SalaireBase = Echelon.SalaireBase;
             IndemniteLogement = Echelon.IdemniteLogement;
         }
-        // Propriété factice pour porter les RuleCriteria (si nécessaire)
-        //  public int _ValidationEchelonConsistencyHelper { get; set; }
 
-        [Association("Salarie-Conges")]
-        public XPCollection<CongeDemande> Conges => GetCollection<CongeDemande>(nameof(Conges));
+        bool _syncing;
+        void SyncCiviliteFromSexe()
+        {
+            if (_syncing) return;
+            _syncing = true;
+            try
+            {
+                switch (Sexe)
+                {
+                    case Sexe.Masculin:
+                        if (Civilite != Civilite.Monsieur) Civilite = Civilite.Monsieur;
+                        break;
+                    case Sexe.Feminin:
+                        if (Civilite != Civilite.Madame && Civilite != Civilite.Mademoiselle)
+                            Civilite = Civilite.Madame;
+                        break;
+                }
+            }
+            finally { _syncing = false; }
+        }
 
-        //ADIENG 11/09/2025 AJOUT DEBUT
+        void SyncSexeFromCivilite()
+        {
+            if (_syncing) return;
+            _syncing = true;
+            try
+            {
+                switch (Civilite)
+                {
+                    case Civilite.Monsieur:
+                        if (Sexe != Sexe.Masculin) Sexe = Sexe.Masculin;
+                        break;
+                    case Civilite.Madame:
+                    case Civilite.Mademoiselle:
+                        if (Sexe != Sexe.Feminin) Sexe = Sexe.Feminin;
+                        break;
+                }
+            }
+            finally { _syncing = false; }
+        }
 
-        // Bouton manuel sur la fiche Salarié
+        private static decimal ResolveAvantageVehiculeDefaut(Session session)
+        {
+            var pp = ParametresPaie.TryGet(session);
+            return pp?.ModeleAuto_Defaut_AvantageVehicule ?? 0m;
+        }
+
+        // ── Modèle bulletin ───────────────────────────────────
         [Action(
             Caption = "Re-générer le modèle",
             ImageName = "BO_Resume",
             AutoCommit = true,
-            ConfirmationMessage = "Recréer/compléter le modèle de bulletin pour ce salarié ?"
-        )]
+            ConfirmationMessage = "Recréer/compléter le modèle de bulletin pour ce salarié ?")]
         public void RegenererModele()
         {
             if (Session.IsNewObject(this))
                 throw new UserFriendlyException("Enregistrez d'abord le salarié, puis relancez l'action.");
 
-            // Vérifier que les rubriques nécessaires existent/actives
             string[] codes = {
-        PaieConsts.Rubriques.SB,
-        PaieConsts.Rubriques.SURSAL,
-        PaieConsts.Rubriques.TRANS,
-       PaieConsts.Rubriques.AV_NAT_VEH,
-         PaieConsts.Rubriques.LOGT
-
-
-        };
+                PaieConsts.Rubriques.SB,
+                PaieConsts.Rubriques.SURSAL,
+                PaieConsts.Rubriques.TRANS,
+                PaieConsts.Rubriques.AV_NAT_VEH,
+                PaieConsts.Rubriques.LOGT
+            };
             var missing = codes.Where(c => new XPQuery<Rubrique>(Session)
-                                .FirstOrDefault(r => r.Actif && r.Code == c) == null).ToList();
+                .FirstOrDefault(r => r.Actif && r.Code == c) == null).ToList();
             if (missing.Any())
-                throw new UserFriendlyException("Rubriques manquantes/inaffectives : " + string.Join(", ", missing) +
-                    ". Veuillez les créer/activer puis relancer l’action.");
+                throw new UserFriendlyException("Rubriques manquantes/inactives : " +
+                    string.Join(", ", missing) + ". Veuillez les créer/activer puis relancer l'action.");
 
-            EnsureBulletinModeleParDefaut(); // crée/complète de façon idempotente
+            EnsureBulletinModeleParDefaut();
         }
 
-
-        // Helper : crée le modèle de bulletin (si absent)
         public void EnsureBulletinModeleParDefaut()
         {
             var md = Modeles.FirstOrDefault(m => m.Actif)
@@ -500,185 +530,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 l.Ordre = ordre;
                 l.InclureParDefaut = inclure;
             }
-            Upsert(PaieConsts.Rubriques.SB, 1, true);  // Salaire de base
-            Upsert(PaieConsts.Rubriques.SURSAL, 20, true);  // Sursalaire
-            Upsert(PaieConsts.Rubriques.LOGT, 60, true);  // (si tu utilises LOGT)
-            Upsert(PaieConsts.Rubriques.TRANS, 83, true);  // Prime de transport  
-          //  Upsert(PaieConsts.Rubriques.AV_NAT_VEH, 180, true);  // Avantage véhicule
+
+            Upsert(PaieConsts.Rubriques.SB, 1, true);
+            Upsert(PaieConsts.Rubriques.SURSAL, 20, true);
+            Upsert(PaieConsts.Rubriques.LOGT, 60, true);
+            Upsert(PaieConsts.Rubriques.TRANS, 83, true);
+            Upsert(PaieConsts.Rubriques.AV_NAT_VEH, 180, true);
         }
-
-        private static decimal ResolveAvantageVehiculeDefaut(Session session)
-        {
-            var pp = ParametresPaie.TryGet(session);
-            return pp?.ModeleAuto_Defaut_AvantageVehicule ?? 0m;
-        }
-
-        // ================== Sync helpers ==================
-        bool _syncing;
-
-        void SyncCiviliteFromSexe()
-        {
-            if (_syncing) return;
-            _syncing = true;
-            try
-            {
-                switch (Sexe)
-                {
-                    case Sexe.Masculin:
-                        if (Civilite != Civilite.Monsieur) Civilite = Civilite.Monsieur;
-                        break;
-                    case Sexe.Feminin:
-                        // Par défaut on met "Madame" (laisse l’utilisateur changer en "Mademoiselle" si besoin)
-                        if (Civilite != Civilite.Madame && Civilite != Civilite.Mademoiselle)
-                            Civilite = Civilite.Madame;
-                        break;
-                    default:
-                        // Inconnu → ne force pas la civilité, laisse telle quelle
-                        break;
-                }
-            }
-            finally { _syncing = false; }
-        }
-        void SyncSexeFromCivilite()
-        {
-            if (_syncing) return;
-            _syncing = true;
-            try
-            {
-                switch (Civilite)
-                {
-                    case Civilite.Monsieur:
-                        if (Sexe != Sexe.Masculin) Sexe = Sexe.Masculin;
-                        break;
-                    case Civilite.Madame:
-                    case Civilite.Mademoiselle:
-                        if (Sexe != Sexe.Feminin) Sexe = Sexe.Feminin;
-                        break;
-                    default:
-                        // Autre → ne force pas le sexe (laisse Inconnu ou ce qui est saisi)
-                        break;
-                }
-            }
-            finally { _syncing = false; }
-        }
-
-        //ADIENG 11/09/2025 AJOUT FIN
-        [XafDisplayName("Département")]
-        [Association("Departement-Salaries")]
-        [DataSourceCriteria("Actif = True")]  // ne montrer que les départements actifs
-        public Departement Departement
-        {
-            get => departement;
-            set => SetPropertyValue(nameof(Departement), ref departement, value);
-        }
-        private Departement departement;
-
-        [XafDisplayName("Fonction")]
-        [Association("Fonction-Salaries")]
-        [DataSourceCriteria("Actif = True")]  // ne montrer que les fonctions actives
-        public Fonction Fonction
-        {
-            get => fonction;
-            set => SetPropertyValue(nameof(Fonction), ref fonction, value);
-        }
-        private Fonction fonction;
-
-
-        [Size(2048)]   // clé chiffrée (Base64)
-        public string PayslipKeyEnc { get; set; }
-
-        public DateTime? PayslipKeyAssignedOn { get; set; }
-
-        [Association("Salarie-Simulations")]
-        public XPCollection<SimulationSursalaire> Simulations
-    => GetCollection<SimulationSursalaire>(nameof(Simulations));
-
-
-
-        [Association("Salarie-DossiersRH"), Aggregated]
-        public XPCollection<DossierSalarie> DossiersRH
-            => GetCollection<DossierSalarie>(nameof(DossiersRH));
-
-        // 1. Entretiens annuels (évaluateur)
-        [Association("Salarie-Entretiens"), Aggregated]
-        [XafDisplayName("Entretiens annuels")]
-        public XPCollection<EntretienAnnuel> Entretiens => GetCollection<EntretienAnnuel>(nameof(Entretiens));
-
-        // 2. Entretiens où ce salarié est l'évaluateur (N+1)
-        [Association("Evaluateur-Entretiens")]
-        [XafDisplayName("Entretiens menés (évaluateur)")]
-        public XPCollection<EntretienAnnuel> EntretiensMenes => GetCollection<EntretienAnnuel>(nameof(EntretiensMenes));
-
-        // 3. Demandes d'attestation (espace salarié)
-        [Association("Salarie-DemandesAttestation"), Aggregated]
-        [XafDisplayName("Demandes d'attestation")]
-        public XPCollection<DemandeAttestation> DemandesAttestation => GetCollection<DemandeAttestation>(nameof(DemandesAttestation));
-
-        // 4. Notifications (portail self-service)
-        [Association("Salarie-Notifications"), Aggregated]
-        [XafDisplayName("Notifications")]
-        public XPCollection<NotificationSalarie> Notifications => GetCollection<NotificationSalarie>(nameof(Notifications));
-
-        // 5. Compteur pratique pour le badge "non lues"
-        [NonPersistent, XafDisplayName("Notifications non lues")]
-        public int NbNotificationsNonLues => Notifications.Count(n =>
-            n.Statut == AdiPAIE_V02.Module.Domain.DomainEnums.NotificationStatut.NonLue);
-
-
-        // ── Manager hiérarchique (N+1) ────────────────────────────────
-
-        /// <summary>
-        /// Responsable hiérarchique direct (N+1) du salarié.
-        /// Auto-référence : un Salarie pointe vers un autre Salarie.
-        /// Laissez vide si le salarié remonte directement au RH.
-        /// </summary>
-        [XafDisplayName("Responsable hiérarchique (N+1)")]
-           [DataSourceCriteria("IsActif = true")]
-        public Salarie Manager
-        {
-            get => manager;
-            set => SetPropertyValue(nameof(Manager), ref manager, value);
-        }
-        Salarie manager;
-
-        /// <summary>
-        /// Retourne la chaîne hiérarchique ascendante jusqu'à 2 niveaux.
-        /// Index 0 = N+1, Index 1 = N+2 (si Manager du Manager existe).
-        /// </summary>
-        public System.Collections.Generic.List<Salarie> GetManagerChain(int maxLevels = 2)
-        {
-            var chain = new System.Collections.Generic.List<Salarie>();
-            var current = this.Manager;
-            int level = 0;
-
-            while (current != null && level < maxLevels)
-            {
-                chain.Add(current);
-                current = current.Manager;
-                level++;
-            }
-            return chain;
-        }
-
-        /// <summary>
-        /// Retourne true si ce salarié est le manager (direct ou indirect) du salarié passé en paramètre.
-        /// Utilisé pour filtrer les demandes visibles par un responsable.
-        /// </summary>
-        public bool EstManagerDe(Salarie subordonne, int maxLevels = 2)
-        {
-            if (subordonne == null) return false;
-            var chain = subordonne.GetManagerChain(maxLevels);
-            return chain.Any(m => m.Oid == this.Oid);
-        }
-
-
-
     }
 
-    public enum Civilite { Monsieur=0, Madame=1, Mademoiselle =2}
-    public enum Sexe { Masculin=0, [XafDisplayName("Féminin")] Feminin =1 }
-
-
-
-
+    public enum Civilite { Monsieur = 0, Madame = 1, Mademoiselle = 2 }
+    public enum Sexe { Masculin = 0, [XafDisplayName("Féminin")] Feminin = 1 }
 }
