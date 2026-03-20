@@ -56,6 +56,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             Statut = CampagneStatut.Brouillon;
             DateCreation = DateTime.Now;
             try { CreePar = SecuritySystem.CurrentUserName; } catch { }
+            try
+            {
+                var company = Session.FindObject<Company>(null);
+                if (company != null)
+                    Company = company;
+            }
+            catch { }
         }
 
         // ── Identité ──────────────────────────────────────────────

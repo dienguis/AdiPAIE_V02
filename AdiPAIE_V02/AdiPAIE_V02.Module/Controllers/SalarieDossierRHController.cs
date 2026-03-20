@@ -39,7 +39,7 @@ namespace AdiPAIE_V02.Module.Controllers
             var salarie = osNew.GetObject(salarieCourant);
 
             // 3) Chercher le dossier RH
-            var dossier = salarie.DossiersRH.FirstOrDefault();
+            var dossier = salarie.DossierSalarie.FirstOrDefault();
 
             // 4) Le créer si absent
             if (dossier == null)

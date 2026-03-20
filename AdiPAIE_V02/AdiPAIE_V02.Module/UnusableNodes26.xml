@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <Views Id="Views">
+    <ListView Id="Bulletin_Lignes_ListView" IsRootView="False">
+      <Columns Id="Columns">
+        <ColumnInfo Id="IsSystem" VisibleIndex="11" Visible="False" />
+        <ColumnInfo Id="OrdreLigne" Visible="False" />
+        <ColumnInfo Id="Reference" VisibleIndex="2" Visible="False" />
+        <ColumnInfo Id="RoleCanonique" Visible="False" />
+        <ColumnInfo Id="Rubrique" VisibleIndex="0" />
+        <ColumnInfo Id="SectionImpression" Visible="False" />
+        <ColumnInfo Id="Source" VisibleIndex="10" Visible="False" />
+        <ColumnInfo Id="TypeCalcul" VisibleIndex="9" />
+        <ColumnInfo Id="DisplayName" VisibleIndex="3" />
+        <ColumnInfo Id="OrdreCalcul" VisibleIndex="8" />
+        <ColumnInfo Id="Base" VisibleIndex="4" />
+        <ColumnInfo Id="Taux" VisibleIndex="5" />
+        <ColumnInfo Id="Montant" VisibleIndex="6" />
+        <ColumnInfo Id="MontantEmployeur" VisibleIndex="7" />
+        <ColumnInfo Id="Sens" VisibleIndex="1" />
+        <ColumnInfo Id="SectionImpressionKey" Visible="False" />
+      </Columns>
+    </ListView>
+    <ListView Id="BulletinLigne_ListView">
+      <Columns Id="Columns">
+        <ColumnInfo Id="IsSystem" Visible="False" />
+        <ColumnInfo Id="OrdreLigne" Visible="False" />
+        <ColumnInfo Id="RoleCanonique" Visible="False" />
+      </Columns>
+    </ListView>
+    <ListView Id="ParametresPaie_ListView" IsRootView="True" />
+    <ListView Id="Salarie_Generation_ListView" IsRootView="True">
+      <Filters Id="Filters">
+        <Filter Id="Actifs" IsDefault="True" />
+      </Filters>
+    </ListView>
+    <ListView Id="Salarie_ListView" IsRoot="True" EnableMasterDetailMode="False" />
+    <DetailView Id="SimulationSursalaire_DetailView">
+      <Items Id="Items">
+        <PropertyEditor Id="NetCible" IsRequired="True" />
+      </Items>
+    </DetailView>
+    <DetailView Id="ParametresPaie_DetailView">
+      <Layout Id="Layout">
+        <LayoutGroup Id="Main">
+          <TabbedGroup Id="Tabs_ParametresPaie" RelativeSize="100">
+            <LayoutGroup Id="Tab_General" Caption="Général" RelativeSize="100">
+              <LayoutGroup Id="Gen_col1" RelativeSize="50">
+                <LayoutItem Id="RaisonSociale" RelativeSize="10" />
+                <LayoutItem Id="Adresse" RelativeSize="10" />
+                <LayoutItem Id="Telephone" RelativeSize="10" />
+                <LayoutItem Id="Email" RelativeSize="10" />
+                <LayoutItem Id="SignatoryName" RelativeSize="10" />
+                <LayoutItem Id="SignatoryTitle" RelativeSize="10" />
+              </LayoutGroup>
+              <LayoutGroup Id="Gen_col2" RelativeSize="50">
+                <LayoutItem Id="Logo" RelativeSize="40" />
+                <LayoutItem Id="ActiverSeedDemo" RelativeSize="10" />
+              </LayoutGroup>
+            </LayoutGroup>
+            <LayoutGroup Id="Tab_Fiscalite" Caption="Fiscalité" RelativeSize="100">
+              <LayoutGroup Id="Fisc_col1" RelativeSize="50">
+                <LayoutItem Id="CodeBaremeIR_Annuel" RelativeSize="12" />
+                <LayoutItem Id="CodeBaremeTRIMF_Annuel" RelativeSize="12" />
+                <LayoutItem Id="CodeBaremeTRIMF_Mensuel" RelativeSize="12" />
+                <LayoutItem Id="R_IR_Abattement_TauxPercent" RelativeSize="12" />
+                <LayoutItem Id="R_IR_Abattement_PlafondMensuel" RelativeSize="12" />
+                <LayoutItem Id="R_IR_Abattement_PlafondAnnuel" RelativeSize="12" />
+                <LayoutItem Id="R_IR_TronquerBaseAuxMille" RelativeSize="12" />
+              </LayoutGroup>
+              <LayoutGroup Id="Fisc_col2" RelativeSize="50">
+                <LayoutItem Id="R_IR_ReductionFamille_Pourcentage" RelativeSize="12" />
+                <LayoutItem Id="R_IR_ReductionFamille_MinParPart_Annuel" RelativeSize="12" />
+                <LayoutItem Id="R_IR_ReductionFamille_MaxParPart_Annuel" RelativeSize="12" />
+                <LayoutItem Id="IR_Regularisation_FinAnnee" RelativeSize="12" />
+                <LayoutItem Id="IR_Regularisation_MoisDepart" RelativeSize="12" />
+              </LayoutGroup>
+            </LayoutGroup>
+            <LayoutGroup Id="Tab_Messagerie" Caption="Messagerie" RelativeSize="100">
+              <LayoutGroup Id="Mail_col1" RelativeSize="50">
+                <LayoutItem Id="EmailActif" RelativeSize="10" />
+                <LayoutItem Id="SmtpHost" RelativeSize="10" />
+                <LayoutItem Id="SmtpPort" RelativeSize="10" />
+                <LayoutItem Id="SmtpUseSsl" RelativeSize="10" />
+              </LayoutGroup>
+              <LayoutGroup Id="Mail_col2" RelativeSize="50">
+                <LayoutItem Id="SmtpUser" RelativeSize="10" />
+                <LayoutItem Id="SmtpPassword" RelativeSize="10" />
+                <LayoutItem Id="SmtpFromEmail" RelativeSize="10" />
+                <LayoutItem Id="SmtpFromName" RelativeSize="10" />
+              </LayoutGroup>
+            </LayoutGroup>
+            <LayoutGroup Id="Tab_Alertes" Caption="GRH - Alertes" RelativeSize="100">
+              <LayoutGroup Id="Alerte_col1" RelativeSize="50">
+                <LayoutItem Id="EmailsRHAlertes" RelativeSize="15" />
+                <LayoutItem Id="EmailDAF" RelativeSize="15" />
+                <LayoutItem Id="EmailsComptable" RelativeSize="15" />
+              </LayoutGroup>
+              <LayoutGroup Id="Alerte_col2" RelativeSize="50">
+                <LayoutItem Id="DelaiAlertAttestationJours" RelativeSize="15" />
+                <LayoutItem Id="HeureEnvoiAlertes" RelativeSize="15" />
+              </LayoutGroup>
+            </LayoutGroup>
+            <LayoutGroup Id="Tab_Templates" Caption="GRH - Templates" RelativeSize="100">
+              <LayoutItem Id="TemplateAttestation" RelativeSize="14" />
+              <LayoutItem Id="TemplateAttestationDeConges" RelativeSize="14" />
+              <LayoutItem Id="TemplateCertificatEmploi" RelativeSize="14" />
+              <LayoutItem Id="TemplateCessationPaiement" RelativeSize="14" />
+              <LayoutItem Id="TemplateEntretienAnnuel" RelativeSize="14" />
+              <LayoutItem Id="TemplateOrdreMission" RelativeSize="15" />
+              <LayoutItem Id="TemplateEtatFrais" RelativeSize="15" />
+            </LayoutGroup>
+            <LayoutGroup Id="Tab_BulletinModele" Caption="Modèle bulletin" RelativeSize="100">
+              <LayoutItem Id="BulletinModeleDefaut" RelativeSize="100" />
+            </LayoutGroup>
+          </TabbedGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+  </Views>
+  <NavigationItems Id="NavigationItems">
+    <Items Id="Items">
+      <Item Id="Default">
+        <Items Id="Items">
+          <Item Id="CongeDemande_ListView" Removed="True" />
+          <Item Id="CongeType_ListView" Removed="True" />
+          <Item Id="JourFerie_ListView" Removed="True" />
+          <Item Id="Pret_ListView" Removed="True" />
+        </Items>
+      </Item>
+    </Items>
+  </NavigationItems>
+</Application>

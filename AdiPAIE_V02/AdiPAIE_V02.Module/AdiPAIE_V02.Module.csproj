@@ -23,7 +23,7 @@
     <PackageReference Include="DevExpress.ExpressApp.ConditionalAppearance" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Dashboards" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Kpi" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.MultiTenancy.Xpo" Version="25.1.*" />
+ 
     <PackageReference Include="DevExpress.ExpressApp.Notifications" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Objects" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Office" Version="25.1.*" />
@@ -100,6 +100,15 @@
       <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
     </None>
     <None Update="UnusableNodes24.xml">
+      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
+    </None>
+    <None Update="UnusableNodes25.xml">
+      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
+    </None>
+    <None Update="UnusableNodes26.xml">
+      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
+    </None>
+    <None Update="UnusableNodes27.xml">
       <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
     </None>
     <None Update="UnusableNodes3.xml">

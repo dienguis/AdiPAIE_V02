@@ -1,7 +1,11 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.BusinessObjects.RH;
 using AdiPAIE_V02.Module.Domain;
-using DevExpress.DataAccess.Native.Sql.QueryBuilder;
+using DevExpress.Drawing;
+using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Editors;
 using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
@@ -12,84 +16,390 @@ using System.ComponentModel;
 using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
-[DefaultClassOptions, XafDisplayName("Demande de congé")]
-[DefaultProperty(nameof(DisplayName))]
-[RuleCriteria("Conge_DateFin_GTE_DateDebut", DefaultContexts.Save, "DateFin >= DateDebut",
-    CustomMessageTemplate = "La date de fin doit être ≥ à la date de début.")]
-public class CongeDemande : BaseObject
+namespace AdiPAIE_V02.Module.BusinessObjects
 {
-    public CongeDemande(Session s) : base(s) { }
+    [DefaultClassOptions]
+    [XafDisplayName("Demande de congé")]
+    [DefaultProperty(nameof(DisplayName))]
+    [ImageName("Action_GrantPermission")]
+    [NavigationItem("GRH - Espace salarié")]
 
-    [RuleRequiredField, Association("Salarie-Conges")]
-    public Salarie Salarie { get => sal; set => SetPropertyValue(nameof(Salarie), ref sal, value); }
-    Salarie sal;
+    // ── Validation ────────────────────────────────────────────
+    [RuleCriteria("Conge_DateFin_GTE_DateDebut", DefaultContexts.Save,
+        "DateFin >= DateDebut",
+        CustomMessageTemplate = "La date de fin doit être >= à la date de début.")]
 
-    [RuleRequiredField]
-    public CongeType Type { get => type; set => SetPropertyValue(nameof(Type), ref type, value); }
-    CongeType type;
+    // ── Apparences selon statut ───────────────────────────────
+    [Appearance("Conge_Accordee", TargetItems = "*",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Accordee#",
+        FontColor = "Green", FontStyle = DXFontStyle.Bold)]
 
-    [RuleRequiredField]
-    public DateTime DateDebut { get => d1; set => SetPropertyValue(nameof(DateDebut), ref d1, value); }
-    DateTime d1 = DateTime.Today;
+    [Appearance("Conge_Refusee", TargetItems = "*",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Refusee#",
+        FontColor = "Red")]
 
+    [Appearance("Conge_Annulee", TargetItems = "*",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Annulee#",
+        FontColor = "Gray", FontStyle = DXFontStyle.Italic)]
 
-    //[RuleRequiredField]
-    //[RuleCriteria("Conge_DateFin>=DateDebut", DefaultContexts.Save, "DateFin >= DateDebut",
-    //    CustomMessageTemplate = "La date de fin doit être ≥ à la date de début.")]
+    [Appearance("Conge_EnAttente", TargetItems = "*",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,EnAttenteN1#"
+                 + " OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,EnAttenteN2#",
+        FontColor = "DarkOrange")]
 
-    [RuleRequiredField]
-    public DateTime DateFin
+    // ── Champs éditables uniquement en Brouillon ──────────────
+    [Appearance("Conge_LockWhenSubmitted", TargetItems = "Type;DateDebut;DateFin;Motif",
+        Criteria = "Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Brouillon#",
+        Enabled = false)]
+
+    // ── DateReprise visible uniquement si Accordée ────────────
+    [Appearance("Conge_DateReprise_Visible",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Accordee#",
+        Visibility = ViewItemVisibility.Show, TargetItems = nameof(DateReprise))]
+    [Appearance("Conge_DateReprise_Hidden",
+        Criteria = "Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Accordee#",
+        Visibility = ViewItemVisibility.Hide, TargetItems = nameof(DateReprise))]
+    public class CongeDemande : BaseObject
     {
-        get => d2;
-        set => SetPropertyValue(nameof(DateFin), ref d2, value.Date);
-    }
-    private DateTime d2 = DateTime.Today;
+        public CongeDemande(Session session) : base(session) { }
 
-    public CongeStatut Statut { get => statut; set => SetPropertyValue(nameof(Statut), ref statut, value); }
-    CongeStatut statut =  CongeStatut.Brouillon;
-
-    [ModelDefault("DisplayFormat", "N2"), ModelDefault("EditMask", "N2")]
-    [DbType("decimal(18,2)")]
-    public decimal DureeJours { get => duree; set => SetPropertyValue(nameof(DureeJours), ref duree, value); }
-    decimal duree;
-
-    [Size(240)]
-    public string Motif { get => motif; set => SetPropertyValue(nameof(Motif), ref motif, value?.Trim()); }
-    string motif;
-
-    [NonPersistent, XafDisplayName("Période")]
-    public string DisplayName => $"{Salarie?.FullName} : {DateDebut:dd/MM} → {DateFin:dd/MM} ({DureeJours:n2} j)";
-
-    public override void AfterConstruction()
-    {
-        base.AfterConstruction();
-        RecalculerDuree();
-    }
-
-    protected override void OnSaving()
-    {
-        base.OnSaving();
-        if (!IsDeleted) RecalculerDuree();
-    }
-
-    public void RecalculerDuree()
-    {
-        DureeJours = CalculerJoursDemande(DateDebut, DateFin, Type?.CompteEnJoursOuvrables ?? true);
-    }
-
-    private decimal CalculerJoursDemande(DateTime dStart, DateTime dEnd, bool ouvrables)
-    {
-        if (dEnd < dStart) return 0m;
-        var dates = Enumerable.Range(0, (dEnd - dStart).Days + 1)
-                              .Select(i => dStart.AddDays(i));
-
-        if (ouvrables)
+        // ── Salarié ───────────────────────────────────────────
+        [RuleRequiredField]
+        [Association("Salarie-Conges")]
+        [XafDisplayName("Salarié")]
+        public Salarie Salarie
         {
-            dates = dates.Where(dt => dt.DayOfWeek != DayOfWeek.Saturday && dt.DayOfWeek != DayOfWeek.Sunday);
+            get => salarie;
+            set => SetPropertyValue(nameof(Salarie), ref salarie, value);
+        }
+        Salarie salarie;
+
+        // ── Type et période ───────────────────────────────────
+        [RuleRequiredField]
+        [XafDisplayName("Type de congé")]
+        public CongeType Type
+        {
+            get => type;
+            set => SetPropertyValue(nameof(Type), ref type, value);
+        }
+        CongeType type;
+
+        [RuleRequiredField]
+        [XafDisplayName("Date de début")]
+        public DateTime DateDebut
+        {
+            get => dateDebut;
+            set => SetPropertyValue(nameof(DateDebut), ref dateDebut, value);
+        }
+        DateTime dateDebut = DateTime.Today;
+
+        [RuleRequiredField]
+        [XafDisplayName("Date de fin")]
+        public DateTime DateFin
+        {
+            get => dateFin;
+            set => SetPropertyValue(nameof(DateFin), ref dateFin, value.Date);
+        }
+        DateTime dateFin = DateTime.Today;
+
+        [ModelDefault("DisplayFormat", "N2"), ModelDefault("EditMask", "N2")]
+        [DbType("decimal(18,2)")]
+        [ModelDefault("AllowEdit", "False")]
+        [XafDisplayName("Durée (jours)")]
+        public decimal DureeJours
+        {
+            get => dureeJours;
+            set => SetPropertyValue(nameof(DureeJours), ref dureeJours, value);
+        }
+        decimal dureeJours;
+
+        [Size(240)]
+        [XafDisplayName("Motif")]
+        public string Motif
+        {
+            get => motif;
+            set => SetPropertyValue(nameof(Motif), ref motif, value?.Trim());
+        }
+        string motif;
+
+        // ── Statut ────────────────────────────────────────────
+        CongeStatut statut = CongeStatut.Brouillon;
+        [XafDisplayName("Statut")]
+        public CongeStatut Statut
+        {
+            get => statut;
+            set => SetPropertyValue(nameof(Statut), ref statut, value);
         }
 
-        var feries = new XPQuery<JourFerie>(Session).Where(f => f.Date >= dStart && f.Date <= dEnd)
-                                                    .Select(f => f.Date).ToHashSet();
-        return dates.Count(d => !feries.Contains(d));
+        // ── Hiérarchie (snapshot à la soumission) ─────────────
+        [XafDisplayName("Valideur N+1")]
+        [ModelDefault("AllowEdit", "False")]
+        public Salarie ValideurN1
+        {
+            get => valideurN1;
+            set => SetPropertyValue(nameof(ValideurN1), ref valideurN1, value);
+        }
+        Salarie valideurN1;
+
+        [XafDisplayName("Valideur N+2")]
+        [ModelDefault("AllowEdit", "False")]
+        public Salarie ValideurN2
+        {
+            get => valideurN2;
+            set => SetPropertyValue(nameof(ValideurN2), ref valideurN2, value);
+        }
+        Salarie valideurN2;
+
+        [XafDisplayName("Date validation N+1")]
+        [ModelDefault("AllowEdit", "False")]
+        public DateTime? DateValidationN1
+        {
+            get => dateValidationN1;
+            set => SetPropertyValue(nameof(DateValidationN1), ref dateValidationN1, value);
+        }
+        DateTime? dateValidationN1;
+
+        [XafDisplayName("Date validation N+2")]
+        [ModelDefault("AllowEdit", "False")]
+        public DateTime? DateValidationN2
+        {
+            get => dateValidationN2;
+            set => SetPropertyValue(nameof(DateValidationN2), ref dateValidationN2, value);
+        }
+        DateTime? dateValidationN2;
+
+        // ── Traitement RH ─────────────────────────────────────
+        [XafDisplayName("Traité par (RH)")]
+        [ModelDefault("AllowEdit", "False")]
+        [Size(100)]
+        public string TraiteParRH
+        {
+            get => traiteParRH;
+            set => SetPropertyValue(nameof(TraiteParRH), ref traiteParRH, value);
+        }
+        string traiteParRH;
+
+        [XafDisplayName("Date de traitement RH")]
+        [ModelDefault("AllowEdit", "False")]
+        public DateTime? DateTraitementRH
+        {
+            get => dateTraitementRH;
+            set => SetPropertyValue(nameof(DateTraitementRH), ref dateTraitementRH, value);
+        }
+        DateTime? dateTraitementRH;
+
+        [Size(500)]
+        [XafDisplayName("Commentaire RH")]
+        public string CommentaireRH
+        {
+            get => commentaireRH;
+            set => SetPropertyValue(nameof(CommentaireRH), ref commentaireRH, value?.Trim());
+        }
+        string commentaireRH;
+
+        /// <summary>
+        /// Date de reprise effective — saisie par le RH au moment de l'accord.
+        /// Peut différer de DateFin + 1 jour (récupération, pont, weekend, etc.)
+        /// </summary>
+        [XafDisplayName("Date de reprise")]
+        [ModelDefault("AllowEdit", "False")]
+        public DateTime? DateReprise
+        {
+            get => dateReprise;
+            set => SetPropertyValue(nameof(DateReprise), ref dateReprise, value);
+        }
+        DateTime? dateReprise;
+
+        // ── Motif de rejet ────────────────────────────────────
+        [Size(500)]
+        [XafDisplayName("Motif de rejet")]
+        [ModelDefault("AllowEdit", "False")]
+        public string MotifRejet
+        {
+            get => motifRejet;
+            set => SetPropertyValue(nameof(MotifRejet), ref motifRejet, value?.Trim());
+        }
+        string motifRejet;
+
+        [Size(100)]
+        [XafDisplayName("Rejeté par")]
+        [ModelDefault("AllowEdit", "False")]
+        public string RejeteParNom
+        {
+            get => rejeteParNom;
+            set => SetPropertyValue(nameof(RejeteParNom), ref rejeteParNom, value);
+        }
+        string rejeteParNom;
+
+        // ── Attestations liées ────────────────────────────────
+        [Association("CongeDemande-Attestations")]
+        [XafDisplayName("Attestations générées")]
+        public XPCollection<DemandeAttestation> Attestations
+            => GetCollection<DemandeAttestation>(nameof(Attestations));
+
+        // ── Affichage ─────────────────────────────────────────
+        [NonPersistent]
+        public string DisplayName =>
+            $"{Salarie?.FullName} : {DateDebut:dd/MM} → {DateFin:dd/MM/yyyy} ({DureeJours:n1} j) — {Statut}";
+
+        // ── Init ──────────────────────────────────────────────
+        public override void AfterConstruction()
+        {
+            base.AfterConstruction();
+            RecalculerDuree();
+            try
+            {
+                // Auto-rattachement salarié connecté
+                var currentUser = Session.FindObject<ApplicationUser>(
+                    DevExpress.Data.Filtering.CriteriaOperator.Parse(
+                        "UserName = ?", SecuritySystem.CurrentUserName));
+                if (currentUser?.Salarie != null)
+                    Salarie = currentUser.Salarie;
+            }
+            catch { }
+        }
+
+        protected override void OnSaving()
+        {
+            base.OnSaving();
+            if (!IsDeleted) RecalculerDuree();
+        }
+
+        // ── Méthodes métier ───────────────────────────────────
+
+        public void RecalculerDuree()
+        {
+            DureeJours = CalculerJoursDemande(
+                DateDebut, DateFin, Type?.CompteEnJoursOuvrables ?? true);
+        }
+
+        /// <summary>
+        /// Soumet la demande selon la chaîne hiérarchique du salarié.
+        /// Si N+1 → EnAttenteN1, sinon Soumise directement.
+        /// </summary>
+        public void Soumettre()
+        {
+            if (Statut != CongeStatut.Brouillon)
+                throw new UserFriendlyException(
+                    "Seule une demande en Brouillon peut être soumise.");
+
+            if (Salarie == null)
+                throw new UserFriendlyException("Le salarié n'est pas renseigné.");
+
+            var chain = Salarie.GetManagerChain(2);
+            if (chain.Count == 0)
+            {
+                Statut = CongeStatut.Soumise;
+                return;
+            }
+
+            ValideurN1 = chain.Count >= 1 ? chain[0] : null;
+            ValideurN2 = chain.Count >= 2 ? chain[1] : null;
+            Statut = CongeStatut.EnAttenteN1;
+        }
+
+        /// <summary>Validation par le N+1.</summary>
+        public void ValiderN1()
+        {
+            if (Statut != CongeStatut.EnAttenteN1)
+                throw new UserFriendlyException(
+                    "La demande n'est pas en attente de validation N+1.");
+
+            DateValidationN1 = DateTime.Now;
+            Statut = ValideurN2 != null
+                ? CongeStatut.EnAttenteN2
+                : CongeStatut.Soumise;
+        }
+
+        /// <summary>Validation par le N+2.</summary>
+        public void ValiderN2()
+        {
+            if (Statut != CongeStatut.EnAttenteN2)
+                throw new UserFriendlyException(
+                    "La demande n'est pas en attente de validation N+2.");
+
+            DateValidationN2 = DateTime.Now;
+            Statut = CongeStatut.Soumise;
+        }
+
+        /// <summary>
+        /// Rejet hiérarchique — repasse en Brouillon pour permettre modification.
+        /// </summary>
+        public void RejeterHierarchie(string motif = null)
+        {
+            if (Statut != CongeStatut.EnAttenteN1 && Statut != CongeStatut.EnAttenteN2)
+                throw new UserFriendlyException(
+                    "La demande n'est pas en attente de validation hiérarchique.");
+
+            try { RejeteParNom = SecuritySystem.CurrentUserName; } catch { }
+            if (!string.IsNullOrWhiteSpace(motif)) MotifRejet = motif;
+
+            // Repasse en Brouillon — le salarié peut modifier et resoumettre
+            Statut = CongeStatut.Brouillon;
+
+            // Réinitialise les valideurs pour une nouvelle soumission
+            ValideurN1 = null;
+            ValideurN2 = null;
+            DateValidationN1 = null;
+            DateValidationN2 = null;
+        }
+
+        /// <summary>Accord par le RH avec date de reprise obligatoire.</summary>
+        public void Accorder(DateTime dateReprise)
+        {
+            if (Statut != CongeStatut.Soumise)
+                throw new UserFriendlyException(
+                    "Seule une demande soumise peut être accordée.");
+
+            DateReprise = dateReprise;
+            DateTraitementRH = DateTime.Now;
+            try { TraiteParRH = SecuritySystem.CurrentUserName; } catch { }
+            Statut = CongeStatut.Accordee;
+        }
+
+        /// <summary>Refus par le RH.</summary>
+        public void Refuser(string motif = null)
+        {
+            if (Statut != CongeStatut.Soumise)
+                throw new UserFriendlyException(
+                    "Seule une demande soumise peut être refusée.");
+
+            if (!string.IsNullOrWhiteSpace(motif)) CommentaireRH = motif;
+            DateTraitementRH = DateTime.Now;
+            try { TraiteParRH = SecuritySystem.CurrentUserName; } catch { }
+            Statut = CongeStatut.Refusee;
+        }
+
+        /// <summary>Annulation par le RH après accord.</summary>
+        public void Annuler(string motif = null)
+        {
+            if (Statut != CongeStatut.Accordee)
+                throw new UserFriendlyException(
+                    "Seule une demande accordée peut être annulée.");
+
+            if (!string.IsNullOrWhiteSpace(motif)) CommentaireRH = motif;
+            Statut = CongeStatut.Annulee;
+        }
+
+        // ── Calcul durée ──────────────────────────────────────
+        private decimal CalculerJoursDemande(
+            DateTime dStart, DateTime dEnd, bool ouvrables)
+        {
+            if (dEnd < dStart) return 0m;
+            var dates = Enumerable.Range(0, (dEnd - dStart).Days + 1)
+                                  .Select(i => dStart.AddDays(i));
+
+            if (ouvrables)
+                dates = dates.Where(dt =>
+                    dt.DayOfWeek != DayOfWeek.Saturday &&
+                    dt.DayOfWeek != DayOfWeek.Sunday);
+
+            var feries = new XPQuery<JourFerie>(Session)
+                .Where(f => f.Date >= dStart && f.Date <= dEnd)
+                .Select(f => f.Date)
+                .ToHashSet();
+
+            return dates.Count(d => !feries.Contains(d));
+        }
     }
 }

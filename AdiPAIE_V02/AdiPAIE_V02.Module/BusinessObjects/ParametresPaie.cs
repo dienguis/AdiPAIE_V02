@@ -23,7 +23,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [PersistentAlias("'Paramètres globaux'")]
         public string DisplayName => (string)EvaluateAlias(nameof(DisplayName));
 
+        // ── ONGLET 1 : Général ──────────────────────────────────────
         // ============== SEED / Démo ====================
+        [Category("Général")]
         [XafDisplayName("Activer le jeu de données démo")]
         public bool ActiverSeedDemo
         {
@@ -35,6 +37,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // ============== Signataire (états / PDF) =======
         [Size(120)]
         [XafDisplayName("Signataire - Nom")]
+        [Category("Général")]
         public string SignatureName
         {
             get => signName;
@@ -44,6 +47,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [Size(120)]
         [XafDisplayName("Signataire - Fonction")]
+        [Category("Général")]
         public string SignatureTitle
         {
             get => signTitle;
@@ -51,8 +55,59 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         string signTitle;
 
+
+        [ImageEditor(ListViewImageEditorCustomHeight = 60, DetailViewImageEditorFixedHeight = 160)]
+        [Category("Général")]
+        public byte[] LogoImage
+        {
+            get => logoImage;
+            set => SetPropertyValue(nameof(LogoImage), ref logoImage, value);
+        }
+        private byte[] logoImage;
+
+        [ImageEditor(ListViewImageEditorCustomHeight = 60, DetailViewImageEditorFixedHeight = 160)]
+        [Category("Général")]
+        public byte[] SignatureImage
+        {
+            get => signatureImage;
+            set => SetPropertyValue(nameof(SignatureImage), ref signatureImage, value);
+        }
+        private byte[] signatureImage;
+
+        [ImageEditor(ListViewImageEditorCustomHeight = 60, DetailViewImageEditorFixedHeight = 160)]
+        [Category("Général")]
+        public byte[] CachetImage
+        {
+            get => cachetImage;
+            set => SetPropertyValue(nameof(CachetImage), ref cachetImage, value);
+        }
+        private byte[] cachetImage;
+
+        [Size(120)]
+        [Category("Général")]
+
+        public string SignatoryName
+        {
+            get => signatoryName;
+            set => SetPropertyValue(nameof(SignatoryName), ref signatoryName, value?.Trim());
+        }
+
+        private string signatoryName;
+
+        [Size(120)]
+        [Category("Général")]
+
+        public string SignatoryTitle
+        {
+            get => signatoryTitle;
+            set => SetPropertyValue(nameof(SignatoryTitle), ref signatoryTitle, value?.Trim());
+        }
+        private string signatoryTitle;
+
+        // ── ONGLET 2 : Fiscalité ────────────────────────────────────
         // ============== TRIMF : codes barèmes ==========
         // Tu peux mettre un format avec {YYYY} / {YY}, ex: "TRIMF_{YYYY}"
+        [Category("Fiscalité")]
         [Size(80)]
         [XafDisplayName("Code barème TRIMF (mensuel)")]
         public string CodeBaremeTRIMF_Mensuel
@@ -62,6 +117,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         string codeTrimfM;
 
+        [Category("Fiscalité")]
         [Size(80)]
         [XafDisplayName("Code barème TRIMF (annuel)")]
         public string CodeBaremeTRIMF_Annuel
@@ -72,6 +128,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         string codeTrimfA;
 
         // ============== IR : code barème DPP annuel ====
+        [Category("Fiscalité")]
         [Size(80)]
         [XafDisplayName("Code barème IR (annuel)")]
         public string CodeBaremeIR_Annuel
@@ -81,7 +138,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         string codeIrAnnuel;
 
+
         // ============== IR : options de calcul =========
+        [Category("Fiscalité")]
         [XafDisplayName("IR – Tronquer la base aux milliers")]
         public bool R_IR_TronquerBaseAuxMille
         {
@@ -90,6 +149,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         bool irTroncMille;
 
+        [Category("Fiscalité")]
         [DbType("decimal(18,2)")]
         [ModelDefault("DisplayFormat", "p0"), ModelDefault("EditMask", "p0")]
         [XafDisplayName("IR – IMAB (% abattement annuel)")]
@@ -100,6 +160,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal irImabPct;
 
+        [Category("Fiscalité")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [XafDisplayName("IR – IMAB Plafond Annuel")]
@@ -109,6 +170,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(R_IR_Abattement_PlafondAnnuel), ref irImabPlafA, value);
         }
         decimal irImabPlafA;
+        [Category("Fiscalité")]
 
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
@@ -120,13 +182,17 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal irImabPlafM;
 
+        [Category("Fiscalité")]
         [XafDisplayName("IR – Régularisation en fin d'année")]
         public bool IR_Regularisation_FinAnnee
         {
             get => irRegFin;
             set => SetPropertyValue(nameof(IR_Regularisation_FinAnnee), ref irRegFin, value);
         }
+
         bool irRegFin;
+
+        [Category("Fiscalité")]
 
         [XafDisplayName("IR – Régularisation mois de départ")]
         public bool IR_Regularisation_MoisDepart
@@ -137,6 +203,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         bool irRegDepart;
 
         // ============== IR : Réduction familiale =========
+        [Category("Fiscalité")]
         [DbType("decimal(18,2)")]
         [ModelDefault("DisplayFormat", "p0"), ModelDefault("EditMask", "p0")]
         [XafDisplayName("Réduction familiale – % par défaut")]
@@ -147,6 +214,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal rfPct;
 
+        [Category("Fiscalité")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [XafDisplayName("Réduction familiale – Min annuel / part")]
@@ -157,6 +225,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal rfMinPartA;
 
+        [Category("Fiscalité")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [XafDisplayName("Réduction familiale – Max annuel / part")]
@@ -167,7 +236,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal rfMaxPartA;
 
+        // ── ONGLET 4 : Modèle bulletin ───────────────────────────────
         // ============== Modèle auto à la création salarié =========
+        [Category("Modèle bulletin")]
         [XafDisplayName("Créer modèle au Save&Close du salarié")]
         public bool ModeleAuto_CreerAuSave
         {
@@ -176,6 +247,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         bool mdlCreate;
 
+        [Category("Modèle bulletin")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [XafDisplayName("Défaut – Sursalaire")]
@@ -186,6 +258,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal? mdlDefSur;
 
+        [Category("Modèle bulletin")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [XafDisplayName("Défaut – Prime de transport")]
@@ -196,6 +269,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal? mdlDefTrans;
 
+        [Category("Modèle bulletin")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [XafDisplayName("Défaut – Avantage véhicule")]
@@ -207,12 +281,16 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         decimal? mdlDefVeh;
 
         // Gestion Remboursement
+        [Category("Modèle bulletin")]
+        [XafDisplayName("Rubrique retenue prêt")]
         public Rubrique RubriqueRetenuePretDefaut
         {
             get => _rPret; set => SetPropertyValue(nameof(RubriqueRetenuePretDefaut), ref _rPret, value);
         }
         Rubrique _rPret;
 
+        [Category("Modèle bulletin")]
+        [XafDisplayName("Rubrique retenue avance")]
         public Rubrique RubriqueRetenueAvanceDefaut
         {
             get => _rAv; set => SetPropertyValue(nameof(RubriqueRetenueAvanceDefaut), ref _rAv, value);
@@ -354,8 +432,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             => os?.GetObjectsQuery<ParametresPaie>().FirstOrDefault();
 
 
+        // ── ONGLET 3 : Messagerie ────────────────────────────────────
 
         // ===================== MESSAGERIE / SMTP =====================
+        [Category("Messagerie")]
         [XafDisplayName("Messagerie active")]
         public bool EmailActif
         {
@@ -364,6 +444,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         bool emailActif;
 
+        [Category("Messagerie")]
         [Size(200)]
         [XafDisplayName("SMTP - Hôte")]
         public string SmtpHost
@@ -373,6 +454,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         string smtpHost;
 
+        [Category("Messagerie")]
         [XafDisplayName("SMTP - Port")]
         [RuleRange(1, 65535)]
         public int SmtpPort
@@ -382,6 +464,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         int smtpPort;
 
+        [Category("Messagerie")]
         [XafDisplayName("SMTP - SSL/TLS")]
         public bool SmtpUseSsl
         {
@@ -401,6 +484,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // NOTE : pour faire simple on stocke en clair.
         // Si tu préfères chiffrer, on peut remplacer par ProtectedContent.
+        [Category("Messagerie")]
         [Size(200)]
         [XafDisplayName("SMTP - Mot de passe")]
         [ModelDefault("IsPassword", "True")]
@@ -411,6 +495,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         string smtpPwd;
 
+        [Category("Messagerie")]
         [Size(200)]
         [XafDisplayName("De (adresse e-mail)")]
         public string MailFromAddress
@@ -420,6 +505,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         string mailFrom;
 
+        [Category("Messagerie")]
         [Size(200)]
         [XafDisplayName("De (affiché)")]
         public string MailFromDisplayName
@@ -429,6 +515,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         string mailFromName;
 
+        [Category("Messagerie")]
         [Size(200)]
         [XafDisplayName("Répondre à (reply-to)")]
         public string MailReplyTo
@@ -438,6 +525,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         string replyTo;
 
+        [Category("Messagerie")]
         [Size(500)]
         [XafDisplayName("BCC par défaut (séparés par ; ou ,)")]
         public string MailBccDefault
@@ -484,45 +572,6 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
 
-        [ImageEditor(ListViewImageEditorCustomHeight = 60, DetailViewImageEditorFixedHeight = 160)]
-        public byte[] LogoImage
-        {
-            get => logoImage;
-            set => SetPropertyValue(nameof(LogoImage), ref logoImage, value);
-        }
-        private byte[] logoImage;
-
-        [ImageEditor(ListViewImageEditorCustomHeight = 60, DetailViewImageEditorFixedHeight = 160)]
-        public byte[] SignatureImage
-        {
-            get => signatureImage;
-            set => SetPropertyValue(nameof(SignatureImage), ref signatureImage, value);
-        }
-        private byte[] signatureImage;
-
-        [ImageEditor(ListViewImageEditorCustomHeight = 60, DetailViewImageEditorFixedHeight = 160)]
-        public byte[] CachetImage
-        {
-            get => cachetImage;
-            set => SetPropertyValue(nameof(CachetImage), ref cachetImage, value);
-        }
-        private byte[] cachetImage;
-
-        [Size(120)]
-        public string SignatoryName
-        {
-            get => signatoryName;
-            set => SetPropertyValue(nameof(SignatoryName), ref signatoryName, value?.Trim());
-        }
-        private string signatoryName;
-
-        [Size(120)]
-        public string SignatoryTitle
-        {
-            get => signatoryTitle;
-            set => SetPropertyValue(nameof(SignatoryTitle), ref signatoryTitle, value?.Trim());
-        }
-        private string signatoryTitle;
 
 
         public enum EmailProvider { Smtp = 0, Graph = 1 }
@@ -627,15 +676,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         /// Template Word pour l'attestation de salaire.
         /// </summary>
         [Category("GRH - Templates")]
-        [XafDisplayName("Template attestation de salaire (.docx)")]
+        [XafDisplayName("Template attestation de congés (.docx)")]
         [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
         [FileTypeFilter("Documents Word", "*.docx")]
-        public FileData TemplateAttestationSalaire
+        public FileData TemplateAttestationDeConges
         {
-            get => templateAttestationSalaire;
-            set => SetPropertyValue(nameof(TemplateAttestationSalaire), ref templateAttestationSalaire, value);
+            get => templateAttestationDeConges;
+            set => SetPropertyValue(nameof(TemplateAttestationDeConges), ref templateAttestationDeConges, value);
         }
-        FileData templateAttestationSalaire;
+        FileData templateAttestationDeConges;
 
         /// <summary>
         /// Template Word pour le certificat d'emploi (fin de contrat).
@@ -651,5 +700,93 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         FileData templateCertificatEmploi;
 
+        /// <summary>
+        /// Template Word pour le cessation de paiement
+        /// </summary>
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template cessation de paiement (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [FileTypeFilter("Documents Word", "*.docx")]
+        public FileData TemplateCessationPaiement
+        {
+            get => templateCessationPaiement;
+            set => SetPropertyValue(nameof(TemplateCessationPaiement), ref templateCessationPaiement, value);
+        }
+        FileData templateCessationPaiement;
+
+        // ── Template entretien annuel ─────────────────────────────
+
+        /// <summary>
+        /// Template Word (.docx) pour la fiche d'entretien annuel.
+        /// Le RH uploade ici le fichier Word avec les marqueurs {{...}}.
+        /// </summary>
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template entretien annuel (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [FileTypeFilter("Documents Word", "*.docx")]
+        public FileData TemplateEntretienAnnuel
+        {
+            get => templateEntretienAnnuel;
+            set => SetPropertyValue(nameof(TemplateEntretienAnnuel), ref templateEntretienAnnuel, value);
+        }
+        FileData templateEntretienAnnuel;
+
+
+        /// <summary>Email du DAF pour les notifications d'ordre de mission approuvé.</summary>
+        [Category("GRH - Alertes")]
+        [XafDisplayName("Email DAF (ordre de mission)")]
+        [Size(300)]
+        public string EmailDAF
+        {
+            get => emailDAF;
+            set => SetPropertyValue(nameof(EmailDAF), ref emailDAF, value?.Trim());
+        }
+        string emailDAF;
+
+        /// <summary>Email(s) du/des comptable(s) pour les notifications de décaissement.</summary>
+        [Category("GRH - Alertes")]
+        [XafDisplayName("Email(s) Comptable (séparés par ;)")]
+        [Size(300)]
+        public string EmailsComptable
+        {
+            get => emailsComptable;
+            set => SetPropertyValue(nameof(EmailsComptable), ref emailsComptable, value?.Trim());
+        }
+        string emailsComptable;
+
+        // ============================================================
+        // Ajouter dans la section GRH - Templates :
+        // ============================================================
+
+        /// <summary>Template Word pour l'ordre de mission.</summary>
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template ordre de mission (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [FileTypeFilter("Documents Word", "*.docx")]
+        public FileData TemplateOrdreMission
+        {
+            get => templateOrdreMission;
+            set => SetPropertyValue(nameof(TemplateOrdreMission), ref templateOrdreMission, value);
+        }
+        FileData templateOrdreMission;
+        /// <summary>
+        /// Template Word pour l'ÉTAT DE FRAIS (note comptable après retour).
+        /// Contient la ligne modèle {{#FRAIS_ROW}} pour les frais dynamiques.
+        /// Uploader le fichier Template_Etat_Frais_Mission.docx
+        /// </summary>
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template état de frais de mission (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [FileTypeFilter("Documents Word", "*.docx")]
+        public FileData TemplateEtatFrais
+        {
+            get => templateEtatFrais;
+            set => SetPropertyValue(nameof(TemplateEtatFrais),
+                ref templateEtatFrais, value);
+        }
+        FileData templateEtatFrais;
+
+
     }
+
 }

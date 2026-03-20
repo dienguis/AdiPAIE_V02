@@ -1,5 +1,6 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
+using AdiPAIE_V02.Module.Domain;
 using AdiPAIE_V02.Module.Services;
 using DevExpress.Data.Utils;
 using DevExpress.ExpressApp;
@@ -7,6 +8,7 @@ using DevExpress.ExpressApp.Actions;
 using DevExpress.ExpressApp.Notifications;
 using DevExpress.Persistent.Base;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
+
 
 namespace AdiPAIE_V02.Module.Controllers.RH
 {
@@ -55,6 +57,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
                 // Crée une notification automatique pour le salarié
                 _EnvoyerNotifTraitement(d);
+                _ArchiverDansDossier(d);
                 ObjectSpace.CommitChanges();
                 View.Refresh();
             };
@@ -151,6 +154,50 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 });
             }
             catch { }
+        }
+
+        void _ArchiverDansDossier(DemandeAttestation demande)
+        {
+            try
+            {
+                if (demande.Document?.Content == null || demande.Salarie == null) return;
+
+                var session = ((DevExpress.ExpressApp.Xpo.XPObjectSpace)ObjectSpace).Session;
+
+                // ── 1. Trouve ou crée le DossierSalarie ──────────────
+                var dossier = ObjectSpace.GetObjectsQuery<DossierSalarie>()
+                    .FirstOrDefault(d => d.Salarie.Oid == demande.Salarie.Oid);
+
+                if (dossier == null)
+                {
+                    dossier = ObjectSpace.CreateObject<DossierSalarie>();
+                    dossier.Salarie = demande.Salarie;
+                }
+
+                // ── 2. Titre du document ──────────────────────────────
+                var titre = $"Attestation {demande.Nature} — {demande.DateDemande:dd/MM/yyyy}";
+
+                // ── 3. Crée le DossierDocument ────────────────────────
+                var doc = ObjectSpace.CreateObject<DossierDocument>();
+                doc.Dossier = dossier;
+                doc.Categorie = DomainEnums.DossierCategorieDocument.Attestation;
+                doc.Titre = titre;
+                doc.SourceAuto = "Généré automatiquement via Demande d'attestation";
+                doc.DateDocument = DateTime.Today;
+                doc.Confidentiel = false;
+
+                // ── 4. Attache le fichier en PieceJointe ─────────────
+                var pj = ObjectSpace.CreateObject<DossierPieceJointe>();
+                pj.DossierDocument = doc;
+                pj.Titre = demande.Document.FileName;
+
+                if (pj.Fichier == null)
+                    pj.Fichier = ObjectSpace.CreateObject<DevExpress.Persistent.BaseImpl.FileData>();
+
+                using var ms = new System.IO.MemoryStream(demande.Document.Content);
+                pj.Fichier.LoadFromStream(demande.Document.FileName, ms);
+            }
+            catch { /* ne pas bloquer le workflow si archivage échoue */ }
         }
         //void _EnvoyerNotifTraitement(DemandeAttestation demande)
         //{

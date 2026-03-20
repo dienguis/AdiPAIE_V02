@@ -3,11 +3,12 @@ using AdiPAIE_V02.Module.BusinessObjects.RH;
 using DocumentFormat.OpenXml.Packaging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using System.Globalization;
+using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.Services
 {
@@ -131,16 +132,17 @@ namespace AdiPAIE_V02.Module.Services
                 new[] { company?.Address, company?.Ville, company?.Pays }
                 .Where(s => !string.IsNullOrWhiteSpace(s)));
 
-            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            // Crée le dictionnaire de base
+            var marqueurs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["{{Civilite}}"] = civilite,
                 ["{{FullName}}"] = sal.FullName ?? "—",
                 ["{{Matricule}}"] = sal.Matricule ?? "—",
+                //["{{Matricule}}"] = sal.Email ?? "—",
                 ["{{Birthday}}"] = birthday,
-
                 ["{{DateEmbauche}}"] = sal.DateEmbauche != default
-                 ? sal.DateEmbauche.ToString("dd MMMM yyyy", cultureFr)
-                                         : "—",
+                                            ? sal.DateEmbauche.ToString("dd MMMM yyyy", cultureFr)
+                                            : "—",
                 ["{{Fonction}}"] = fonctionIntitule,
                 ["{{Echelon}}"] = echelon,
                 ["{{NumeroRef}}"] = numRef,
@@ -153,6 +155,53 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{NombreParts}}"] = sal.NombrePartsFiscales.ToString("N1"),
                 ["{{SalaireBase}}"] = sal.SalaireBase.ToString("N0") + " FCFA",
             };
+
+            // ── Marqueurs spécifiques au congé ───────────────────────────
+            if (demande.Nature == AttestationNature.Conge && demande.CongeSource != null)
+            {
+                var c = demande.CongeSource;
+                marqueurs["{{DateDebutConge}}"] = c.DateDebut.ToString("dd MMMM yyyy", cultureFr);
+                marqueurs["{{DateFinConge}}"] = c.DateFin.ToString("dd MMMM yyyy", cultureFr);
+                marqueurs["{{NombreJours}}"] = c.DureeJours.ToString("N1") + " jour(s)";
+                marqueurs["{{TypeConge}}"] = c.Type?.Libelle ?? "Congé payé";
+                marqueurs["{{MotifConge}}"] = c.Motif ?? string.Empty;
+            }
+            else
+            {
+                // Valeurs vides pour éviter les marqueurs non remplacés dans le template
+                marqueurs["{{DateDebutConge}}"] = "—";
+                marqueurs["{{DateFinConge}}"] = "—";
+                marqueurs["{{NombreJours}}"] = "—";
+                marqueurs["{{TypeConge}}"] = "—";
+                marqueurs["{{MotifConge}}"] = string.Empty;
+            }
+
+            return marqueurs;
+
+
+            //return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            //{
+            //    ["{{Civilite}}"] = civilite,
+            //    ["{{FullName}}"] = sal.FullName ?? "—",
+            //    ["{{Matricule}}"] = sal.Matricule ?? "—",
+            //    ["{{Birthday}}"] = birthday,
+
+            //    ["{{DateEmbauche}}"] = sal.DateEmbauche != default
+            //     ? sal.DateEmbauche.ToString("dd MMMM yyyy", cultureFr)
+            //                             : "—",
+            //    ["{{Fonction}}"] = fonctionIntitule,
+            //    ["{{Echelon}}"] = echelon,
+            //    ["{{NumeroRef}}"] = numRef,
+            //    ["{{DateDocument}}"] = DateTime.Today.ToString("dd MMMM yyyy", cultureFr),
+            //    ["{{VilleFait}}"] = "Dakar",
+            //    ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "—",
+            //    ["{{AdresseSociete}}"] = adresse,
+            //    ["{{SignataireNom}}"] = prm?.SignatoryName ?? prm?.SignatureName ?? "—",
+            //    ["{{SignataireTitre}}"] = prm?.SignatoryTitle ?? prm?.SignatureTitle ?? "—",
+            //    ["{{NombreParts}}"] = sal.NombrePartsFiscales.ToString("N1"),
+            //    ["{{SalaireBase}}"] = sal.SalaireBase.ToString("N0") + " FCFA",
+
+            //};
         }
 
         // ── Fusion Open XML ──────────────────────────────────────

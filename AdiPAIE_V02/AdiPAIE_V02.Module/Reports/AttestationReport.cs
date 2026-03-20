@@ -189,7 +189,7 @@ namespace AdiPAIE_V02.Module.Reports
             y += 210;
 
             // Mention salaire (uniquement pour Nature = Salaire)
-            if (demande.Nature == AttestationNature.Salaire && sal != null)
+            if (demande.Nature == AttestationNature.Conge && sal != null)
             {
                 detail.Controls.Add(MakeLabel(
                     $"Salaire de base mensuel brut : {sal.SalaireBase:N0} FCFA",
@@ -293,10 +293,10 @@ namespace AdiPAIE_V02.Module.Reports
         private static string GetTitreDocument(AttestationNature nature) => nature switch
         {
             AttestationNature.Travail => "ATTESTATION DE TRAVAIL",
-            AttestationNature.Salaire => "ATTESTATION DE SALAIRE",
+            AttestationNature.CessationPaiement => "ATTESTATION DE CESSATION DE PAIEMENT",
             AttestationNature.Conge => "ATTESTATION DE CONGÉ PAYÉ",
             AttestationNature.Emploi => "CERTIFICAT D'EMPLOI",
-            AttestationNature.Prise_En_Charge => "ATTESTATION DE PRISE EN CHARGE",
+         //   AttestationNature.Prise_En_Charge => "ATTESTATION DE PRISE EN CHARGE",
             _ => "ATTESTATION"
         };
 
@@ -329,7 +329,7 @@ namespace AdiPAIE_V02.Module.Reports
                     $"depuis le {embauche}.\r\n\r\n" +
                     "Cette attestation est délivrée à la demande de l'intéressé(e) et pour servir et valoir ce que de droit.",
 
-                AttestationNature.Salaire =>
+                AttestationNature.CessationPaiement =>
                     $"Monsieur / Madame {nom}, matricule {matricule}, est employé(e) " +
                     $"au sein de {soc} depuis le {embauche} " +
                     $"en qualité de {categorie}.\r\n\r\n" +
@@ -348,7 +348,7 @@ namespace AdiPAIE_V02.Module.Reports
                     "Cette personne a quitté nos effectifs à la date indiquée ci-dessus " +
                     "et a satisfait à toutes ses obligations envers la société.",
 
-                AttestationNature.Prise_En_Charge =>
+                AttestationNature.DomiciliationSalaire =>
                     $"Monsieur / Madame {nom}, matricule {matricule}, employé(e) " +
                     $"au sein de {soc} depuis le {embauche}, " +
                     $"fait l'objet d'une prise en charge par la société " +

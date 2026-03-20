@@ -34,7 +34,7 @@
     <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Dashboards.Win" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.FileAttachment.Win" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.MultiTenancy.Win.Xpo" Version="25.1.*" />
+
     <PackageReference Include="DevExpress.ExpressApp.Notifications.Win" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Office.Win" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.PivotChart.Win" Version="25.1.*" />

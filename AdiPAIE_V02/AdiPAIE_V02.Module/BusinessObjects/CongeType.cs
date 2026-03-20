@@ -12,6 +12,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions, XafDisplayName("Type de congé")]
     [DefaultProperty(nameof(Libelle))]
+    [NavigationItem("Paramétrage")]
     public class CongeType : BaseObject
     {
         public CongeType(Session s) : base(s) { }
@@ -40,6 +41,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
 
     [DefaultClassOptions, XafDisplayName("Jour férié")]
+    [NavigationItem("Paramétrage")]
     public class JourFerie : BaseObject
     {
         public JourFerie(Session s) : base(s) { }

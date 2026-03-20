@@ -255,43 +255,57 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 return;
             }
 
-#if !RELEASE
-            if (TenantName == null)
-            {
-                _ = CreateTenant("company1.com", "AdiPAIE_V02_company1");
-                _ = CreateTenant("company2.com", "AdiPAIE_V02_company2");
-                ObjectSpace.CommitChanges();
-            }
-#endif
+//#if !RELEASE
+//            if (TenantName == null)
+//            {
+//                _ = CreateTenant("company1.com", "AdiPAIE_V02_company1");
+//                _ = CreateTenant("company2.com", "AdiPAIE_V02_company2");
+//                ObjectSpace.CommitChanges();
+//            }
+//#endif
 
 #if !RELEASE
             var adminRole = CreateAdminRole();
 
             UserManager userManager = ObjectSpace.ServiceProvider.GetRequiredService<UserManager>();
 
-            if (TenantName != null)
-            {
-                var defaultRole = CreateDefaultRole();
+            //if (TenantName != null)
+            //{
+            //    var defaultRole = CreateDefaultRole();
 
-                string userName = $"User@{TenantName}";
-                if (userManager.FindUserByName<ApplicationUser>(ObjectSpace, userName) == null)
-                {
-                    string EmptyPassword = "";
-                    _ = userManager.CreateUser<ApplicationUser>(ObjectSpace, userName, EmptyPassword, (user) =>
-                    {
-                        user.Roles.Add(defaultRole);
-                    });
-                }
-            }
+            //    string userName = $"User@{TenantName}";
+            //    if (userManager.FindUserByName<ApplicationUser>(ObjectSpace, userName) == null)
+            //    {
+            //        string EmptyPassword = "";
+            //        _ = userManager.CreateUser<ApplicationUser>(ObjectSpace, userName, EmptyPassword, (user) =>
+            //        {
+            //            user.Roles.Add(defaultRole);
+            //        });
+            //    }
+            //}
+            //       string adminUserName = TenantName != null ? $"Admin@{TenantName}" : "Admin";
 
-            string adminUserName = TenantName != null ? $"Admin@{TenantName}" : "Admin";
-            if (userManager.FindUserByName<ApplicationUser>(ObjectSpace, adminUserName) == null)
+
+            //if (userManager.FindUserByName<ApplicationUser>(ObjectSpace, adminUserName) == null)
+            //{
+            //    string EmptyPassword = "";
+            //    _ = userManager.CreateUser<ApplicationUser>(ObjectSpace, adminUserName, EmptyPassword, (user) =>
+            //    {
+            //        user.Roles.Add(adminRole);
+            //    });
+            //}
+
+         // ── Utilisateur Admin ─────────────────────────────
+string adminUserName = "Admin";
+            if (userManager.FindUserByName<ApplicationUser>(
+                    ObjectSpace, adminUserName) == null)
             {
                 string EmptyPassword = "";
-                _ = userManager.CreateUser<ApplicationUser>(ObjectSpace, adminUserName, EmptyPassword, (user) =>
-                {
-                    user.Roles.Add(adminRole);
-                });
+                _ = userManager.CreateUser<ApplicationUser>(
+                    ObjectSpace, adminUserName, EmptyPassword, (user) =>
+                    {
+                        user.Roles.Add(adminRole);
+                    });
             }
 
             ObjectSpace.CommitChanges();
@@ -377,20 +391,20 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             return defaultRole;
         }
 
-        Guid? TenantId
-        {
-            get
-            {
-                return ObjectSpace.ServiceProvider.GetRequiredService<ITenantProvider>().TenantId;
-            }
-        }
-        string TenantName
-        {
-            get
-            {
-                return ObjectSpace.ServiceProvider.GetRequiredService<ITenantProvider>().TenantName;
-            }
-        }
+        //Guid? TenantId
+        //{
+        //    get
+        //    {
+        //        return ObjectSpace.ServiceProvider.GetRequiredService<ITenantProvider>().TenantId;
+        //    }
+        //}
+        //string TenantName
+        //{
+        //    get
+        //    {
+        //        return ObjectSpace.ServiceProvider.GetRequiredService<ITenantProvider>().TenantName;
+        //    }
+        //}
 
         // ===========================
         // SEED : 10 salariés + modèles (partiel)

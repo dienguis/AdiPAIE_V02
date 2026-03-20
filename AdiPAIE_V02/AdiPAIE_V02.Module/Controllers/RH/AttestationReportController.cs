@@ -97,8 +97,9 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             if (prm == null) return null;
             return nature switch
             {
-                AttestationNature.Salaire => prm.TemplateAttestationSalaire?.Content,
+                AttestationNature.Conge => prm.TemplateAttestationDeConges?.Content,
                 AttestationNature.Emploi => prm.TemplateCertificatEmploi?.Content,
+                AttestationNature.CessationPaiement => prm.TemplateCessationPaiement?.Content,
                 _ => prm.TemplateAttestation?.Content
             };
         }

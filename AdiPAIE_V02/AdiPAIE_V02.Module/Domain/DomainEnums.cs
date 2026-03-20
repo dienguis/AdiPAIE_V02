@@ -121,7 +121,7 @@ namespace AdiPAIE_V02.Module.Domain
             ARegler = 0,
             Payee = 1
         }
-        public enum CongeStatut { Brouillon = 0, Soumis = 1, Approuve = 2, Rejete = 3, Annule = 4 }
+       
         public enum CongeImpactSalaire { Paye = 0, Impaye = 1, Partiel = 2 } // Partiel = maintien % (ex: maladie)
         public enum PretNature { Pret = 0, AvanceSalaire = 1 }
 
@@ -152,20 +152,43 @@ namespace AdiPAIE_V02.Module.Domain
             CongeAbsence = 7,
 
             [XafDisplayName("Autre")]
-            Autre = 8
+            Autre = 8,
+                [XafDisplayName("Attestation")]
+           Attestation = 9,
+
+            [XafDisplayName("Bulletin de paie")]
+            BulletinPaie = 10,
         }
 
         // ===== Évaluation / Entretiens annuels =====
 
         public enum EntretienStatut
         {
+            [XafDisplayName("Brouillon")]
             Brouillon = 0,   // Créé par RH, non encore envoyé
-            PlanifieRH = 1,   // Date fixée, convocation envoyée
-            SaisieSalarie = 2,   // Formulaire auto-évaluation transmis au salarié
-            EnCours = 3,   // Entretien réalisé, saisie manager en cours
-            ValideManager = 4,   // Validé par le manager N+1
-            Cloture = 5    // Archivé - lecture seule
+
+            [XafDisplayName("Planifié RH")]
+            PlanifieRH = 1,   // Date fixée, prêt à lancer
+
+            [XafDisplayName("Saisie manager")]
+            SaisieManager = 2,   // N+1 remplit l'évaluation complète
+
+            [XafDisplayName("Observations salarié")]
+            SaisieSalarie = 3,   // Salarié remplit ses observations uniquement
+
+            [XafDisplayName("Validation N+1")]
+            ValidationN1 = 4,   // N+1 prend connaissance des observations et valide
+
+            [XafDisplayName("En attente N+2")]
+            EnAttenteN2 = 5,   // Soumis au N+2 pour validation finale
+
+            [XafDisplayName("Soumise RH")]
+            SoumiseRH = 6,   // Validé par toute la hiérarchie — RH peut clôturer
+
+            [XafDisplayName("Clôturé")]
+            Cloture = 7,   // Archivé — lecture seule totale
         }
+
         public enum NoteEvaluation
         {
             NonEvalue = 0,
@@ -205,10 +228,11 @@ namespace AdiPAIE_V02.Module.Domain
         public enum AttestationNature
         {
             Travail = 0,   // Attestation de travail
-            Salaire = 1,   // Attestation de salaire (avec montants)
-            Conge = 2,   // Attestation de congé payé
-            Emploi = 3,   // Certificat d'emploi (fin de contrat)
-            Prise_En_Charge = 4    // Prise en charge assurance / logement
+            Conge = 1,   // Attestation de congé payé
+            Emploi = 2,   // Certificat d'emploi (fin de contrat)
+            CessationPaiement= 3,    // Attestation de Cessation de Paitement
+            DomiciliationSalaire =4
+
         }
 
         public enum DemandeStatut
@@ -237,6 +261,116 @@ namespace AdiPAIE_V02.Module.Domain
             Lue = 1,
             Archivee = 2
         }
+        public enum CongeStatut
+        {
+            // ── Salarié ────────────────────────────────────────
+            [XafDisplayName("Brouillon")]
+            Brouillon = 0,   // Salarié peut modifier librement
+
+            // ── Circuit hiérarchique ───────────────────────────
+            [XafDisplayName("En attente N+1")]
+            EnAttenteN1 = 1,   // Soumis, attend validation N+1
+
+            [XafDisplayName("En attente N+2")]
+            EnAttenteN2 = 2,   // Validé N+1, attend validation N+2
+
+            // ── Circuit RH ────────────────────────────────────
+            [XafDisplayName("Soumise")]
+            Soumise = 10,  // Validée par hiérarchie, visible RH
+
+            [XafDisplayName("Accordée")]
+            Accordee = 20,  // RH a accordé le congé
+
+            [XafDisplayName("Refusée")]
+            Refusee = 30,  // RH a refusé
+
+            [XafDisplayName("Annulée")]
+            Annulee = 40,  // RH a annulé après accord
+        }
+
+        /// <summary>Note globale A+ à F (synthèse évaluation ELTON)</summary>
+        public enum NoteGlobale
+        {
+            [XafDisplayName("A+ — Excellent")] APlus = 0,
+            [XafDisplayName("A — Très bien")] A = 1,
+            [XafDisplayName("B — Bien")] B = 2,
+            [XafDisplayName("C — Satisfaisant")] C = 3,
+            [XafDisplayName("D — Passable")] D = 4,
+            [XafDisplayName("E — Insuffisant")] E = 5,
+            [XafDisplayName("F — Très insuffisant")] F = 6,
+        }
+
+        /// <summary>Note pour les missions/responsabilités (Partie I-A)</summary>
+        public enum NoteMission
+        {
+            [XafDisplayName("S/O")] SO = 0,
+            [XafDisplayName("Insuffisant")] Insuffisant = 1,
+            [XafDisplayName("Passable")] Passable = 2,
+            [XafDisplayName("Satisfait")] Satisfait = 3,
+            [XafDisplayName("Supérieur")] Superieur = 4,
+        }
+
+        /// <summary>Niveau d'atteinte des objectifs</summary>
+        public enum NiveauAtteinte
+        {
+            [XafDisplayName("Non réalisé")] NonRealise = 0,
+            [XafDisplayName("En partie atteint")] EnPartieAtteint = 1,
+            [XafDisplayName("Atteint")] Atteint = 2,
+            [XafDisplayName("Dépassé")] Depasse = 3,
+            [XafDisplayName("Supérieur")] Superieur = 4,
+        }
+
+        /// <summary>Niveau de maîtrise pour les aptitudes management (Partie III)</summary>
+        public enum NiveauMaitrise
+        {
+            [XafDisplayName("À acquérir")] AAccquerir = 0,
+            [XafDisplayName("À développer")] ADevelopper = 1,
+            [XafDisplayName("Maîtrise")] Maitrise = 2,
+            [XafDisplayName("Excellente maîtrise")] ExcellenteMaitrise = 3,
+        }
+
+        /// <summary>Statut de la demande de déplacement</summary>
+        public enum DeplacementStatut
+        {
+            [XafDisplayName("Brouillon")]
+            Brouillon = 0,   // Salarié peut modifier
+
+            [XafDisplayName("En attente N+1")]
+            EnAttenteN1 = 1,   // Soumis au responsable
+
+            [XafDisplayName("En attente assistant RH")]
+            SoumiseAssistant = 10,  // Validé N+1, assistant prépare l'ordre
+
+            [XafDisplayName("En attente RH")]
+            EnAttenteRH = 11,  // Assistant a soumis au RH
+
+            [XafDisplayName("Approuvée RH")]
+            ApprouveeRH = 20,  // RH a approuvé, DAF notifié
+
+            [XafDisplayName("En attente comptable")]
+            EnAttenteComptable = 21,  // DAF a validé, comptable notifié
+
+            [XafDisplayName("Traitée")]
+            Traitee = 30,  // Comptable a confirmé, archivé
+
+            [XafDisplayName("Rejetée")]
+            Rejetee = 40,  // Rejet à n'importe quelle étape
+        }
+
+        /// <summary>Type de calcul pour une catégorie de frais</summary>
+        public enum FraisCalculMode
+        {
+            [XafDisplayName("Taux journalier (montant × jours)")]
+            TauxJournalier = 0,
+
+            [XafDisplayName("Forfait (montant fixe)")]
+            Forfait = 1,
+
+            [XafDisplayName("Kilométrique (montant × km)")]
+            Kilometrique = 2,
+        }
+
+
 
 
     }

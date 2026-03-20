@@ -2,14 +2,13 @@
 using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.Services;
-using DevExpress.ExpressApp.MultiTenancy;
+
 using DevExpress.ExpressApp.Security;
-using DevExpress.ExpressApp.Xpo;
-using DevExpress.Persistent.Base;
+
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Server.Circuits;
-using Microsoft.Extensions.DependencyInjection;
+
 
 namespace AdiPAIE_V02.Blazor.Server
 {
@@ -34,7 +33,8 @@ namespace AdiPAIE_V02.Blazor.Server
             services.AddScoped<CircuitHandler, CircuitHandlerProxy>();
 
             services.AddHostedService<AttestationRappelService>();
-
+            services.AddHostedService<AttestationRappelService>();
+            services.AddHostedService<DossierExpirationRappelService>();
             services.AddXaf(Configuration, builder =>
             {
                 builder.UseApplication<AdiPAIE_V02BlazorApplication>();
@@ -67,23 +67,26 @@ namespace AdiPAIE_V02.Blazor.Server
                     .AddViewVariants()
                     .Add<AdiPAIE_V02.Module.AdiPAIE_V02Module>()
                     .Add<AdiPAIE_V02BlazorModule>();
-                builder.AddMultiTenancy()
-                    .WithHostDatabaseConnectionString(Configuration.GetConnectionString("ConnectionString"))
-#if EASYTEST
-                    .WithHostDatabaseConnectionString(Configuration.GetConnectionString("EasyTestConnectionString"))
-#endif
-                    .WithMultiTenancyModelDifferenceStore(options =>
-                    {
-#if !RELEASE
-                        options.UseTenantSpecificModel = false;
-#endif
-                    })
-                    .WithTenantResolver<TenantByEmailResolver>();
+//                builder.AddMultiTenancy()
+//                    .WithHostDatabaseConnectionString(Configuration.GetConnectionString("ConnectionString"))
+//#if EASYTEST
+//                    .WithHostDatabaseConnectionString(Configuration.GetConnectionString("EasyTestConnectionString"))
+//#endif
+//                    .WithMultiTenancyModelDifferenceStore(options =>
+//                    {
+//#if !RELEASE
+//                        options.UseTenantSpecificModel = false;
+//#endif
+//                    })
+//                    .WithTenantResolver<TenantByEmailResolver>();
 
                 builder.ObjectSpaceProviders
                     .AddSecuredXpo((serviceProvider, options) =>
                     {
-                        string connectionString = serviceProvider.GetRequiredService<IConnectionStringProvider>().GetConnectionString();
+                        //   string connectionString = serviceProvider.GetRequiredService<IConnectionStringProvider>().GetConnectionString();
+                        string connectionString = serviceProvider
+       .GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>()
+       .GetConnectionString("ConnectionString");
                         options.ConnectionString = connectionString;
                         options.ThreadSafe = true;
                         options.UseSharedDataStoreProvider = true;

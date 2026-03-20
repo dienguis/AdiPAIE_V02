@@ -1,4 +1,4 @@
-using AdiPAIE_V02.Module.BusinessObjects.RH;
+﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
 using AdiPAIE_V02.Module.Domain;
 using AdiPAIE_V02.Module.Services;
 using DevExpress.Data.Filtering;
@@ -302,9 +302,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             => GetCollection<SimulationSursalaire>(nameof(Simulations));
 
         // ── GRH — Dossier / Entretiens / Attestations / Notifs ─
-        [Association("Salarie-DossiersRH"), Aggregated]
-        public XPCollection<DossierSalarie> DossiersRH
-            => GetCollection<DossierSalarie>(nameof(DossiersRH));
+        [Association("Salarie-DossierSalarie"), Aggregated]
+        public XPCollection<DossierSalarie> DossierSalarie
+              => GetCollection<DossierSalarie>(nameof(DossierSalarie));
 
         [Association("Salarie-Entretiens"), Aggregated]
         [XafDisplayName("Entretiens annuels")]
@@ -325,6 +325,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [NonPersistent, XafDisplayName("Notifications non lues")]
         public int NbNotificationsNonLues => Notifications.Count(n =>
             n.Statut == Domain.DomainEnums.NotificationStatut.NonLue);
+
+        [Association("Salarie-Deplacements"), Aggregated]
+        [XafDisplayName("Demandes de déplacement")]
+        public XPCollection<DemandeDeplacement> Deplacements
+    => GetCollection<DemandeDeplacement>(nameof(Deplacements));
 
         // ── Manager hiérarchique (N+1) ────────────────────────
         [XafDisplayName("Responsable hiérarchique (N+1)")]

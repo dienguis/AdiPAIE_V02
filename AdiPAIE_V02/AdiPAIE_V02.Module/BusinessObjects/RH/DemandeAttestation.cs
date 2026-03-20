@@ -3,6 +3,7 @@ using DevExpress.Drawing;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Editors;
 using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
@@ -345,6 +346,24 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             Statut = DemandeStatut.Rejetee;
         }
 
+        // ── Lien avec la demande de congé (si nature = Congé) ────────
+        CongeDemande congeSource;
+
+        [XafDisplayName("Congé concerné")]
+        [Appearance("CongeSource_Visible",
+          Criteria = "Nature = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+AttestationNature,Conge#",
+          Visibility = ViewItemVisibility.Show, TargetItems = nameof(CongeSource))]
+        [Appearance("CongeSource_Hidden",
+          Criteria = "Nature <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+AttestationNature,Conge#",
+          Visibility = ViewItemVisibility.Hide, TargetItems = nameof(CongeSource))]
+        [Association("CongeDemande-Attestations")]
+        public CongeDemande CongeSource
+        {
+            get => congeSource;
+            set => SetPropertyValue(nameof(CongeSource), ref congeSource, value);
+        }
+
+    
 
 
     }

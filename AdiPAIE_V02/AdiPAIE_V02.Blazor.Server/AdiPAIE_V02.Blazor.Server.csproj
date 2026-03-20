@@ -23,7 +23,6 @@
     <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Dashboards.Blazor" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.FileAttachment.Blazor" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.MultiTenancy.Blazor.Xpo" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Notifications.Blazor" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.Office.Blazor" Version="25.1.*" />
     <PackageReference Include="DevExpress.ExpressApp.ReportsV2.Blazor" Version="25.1.*" />

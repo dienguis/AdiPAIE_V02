@@ -4,9 +4,9 @@ using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.ExpressApp.Editors;
 using DevExpress.ExpressApp.SystemModule;
-using DevExpress.ExpressApp.Win.Editors;
+
 using DevExpress.Persistent.Base;
-using DevExpress.XtraGrid.Views.Grid;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -221,29 +221,29 @@ namespace AdiPAIE_V02.Module.Controllers
             TargetViewId = "Salarie_Paie_ListView";
         }
 
-        protected override void OnViewControlsCreated()
-        {
-            base.OnViewControlsCreated();
-            var gridEditor = View.Editor as GridListEditor;
-            var gridView = gridEditor?.GridView as GridView;
-            if (gridView == null) return;
+        //protected override void OnViewControlsCreated()
+        //{
+        //    base.OnViewControlsCreated();
+        //    var gridEditor = View.Editor as GridListEditor;
+        //    var gridView = gridEditor?.GridView as GridView;
+        //    if (gridView == null) return;
 
-            // Full row focus + clearer highlight
-            gridView.FocusRectStyle = DrawFocusRectStyle.RowFullFocus;
-            gridView.OptionsSelection.EnableAppearanceFocusedRow = true;
-            gridView.OptionsSelection.MultiSelect = true; // si tu sélectionnes plusieurs salariés
+        //    // Full row focus + clearer highlight
+        //    gridView.FocusRectStyle = DrawFocusRectStyle.RowFullFocus;
+        //    gridView.OptionsSelection.EnableAppearanceFocusedRow = true;
+        //    gridView.OptionsSelection.MultiSelect = true; // si tu sélectionnes plusieurs salariés
 
-            // Couleurs visibles (adapte si besoin)
-            gridView.Appearance.FocusedRow.BackColor = Color.FromArgb(255, 235, 140); // jaune doux
-            gridView.Appearance.FocusedRow.ForeColor = Color.Black;
-            gridView.Appearance.SelectedRow.BackColor = Color.FromArgb(255, 235, 140);
-            gridView.Appearance.SelectedRow.ForeColor = Color.Black;
-            gridView.Appearance.HideSelectionRow.BackColor = Color.FromArgb(255, 245, 200); // quand la grille perd le focus
-            gridView.Appearance.HideSelectionRow.ForeColor = Color.Black;
+        //    // Couleurs visibles (adapte si besoin)
+        //    gridView.Appearance.FocusedRow.BackColor = Color.FromArgb(255, 235, 140); // jaune doux
+        //    gridView.Appearance.FocusedRow.ForeColor = Color.Black;
+        //    gridView.Appearance.SelectedRow.BackColor = Color.FromArgb(255, 235, 140);
+        //    gridView.Appearance.SelectedRow.ForeColor = Color.Black;
+        //    gridView.Appearance.HideSelectionRow.BackColor = Color.FromArgb(255, 245, 200); // quand la grille perd le focus
+        //    gridView.Appearance.HideSelectionRow.ForeColor = Color.Black;
 
-            // Optionnel: survol lisible
-            gridView.Appearance.HotTrackedRow.BackColor = Color.FromArgb(230, 245, 255);
-            gridView.Appearance.HotTrackedRow.ForeColor = Color.Black;
-        }
+        //    // Optionnel: survol lisible
+        //    gridView.Appearance.HotTrackedRow.BackColor = Color.FromArgb(230, 245, 255);
+        //    gridView.Appearance.HotTrackedRow.ForeColor = Color.Black;
+        //}
     }
 }
