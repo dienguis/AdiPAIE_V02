@@ -507,58 +507,33 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 notif.Categorie = "Évaluation";
                 notif.Priorite = NotificationPriorite.Important;
                 ObjectSpace.CommitChanges();
-
-                var notifOid = notif.Oid;
-                var osFactory = Application.ServiceProvider
-                    .GetRequiredService<IObjectSpaceFactory>();
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        using var os = osFactory.CreateObjectSpace(typeof(NotificationSalarie));
-                        var n = os.GetObjectByKey<NotificationSalarie>(notifOid);
-                        if (n != null) NotificationEmailService.Envoyer(n, os);
-                    }
-                    catch { }
-                });
+                WorkflowEmailHelper.EnvoyerNotifAsync(Application, notif);
             }
-            catch { }
+            catch (Exception ex) { Tracing.Tracer.LogError(ex); }
         }
 
         private void _NotifierRHEmail(EntretienAnnuel en)
         {
             try
             {
-                var prm = ParametresPaie.TryGet(ObjectSpace);
-                if (prm == null || !prm.EmailActif
-                    || string.IsNullOrWhiteSpace(prm.EmailsRHAlertes)) return;
+                var rhEmails = WorkflowEmailHelper.ExtraireEmailsRH(Application);
+                if (!rhEmails.Any()) return;
 
-                var destinataires = prm.EmailsRHAlertes
-                    .Split(new[] { ';', ',' },
-                        System.StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim())
-                    .Where(x => x.Contains('@'))
-                    .ToList();
-
-                if (!destinataires.Any()) return;
-
-                var sender = prm.CreateEmailSender();
                 var sujet = $"[AdiPAIE] Évaluation prête à clôturer — {en.Salarie?.FullName}";
-                var body = $@"<html><body style='font-family:Segoe UI,Arial;font-size:14px;'>
-<h2 style='color:#1F4E79;'>Entretien annuel — prêt à clôturer</h2>
-<table style='border-collapse:collapse;'>
-  <tr><td style='padding:6px 12px;'><b>Salarié</b></td><td>{en.Salarie?.FullName}</td></tr>
-  <tr style='background:#EBF3FB;'><td style='padding:6px 12px;'><b>Campagne</b></td><td>{en.Campagne?.Annee}</td></tr>
-  <tr><td style='padding:6px 12px;'><b>Note globale</b></td><td>{en.NoteGlobaleManager}</td></tr>
-  <tr style='background:#EBF3FB;'><td style='padding:6px 12px;'><b>Score</b></td><td>{en.ScoreGlobal:N2} / 5</td></tr>
-</table>
-<p>Connectez-vous sur AdiPAIE pour clôturer l'entretien.</p>
-</body></html>";
+                var body = WorkflowEmailHelper.HtmlTableau(
+                    "Entretien annuel — prêt à clôturer",
+                    "Connectez-vous sur AdiPAIE pour clôturer l'entretien.",
+                    new[]
+                    {
+                        ("Salarié",    en.Salarie?.FullName ?? "—"),
+                        ("Campagne",   en.Campagne?.Annee.ToString() ?? "—"),
+                        ("Note RH",    en.NoteGlobaleManager.ToString() ?? "—"),
+                        ("Score",      $"{en.ScoreGlobal:N2} / 5"),
+                    });
 
-                foreach (var dest in destinataires)
-                    sender.Send(dest, sujet, body);
+                WorkflowEmailHelper.EnvoyerEmailsAsync(Application, rhEmails, sujet, body);
             }
-            catch { }
+            catch (Exception ex) { Tracing.Tracer.LogError(ex); }
         }
 
         // ── Archivage et génération fiche ─────────────────────

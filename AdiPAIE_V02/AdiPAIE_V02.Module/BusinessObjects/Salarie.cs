@@ -330,6 +330,24 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [XafDisplayName("Demandes de déplacement")]
         public XPCollection<DemandeDeplacement> Deplacements
     => GetCollection<DemandeDeplacement>(nameof(Deplacements));
+        // ── Avancements ───────────────────────────────────────────
+        [Association("Salarie-Avancements"), Aggregated]
+        [XafDisplayName("Avancements / Promotions")]
+        public XPCollection<DemandeAvancement> Avancements
+            => GetCollection<DemandeAvancement>(nameof(Avancements));
+
+        [Association("Salarie-HistoriquePostes"), Aggregated]
+        [XafDisplayName("Historique de poste")]
+        public XPCollection<HistoriquePoste> HistoriquePostes
+            => GetCollection<HistoriquePoste>(nameof(HistoriquePostes));
+
+        [Association("DG-Avancements")]
+        [Browsable(false)]
+        public XPCollection<DemandeAvancement> AvancementsApprouves
+            => GetCollection<DemandeAvancement>(nameof(AvancementsApprouves));
+
+
+
 
         // ── Manager hiérarchique (N+1) ────────────────────────
         [XafDisplayName("Responsable hiérarchique (N+1)")]
@@ -340,6 +358,34 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(Manager), ref manager, value);
         }
         Salarie manager;
+
+        // ── Formation ─────────────────────────────────────────
+        [Association("Salarie-InscriptionsFormation")]
+        [XafDisplayName("Inscriptions formation")]
+        public XPCollection<InscriptionFormation> InscriptionsFormation
+            => GetCollection<InscriptionFormation>(nameof(InscriptionsFormation));
+
+        [Association("Salarie-SuivisFormation")]
+        [XafDisplayName("Historique formation")]
+        public XPCollection<SuiviFormation> SuivisFormation
+            => GetCollection<SuiviFormation>(nameof(SuivisFormation));
+
+        [Association("Salarie-PlansApprouves")]
+        [XafDisplayName("Plans approuvés")]
+        [Browsable(false)]
+        public XPCollection<PlanFormation> PlansApprouves
+            => GetCollection<PlanFormation>(nameof(PlansApprouves));
+
+        [Association("Salarie-SoldesConge")]
+        [XafDisplayName("Soldes de congés")]
+        public XPCollection<SoldeConge> SoldesConge
+               => GetCollection<SoldeConge>(nameof(SoldesConge));
+
+        [Association("Salarie-EvenementsConge")]
+        [Browsable(false)]
+        public XPCollection<EvenementConge> EvenementsConge
+    => GetCollection<EvenementConge>(nameof(EvenementsConge));
+
 
         public System.Collections.Generic.List<Salarie> GetManagerChain(int maxLevels = 2)
         {

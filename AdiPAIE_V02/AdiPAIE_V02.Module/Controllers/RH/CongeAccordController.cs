@@ -1,5 +1,6 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
+using AdiPAIE_V02.Module.Services;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
@@ -52,10 +53,23 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             }
 
             d.Accorder(d.DateReprise.Value);
+            // Débiter le solde
+            SoldeCongeCalculService.DebiterJours(ObjectSpace, d);
+
+            // Impact paie si congé non payé
+            if (d.Type?.ImpactSalaire == CongeImpactSalaire.Impaye
+            // || d.Type?.ImpactSalaire == CongeImpactSalaire.Partiel
+             )
+            {
+                CongeImpactPaieService.CreerRetenue(ObjectSpace, d);
+                d.ImpactPaieGenere = true;
+            }
 
             // Notification salarié
             _NotifierSalarie(d);
 
+            ObjectSpace.CommitChanges();
+            PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
             ObjectSpace.CommitChanges();
             View.Refresh();
         }

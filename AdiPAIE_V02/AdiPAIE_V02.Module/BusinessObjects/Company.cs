@@ -166,5 +166,14 @@ public byte[] LogoImage { get; set; }
         [Association("Company-Campagnes"), Aggregated]
         [XafDisplayName("Campagnes d'évaluation")]
         public XPCollection<CampagneEvaluation> CampagnesEvaluation => GetCollection<CampagneEvaluation>(nameof(CampagnesEvaluation));
+       
+        
+        [Association("Company-PlansFormation")]
+        [XafDisplayName("Plans de formation")]
+        [Browsable(false)]
+        public XPCollection<PlanFormation> PlansFormation
+         => GetCollection<PlanFormation>(nameof(PlansFormation));
+
+
     }
 }

@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Threading.Tasks;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
@@ -45,13 +44,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 var d = (DemandeDeplacement)View.CurrentObject;
                 d.Soumettre();
 
-                var smtp = ExtraireSmtp();
+                var sender = ExtraireSender();
                 var eInfo = ExtraireDemande(d);
                 var destEmail = d.ValideurN1?.Email ?? "";
                 var destOid = d.ValideurN1?.Oid;
-
-                ObjectSpace.CommitChanges();
-                UpdateStates(); View.Refresh();
 
                 if (destOid.HasValue)
                     _Notifier(destOid.Value,
@@ -60,8 +56,11 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                         + $"{eInfo.Objet}. Départ : {eInfo.DateDepart}, "
                         + $"Retour : {eInfo.DateRetour} ({eInfo.NombreJours} j).");
 
+                ObjectSpace.CommitChanges();
+                UpdateStates(); View.Refresh();
+
                 if (!string.IsNullOrWhiteSpace(destEmail))
-                    EnvoyerAsync(smtp, destEmail,
+                    EnvoyerAsync(sender, destEmail,
                         $"[AdiPAIE] Demande de déplacement à valider — {eInfo.SalarieNom}",
                         CorpsEmail("Demande de déplacement à valider",
                             $"{eInfo.SalarieNom} souhaite effectuer un déplacement : "
@@ -85,7 +84,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 var d = (DemandeDeplacement)View.CurrentObject;
                 d.ValiderN1();
 
-                var smtp = ExtraireSmtp();
+                var sender = ExtraireSender();
                 var eInfo = ExtraireDemande(d);
                 var valideurNom = d.ValideurN1?.FullName ?? "";
                 var rhEmails = ExtraireEmailsRH();
@@ -94,7 +93,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 UpdateStates(); View.Refresh();
 
                 foreach (var dest in rhEmails)
-                    EnvoyerAsync(smtp, dest,
+                    EnvoyerAsync(sender, dest,
                         $"[AdiPAIE] Demande à traiter — {eInfo.SalarieNom}",
                         CorpsEmail("Demande de déplacement validée par N+1",
                             $"Demande de {eInfo.SalarieNom} ({eInfo.Objet}) validée par "
@@ -120,22 +119,22 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     throw new UserFriendlyException("Veuillez saisir un motif de rejet.");
                 d.RejeterN1(d.MotifRejet);
 
-                var smtp = ExtraireSmtp();
+                var sender = ExtraireSender();
                 var eInfo = ExtraireDemande(d);
                 var motif = d.MotifRejet ?? "";
                 var salarieEmail = d.Salarie?.Email ?? "";
                 var salarieOid = d.Salarie?.Oid;
-
-                ObjectSpace.CommitChanges();
-                UpdateStates(); View.Refresh();
 
                 if (salarieOid.HasValue)
                     _Notifier(salarieOid.Value,
                         "Votre demande de déplacement a été rejetée",
                         $"Votre demande '{eInfo.Objet}' a été rejetée. Motif : {motif}.");
 
+                ObjectSpace.CommitChanges();
+                UpdateStates(); View.Refresh();
+
                 if (!string.IsNullOrWhiteSpace(salarieEmail))
-                    EnvoyerAsync(smtp, salarieEmail,
+                    EnvoyerAsync(sender, salarieEmail,
                         "[AdiPAIE] Votre demande de déplacement a été rejetée",
                         CorpsEmail("Demande de déplacement rejetée",
                             $"Votre demande '{eInfo.Objet}' a été rejetée. "
@@ -166,7 +165,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 var d = (DemandeDeplacement)View.CurrentObject;
                 d.SoumettreAuRH();
 
-                var smtp = ExtraireSmtp();
+                var sender = ExtraireSender();
                 var eInfo = ExtraireDemande(d);
                 var rhEmails = ExtraireEmailsRH();
 
@@ -174,7 +173,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 UpdateStates(); View.Refresh();
 
                 foreach (var dest in rhEmails)
-                    EnvoyerAsync(smtp, dest,
+                    EnvoyerAsync(sender, dest,
                         $"[AdiPAIE] Ordre de mission à approuver — {eInfo.SalarieNom}",
                         CorpsEmail("Ordre de mission à approuver",
                             $"La note de frais de {eInfo.SalarieNom} ({eInfo.Objet}) "
@@ -216,16 +215,13 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 var d = (DemandeDeplacement)View.CurrentObject;
                 d.ApprouverRH();
 
-                var smtp = ExtraireSmtp();
+                var sender = ExtraireSender();
                 var eInfo = ExtraireDemande(d);
                 var salarieEmail = d.Salarie?.Email ?? "";
                 var salarieOid = d.Salarie?.Oid;
                 var dafEmails = ExtraireEmailsDAF();
 
-                ObjectSpace.CommitChanges();
-                UpdateStates(); View.Refresh();
-
-                // Notification in-app salarié
+                // Notification in-app salarié (avant CommitChanges)
                 if (salarieOid.HasValue)
                     _Notifier(salarieOid.Value,
                         "Votre ordre de mission a été approuvé",
@@ -233,9 +229,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                         + $"{eInfo.DateRetour}) a été approuvée. "
                         + $"Total frais : {eInfo.TotalFrais}.");
 
+                ObjectSpace.CommitChanges();
+                UpdateStates(); View.Refresh();
+
                 // Email salarié
                 if (!string.IsNullOrWhiteSpace(salarieEmail))
-                    EnvoyerAsync(smtp, salarieEmail,
+                    EnvoyerAsync(sender, salarieEmail,
                         "[AdiPAIE] Votre ordre de mission a été approuvé",
                         CorpsEmail("Ordre de mission approuvé",
                             $"Votre demande '{eInfo.Objet}' ({eInfo.DateDepart} → "
@@ -244,7 +243,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
                 // Email DAF
                 foreach (var dest in dafEmails)
-                    EnvoyerAsync(smtp, dest,
+                    EnvoyerAsync(sender, dest,
                         $"[AdiPAIE] Ordre de mission approuvé — {eInfo.SalarieNom}",
                         CorpsEmail("Ordre de mission approuvé — décaissement requis",
                             $"Veuillez procéder au décaissement pour la mission de "
@@ -271,7 +270,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     throw new UserFriendlyException("Veuillez saisir un motif de rejet.");
                 d.RejeterRH(d.MotifRejet);
 
-                var smtp = ExtraireSmtp();
+                var sender = ExtraireSender();
                 var eInfo = ExtraireDemande(d);
                 var motif = d.MotifRejet ?? "";
                 var rhEmails = ExtraireEmailsRH();
@@ -280,7 +279,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 UpdateStates(); View.Refresh();
 
                 foreach (var dest in rhEmails)
-                    EnvoyerAsync(smtp, dest,
+                    EnvoyerAsync(sender, dest,
                         $"[AdiPAIE] Ordre rejeté — {eInfo.SalarieNom}",
                         CorpsEmail("Ordre de mission rejeté par le RH",
                             $"L'ordre de mission de {eInfo.SalarieNom} a été rejeté. "
@@ -300,20 +299,29 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 var d = (DemandeDeplacement)View.CurrentObject;
                 d.ValiderDAF();
 
-                var smtp = ExtraireSmtp();
+                var sender = ExtraireSender();
                 var eInfo = ExtraireDemande(d);
                 var comptableEmails = ExtraireEmailsComptable();
 
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();
 
+                var pjOrdre = ToAttachment(d.DocumentOrdre);
+                var pjFrais = ToAttachment(d.DocumentFrais);
+
                 foreach (var dest in comptableEmails)
-                    EnvoyerAsync(smtp, dest,
+                {
+                    var pjs = new[] { pjOrdre, pjFrais }
+                        .Where(p => p != null)
+                        .ToArray();
+                    EnvoyerAsync(sender, dest,
                         $"[AdiPAIE] Décaissement validé — {eInfo.SalarieNom}",
                         CorpsEmail("Décaissement validé — opération à enregistrer",
                             $"Veuillez enregistrer l'opération comptable pour la mission de "
                             + $"{eInfo.SalarieNom} : {eInfo.Objet}. "
-                            + $"Montant : {eInfo.TotalFrais}. N° {eInfo.NumeroOrdre}.", eInfo));
+                            + $"Montant : {eInfo.TotalFrais}. N° {eInfo.NumeroOrdre}.", eInfo),
+                        pjs);
+                }
 
                 Application.ShowViewStrategy?.ShowMessage(
                     "Décaissement validé. Le comptable a été notifié.",
@@ -334,13 +342,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 d.ConfirmerComptable();
                 _ArchiverDansDossier(d);
 
-                var smtp = ExtraireSmtp();
+                var sender = ExtraireSender();
                 var eInfo = ExtraireDemande(d);
                 var salarieEmail = d.Salarie?.Email ?? "";
                 var salarieOid = d.Salarie?.Oid;
-
-                ObjectSpace.CommitChanges();
-                UpdateStates(); View.Refresh();
 
                 if (salarieOid.HasValue)
                     _Notifier(salarieOid.Value,
@@ -348,8 +353,11 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                         $"L'opération comptable pour votre mission '{eInfo.Objet}' "
                         + $"a été enregistrée. Montant : {eInfo.TotalFrais}.");
 
+                ObjectSpace.CommitChanges();
+                UpdateStates(); View.Refresh();
+
                 if (!string.IsNullOrWhiteSpace(salarieEmail))
-                    EnvoyerAsync(smtp, salarieEmail,
+                    EnvoyerAsync(sender, salarieEmail,
                         "[AdiPAIE] Votre mission est clôturée",
                         CorpsEmail("Mission clôturée",
                             $"L'opération comptable pour votre mission '{eInfo.Objet}' "
@@ -452,7 +460,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     .CreateObject<DevExpress.Persistent.BaseImpl.FileData>();
                 using var ms = new System.IO.MemoryStream(pdfBytes);
                 fileData.LoadFromStream(nomFic, ms);
-                d.DocumentOrdre = fileData;
+                d.DocumentFrais = fileData;   // champ dédié état de frais
 
                 ObjectSpace.CommitChanges();
                 View.Refresh();
@@ -507,54 +515,41 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         }
 
         // ════════════════════════════════════════════════════════
-        // NOTIFICATION IN-APP — via INonSecuredObjectSpaceFactory
-        // Bypasse la sécurité XAF pour créer la notification
+        // NOTIFICATION IN-APP — synchrone via ObjectSpace (thread UI)
+        // INonSecuredObjectSpaceFactory + Task.Run ne fonctionne pas
+        // → on crée la notification directement dans l'ObjectSpace courant
+        //   AVANT CommitChanges() pour qu'elle soit persistée en un seul commit
         // ════════════════════════════════════════════════════════
 
         private void _Notifier(Guid destOid, string titre, string corps)
         {
             try
             {
-                var factory = Application.ServiceProvider
-                    .GetRequiredService<INonSecuredObjectSpaceFactory>();
-
-                Task.Run(() =>
+                var salarie = ObjectSpace.GetObjectByKey<Salarie>(destOid);
+                if (salarie == null)
                 {
-                    try
-                    {
-                        using var os = factory.CreateNonSecuredObjectSpace(
-                            typeof(NotificationSalarie));
-                        var salarie = os.GetObjectByKey<Salarie>(destOid);
-                        if (salarie == null) return;
-                        var notif = os.CreateObject<NotificationSalarie>();
-                        notif.Salarie = salarie;
-                        notif.Titre = titre;
-                        notif.Corps = corps;
-                        notif.Categorie = "Mission";
-                        notif.Priorite = NotificationPriorite.Important;
-                        os.CommitChanges();
-                    }
-                    catch { }
-                });
+                    Tracing.Tracer.LogWarning($"_Notifier : salarié {destOid} introuvable.");
+                    return;
+                }
+                var notif = ObjectSpace.CreateObject<NotificationSalarie>();
+                notif.Salarie = salarie;
+                notif.Titre = titre;
+                notif.Corps = corps;
+                notif.Categorie = "Mission";
+                notif.Priorite = NotificationPriorite.Important;
+                // Pas de CommitChanges() ici — l'appelant commite juste après
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Tracing.Tracer.LogError(ex);
+            }
         }
 
         // ════════════════════════════════════════════════════════
-        // EXTRACTION DONNÉES XPO via INonSecuredObjectSpaceFactory
+        // EXTRACTION DONNÉES XPO — via INonSecuredObjectSpaceFactory (bypass sécurité XAF)
         // ════════════════════════════════════════════════════════
 
-        private class SmtpInfo
-        {
-            public bool Actif { get; set; }
-            public string Host { get; set; } = "";
-            public int Port { get; set; } = 587;
-            public string User { get; set; } = "";
-            public string Password { get; set; } = "";
-            public string From { get; set; } = "";
-            public string FromName { get; set; } = "";
-            public bool Ssl { get; set; }
-        }
+
 
         private class DemandeInfo
         {
@@ -567,71 +562,81 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             public string NumeroOrdre { get; set; } = "";
         }
 
-        private SmtpInfo ExtraireSmtp()
+        // Toutes les méthodes Extraire* utilisent INonSecuredObjectSpaceFactory
+        // sur le thread UI (synchrone) pour contourner les filtres de sécurité XAF.
+        // ⚠️ Ne jamais les appeler depuis Task.Run — la factory n'est pas thread-safe.
+
+        private IObjectSpace _CreateNonSecuredOS(Type t)
+        {
+            var factory = Application.ServiceProvider
+                .GetRequiredService<INonSecuredObjectSpaceFactory>();
+            return factory.CreateNonSecuredObjectSpace(t);
+        }
+
+        /// <summary>
+        /// Retourne un IEmailSender prêt à l'emploi (Graph ou SMTP selon config),
+        /// ou null si email désactivé / paramètres manquants.
+        /// </summary>
+        private IEmailSender ExtraireSender()
         {
             try
             {
-                var factory = Application.ServiceProvider
-                    .GetRequiredService<INonSecuredObjectSpaceFactory>();
-                using var os = factory.CreateNonSecuredObjectSpace(typeof(ParametresPaie));
+                using var os = _CreateNonSecuredOS(typeof(ParametresPaie));
                 var prm = os.GetObjectsQuery<ParametresPaie>().FirstOrDefault();
-                if (prm == null) return new SmtpInfo();
-                return new SmtpInfo
+                if (prm == null)
                 {
-                    Actif = prm.EmailActif,
-                    Host = prm.SmtpHost ?? "",
-                    Port = prm.SmtpPort,
-                    User = prm.SmtpUserName ?? "",
-                    Password = prm.SmtpPassword ?? "",
-                    From = prm.MailFromAddress ?? "",
-                    FromName = prm.MailFromDisplayName ?? "",
-                    Ssl = prm.SmtpUseSsl
-                };
+                    Tracing.Tracer.LogWarning("ExtraireSender : aucun ParametresPaie trouvé.");
+                    return null;
+                }
+                if (!prm.EmailActif)
+                {
+                    Tracing.Tracer.LogWarning("ExtraireSender : EmailActif = false.");
+                    return null;
+                }
+                return prm.CreateEmailSender(); // Graph ou SMTP selon EmailProviderKind
             }
-            catch { return new SmtpInfo(); }
+            catch (Exception ex)
+            {
+                Tracing.Tracer.LogError(ex);
+                return null;
+            }
         }
 
         private List<string> ExtraireEmailsRH()
         {
             try
             {
-                var factory = Application.ServiceProvider
-                    .GetRequiredService<INonSecuredObjectSpaceFactory>();
-                using var os = factory.CreateNonSecuredObjectSpace(typeof(ParametresPaie));
+                using var os = _CreateNonSecuredOS(typeof(ParametresPaie));
                 var prm = os.GetObjectsQuery<ParametresPaie>().FirstOrDefault();
                 return ParseEmails(prm?.EmailsRHAlertes ?? "");
             }
-            catch { return new List<string>(); }
+            catch (Exception ex) { Tracing.Tracer.LogError(ex); return new List<string>(); }
         }
 
         private List<string> ExtraireEmailsDAF()
         {
             try
             {
-                var factory = Application.ServiceProvider
-                    .GetRequiredService<INonSecuredObjectSpaceFactory>();
-                using var os = factory.CreateNonSecuredObjectSpace(typeof(ParametresPaie));
+                using var os = _CreateNonSecuredOS(typeof(ParametresPaie));
                 var prm = os.GetObjectsQuery<ParametresPaie>().FirstOrDefault();
                 var emails = prm?.EmailDAF;
                 if (string.IsNullOrWhiteSpace(emails)) emails = prm?.EmailsRHAlertes;
                 return ParseEmails(emails ?? "");
             }
-            catch { return new List<string>(); }
+            catch (Exception ex) { Tracing.Tracer.LogError(ex); return new List<string>(); }
         }
 
         private List<string> ExtraireEmailsComptable()
         {
             try
             {
-                var factory = Application.ServiceProvider
-                    .GetRequiredService<INonSecuredObjectSpaceFactory>();
-                using var os = factory.CreateNonSecuredObjectSpace(typeof(ParametresPaie));
+                using var os = _CreateNonSecuredOS(typeof(ParametresPaie));
                 var prm = os.GetObjectsQuery<ParametresPaie>().FirstOrDefault();
                 var emails = prm?.EmailsComptable;
                 if (string.IsNullOrWhiteSpace(emails)) emails = prm?.EmailsRHAlertes;
                 return ParseEmails(emails ?? "");
             }
-            catch { return new List<string>(); }
+            catch (Exception ex) { Tracing.Tracer.LogError(ex); return new List<string>(); }
         }
 
         private static DemandeInfo ExtraireDemande(DemandeDeplacement d) =>
@@ -651,38 +656,49 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         // ════════════════════════════════════════════════════════
 
         private static void EnvoyerAsync(
-            SmtpInfo smtp, string dest, string sujet, string body)
+            IEmailSender sender, string dest, string sujet, string body,
+            params System.Net.Mail.Attachment[] attachments)
         {
-            if (!smtp.Actif) return;
-            if (string.IsNullOrWhiteSpace(dest)) return;
-            if (string.IsNullOrWhiteSpace(smtp.Host)) return;
-
-            var host = smtp.Host; var port = smtp.Port;
-            var user = smtp.User; var pwd = smtp.Password;
-            var from = smtp.From; var fromName = smtp.FromName;
-            var ssl = smtp.Ssl;
-
+            if (sender == null) return;
+            if (string.IsNullOrWhiteSpace(dest))
+            {
+                Tracing.Tracer.LogWarning("EnvoyerAsync ignoré : destinataire vide.");
+                return;
+            }
+            // Copier les bytes avant Task.Run — pas d'accès XPO dans le thread
+            var pjs = attachments ?? Array.Empty<System.Net.Mail.Attachment>();
             Task.Run(() =>
             {
-                try
+                // Envoyer les PJs une par une (IEmailSender.Send accepte 1 PJ)
+                // Pour le cas sans PJ
+                if (pjs.Length == 0)
                 {
-                    using var client = new SmtpClient(host, port)
-                    {
-                        EnableSsl = ssl,
-                        Credentials = new System.Net.NetworkCredential(user, pwd)
-                    };
-                    using var msg = new MailMessage(
-                        new MailAddress(from, fromName),
-                        new MailAddress(dest))
-                    {
-                        Subject = sujet,
-                        Body = body,
-                        IsBodyHtml = true
-                    };
-                    client.Send(msg);
+                    sender.Send(dest, sujet, body);
+                    return;
                 }
-                catch { }
-            });
+                // Première PJ en attachment principal, les autres ignorées
+                // (Graph et SMTP gèrent 1 PJ à la fois dans l'interface actuelle)
+                foreach (var pj in pjs)
+                    sender.Send(dest, sujet, body, pj);
+            })
+            .ContinueWith(t =>
+            {
+                if (t.Exception != null)
+                    Tracing.Tracer.LogError(
+                        $"EnvoyerAsync ÉCHEC vers {dest} : " +
+                        t.Exception.GetBaseException().Message);
+            }, TaskContinuationOptions.OnlyOnFaulted);
+        }
+
+        /// <summary>Crée une Attachment depuis un FileData XPO. Retourne null si vide.</summary>
+        private static System.Net.Mail.Attachment ToAttachment(
+            DevExpress.Persistent.BaseImpl.FileData fd)
+        {
+            if (fd == null || fd.Content == null || fd.Content.Length == 0) return null;
+            var ms = new System.IO.MemoryStream(fd.Content);
+            return new System.Net.Mail.Attachment(ms,
+                fd.FileName ?? "document.pdf",
+                "application/pdf");
         }
 
         // ════════════════════════════════════════════════════════

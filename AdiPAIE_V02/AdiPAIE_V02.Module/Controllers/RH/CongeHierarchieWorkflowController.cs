@@ -1,4 +1,5 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.Services;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
@@ -71,6 +72,16 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void RejeterAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var d = (CongeDemande)e.CurrentObject;
+
+            // Libérer la réservation de solde si elle avait été faite
+            if (d.SoldeVerifie && d.Type != null && d.Salarie != null)
+            {
+                SoldeCongeCalculService.LibererReservation(
+                    ObjectSpace, d.Salarie, d.Type,
+                    d.DureeJours, d.DateDebut.Year);
+                d.SoldeVerifie = false;
+            }
+
             d.RejeterHierarchie(d.MotifRejet);
 
             // Notifie le salarié que sa demande est rejetée mais modifiable
@@ -82,6 +93,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 + "Vous pouvez la modifier et la resoumettre depuis votre espace salarié.");
 
             ObjectSpace.CommitChanges();
+            PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
             View.Refresh();
         }
 

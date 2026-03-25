@@ -96,28 +96,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                                 + "Vous pouvez la récupérer auprès du service RH.";
                 notif.Categorie = "Attestation";
                 notif.Priorite = NotificationPriorite.Important;
-
                 ObjectSpace.CommitChanges();
-
-                // Email en arrière-plan
-                var notifOid = notif.Oid;
-                var osFactory = Application.ServiceProvider
-                    .GetService<IObjectSpaceFactory>();
-
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        using var os = osFactory.CreateObjectSpace(
-                            typeof(NotificationSalarie));
-                        var n = os.GetObjectByKey<NotificationSalarie>(notifOid);
-                        if (n != null)
-                            NotificationEmailService.Envoyer(n, os);
-                    }
-                    catch { }
-                });
+                WorkflowEmailHelper.EnvoyerNotifAsync(Application, notif);
             }
-            catch { }
+            catch (Exception ex) { Tracing.Tracer.LogError(ex); }
         }
 
         void _EnvoyerNotifRejet(DemandeAttestation demande)
@@ -132,28 +114,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                                 + "Motif : " + (demande.CommentaireRH ?? "voir le service RH.");
                 notif.Categorie = "Attestation";
                 notif.Priorite = NotificationPriorite.Important;
-
                 ObjectSpace.CommitChanges();
-
-                // Email en arrière-plan
-                var notifOid = notif.Oid;
-                var osFactory = Application.ServiceProvider
-                    .GetService<IObjectSpaceFactory>();
-
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        using var os = osFactory.CreateObjectSpace(
-                            typeof(NotificationSalarie));
-                        var n = os.GetObjectByKey<NotificationSalarie>(notifOid);
-                        if (n != null)
-                            NotificationEmailService.Envoyer(n, os);
-                    }
-                    catch { }
-                });
+                WorkflowEmailHelper.EnvoyerNotifAsync(Application, notif);
             }
-            catch { }
+            catch (Exception ex) { Tracing.Tracer.LogError(ex); }
         }
 
         void _ArchiverDansDossier(DemandeAttestation demande)

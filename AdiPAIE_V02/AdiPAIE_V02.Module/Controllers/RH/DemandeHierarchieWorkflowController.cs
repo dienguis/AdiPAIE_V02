@@ -157,56 +157,43 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             {
                 var notif = ObjectSpace.CreateObject<NotificationSalarie>();
                 notif.Salarie = responsable;
-                notif.Titre = $"Demande d'attestation en attente de votre validation";
+                notif.Titre = "Demande d'attestation en attente de votre validation";
                 notif.Corps = $"{demande.Salarie?.FullName} a soumis une demande d'attestation "
                                 + $"({demande.Nature}) le {demande.DateDemande:dd/MM/yyyy}. "
                                 + $"Elle attend votre validation en tant que responsable {niveau}.";
                 notif.Categorie = "Attestation";
                 notif.Priorite = NotificationPriorite.Important;
-
                 ObjectSpace.CommitChanges();
-                NotificationEmailService.Envoyer(notif, ObjectSpace);
+                WorkflowEmailHelper.EnvoyerNotifAsync(Application, notif);
             }
-            catch { }
+            catch (Exception ex) { Tracing.Tracer.LogError(ex); }
         }
 
         /// <summary>Notifie le RH qu'une demande a été validée par la hiérarchie.</summary>
         private void _NotifierRH(DemandeAttestation demande)
         {
-            // Crée une notification visible dans la liste RH
-            // (NotificationSalarie avec Salarie = null ne sera pas filtrée)
             try
             {
-                var prm = ParametresPaie.TryGet(ObjectSpace);
-                if (prm == null || !prm.EmailActif) return;
+                var rhEmails = WorkflowEmailHelper.ExtraireEmailsRH(Application);
+                if (!rhEmails.Any()) return;
 
-                var destinataires = prm.EmailsRHAlertes?
-                    .Split(new[] { ';', ',' }, System.StringSplitOptions.RemoveEmptyEntries)
-                    .Select(e => e.Trim())
-                    .Where(e => e.Contains('@'))
-                    .ToList();
-
-                if (destinataires == null || !destinataires.Any()) return;
-
-                var sender = prm.CreateEmailSender();
+                var valideurs = demande.ValideurN1?.FullName
+                    + (demande.ValideurN2 != null ? " → " + demande.ValideurN2.FullName : "");
                 var sujet = $"[AdiPAIE] Demande d'attestation validée — {demande.Salarie?.FullName}";
-                var body = $@"<html><body style='font-family:Segoe UI,Arial;font-size:14px;color:#333;'>
-<h2 style='color:#1F4E79;'>Demande d'attestation — validée par la hiérarchie</h2>
-<p>La demande suivante a été validée par la chaîne hiérarchique et est maintenant disponible pour traitement :</p>
-<table style='border-collapse:collapse;width:100%;max-width:600px;'>
-  <tr style='background:#2E75B6;color:#fff;'><th style='padding:8px;text-align:left;'>Champ</th><th style='padding:8px;text-align:left;'>Valeur</th></tr>
-  <tr><td style='padding:7px;border-bottom:1px solid #dde;'>Salarié</td><td style='padding:7px;border-bottom:1px solid #dde;'>{demande.Salarie?.FullName}</td></tr>
-  <tr style='background:#EBF3FB;'><td style='padding:7px;border-bottom:1px solid #dde;'>Nature</td><td style='padding:7px;border-bottom:1px solid #dde;'>{demande.Nature}</td></tr>
-  <tr><td style='padding:7px;border-bottom:1px solid #dde;'>Date demande</td><td style='padding:7px;border-bottom:1px solid #dde;'>{demande.DateDemande:dd/MM/yyyy}</td></tr>
-  <tr style='background:#EBF3FB;'><td style='padding:7px;'>Validé par</td><td style='padding:7px;'>{demande.ValideurN1?.FullName}{(demande.ValideurN2 != null ? " → " + demande.ValideurN2.FullName : "")}</td></tr>
-</table>
-<br><p style='color:#666;font-size:12px;'>Message automatique AdiPAIE.</p>
-</body></html>";
+                var body = WorkflowEmailHelper.HtmlTableau(
+                    "Demande d'attestation — validée par la hiérarchie",
+                    "La demande est disponible pour traitement dans AdiPAIE.",
+                    new[]
+                    {
+                        ("Salarié",      demande.Salarie?.FullName ?? "—"),
+                        ("Nature",       demande.Nature?.ToString() ?? "—"),
+                        ("Date demande", demande.DateDemande.ToString("dd/MM/yyyy")),
+                        ("Validé par",   valideurs),
+                    });
 
-                foreach (var dest in destinataires)
-                    sender.Send(dest, sujet, body);
+                WorkflowEmailHelper.EnvoyerEmailsAsync(Application, rhEmails, sujet, body);
             }
-            catch { }
+            catch (Exception ex) { Tracing.Tracer.LogError(ex); }
         }
 
         /// <summary>Notifie le salarié d'un rejet hiérarchique.</summary>
@@ -221,11 +208,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 notif.Corps = corps;
                 notif.Categorie = "Attestation";
                 notif.Priorite = NotificationPriorite.Important;
-
                 ObjectSpace.CommitChanges();
-                NotificationEmailService.Envoyer(notif, ObjectSpace);
+                WorkflowEmailHelper.EnvoyerNotifAsync(Application, notif);
             }
-            catch { }
+            catch (Exception ex) { Tracing.Tracer.LogError(ex); }
         }
     }
 }

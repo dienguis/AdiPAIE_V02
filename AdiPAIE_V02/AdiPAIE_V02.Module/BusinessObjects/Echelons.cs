@@ -1,6 +1,8 @@
-﻿using DevExpress.Data.Filtering;
+﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
+using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Editors;
 using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
@@ -11,7 +13,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using DevExpress.ExpressApp.Editors;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
@@ -97,6 +98,16 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Association("Echelons-Salaries")]
         public XPCollection<Salarie> Salaries => GetCollection<Salarie>(nameof(Salaries));
 
+
+        [Association("EchelonActuel-Avancements")]
+        [Browsable(false)]
+        public XPCollection<DemandeAvancement> AvancementsActuels
+            => GetCollection<DemandeAvancement>(nameof(AvancementsActuels));
+
+        [Association("NouvelEchelon-Avancements")]
+        [Browsable(false)]
+        public XPCollection<DemandeAvancement> AvancementsVers
+            => GetCollection<DemandeAvancement>(nameof(AvancementsVers));
 
 
 

@@ -163,8 +163,17 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         private static string NettoierMarqueursFragmentes(string xml)
-            => Regex.Replace(xml, @"\{\{[^}]*\}\}",
+        {
+            // Étape 0 : fusionner les accolades séparées par des balises XML
+            // Cas : {</w:t></w:r><w:r><w:t>{ → {{
+            xml = Regex.Replace(xml, @"\{(<[^>]+>)+\{", "{{");
+            // Cas : }</w:t></w:r><w:r><w:t>} → }}
+            xml = Regex.Replace(xml, @"\}(<[^>]+>)+\}", "}}");
+            // Étape 1 : supprimer les balises XML qui fragmentent l'intérieur
+            // Ex : {{Nom</w:r><w:r><w:t>breJours}} → {{NombreJours}}
+            return Regex.Replace(xml, @"\{\{[^}]*\}\}",
                 m => Regex.Replace(m.Value, @"<[^>]+>", ""));
+        }
 
         private static string EchapperXml(string v)
         {

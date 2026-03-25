@@ -12,29 +12,16 @@
   </BOModel>
   <NavigationItems StartupNavigationItem="">
     <Items>
-      <Item Id="Paie" Caption="Paie" Index="0" ImageName="RecurringAppointment" IsNewNode="True">
+      <Item Id="Ressources humaines" Caption="GRH - Paie" Index="0" ImageName="BO_Dashboard" IsNewNode="True">
         <Items IsNewNode="True">
-          <Item Id="Paie_Bulletins" Caption="Bulletins" ViewId="Bulletin_ListView" Index="0" IsNewNode="True" />
-          <Item Id="Paie_SalariesPaie" Caption="Salariés (Paie)" ViewId="Salarie_Paie_ListView" ImageName="Employees" Index="1" IsNewNode="True" />
+          <Item Id="RH_Salaries" Caption="Fiche Employée" ViewId="Salarie_ListView" ImageName="Employees" Index="0" IsNewNode="True" />
+          <Item Id="Paie_SalariesPaie" Caption="Création Bulletin de Paie" ViewId="Salarie_Paie_ListView" Index="1" IsNewNode="True" />
           <Item Id="PeriodePaie_ListView" ViewId="PeriodePaie_ListView" ObjectKey="" ImageName="SwitchTimeScalesTo" Index="2" IsNewNode="True" />
-          <Item Id="SimulationSursalaire_ListView" ViewId="SimulationSursalaire_ListView" ObjectKey="" ImageName="Business_Calculator" Index="3" IsNewNode="True" />
-          <Item Id="Paie_GenererBulletins" Caption="Générer les bulletins" ViewId="Salarie_Generation_ListView" ImageName="Action_Printing_Preview" Visible="False" Index="4" IsNewNode="True" />
-        </Items>
-      </Item>
-      <Item Id="Ressources humaines" Caption="Ressources humaines" Index="1" ImageName="BO_Dashboard" IsNewNode="True">
-        <Items IsNewNode="True">
-          <Item Id="RH_Salaries" Caption="Salariés" ViewId="Salarie_ListView" ImageName="Employees" Index="0" IsNewNode="True" />
-          <Item Id="RH_Dossiers" Caption="Dossiers salariés" ViewId="DossierSalarie_ListView" ObjectKey="" Index="1" IsNewNode="True" />
           <Item Id="RH_Prets" Caption="Prêts" ViewId="Pret_ListView" ObjectKey="" Index="2" IsNewNode="True" />
           <Item Id="RH_EcheancesPrets" Caption="Échéances prêts" ViewId="PretEcheance_ListView" ObjectKey="" Index="3" IsNewNode="True" />
-        </Items>
-      </Item>
-      <Item Id="GRH_EspaceSalarie" Caption="GRH - Espace salarié" Index="2" ImageName="BO_Person" IsNewNode="True">
-        <Items IsNewNode="True">
-          <Item Id="GRH_MesConges" Caption="Mes congés" ViewId="CongeDemande_ListView" ObjectKey="" Index="0" IsNewNode="True" />
-          <Item Id="GRH_MesAttestations" Caption="Mes attestations" ViewId="DemandeAttestation_ListView" ObjectKey="" Index="1" IsNewNode="True" />
-          <Item Id="GRH_MesDeplacements" Caption="Mes déplacements" ViewId="DemandeDeplacement_ListView" ObjectKey="" Index="2" IsNewNode="True" />
-          <Item Id="GRH_MesEntretiens" Caption="Mes entretiens" ViewId="EntretienAnnuel_ListView" ObjectKey="" Index="3" IsNewNode="True" />
+          <Item Id="SimulationSursalaire_ListView" ViewId="SimulationSursalaire_ListView" ObjectKey="" ImageName="Business_Calculator" Index="3" IsNewNode="True" />
+          <Item Id="Paie_GenererBulletins" Caption="Générer les bulletins" ViewId="Salarie_Generation_ListView" ImageName="Action_Printing_Preview" Visible="False" Index="4" IsNewNode="True" />
+          <Item Id="RH_Dossiers" Caption="Dossiers salariés" ViewId="DossierSalarie_ListView" ObjectKey="" Index="10" IsNewNode="True" />
         </Items>
       </Item>
       <Item Id="GRH_Evaluation" Caption="GRH - Évaluation" Index="3" ImageName="BO_Task" IsNewNode="True">
@@ -57,16 +44,23 @@
           <Item Id="Cpta_Plan" Caption="Plan comptable" ViewId="PlanComptable_ListView" Index="2" IsNewNode="True" />
         </Items>
       </Item>
-      <Item Id="Parametrage" Caption="Paramétrage" ImageName="ModelEditor_Settings" Index="6" IsNewNode="True">
+      <Item Id="GRH_EspaceSalarie" Caption="GRH - Espace salarié" Index="20" ImageName="BO_Person" IsNewNode="True">
         <Items IsNewNode="True">
-          <Item Id="Param_Company" Caption="Société" ViewId="Company_ListView" ImageName="BO_Organization_32x32" ObjectKey="" Index="0" IsNewNode="True" />
+          <Item Id="GRH_MesConges" Caption="Mes congés" ViewId="CongeDemande_ListView" ObjectKey="" Index="0" IsNewNode="True" />
+          <Item Id="GRH_MesAttestations" Caption="Mes attestations" ViewId="DemandeAttestation_ListView" ObjectKey="" Index="1" IsNewNode="True" />
+          <Item Id="GRH_MesDeplacements" Caption="Mes déplacements" ViewId="DemandeDeplacement_ListView" ObjectKey="" Index="2" IsNewNode="True" />
+          <Item Id="GRH_MesEntretiens" Caption="Mes entretiens" ViewId="EntretienAnnuel_ListView" ObjectKey="" Index="3" IsNewNode="True" />
+        </Items>
+      </Item>
+      <Item Id="GRH - Administration" Index="30">
+        <Items>
+          <Item Id="JourFerie_ListView" Caption="Jours fériés" ViewId="JourFerie_ListView" ObjectKey="" Index="1" IsNewNode="True" />
           <Item Id="Param_CongeTypes" Caption="Types de congé" ViewId="CongeType_ListView" ObjectKey="" Index="1" IsNewNode="True" />
           <Item Id="Param_DocumentTypes" Caption="Types de document" ViewId="DocumentTypeRef_ListView" ObjectKey="" ImageName="Document Properties" Index="2" IsNewNode="True" />
           <Item Id="Param_PretTypes" Caption="Types de prêt" ViewId="PretType_ListView" ObjectKey="" Index="3" IsNewNode="True" />
           <Item Id="Param_CategoriesFrais" Caption="Catégories de frais de mission" ViewId="CategorieFraisMission_ListView" ObjectKey="" Index="4" IsNewNode="True" />
           <Item Id="Param_Categories" Caption="Catégories salariales" ViewId="Categories_ListView" ImageName="BO_Category" Index="5" IsNewNode="True" />
           <Item Id="Param_Conventions" Caption="Conventions" ViewId="Convention_ListView" Index="6" IsNewNode="True" />
-          <Item Id="Param_Echelons" Caption="Échelons" ViewId="Echelons_ListView" Index="7" IsNewNode="True" />
           <Item Id="Param_Rubriques" Caption="Rubriques" ViewId="Rubrique_ListView" Index="8" IsNewNode="True" />
           <Item Id="Param_RubriqueTypes" Caption="Types de rubrique" ViewId="RubriqueTypeRef_ListView" Index="9" IsNewNode="True" />
           <Item Id="Param_GroupesImpression" Caption="Groupes d'impression" ViewId="GroupeImpressionRef_ListView" Index="10" IsNewNode="True" />
@@ -78,12 +72,15 @@
               <Item Id="Ref_BaremeIR" Caption="Barème IR (DPP)" ViewId="BaremeIR_ListView" ImageName="Shopping_Percent" Index="2" IsNewNode="True" />
             </Items>
           </Item>
+          <Item Id="Departement_ListView" ViewId="Departement_ListView" ObjectKey="" IsNewNode="True" />
+          <Item Id="Echelons_ListView" ViewId="Echelons_ListView" ObjectKey="" IsNewNode="True" />
+          <Item Id="Fonction_ListView" ViewId="Fonction_ListView" ObjectKey="" IsNewNode="True" />
         </Items>
       </Item>
-      <Item Id="Administration" Caption="Administration" Index="7" ImageName="ModelEditor_Settings" IsNewNode="True">
+      <Item Id="Administration" Caption="Administration" Index="50" ImageName="ModelEditor_Settings" IsNewNode="True">
         <Items IsNewNode="True">
+          <Item Id="Param_Company" Caption="Société" ViewId="Company_ListView" ImageName="BO_Organization_32x32" ObjectKey="" Index="0" IsNewNode="True" />
           <Item Id="ParametresPaie_ListView" Caption="Paramètres de paie" ViewId="ParametresPaie_ListView" ObjectKey="" Index="0" IsNewNode="True" />
-          <Item Id="JourFerie_ListView" Caption="Jours fériés" ViewId="JourFerie_ListView" ObjectKey="" Index="1" IsNewNode="True" />
         </Items>
       </Item>
       <Item Id="Traitement" Index="98" ImageName="Recurrence">
@@ -94,9 +91,13 @@
       <Item Id="Default" Index="99">
         <Items>
           <Item Id="BaremeTRIMF_ListView" Removed="True" />
+          <Item Id="Bulletin_ListView" Removed="True" />
           <Item Id="Company_ListView" Removed="True" />
+          <Item Id="Departement_ListView" Removed="True" />
           <Item Id="DocumentTypeRef_ListView" Removed="True" />
           <Item Id="DossierSalarie_ListView" Removed="True" />
+          <Item Id="Echelons_ListView" Removed="True" />
+          <Item Id="Fonction_ListView" Removed="True" />
           <Item Id="IRReductionFamille_ListView" Removed="True" />
           <Item Id="ParametresPaie_ListView" Removed="True" />
           <Item Id="PeriodePaie_ListView" Removed="True" />
@@ -105,6 +106,7 @@
           <Item Id="SimulationSursalaire_ListView" Removed="True" />
         </Items>
       </Item>
+      <Item Id="GRH - Évaluation" Removed="True" />
       <Item Id="Paramétrage" Removed="True">
         <Items>
           <Item Id="CentreConstantesPaie_ListView" Removed="True" />
@@ -370,56 +372,54 @@
     </DetailView>
     <DetailView Id="DemandeDeplacement_DetailView">
       <Layout>
-        <LayoutGroup Id="Main" RelativeSize="100">
-          <LayoutGroup Id="SimpleEditors" RelativeSize="52.96442687747036" ShowCaption="False" IsCollapsibleGroup="True" IsGroupCollapsed="True">
-            <LayoutGroup Id="DemandeDeplacement" RelativeSize="100">
-              <LayoutGroup Id="DemandeDeplacement_col1" RelativeSize="49.91816693944354">
-                <LayoutItem Id="DateDepart" RelativeSize="13.793103448275861" />
-                <LayoutItem Id="DateRetour" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="NombreJours" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="DateDemande" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="Statut" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="ValideurN1" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="DateValidationN1" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="TraiteParAssistant" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="ApprouveParRH" RelativeSize="13.793103448275861" />
+        <TabbedGroup Id="Item1" CaptionLocation="Top" Index="0" RelativeSize="100" IsNewNode="True">
+          <LayoutGroup Id="Main" ShowCaption="True" Index="0" RelativeSize="100" Caption="Général" IsNewNode="True">
+            <LayoutGroup Id="SimpleEditors" ShowCaption="False" Index="0" RelativeSize="52.772808586762075" IsNewNode="True">
+              <LayoutGroup Id="DemandeDeplacement" ShowCaption="True" Caption="Demande Deplacement" Direction="Horizontal" Index="0" RelativeSize="100" IsNewNode="True">
+                <LayoutGroup Id="DemandeDeplacement_col1" ShowCaption="False" Index="0" RelativeSize="49.86830553116769" IsNewNode="True">
+                  <LayoutItem Id="DateDepart" ViewItem="DateDepart" Index="0" RelativeSize="12.5" IsNewNode="True" />
+                  <LayoutItem Id="DateRetour" ViewItem="DateRetour" Index="1" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="NombreJours" ViewItem="NombreJours" Index="2" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="DateDemande" ViewItem="DateDemande" Index="3" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="Statut" ViewItem="Statut" Index="4" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="ValideurN1" ViewItem="ValideurN1" Index="5" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="DateValidationN1" ViewItem="DateValidationN1" Index="6" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="TraiteParAssistant" ViewItem="TraiteParAssistant" Index="7" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="ApprouveParRH" ViewItem="ApprouveParRH" Index="8" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="DateApprobationRH" ViewItem="DateApprobationRH" Index="9" RelativeSize="12.5" IsNewNode="True" />
+                </LayoutGroup>
+                <LayoutGroup Id="DemandeDeplacement_col2" ShowCaption="False" Index="1" RelativeSize="50.13169446883231" IsNewNode="True">
+                  <LayoutItem Id="ValideParDAF" ViewItem="ValideParDAF" Index="0" RelativeSize="12.5" IsNewNode="True" />
+                  <LayoutItem Id="DateValidationDAF" ViewItem="DateValidationDAF" Index="1" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="ConfirmeParComptable" ViewItem="ConfirmeParComptable" Index="2" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="RejeteParNom" ViewItem="RejeteParNom" Index="3" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="TotalFrais" ViewItem="TotalFrais" Index="4" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="NumeroOrdre" ViewItem="NumeroOrdre" Index="5" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="DocumentOrdre" ViewItem="DocumentOrdre" Index="6" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="DocumentFrais" ViewItem="DocumentFrais" Index="7" RelativeSize="9.375" IsNewNode="True" />
+                  <LayoutItem Id="DisplayName" ViewItem="DisplayName" Index="8" RelativeSize="21.875" IsNewNode="True" />
+                </LayoutGroup>
               </LayoutGroup>
-              <LayoutGroup Id="DemandeDeplacement_col2" RelativeSize="50.08183306055646">
-                <LayoutItem Id="DateApprobationRH" RelativeSize="13.793103448275861" />
-                <LayoutItem Id="ValideParDAF" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="DateValidationDAF" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="ConfirmeParComptable" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="RejeteParNom" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="TotalFrais" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="NumeroOrdre" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="DocumentOrdre" RelativeSize="10.344827586206897" />
-                <LayoutItem Id="DisplayName" RelativeSize="13.793103448275861" />
+            </LayoutGroup>
+            <TabbedGroup Id="Tabs" Index="1" RelativeSize="47.227191413237925" IsNewNode="True">
+              <LayoutGroup Id="Circuit" ShowCaption="True" Caption="Circuit (itinéraire)" Index="0" RelativeSize="100" IsNewNode="True">
+                <LayoutItem Id="Circuit" ViewItem="Circuit" Index="0" RelativeSize="100" IsNewNode="True" />
               </LayoutGroup>
+              <LayoutGroup Id="Frais" ShowCaption="True" Caption="Note de frais" Index="1" RelativeSize="100" IsNewNode="True">
+                <LayoutItem Id="Frais" ViewItem="Frais" Index="0" RelativeSize="100" IsNewNode="True" />
+              </LayoutGroup>
+            </TabbedGroup>
+          </LayoutGroup>
+          <LayoutGroup Id="Item2" ShowCaption="True" CaptionLocation="Top" Direction="Vertical" Index="1" RelativeSize="100" Caption="Commentaires" IsNewNode="True">
+            <LayoutGroup Id="SizeableEditors" ShowCaption="False" Index="0" RelativeSize="100" IsNewNode="True">
+              <LayoutItem Id="Objet" ViewItem="Objet" Index="0" RelativeSize="25.402504472271914" IsNewNode="True" />
+              <LayoutItem Id="Destination" ViewItem="Destination" Index="1" RelativeSize="23.971377459749554" IsNewNode="True" />
+              <LayoutItem Id="MotifDeplacement" ViewItem="MotifDeplacement" Index="2" RelativeSize="23.971377459749554" IsNewNode="True" />
+              <LayoutItem Id="MotifRejet" ViewItem="MotifRejet" Index="3" RelativeSize="26.65474060822898" IsNewNode="True" />
             </LayoutGroup>
           </LayoutGroup>
-          <LayoutGroup Id="SizeableEditors" RelativeSize="23.122529644268774" Direction="Horizontal" IsCollapsibleGroup="True" IsGroupCollapsed="True">
-            <LayoutGroup Id="Autoc6d0029d-1918-4085-995a-2f70378b836b" ShowCaption="False" Caption="" Index="0" RelativeSize="49.92101105845182" IsCollapsibleGroup="False" IsNewNode="True">
-              <LayoutItem Id="Objet" ViewItem="Objet" Index="0" RelativeSize="48.717948717948715" IsNewNode="True" />
-              <LayoutItem Id="MotifDeplacement" ViewItem="MotifDeplacement" Index="1" RelativeSize="51.282051282051285" IsNewNode="True" />
-            </LayoutGroup>
-            <LayoutGroup Id="Auto88ef17a8-ec9b-46df-bb36-1f17910f5c54" ShowCaption="False" Caption="" Index="1" RelativeSize="50.07898894154818" IsCollapsibleGroup="False" IsNewNode="True">
-              <LayoutItem Id="Destination" ViewItem="Destination" Index="0" RelativeSize="48.717948717948715" IsNewNode="True" />
-              <LayoutItem Id="MotifRejet" ViewItem="MotifRejet" Index="1" RelativeSize="51.282051282051285" IsNewNode="True" />
-            </LayoutGroup>
-            <LayoutItem Id="MotifDeplacement" Index="1" RelativeSize="31.57894736842105" Removed="True" />
-            <LayoutItem Id="MotifRejet" Index="2" RelativeSize="35.08771929824562" Removed="True" />
-            <LayoutItem Id="Destination" Removed="True" />
-            <LayoutItem Id="Objet" Removed="True" />
-          </LayoutGroup>
-          <TabbedGroup Id="Tabs" RelativeSize="23.91304347826087">
-            <LayoutGroup Id="Circuit" RelativeSize="100">
-              <LayoutItem Id="Circuit" RelativeSize="100" />
-            </LayoutGroup>
-            <LayoutGroup Id="Frais" RelativeSize="100">
-              <LayoutItem Id="Frais" RelativeSize="100" />
-            </LayoutGroup>
-          </TabbedGroup>
-        </LayoutGroup>
+        </TabbedGroup>
+        <LayoutGroup Id="Main" Removed="True" />
       </Layout>
     </DetailView>
     <ListView Id="DemandeDeplacement_ListView">
@@ -441,6 +441,7 @@
         <ColumnInfo Id="IdemniteLogement" DisplayFormat="{0:N0}" EditMask="N0" />
       </Columns>
     </ListView>
+    <ListView Id="EvenementConge_ListView" Caption="Planning congés" />
     <DetailView Id="GroupeImpressionRef_DetailView">
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100">
@@ -458,6 +459,36 @@
         <ColumnInfo Id="Libelle" SortOrder="None" SortIndex="-1" />
         <ColumnInfo Id="OrdreGroupe" SortOrder="Ascending" SortIndex="0" />
         <ColumnInfo Id="NormalizedKey" Removed="True" />
+      </Columns>
+    </ListView>
+    <ListView Id="InscriptionFormation_ListView">
+      <Columns>
+        <ColumnInfo Id="AttestationGeneree" Index="-1" />
+        <ColumnInfo Id="DateAttestation" Index="-1" />
+        <ColumnInfo Id="DocumentAttestation" Index="-1" />
+        <ColumnInfo Id="NoteApportPoste" Index="-1" />
+        <ColumnInfo Id="NoteClarteContenu" Index="-1" />
+        <ColumnInfo Id="NoteDisponibiliteAnimateur" Index="-1" />
+        <ColumnInfo Id="NoteMoyenneGlobale" Index="-1" />
+        <ColumnInfo Id="NoteNiveauGroupe" Index="-1" />
+        <ColumnInfo Id="NoteProgression" Index="-1" />
+        <ColumnInfo Id="NoteSupports" Index="-1" />
+      </Columns>
+    </ListView>
+    <ListView Id="InscriptionFormation_SuivisFormation_ListView">
+      <Columns>
+        <ColumnInfo Id="AdequationBesoin" Index="-1" />
+        <ColumnInfo Id="BesoinReel" Index="-1" />
+        <ColumnInfo Id="DateEvaluationFroid" SortIndex="0" SortOrder="Ascending" Index="-1" />
+        <ColumnInfo Id="EntretienFait" Index="-1" />
+        <ColumnInfo Id="FormateurOuOrganisme" Index="-1" />
+        <ColumnInfo Id="FrequencePratique" Index="-1" />
+        <ColumnInfo Id="InitiativeFormation" Index="-1" />
+        <ColumnInfo Id="MisePratique" Index="-1" />
+        <ColumnInfo Id="NoteGlobale" Index="-1" />
+        <ColumnInfo Id="RenouvelerAnneeProchaine" Width="184" Index="-1" />
+        <ColumnInfo Id="ResultatAtteint" Index="-1" />
+        <ColumnInfo Id="DisplaySuivi" SortIndex="-1" SortOrder="None" />
       </Columns>
     </ListView>
     <DetailView Id="IRReductionFamille_DetailView">
@@ -483,10 +514,27 @@
     </DetailView>
     <ListView Id="ParametresPaie_ListView" IsRootView="True" AllowEdit="True" AllowNew="True" AllowDelete="False" ClassName="AdiPAIE_V02.Module.BusinessObjects.ParametresPaie">
       <Columns>
+        <ColumnInfo Id="CachetImage" Index="-1" />
         <ColumnInfo Id="CodeBaremeIR_Annuel" Index="-1" />
         <ColumnInfo Id="CodeBaremeTRIMF_Annuel" Index="-1" Width="251" />
         <ColumnInfo Id="CodeBaremeTRIMF_Mensuel" Index="-1" Width="386" />
+        <ColumnInfo Id="DelaiAlertAttestationJours" Index="-1" />
+        <ColumnInfo Id="EmailActif" Index="-1" />
+        <ColumnInfo Id="EmailProviderKind" Index="-1" />
+        <ColumnInfo Id="GraphClientId" Index="-1" />
+        <ColumnInfo Id="GraphFromUserUpn" Index="-1" />
+        <ColumnInfo Id="GraphTenantId" Index="-1" />
+        <ColumnInfo Id="HeureEnvoiAlertes" Index="-1" />
+        <ColumnInfo Id="IR_Regularisation_FinAnnee" Index="-1" />
         <ColumnInfo Id="IR_Regularisation_MoisDepart" Index="-1" />
+        <ColumnInfo Id="LogoImage" Index="-1" />
+        <ColumnInfo Id="MailFromAddress" Index="-1" />
+        <ColumnInfo Id="MailFromDisplayName" Index="-1" />
+        <ColumnInfo Id="MailReplyTo" Index="-1" />
+        <ColumnInfo Id="ModeleAuto_CreerAuSave" Index="-1" />
+        <ColumnInfo Id="ModeleAuto_Defaut_AvantageVehicule" Index="-1" />
+        <ColumnInfo Id="ModeleAuto_Defaut_PrimeTransport" Index="-1" />
+        <ColumnInfo Id="ModeleAuto_Defaut_Sursalaire" Index="-1" />
         <ColumnInfo Id="R_IR_Abattement_PlafondAnnuel" Index="-1" />
         <ColumnInfo Id="R_IR_Abattement_PlafondMensuel" Index="-1" />
         <ColumnInfo Id="R_IR_Abattement_TauxPercent" Index="-1" />
@@ -494,8 +542,27 @@
         <ColumnInfo Id="R_IR_ReductionFamille_MinParPart_Annuel" Index="-1" />
         <ColumnInfo Id="R_IR_ReductionFamille_Pourcentage" Index="-1" />
         <ColumnInfo Id="R_IR_TronquerBaseAuxMille" Index="-1" />
+        <ColumnInfo Id="RubriqueRetenueAvanceDefaut" Index="-1" />
+        <ColumnInfo Id="RubriqueRetenuePretDefaut" Index="-1" />
+        <ColumnInfo Id="SignatoryName" Index="-1" />
+        <ColumnInfo Id="SignatoryTitle" Index="-1" />
+        <ColumnInfo Id="SignatureImage" Index="-1" />
+        <ColumnInfo Id="SignatureName" Index="-1" />
+        <ColumnInfo Id="SignatureTitle" Index="-1" />
+        <ColumnInfo Id="SmtpHost" Index="-1" />
+        <ColumnInfo Id="SmtpPassword" Index="-1" />
+        <ColumnInfo Id="SmtpPort" Index="-1" />
+        <ColumnInfo Id="SmtpUserName" Index="-1" />
+        <ColumnInfo Id="SmtpUseSsl" Width="104" Index="-1" />
+        <ColumnInfo Id="TemplateAttestation" Index="-1" />
+        <ColumnInfo Id="TemplateAttestationDeConges" Index="-1" />
+        <ColumnInfo Id="TemplateAttestationFormation" Index="-1" />
+        <ColumnInfo Id="TemplateCertificatEmploi" Index="-1" />
+        <ColumnInfo Id="TemplateCessationPaiement" Width="230" Index="-1" />
+        <ColumnInfo Id="TemplateEntretienAnnuel" Index="-1" />
+        <ColumnInfo Id="TemplateEtatFrais" Index="-1" />
+        <ColumnInfo Id="TemplateOrdreMission" Index="-1" />
         <ColumnInfo Id="ActiverSeedDemo" Width="201" />
-        <ColumnInfo Id="IR_Regularisation_FinAnnee" Index="5" />
       </Columns>
     </ListView>
     <ListView Id="Party_PhoneNumbers_ListView">
@@ -807,6 +874,42 @@
       </Filters>
     </ListView>
     <ListView Id="Salarie_Simulations_ListView" ImageName="Business_Calculator" />
+    <ListView Id="SessionFormation_Inscriptions_ListView">
+      <Columns>
+        <ColumnInfo Id="AttestationGeneree" Index="-1" />
+        <ColumnInfo Id="DateAttestation" Index="-1" />
+        <ColumnInfo Id="DocumentAttestation" Index="-1" />
+        <ColumnInfo Id="NoteAdequationObjectifs" Index="-1" />
+        <ColumnInfo Id="NoteApportPoste" Index="-1" />
+        <ColumnInfo Id="NoteClarteContenu" Index="-1" />
+        <ColumnInfo Id="NoteDisponibiliteAnimateur" Index="-1" />
+        <ColumnInfo Id="NoteMoyenneGlobale" Index="-1" />
+        <ColumnInfo Id="NoteNiveauGroupe" Index="-1" />
+        <ColumnInfo Id="NoteProgression" Index="-1" />
+        <ColumnInfo Id="NoteSupports" Index="-1" />
+      </Columns>
+    </ListView>
+    <ListView Id="SessionFormation_ListView">
+      <Columns>
+        <ColumnInfo Id="DureeHeures" Index="-1" />
+        <ColumnInfo Id="Modalite" Index="-1" />
+        <ColumnInfo Id="PlacesDisponibles" Index="-1" />
+        <ColumnInfo Id="TauxPresence" Index="-1" />
+        <ColumnInfo Id="Intitule" SortIndex="-1" SortOrder="None" Width="273" />
+        <ColumnInfo Id="DateDebut" Index="4" />
+        <ColumnInfo Id="DateFin" Index="5" />
+        <ColumnInfo Id="DureeJours" Index="6" />
+        <ColumnInfo Id="Lieu" Index="7" />
+        <ColumnInfo Id="FormateurNom" Index="8" />
+        <ColumnInfo Id="FormateurInterne" SortIndex="0" SortOrder="Ascending" Index="9" />
+        <ColumnInfo Id="CoutPrevisionnel" Index="10" />
+        <ColumnInfo Id="CoutReel" Index="11" />
+        <ColumnInfo Id="CapaciteMax" Index="12" />
+        <ColumnInfo Id="Statut" Index="13" />
+        <ColumnInfo Id="NbInscrits" Index="14" />
+        <ColumnInfo Id="NbPresents" Index="15" />
+      </Columns>
+    </ListView>
     <DetailView Id="SimulationSursalaire_DetailView" ImageName="Business_Calculator">
       <Items>
         <PropertyEditor Id="BrutFiscalEstime" PropertyName="BrutFiscalEstime" Caption="Brut fiscal estimé" />
@@ -880,5 +983,19 @@
       </Columns>
     </ListView>
     <ListView Id="SimulationSursalaire_LookupListView" ImageName="Business_Calculator" />
+    <ListView Id="SuiviFormation_ListView">
+      <Columns>
+        <ColumnInfo Id="AdequationBesoin" Index="-1" Width="125" />
+        <ColumnInfo Id="BesoinReel" Index="-1" />
+        <ColumnInfo Id="DateEvaluationFroid" Index="-1" />
+        <ColumnInfo Id="EntretienFait" Index="-1" />
+        <ColumnInfo Id="FrequencePratique" Index="-1" />
+        <ColumnInfo Id="InitiativeFormation" Index="-1" />
+        <ColumnInfo Id="MisePratique" Index="-1" />
+        <ColumnInfo Id="RenouvelerAnneeProchaine" Index="-1" />
+        <ColumnInfo Id="ResultatAtteint" Index="-1" />
+        <ColumnInfo Id="Inscription" Width="127" />
+      </Columns>
+    </ListView>
   </Views>
 </Application>

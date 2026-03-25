@@ -285,8 +285,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         string numeroOrdre;
 
-        // ── Document généré ───────────────────────────────────
-        [XafDisplayName("Ordre de mission (document)")]
+        // ── Documents générés ────────────────────────────────
+        [XafDisplayName("Ordre de mission (PDF)")]
         [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
         public DevExpress.Persistent.BaseImpl.FileData DocumentOrdre
         {
@@ -294,6 +294,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(DocumentOrdre), ref documentOrdre, value);
         }
         DevExpress.Persistent.BaseImpl.FileData documentOrdre;
+
+        [XafDisplayName("État de frais (PDF)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        public DevExpress.Persistent.BaseImpl.FileData DocumentFrais
+        {
+            get => documentFrais;
+            set => SetPropertyValue(nameof(DocumentFrais), ref documentFrais, value);
+        }
+        DevExpress.Persistent.BaseImpl.FileData documentFrais;
 
         // ── Collections ───────────────────────────────────────
         [Association("DemandeDeplacement-Circuit"), Aggregated]

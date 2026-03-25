@@ -15,6 +15,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
+using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
@@ -112,6 +113,85 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(DureeJours), ref dureeJours, value);
         }
         decimal dureeJours;
+
+
+        // ── Durées détaillées ─────────────────────────────────
+        [ModelDefault("DisplayFormat", "N2")]
+        [DbType("decimal(18,2)")]
+        [ModelDefault("AllowEdit", "False")]
+        [XafDisplayName("Jours calendaires")]
+        public decimal DureeJoursCalendaires
+        {
+            get => dureeJoursCalendaires;
+            set => SetPropertyValue(nameof(DureeJoursCalendaires),
+                ref dureeJoursCalendaires, value);
+        }
+        decimal dureeJoursCalendaires;
+
+        // ── Justificatif ──────────────────────────────────────
+        [XafDisplayName("Justificatif fourni")]
+        public bool JustificatifFourni
+        {
+            get => justificatifFourni;
+            set => SetPropertyValue(nameof(JustificatifFourni),
+                ref justificatifFourni, value);
+        }
+        bool justificatifFourni;
+
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [XafDisplayName("Pièce justificative")]
+        public DevExpress.Persistent.BaseImpl.FileData PieceJustificative
+        {
+            get => pieceJustificative;
+            set => SetPropertyValue(nameof(PieceJustificative),
+                ref pieceJustificative, value);
+        }
+        DevExpress.Persistent.BaseImpl.FileData pieceJustificative;
+
+        // ── Impact paie ───────────────────────────────────────
+        [XafDisplayName("Impact paie")]
+        [ModelDefault("AllowEdit", "False")]
+        public bool ImpactPaieGenere
+        {
+            get => impactPaieGenere;
+            set => SetPropertyValue(nameof(ImpactPaieGenere),
+                ref impactPaieGenere, value);
+        }
+        bool impactPaieGenere;
+
+        // ── Solde vérifié ─────────────────────────────────────
+        [XafDisplayName("Solde vérifié")]
+        [ModelDefault("AllowEdit", "False")]
+        public bool SoldeVerifie
+        {
+            get => soldeVerifie;
+            set => SetPropertyValue(nameof(SoldeVerifie),
+                ref soldeVerifie, value);
+        }
+        bool soldeVerifie;
+
+        [NonPersistent]
+        [XafDisplayName("Solde disponible")]
+        [ModelDefault("DisplayFormat", "N1")]
+        public decimal SoldeDisponible
+        {
+            get
+            {
+                // Calculé à la volée depuis la session
+                try
+                {
+                    if (Salarie == null || Type == null) return 0;
+                    var solde = new XPQuery<SoldeConge>(Session)
+                        .FirstOrDefault(s =>
+                            s.Salarie.Oid == Salarie.Oid &&
+                            s.TypeConge.Oid == Type.Oid &&
+                            s.Annee == DateDebut.Year &&
+                            s.Statut == SoldeCongeStatut.Actif);
+                    return solde?.SoldeDisponible ?? 0;
+                }
+                catch { return 0; }
+            }
+        }
 
         [Size(240)]
         [XafDisplayName("Motif")]
@@ -237,6 +317,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public XPCollection<DemandeAttestation> Attestations
             => GetCollection<DemandeAttestation>(nameof(Attestations));
 
+        [Association("CongeDemande-EvenementConge"), Aggregated]
+        [Browsable(false)]
+        public XPCollection<EvenementConge> EvenementsCalendrier
+        => GetCollection<EvenementConge>(nameof(EvenementsCalendrier));
+
         // ── Affichage ─────────────────────────────────────────
         [NonPersistent]
         public string DisplayName =>
@@ -267,11 +352,20 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // ── Méthodes métier ───────────────────────────────────
 
+
         public void RecalculerDuree()
         {
+            // Jours ouvrables (selon le type de congé)
             DureeJours = CalculerJoursDemande(
-                DateDebut, DateFin, Type?.CompteEnJoursOuvrables ?? true);
+                DateDebut, DateFin,
+                Type?.CompteEnJoursOuvrables ?? true);
+
+            // Jours calendaires (toujours calculés)
+            DureeJoursCalendaires = CalculerJoursDemande(
+                DateDebut, DateFin, false);
         }
+
+
 
         /// <summary>
         /// Soumet la demande selon la chaîne hiérarchique du salarié.

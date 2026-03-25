@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AdiPAIE_V02.Module.Services
@@ -57,7 +58,7 @@ namespace AdiPAIE_V02.Module.Services
             if (templateBytes == null || templateBytes.Length == 0)
                 throw new InvalidOperationException(
                     "Template état de frais introuvable. "
-                    + "Veuillez l'uploader dans Paramètres de paie → "
+                    + "Veuillez uploader 'Template état de frais de mission (.docx)' dans Paramètres de paie → "
                     + "Template ordre de mission.");
 
             var prm = ParametresPaie.TryGet(os);
@@ -66,7 +67,8 @@ namespace AdiPAIE_V02.Module.Services
                 .FirstOrDefault();
 
             var marqueurs = BuildMarqueurs(demande, prm, company);
-            return FusionnerDocx(templateBytes, marqueurs);
+            var lignesFrais = demande.Frais.OrderBy(f => f.Categorie?.OrdreAffichage ?? 0).ToList();
+            return FusionnerDocx(templateBytes, marqueurs, lignesFrais);
         }
 
         private static byte[] ChargerTemplate(DevExpress.ExpressApp.IObjectSpace os)
@@ -74,9 +76,10 @@ namespace AdiPAIE_V02.Module.Services
             try
             {
                 var prm = ParametresPaie.TryGet(os);
-                if (prm?.TemplateOrdreMission?.Content != null
-                    && prm.TemplateOrdreMission.Content.Length > 0)
-                    return prm.TemplateOrdreMission.Content;
+                // TemplateEtatFrais — champ dédié à l'état de frais
+                if (prm?.TemplateEtatFrais?.Content != null
+                    && prm.TemplateEtatFrais.Content.Length > 0)
+                    return prm.TemplateEtatFrais.Content;
             }
             catch { }
             return null;
@@ -99,6 +102,20 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{Matricule}}"] = sal.Matricule ?? "—",
                 ["{{Fonction}}"] = sal.Fonction?.Intitule ?? "—",
                 ["{{Departement}}"] = sal.Departement?.Nom ?? "—",
+
+                // ── Mission ───────────────────────────────────
+                ["{{Objet}}"] = d.Objet ?? "—",
+                ["{{DateDepart}}"] = d.DateDepart.ToString("dd MMMM yyyy", cultureFr),
+                ["{{DateRetour}}"] = d.DateRetour.ToString("dd MMMM yyyy", cultureFr),
+                ["{{NombreJours}}"] = d.NombreJours.ToString(),
+                ["{{Circuit}}"] = string.Join(" → ",
+                    d.Circuit.OrderBy(c => c.Ordre)
+                             .Select(c => c.VilleDepart)
+                             .Concat(new[] {
+                                 d.Circuit.OrderBy(c => c.Ordre)
+                                          .LastOrDefault()?.VilleArrivee ?? ""
+                             })
+                             .Where(v => !string.IsNullOrWhiteSpace(v))),
 
                 // ── Signatures ────────────────────────────────
                 ["{{DirecteurNom}}"] = d.ValideurN1?.FullName ?? "—",
@@ -129,6 +146,7 @@ namespace AdiPAIE_V02.Module.Services
                 marqueurs[$"{{{{Etape{i}DateArrivee}}}}"] = "";
                 marqueurs[$"{{{{Etape{i}DateRetour}}}}"] = i == etapes.Count && d.DateRetour != default
                     ? d.DateRetour.ToString("dd/MM/yyyy") : "";
+                marqueurs[$"{{{{Etape{i}Transport}}}}"] = c?.MoyenTransport ?? "";
             }
 
             // ── Frais par catégorie ───────────────────────────
@@ -182,7 +200,9 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         private static byte[] FusionnerDocx(
-            byte[] templateBytes, Dictionary<string, string> marqueurs)
+            byte[] templateBytes,
+            Dictionary<string, string> marqueurs,
+            System.Collections.Generic.List<LigneFraisMission> lignesFrais)
         {
             var ms = new MemoryStream();
             ms.Write(templateBytes, 0, templateBytes.Length);
@@ -196,6 +216,13 @@ namespace AdiPAIE_V02.Module.Services
                     xml = reader.ReadToEnd();
 
                 xml = NettoierMarqueursFragmentes(xml);
+
+                // ── Répétition FRAIS_ROW ──────────────────────────────
+                // Trouve la ligne template contenant {{#FRAIS_ROW}},
+                // la duplique pour chaque LigneFraisMission, puis la supprime.
+                xml = TraiterFraisRow(xml, lignesFrais);
+
+                // ── Marqueurs simples ─────────────────────────────────
                 foreach (var kv in marqueurs)
                     xml = xml.Replace(kv.Key, EchapperXml(kv.Value ?? ""));
 
@@ -208,6 +235,7 @@ namespace AdiPAIE_V02.Module.Services
                     string hxml;
                     using (var r = new StreamReader(hdr.GetStream())) hxml = r.ReadToEnd();
                     hxml = NettoierMarqueursFragmentes(hxml);
+                    hxml = TraiterFraisRow(hxml, lignesFrais);
                     foreach (var kv in marqueurs)
                         hxml = hxml.Replace(kv.Key, EchapperXml(kv.Value ?? ""));
                     using (var w = new StreamWriter(hdr.GetStream(FileMode.Create)))
@@ -218,9 +246,88 @@ namespace AdiPAIE_V02.Module.Services
             return ms.ToArray();
         }
 
+        /// <summary>
+        /// Gère la répétition de lignes de tableau marquées {{#FRAIS_ROW}}...{{/FRAIS_ROW}}.
+        /// Trouve la ligne &lt;w:tr&gt; template, la clone pour chaque frais, la supprime.
+        /// </summary>
+        private static string TraiterFraisRow(
+            string xml,
+            System.Collections.Generic.List<LigneFraisMission> lignes)
+        {
+            const string OPEN = "{{#FRAIS_ROW}}";
+            const string CLOSE = "{{/FRAIS_ROW}}";
+
+            if (!xml.Contains(OPEN)) return xml;
+
+            // Trouver <w:tr ...>...(contient OPEN)...</w:tr>
+            var rowMatch = Regex.Match(xml,
+                @"<w:tr[ >](?:(?!</w:tr>)[\s\S])*?" +
+                Regex.Escape(OPEN) +
+                @"(?:(?!</w:tr>)[\s\S])*?</w:tr>",
+                RegexOptions.Singleline);
+
+            if (!rowMatch.Success) return xml;
+
+            var rowTemplate = rowMatch.Value;
+
+            // Construire les lignes clonées
+            var sb = new System.Text.StringBuilder();
+            var cultureFr = new System.Globalization.CultureInfo("fr-FR");
+
+            foreach (var f in lignes)
+            {
+                var modeLibelle = f.ModeCalcul switch
+                {
+                    AdiPAIE_V02.Module.Domain.DomainEnums.FraisCalculMode.TauxJournalier => "Journalier",
+                    AdiPAIE_V02.Module.Domain.DomainEnums.FraisCalculMode.Kilometrique => "Km",
+                    AdiPAIE_V02.Module.Domain.DomainEnums.FraisCalculMode.Forfait => "Forfait",
+                    _ => ""
+                };
+
+                var row = rowTemplate
+                    .Replace(OPEN, "")
+                    .Replace(CLOSE, "")
+                    .Replace("{{FraisLibelle}}", EchapperXml(f.Categorie?.Libelle ?? ""))
+                    .Replace("{{FraisMode}}", EchapperXml(modeLibelle))
+                    .Replace("{{FraisQuantite}}", f.Quantite > 0
+                        ? f.Quantite.ToString("N1", cultureFr) : "")
+                    .Replace("{{FraisTaux}}", f.TauxUnitaire > 0
+                        ? f.TauxUnitaire.ToString("N0", cultureFr) : "")
+                    .Replace("{{FraisMontant}}", f.Montant > 0
+                        ? f.Montant.ToString("N0", cultureFr) : "")
+                    .Replace("{{FraisObservation}}", EchapperXml(f.Observation ?? ""));
+
+                sb.Append(row);
+            }
+
+            // Si aucune ligne, laisser une ligne vide propre
+            if (lignes.Count == 0)
+            {
+                sb.Append(rowTemplate
+                    .Replace(OPEN, "").Replace(CLOSE, "")
+                    .Replace("{{FraisLibelle}}", "")
+                    .Replace("{{FraisMode}}", "")
+                    .Replace("{{FraisQuantite}}", "")
+                    .Replace("{{FraisTaux}}", "")
+                    .Replace("{{FraisMontant}}", "")
+                    .Replace("{{FraisObservation}}", ""));
+            }
+
+            return xml.Replace(rowMatch.Value, sb.ToString());
+        }
+
         private static string NettoierMarqueursFragmentes(string xml)
-            => Regex.Replace(xml, @"\{\{[^}]*\}\}",
+        {
+            // Étape 0 : fusionner les accolades séparées par des balises XML
+            // Cas : {</w:t></w:r><w:r><w:t>{ → {{
+            xml = Regex.Replace(xml, @"\{(<[^>]+>)+\{", "{{");
+            // Cas : }</w:t></w:r><w:r><w:t>} → }}
+            xml = Regex.Replace(xml, @"\}(<[^>]+>)+\}", "}}");
+            // Étape 1 : supprimer les balises XML qui fragmentent l'intérieur
+            // Ex : {{Nom</w:r><w:r><w:t>breJours}} → {{NombreJours}}
+            return Regex.Replace(xml, @"\{\{[^}]*\}\}",
                 m => Regex.Replace(m.Value, @"<[^>]+>", ""));
+        }
 
         private static string EchapperXml(string v)
         {

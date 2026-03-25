@@ -1,4 +1,5 @@
-﻿using DevExpress.ExpressApp;
+﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
+using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
@@ -49,5 +50,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Association("Departement-Salaries")]
         [XafDisplayName("Salariés")]
         public XPCollection<Salarie> Salarie => GetCollection<Salarie>(nameof(Salarie));
+
+        [Association("DeptActuel-Avancements")]
+        [Browsable(false)]
+        public XPCollection<DemandeAvancement> AvancementsActuels
+            => GetCollection<DemandeAvancement>(nameof(AvancementsActuels));
+
+        [Association("NouveauDept-Avancements")]
+        [Browsable(false)]
+        public XPCollection<DemandeAvancement> AvancementsVers
+            => GetCollection<DemandeAvancement>(nameof(AvancementsVers));
     }
 }

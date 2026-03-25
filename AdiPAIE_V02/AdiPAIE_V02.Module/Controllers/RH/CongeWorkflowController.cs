@@ -1,12 +1,12 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
+using AdiPAIE_V02.Module.Services;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
-using System;
-using System.Linq;
+
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
-using Microsoft.Extensions.DependencyInjection;
+
 
 namespace AdiPAIE_V02.Module.Controllers.RH
 {
@@ -106,8 +106,8 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             d.Soumettre();
 
             _NotifierResponsable(d);
-
-            ObjectSpace.CommitChanges();
+             ObjectSpace.CommitChanges();
+            PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
             View.Refresh();
         }
 
@@ -139,6 +139,16 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void RefuserAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var d = (CongeDemande)e.CurrentObject;
+
+            // Libérer la réservation de solde (demande refusée avant accord)
+            if (d.SoldeVerifie && d.Type != null && d.Salarie != null)
+            {
+                SoldeCongeCalculService.LibererReservation(
+                    ObjectSpace, d.Salarie, d.Type,
+                    d.DureeJours, d.DateDebut.Year);
+                d.SoldeVerifie = false;
+            }
+
             d.Refuser(d.CommentaireRH);
 
             _NotifierSalarie(d,
@@ -147,6 +157,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 + "Motif : " + (d.CommentaireRH ?? "voir le service RH."));
 
             ObjectSpace.CommitChanges();
+            PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
             View.Refresh();
         }
 
@@ -183,6 +194,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 + (string.IsNullOrWhiteSpace(d.CommentaireRH) ? "" : "Motif : " + d.CommentaireRH));
 
             ObjectSpace.CommitChanges();
+            PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
             View.Refresh();
         }
 
@@ -240,23 +252,6 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         }
 
         private void _EnvoyerEmailAsync(NotificationSalarie notif)
-        {
-            var notifOid = notif.Oid;
-            var osFactory = Application.ServiceProvider
-       .GetRequiredService<IObjectSpaceFactory>();
-
-
-            System.Threading.Tasks.Task.Run(() =>
-            {
-                try
-                {
-                    using var os = osFactory.CreateObjectSpace(typeof(NotificationSalarie));
-                    var n = os.GetObjectByKey<NotificationSalarie>(notifOid);
-                    if (n != null)
-                        AdiPAIE_V02.Module.Services.NotificationEmailService.Envoyer(n, os);
-                }
-                catch { }
-            });
-        }
+            => WorkflowEmailHelper.EnvoyerNotifAsync(Application, notif);
     }
 }

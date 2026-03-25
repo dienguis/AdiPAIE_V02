@@ -787,6 +787,19 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         FileData templateEtatFrais;
 
 
+        /// <summary>Template Word pour l'attestation de formation.</summary>
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template attestation de formation (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        public FileData TemplateAttestationFormation
+        {
+            get => templateAttestationFormation;
+            set => SetPropertyValue(nameof(TemplateAttestationFormation),
+                ref templateAttestationFormation, value);
+        }
+        FileData templateAttestationFormation;
+
+
     }
 
 }

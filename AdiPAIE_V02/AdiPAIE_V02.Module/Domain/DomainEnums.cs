@@ -122,7 +122,7 @@ namespace AdiPAIE_V02.Module.Domain
             Payee = 1
         }
        
-        public enum CongeImpactSalaire { Paye = 0, Impaye = 1, Partiel = 2 } // Partiel = maintien % (ex: maladie)
+        public enum CongeImpactSalaire { Paye = 0, Impaye = 1 } // Partiel = maintien % (ex: maladie)
         public enum PretNature { Pret = 0, AvanceSalaire = 1 }
 
         public enum DossierCategorieDocument
@@ -370,7 +370,196 @@ namespace AdiPAIE_V02.Module.Domain
             Kilometrique = 2,
         }
 
+        // ── Formation ─────────────────────────────────────────────
+        public enum PlanFormationStatut
+        {
+            Brouillon = 0,
+            Soumis = 1,
+            Approuve = 2,
+            EnCours = 3,
+            Cloture = 4,
+            Annule = 5
+        }
 
+        public enum SessionFormationStatut
+        {
+            Planifiee = 0,
+            Confirmee = 1,
+            EnCours = 2,
+            Terminee = 3,
+            Annulee = 4
+        }
+
+        public enum InscriptionStatut
+        {
+            EnAttente = 0,
+            Confirmee = 1,
+            Annulee = 2,
+            Absente = 3   // salarié ne s'est pas présenté
+        }
+
+        public enum FormationModalite
+        {
+            Presentiel = 0,
+            Distanciel = 1,
+            Mixte = 2,
+            ELearning = 3
+        }
+
+        public enum FormationCategorie
+        {
+            Technique = 0,
+            Management = 1,
+            Commercial = 2,
+            Reglementaire = 3,
+            SecuriteHygiene = 4,
+            Informatique = 5,
+            Langue = 6,
+            Autre = 7
+        }
+
+        public enum EvaluationFormationNote
+        {
+            TresInsatisfaisant = 1,
+            Insatisfaisant = 2,
+            Satisfaisant = 3,
+            Bien = 4,
+            Excellent = 5
+        }
+
+        // ── Congés avancés ────────────────────────────────────────
+        public enum FamilleConge
+        {
+            [XafDisplayName("Congé annuel")]
+            Annuel = 0,
+            [XafDisplayName("Maladie")]
+            Maladie = 1,
+            [XafDisplayName("Maternité / Paternité")]
+            Maternite = 2,
+            [XafDisplayName("Événement familial")]
+            EvenementFamilial = 3,
+            [XafDisplayName("Sans solde")]
+            SansSolde = 4,
+            [XafDisplayName("Récupération")]
+            Recuperation = 5,
+            [XafDisplayName("Autre")]
+            Autre = 6,
+        }
+
+        public enum MouvementSoldeType
+        {
+            [XafDisplayName("Acquisition mensuelle")]
+            AcquisitionMensuelle = 0,
+            [XafDisplayName("Prise de congé")]
+            PriseCongé = 1,
+            [XafDisplayName("Report N-1")]
+            Report = 2,
+            [XafDisplayName("Ajustement manuel")]
+            AjustementManuel = 3,
+            [XafDisplayName("Annulation congé")]
+            AnnulationCongé = 4,
+            [XafDisplayName("Initialisation")]
+            Initialisation = 5,
+        }
+
+        public enum SoldeCongeStatut
+        {
+            Actif = 0,
+            Archive = 1,
+        }
+
+
+        // ── Avancements / Promotions ──────────────────────────────
+        public enum AvancementStatut
+        {
+            [XafDisplayName("Brouillon")]
+            Brouillon = 0,
+            [XafDisplayName("Soumis RH")]
+            SoumisRH = 1,
+            [XafDisplayName("Approuvé DG")]
+            ApprouveDG = 2,
+            [XafDisplayName("Appliqué")]
+            Applique = 3,   // Fiche salarié mise à jour
+            [XafDisplayName("Rejeté")]
+            Rejete = 4,
+            [XafDisplayName("Annulé")]
+            Annule = 5,
+        }
+
+        public enum TypeAvancement
+        {
+            [XafDisplayName("Promotion (changement de fonction)")]
+            Promotion = 0,
+            [XafDisplayName("Avancement d'échelon")]
+            AvancementEchelon = 1,
+            [XafDisplayName("Augmentation de salaire")]
+            Augmentation = 2,
+            [XafDisplayName("Changement de département")]
+            ChangementDept = 3,
+            [XafDisplayName("Revalorisation globale")]
+            Revalorisation = 4,
+        }
+
+        // ── Évaluation à froid — Enums formulaire ────────────────
+        public enum BesoinFormationReponse
+        {
+            [XafDisplayName("Oui")]
+            Oui = 0,
+            [XafDisplayName("Non")]
+            Non = 1,
+            [XafDisplayName("Je ne sais pas")]
+            NSP = 2,
+        }
+
+        public enum AdequationFormationReponse
+        {
+            [XafDisplayName("Oui, parfaitement")]
+            OuiParfaitement = 0,
+            [XafDisplayName("Oui, partiellement")]
+            OuiPartiellement = 1,
+            [XafDisplayName("Non")]
+            Non = 2,
+            [XafDisplayName("Je ne sais pas")]
+            NSP = 3,
+        }
+
+        public enum InitiativeFormationReponse
+        {
+            [XafDisplayName("Le manager")]
+            Manager = 0,
+            [XafDisplayName("Le collaborateur")]
+            Collaborateur = 1,
+            [XafDisplayName("Les deux")]
+            LesDeux = 2,
+        }
+
+        public enum MisePratiqueReponse
+        {
+            [XafDisplayName("Oui")]
+            Oui = 0,
+            [XafDisplayName("Oui, partiellement")]
+            OuiPartiellement = 1,
+            [XafDisplayName("Non")]
+            Non = 2,
+        }
+
+        public enum FrequencePratiqueReponse
+        {
+            [XafDisplayName("Régulièrement")]
+            Regulierement = 0,
+            [XafDisplayName("Occasionnellement")]
+            Occasionnellement = 1,
+        }
+
+        public enum ResultatAtteintReponse
+        {
+            [XafDisplayName("En totalité")]
+            EnTotalite = 0,
+            [XafDisplayName("Partiellement")]
+            Partiellement = 1,
+            [XafDisplayName("Non")]
+            Non = 2,
+        }
 
 
     }
