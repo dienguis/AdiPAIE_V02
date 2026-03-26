@@ -33,8 +33,10 @@ namespace AdiPAIE_V02.Blazor.Server
             services.AddScoped<CircuitHandler, CircuitHandlerProxy>();
 
             services.AddHostedService<AttestationRappelService>();
-            services.AddHostedService<AttestationRappelService>();
+           // services.AddHostedService<AttestationRappelService>();
             services.AddHostedService<DossierExpirationRappelService>();
+            services.AddHostedService<EvaluationFroidRappelService>();
+
             services.AddXaf(Configuration, builder =>
             {
                 builder.UseApplication<AdiPAIE_V02BlazorApplication>();

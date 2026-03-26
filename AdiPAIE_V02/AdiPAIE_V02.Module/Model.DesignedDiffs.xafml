@@ -12,12 +12,12 @@
   </BOModel>
   <NavigationItems StartupNavigationItem="">
     <Items>
-      <Item Id="Ressources humaines" Caption="GRH - Paie" Index="0" ImageName="BO_Dashboard" IsNewNode="True">
+      <Item Id="Ressources humaines" Caption="GRH - Paie" Index="0" ImageName="BO_Folder" IsNewNode="True">
         <Items IsNewNode="True">
-          <Item Id="RH_Salaries" Caption="Fiche Employée" ViewId="Salarie_ListView" ImageName="Employees" Index="0" IsNewNode="True" />
-          <Item Id="Paie_SalariesPaie" Caption="Création Bulletin de Paie" ViewId="Salarie_Paie_ListView" Index="1" IsNewNode="True" />
-          <Item Id="PeriodePaie_ListView" ViewId="PeriodePaie_ListView" ObjectKey="" ImageName="SwitchTimeScalesTo" Index="2" IsNewNode="True" />
-          <Item Id="RH_Prets" Caption="Prêts" ViewId="Pret_ListView" ObjectKey="" Index="2" IsNewNode="True" />
+          <Item Id="RH_Salaries" Caption="Fiche Employée" ViewId="Salarie_ListView" ImageName="BO_Employee" Index="0" IsNewNode="True" />
+          <Item Id="Paie_SalariesPaie" Caption="Bulletin de Paie" ViewId="Salarie_Paie_ListView" Index="1" ImageName="BO_Sale_Item" IsNewNode="True" />
+          <Item Id="PeriodePaie_ListView" ViewId="PeriodePaie_ListView" ObjectKey="" ImageName="BO_Scheduler" Index="2" IsNewNode="True" />
+          <Item Id="RH_Prets" Caption="Prêts" ViewId="Pret_ListView" ObjectKey="" Index="2" ImageName="BO_Sale_Item" IsNewNode="True" />
           <Item Id="RH_EcheancesPrets" Caption="Échéances prêts" ViewId="PretEcheance_ListView" ObjectKey="" Index="3" IsNewNode="True" />
           <Item Id="SimulationSursalaire_ListView" ViewId="SimulationSursalaire_ListView" ObjectKey="" ImageName="Business_Calculator" Index="3" IsNewNode="True" />
           <Item Id="Paie_GenererBulletins" Caption="Générer les bulletins" ViewId="Salarie_Generation_ListView" ImageName="Action_Printing_Preview" Visible="False" Index="4" IsNewNode="True" />
@@ -37,22 +37,16 @@
           <Item Id="GRH_CategoriesFrais" Caption="Catégories de frais" ViewId="CategorieFraisMission_ListView" ObjectKey="" Index="1" IsNewNode="True" />
         </Items>
       </Item>
-      <Item Id="Comptabilite" Caption="Comptabilité" Index="5" ImageName="Accounting_32x32" IsNewNode="True">
-        <Items IsNewNode="True">
-          <Item Id="Cpta_Ecritures" Caption="Écritures" ViewId="Ecriture_ListView" Index="0" IsNewNode="True" />
-          <Item Id="Cpta_Parametres" Caption="Paramètres compta" ViewId="ParametresCompta_ListView" Index="1" IsNewNode="True" />
-          <Item Id="Cpta_Plan" Caption="Plan comptable" ViewId="PlanComptable_ListView" Index="2" IsNewNode="True" />
-        </Items>
-      </Item>
+      <Item Id="GRH - Formation" Index="10" />
       <Item Id="GRH_EspaceSalarie" Caption="GRH - Espace salarié" Index="20" ImageName="BO_Person" IsNewNode="True">
         <Items IsNewNode="True">
-          <Item Id="GRH_MesConges" Caption="Mes congés" ViewId="CongeDemande_ListView" ObjectKey="" Index="0" IsNewNode="True" />
+          <Item Id="GRH_MesConges" Caption="Mes congés" ViewId="CongeDemande_ListView" ObjectKey="" Index="0" ImageName="BO_Scheduler" IsNewNode="True" />
           <Item Id="GRH_MesAttestations" Caption="Mes attestations" ViewId="DemandeAttestation_ListView" ObjectKey="" Index="1" IsNewNode="True" />
           <Item Id="GRH_MesDeplacements" Caption="Mes déplacements" ViewId="DemandeDeplacement_ListView" ObjectKey="" Index="2" IsNewNode="True" />
           <Item Id="GRH_MesEntretiens" Caption="Mes entretiens" ViewId="EntretienAnnuel_ListView" ObjectKey="" Index="3" IsNewNode="True" />
         </Items>
       </Item>
-      <Item Id="GRH - Administration" Index="30">
+      <Item Id="GRH - Administration" Index="25">
         <Items>
           <Item Id="JourFerie_ListView" Caption="Jours fériés" ViewId="JourFerie_ListView" ObjectKey="" Index="1" IsNewNode="True" />
           <Item Id="Param_CongeTypes" Caption="Types de congé" ViewId="CongeType_ListView" ObjectKey="" Index="1" IsNewNode="True" />
@@ -75,6 +69,13 @@
           <Item Id="Departement_ListView" ViewId="Departement_ListView" ObjectKey="" IsNewNode="True" />
           <Item Id="Echelons_ListView" ViewId="Echelons_ListView" ObjectKey="" IsNewNode="True" />
           <Item Id="Fonction_ListView" ViewId="Fonction_ListView" ObjectKey="" IsNewNode="True" />
+        </Items>
+      </Item>
+      <Item Id="Comptabilite" Caption="Comptabilité" Index="30" ImageName="Accounting_32x32" IsNewNode="True">
+        <Items IsNewNode="True">
+          <Item Id="Cpta_Ecritures" Caption="Écritures" ViewId="Ecriture_ListView" Index="0" IsNewNode="True" />
+          <Item Id="Cpta_Parametres" Caption="Paramètres compta" ViewId="ParametresCompta_ListView" Index="1" IsNewNode="True" />
+          <Item Id="Cpta_Plan" Caption="Plan comptable" ViewId="PlanComptable_ListView" Index="2" IsNewNode="True" />
         </Items>
       </Item>
       <Item Id="Administration" Caption="Administration" Index="50" ImageName="ModelEditor_Settings" IsNewNode="True">

@@ -23,9 +23,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [DefaultClassOptions]
     [XafDisplayName("Campagne d'évaluation")]
     [DefaultProperty(nameof(DisplayName))]
-    [ImageName("BO_Event")]
+  [ImageName("BO_Event")]
+    
     [NavigationItem("GRH - Évaluation")]
-
+   
     // Unicité Entreprise + Année
     [RuleCombinationOfPropertiesIsUnique(
         "CampagneEval_Company_Annee_Unique", DefaultContexts.Save, "Company;Annee",

@@ -74,6 +74,7 @@ namespace AdiPAIE_V02.Module
             // ========== AJOUTER ==========
             application.SetupComplete += Application_SetupComplete;
             // =============================
+
         }
 
         // ========== AJOUTER CETTE MÉTHODE ==========

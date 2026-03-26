@@ -9,9 +9,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Images\Gestion_de_la_Paie.png" />
+    <None Remove="Images\salaire.png" />
+    <None Remove="Images\Salary Slip.png" />
     <None Remove="Model.DesignedDiffs.xafml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Images\Gestion_de_la_Paie.png" />
+    <EmbeddedResource Include="Images\salaire.png" />
+    <EmbeddedResource Include="Images\Salary Slip.png" />
     <EmbeddedResource Include="Model.DesignedDiffs.xafml" />
   </ItemGroup>
   <ItemGroup>
