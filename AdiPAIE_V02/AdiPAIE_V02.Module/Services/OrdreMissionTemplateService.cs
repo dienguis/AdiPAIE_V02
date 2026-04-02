@@ -110,10 +110,10 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{NombreJours}}"] = d.NombreJours.ToString(),
                 ["{{Circuit}}"] = string.Join(" → ",
                     d.Circuit.OrderBy(c => c.Ordre)
-                             .Select(c => c.VilleDepart)
+                             .Select(c => c.VilleDepart.Nom)
                              .Concat(new[] {
                                  d.Circuit.OrderBy(c => c.Ordre)
-                                          .LastOrDefault()?.VilleArrivee ?? ""
+                                          .LastOrDefault()?.VilleArrivee?.Nom?? ""
                              })
                              .Where(v => !string.IsNullOrWhiteSpace(v))),
 
@@ -139,8 +139,8 @@ namespace AdiPAIE_V02.Module.Services
             for (int i = 1; i <= 8; i++)
             {
                 var c = etapes.ElementAtOrDefault(i - 1);
-                marqueurs[$"{{{{Etape{i}Depart}}}}"] = c?.VilleDepart ?? "";
-                marqueurs[$"{{{{Etape{i}Arrivee}}}}"] = c?.VilleArrivee ?? "";
+                marqueurs[$"{{{{Etape{i}Depart}}}}"] = c?.VilleDepart.Nom ?? "";
+                marqueurs[$"{{{{Etape{i}Arrivee}}}}"] = c?.VilleArrivee?.Nom ?? "";
                 marqueurs[$"{{{{Etape{i}DateDepart}}}}"] = i == 1 && d.DateDepart != default
                     ? d.DateDepart.ToString("dd/MM/yyyy") : "";
                 marqueurs[$"{{{{Etape{i}DateArrivee}}}}"] = "";

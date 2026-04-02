@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <NavigationItems Id="NavigationItems">
+    <Items Id="Items">
+      <Item Id="GRH - Paie" Caption="Paie" Index="0" ImageName="BO_Folder">
+        <Items Id="Items">
+          <Item Id="Paie_SalariesPaie" Caption="Bulletins de paie" ViewId="Salarie_Paie_ListView" Index="0" ImageName="BO_Sale_Item" />
+          <Item Id="PeriodePaie_ListView" Caption="Périodes de paie" ViewId="PeriodePaie_ListView" Index="1" ImageName="BO_Scheduler" />
+          <Item Id="RH_Prets" Caption="Prêts" ViewId="Pret_ListView" Index="2" ImageName="BO_Sale_Item" />
+          <Item Id="RH_EcheancesPrets" Caption="Échéances prêts" ViewId="PretEcheance_ListView" Index="3" />
+          <Item Id="SimulationSursalaire_ListView" Caption="Simulations de paie" ViewId="SimulationSursalaire_ListView" Index="4" ImageName="Business_Calculator" />
+          <Item Id="Paie_GenererBulletins" Caption="Générer les bulletins" ViewId="Salarie_Generation_ListView" Index="5" ImageName="Action_Printing_Preview" Visible="False" />
+        </Items>
+      </Item>
+      <Item Id="GRH_Missions" Caption="Missions et déplacements" Index="15" ImageName="Action_Forward">
+        <Items Id="Items">
+          <Item Id="GRH_Deplacements" Caption="Demandes de déplacement" ViewId="DemandeDeplacement_ListView" Index="0" />
+          <Item Id="GRH_CategoriesFrais" Caption="Catégories de frais" ViewId="CategorieFraisMission_ListView" Index="1" />
+          <Item Id="Param_Villes" Caption="Villes (Sénégal)" ViewId="VilleSenegal_ListView" Index="2" ImageName="State_Confirmed" />
+        </Items>
+      </Item>
+      <Item Id="GRH_Evaluation" Caption="Formation et évaluation" Index="20" ImageName="BO_Task">
+        <Items Id="Items">
+          <Item Id="GRH_Campagnes" Caption="Campagnes d'évaluation" ViewId="CampagneEvaluation_ListView" Index="0" />
+          <Item Id="GRH_Entretiens" Caption="Entretiens annuels" ViewId="EntretienAnnuel_ListView" Index="1" />
+          <Item Id="GRH_Criteres" Caption="Critères d'évaluation" ViewId="CritereEvaluationRef_ListView" Index="2" />
+          <Item Id="GRH_SessionsFormation" Caption="Sessions de formation" ViewId="SessionFormation_ListView" Index="3" />
+          <Item Id="GRH_Attestations" Caption="Demandes d'attestation" ViewId="DemandeAttestation_ListView" Index="4" />
+          <Item Id="GRH_Declarations" Caption="Déclarations" ViewId="DeclarationMenu_ListView" Index="5" ImageName="BO_List" />
+        </Items>
+      </Item>
+      <Item Id="GRH_EspaceSalarie" Caption="Mon espace" Index="30" ImageName="BO_Person">
+        <Items Id="Items">
+          <Item Id="GRH_MesBulletins" Caption="Mes bulletins" ViewId="Salarie_Paie_ListView" Index="0" ImageName="BO_Sale_Item" />
+          <Item Id="GRH_MesConges" Caption="Mes congés" ViewId="CongeDemande_ListView" Index="1" ImageName="BO_Scheduler" />
+          <Item Id="GRH_MesSoldesConges" Caption="Mon solde de congés" ViewId="SoldeConge_ListView" Index="2" ImageName="BO_Scheduler" />
+          <Item Id="GRH_MesAttestations" Caption="Mes attestations" ViewId="DemandeAttestation_ListView" Index="3" />
+          <Item Id="GRH_MesEntretiens" Caption="Mon entretien annuel" ViewId="EntretienAnnuel_ListView" Index="4" />
+          <Item Id="GRH_MesDeplacements" Caption="Mes déplacements" ViewId="DemandeDeplacement_ListView" Index="5" />
+        </Items>
+      </Item>
+      <Item Id="Comptabilite" Caption="Comptabilité" Index="35" ImageName="Accounting_32x32">
+        <Items Id="Items">
+          <Item Id="Cpta_Ecritures" Caption="Écritures" ViewId="Ecriture_ListView" Index="0" />
+          <Item Id="Cpta_Parametres" Caption="Paramètres compta" ViewId="ParametresCompta_ListView" Index="1" />
+          <Item Id="Cpta_Plan" Caption="Plan comptable" ViewId="PlanComptable_ListView" Index="2" />
+        </Items>
+      </Item>
+      <Item Id="Administration" Caption="Administration" Index="50" ImageName="ModelEditor_Settings">
+        <Items Id="Items">
+          <Item Id="Param_Company" Caption="Société" ViewId="Company_ListView" Index="0" ImageName="BO_Organization_32x32" />
+          <Item Id="ParametresPaie_ListView" Caption="Paramètres de paie" ViewId="ParametresPaie_ListView" Index="1" />
+        </Items>
+      </Item>
+      <Item Id="GRH - Administration">
+        <Items Id="Items">
+          <Item Id="Param_Workflows" ViewId="Workflows_View" />
+        </Items>
+      </Item>
+    </Items>
+  </NavigationItems>
+</Application>

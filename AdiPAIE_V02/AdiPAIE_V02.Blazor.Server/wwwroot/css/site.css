@@ -1,3 +1,9 @@
+﻿/* ═══════════════════════════════════════════════════
+   SunuPaie — site.css
+   AdiPAIE V02 · Blazor Server
+   ═══════════════════════════════════════════════════ */
+
+/* ── Base layout ─────────────────────────────────── */
 html, body {
     height: 100%;
 }
@@ -7,6 +13,7 @@ app {
     height: 100%;
 }
 
+/* ── Logo navbar (header-logo) ───────────────────── */
 .header-logo {
     flex-shrink: 0;
     background-color: currentColor;
@@ -20,6 +27,22 @@ app {
     height: 24px;
 }
 
+/* ── Splash Screen — cercle vert SunuPaie ────────── */
+.loading-items-center > .bg-primary {
+    background-color: #0F6E56 !important;
+}
+
+.loading-items-center > .border-primary {
+    border-color: #0F6E56 !important;
+}
+/* Logo agrandi dans le cercle */
+.loading-items-center img {
+    width: 80% !important;
+    height: 80% !important;
+    object-fit: contain !important;
+}
+
+/* ── Erreur Blazor ───────────────────────────────── */
 #blazor-error-ui {
     background: inherit;
     bottom: 0;
@@ -28,4 +51,16 @@ app {
     width: 100%;
     height: 100%;
     z-index: 100001;
+}
+
+/* ── Bouton "Confirmé" (State_Confirmed) ─────────── */
+.dxbl-toolbar-item button:has(img[src*="State_Confirmed"]) {
+    background-color: #16a34a !important;
+    color: #ffffff !important;
+    border: 2px solid #15803d !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
+    padding: 4px 16px !important;
+    box-shadow: 0 2px 8px rgba(21, 128, 61, 0.45) !important;
+    transition: all 0.2s ease !important;
 }

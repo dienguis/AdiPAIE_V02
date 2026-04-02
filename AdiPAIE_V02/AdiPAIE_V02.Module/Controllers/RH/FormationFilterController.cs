@@ -125,12 +125,11 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 return;
             }
 
-            // Salariés et managers voient uniquement les sessions publiées
             View.CollectionSource.Criteria["SessionFilter"] =
-                CriteriaOperator.Parse(
-                    "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+SessionFormationStatut,Confirmee# " +
-                    "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+SessionFormationStatut,EnCours# " +
-                    "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+SessionFormationStatut,Terminee#");
+    CriteriaOperator.Parse(
+        "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+SessionFormationStatut,Confirmee# " +
+        "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+SessionFormationStatut,EnCours#");
+
         }
     }
 }

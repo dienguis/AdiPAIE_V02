@@ -12,6 +12,7 @@ using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
@@ -19,7 +20,6 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
-    //[DefaultClassOptions]
     [DefaultProperty(nameof(Person.FullName))]
     [RuleCriteria(
         "Salarie_MustBeMarried_IfAnyCurrentSpouse",
@@ -79,6 +79,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             Base30Jour = 30;
         }
 
+        // ── Backing fields ────────────────────────────────────
         string creePar;
         DateTime dateCreation;
         int base30Jour;
@@ -97,12 +98,29 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         string nationalite;
         Civilite civilite;
         string matricule;
+        // Nouveaux champs
+        string lieuNaissance;
+        string paysNaissance;
+        DateTime? dateExpirationCNI;
+        string numeroPasseport;
+        DateTime? dateExpirationPasseport;
+        DateTime? dateConfirmation;
+        string contactUrgenceNom;
+        string contactUrgenceTel;
+        string contactUrgenceLien;
+        string groupeSanguin;
+        string permisConduire;
 
         // ── Identité ──────────────────────────────────────────
         [Size(20)]
         [RuleRequiredField]
-        [RuleUniqueValue(DefaultContexts.Save, CustomMessageTemplate = "Ce matricule est déjà utilisé par un autre salarié.")]
-        public string Matricule { get => matricule; set => SetPropertyValue(nameof(Matricule), ref matricule, value); }
+        [RuleUniqueValue(DefaultContexts.Save,
+            CustomMessageTemplate = "Ce matricule est déjà utilisé par un autre salarié.")]
+        public string Matricule
+        {
+            get => matricule;
+            set => SetPropertyValue(nameof(Matricule), ref matricule, value);
+        }
 
         [XafDisplayName("Civilité")]
         public Civilite Civilite
@@ -117,56 +135,282 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         [Size(50)]
-        public string Nationalite { get => nationalite; set => SetPropertyValue(nameof(Nationalite), ref nationalite, value); }
+        public string Nationalite
+        {
+            get => nationalite;
+            set => SetPropertyValue(nameof(Nationalite), ref nationalite, value);
+        }
 
         [ImmediatePostData]
-        public SituationMaritale SatutMarital { get => satutMarital; set => SetPropertyValue(nameof(SatutMarital), ref satutMarital, value); }
+        public SituationMaritale SatutMarital
+        {
+            get => satutMarital;
+            set => SetPropertyValue(nameof(SatutMarital), ref satutMarital, value);
+        }
 
         [RuleRange(0, int.MaxValue)]
         [XafDisplayName("Nombre d'enfants")]
-        public int NombreEnfant { get => nombreEnfant; set => SetPropertyValue(nameof(NombreEnfant), ref nombreEnfant, value); }
+        public int NombreEnfant
+        {
+            get => nombreEnfant;
+            set => SetPropertyValue(nameof(NombreEnfant), ref nombreEnfant, value);
+        }
 
-        public DateTime DateEmbauche { get => dateEmbauche; set => SetPropertyValue(nameof(DateEmbauche), ref dateEmbauche, value); }
-        public DateTime DateSortie { get => dateSortie; set => SetPropertyValue(nameof(DateSortie), ref dateSortie, value); }
+        public DateTime DateEmbauche
+        {
+            get => dateEmbauche;
+            set => SetPropertyValue(nameof(DateEmbauche), ref dateEmbauche, value);
+        }
 
-        [XafDisplayName("Active")]
-        public bool IsActif { get => isActif; set => SetPropertyValue(nameof(IsActif), ref isActif, value); }
+        public DateTime DateSortie
+        {
+            get => dateSortie;
+            set => SetPropertyValue(nameof(DateSortie), ref dateSortie, value);
+        }
 
-        [Action(Caption = "Activé", ImageName = "BO_Task", TargetObjectsCriteria = "IsActif=false", AutoCommit = true)]
+        [XafDisplayName("Salarié Actif")]
+        public bool IsActif
+        {
+            get => isActif;
+            set => SetPropertyValue(nameof(IsActif), ref isActif, value);
+        }
+
+        [Action(Caption = "Activé", ImageName = "BO_Task",
+            TargetObjectsCriteria = "IsActif=false", AutoCommit = true)]
         public void Active() => IsActif = true;
-        [Action(Caption = "Désactivé", ImageName = "BO_Task", TargetObjectsCriteria = "IsActif=true", AutoCommit = true)]
+
+        [Action(Caption = "Désactivé", ImageName = "BO_Task",
+            TargetObjectsCriteria = "IsActif=true", AutoCommit = true)]
         public void Desactive() => IsActif = false;
+
+        // ── État civil complet ────────────────────────────────
+        [Size(100)]
+        [XafDisplayName("Lieu de naissance")]
+        public string LieuNaissance
+        {
+            get => lieuNaissance;
+            set => SetPropertyValue(nameof(LieuNaissance), ref lieuNaissance, value?.Trim());
+        }
+
+        [Size(60)]
+        [XafDisplayName("Pays de naissance")]
+        public string PaysNaissance
+        {
+            get => paysNaissance;
+            set => SetPropertyValue(nameof(PaysNaissance), ref paysNaissance, value?.Trim());
+        }
+
+        // ── Pièces d'identité ─────────────────────────────────
+        [Size(50)]
+        public string NumeroCNI
+        {
+            get => numeroCNI;
+            set => SetPropertyValue(nameof(NumeroCNI), ref numeroCNI, value?.Trim());
+        }
+
+        [XafDisplayName("Date expiration CNI")]
+        public DateTime? DateExpirationCNI
+        {
+            get => dateExpirationCNI;
+            set => SetPropertyValue(nameof(DateExpirationCNI), ref dateExpirationCNI, value);
+        }
+
+        [Size(30)]
+        [XafDisplayName("Numéro passeport")]
+        public string NumeroPasseport
+        {
+            get => numeroPasseport;
+            set => SetPropertyValue(nameof(NumeroPasseport), ref numeroPasseport, value?.Trim());
+        }
+
+        [XafDisplayName("Date expiration passeport")]
+        public DateTime? DateExpirationPasseport
+        {
+            get => dateExpirationPasseport;
+            set => SetPropertyValue(nameof(DateExpirationPasseport), ref dateExpirationPasseport, value);
+        }
+
+        [Size(50)]
+        public string NumeroIPRESS
+        {
+            get => numeroIPRESS;
+            set => SetPropertyValue(nameof(NumeroIPRESS), ref numeroIPRESS, value?.Trim());
+        }
+
+        [Size(50)]
+        public string CaisseSecurite
+        {
+            get => caisseSecurite;
+            set => SetPropertyValue(nameof(CaisseSecurite), ref caisseSecurite, value?.Trim());
+        }
+
+        // ── Contrat ───────────────────────────────────────────
+        [XafDisplayName("Date de confirmation")]
+        [ToolTip("Fin de période d'essai")]
+        public DateTime? DateConfirmation
+        {
+            get => dateConfirmation;
+            set => SetPropertyValue(nameof(DateConfirmation), ref dateConfirmation, value);
+        }
+
+        // ── Contact d'urgence ─────────────────────────────────
+        [Size(100)]
+        [XafDisplayName("Contact urgence (nom)")]
+        public string ContactUrgenceNom
+        {
+            get => contactUrgenceNom;
+            set => SetPropertyValue(nameof(ContactUrgenceNom), ref contactUrgenceNom, value?.Trim());
+        }
+
+        [Size(20)]
+        [XafDisplayName("Contact urgence (tél.)")]
+        public string ContactUrgenceTel
+        {
+            get => contactUrgenceTel;
+            set => SetPropertyValue(nameof(ContactUrgenceTel), ref contactUrgenceTel, value?.Trim());
+        }
+
+        [Size(50)]
+        [XafDisplayName("Contact urgence (lien)")]
+        [ToolTip("Ex: Épouse, Père, Mère, Frère...")]
+        public string ContactUrgenceLien
+        {
+            get => contactUrgenceLien;
+            set => SetPropertyValue(nameof(ContactUrgenceLien), ref contactUrgenceLien, value?.Trim());
+        }
+
+        // ── Informations complémentaires ──────────────────────
+        [Size(5)]
+        [XafDisplayName("Groupe sanguin")]
+        [ToolTip("Ex: A+, O-, B+...")]
+        public string GroupeSanguin
+        {
+            get => groupeSanguin;
+            set => SetPropertyValue(nameof(GroupeSanguin), ref groupeSanguin,
+                value?.Trim()?.ToUpperInvariant());
+        }
+
+        [Size(30)]
+        [XafDisplayName("Permis de conduire")]
+        [ToolTip("Ex: B, D, BCDE...")]
+        public string PermisConduire
+        {
+            get => permisConduire;
+            set => SetPropertyValue(nameof(PermisConduire), ref permisConduire,
+                value?.Trim()?.ToUpperInvariant());
+        }
 
         // ── Rémunération ──────────────────────────────────────
         [NonPersistent]
         public int Anciennete => AncienneteHelper.NombreAnnee(DateEmbauche, DateTime.Today);
 
-        [Appearance("Salaire_ReadOnly_When_EchelonSet", Criteria = "Not IsNull(Echelon)", Enabled = false, TargetItems = nameof(SalaireBase))]
-        [Appearance("Indem_ReadOnly_When_EchelonSet", Criteria = "Not IsNull(Echelon)", Enabled = false, TargetItems = nameof(IndemniteLogement))]
+        [Appearance("Salaire_ReadOnly_When_EchelonSet",
+            Criteria = "Not IsNull(Echelon)", Enabled = false, TargetItems = nameof(SalaireBase))]
+        [Appearance("Indem_ReadOnly_When_EchelonSet",
+            Criteria = "Not IsNull(Echelon)", Enabled = false, TargetItems = nameof(IndemniteLogement))]
         [DbType("decimal(18,0)")]
-        public decimal SalaireBase { get => salaireBase; set => SetPropertyValue(nameof(SalaireBase), ref salaireBase, value); }
+        public decimal SalaireBase
+        {
+            get => salaireBase;
+            set => SetPropertyValue(nameof(SalaireBase), ref salaireBase, value);
+        }
 
         [DbType("decimal(18,0)")]
-        public decimal IndemniteLogement { get => indemniteLogement; set => SetPropertyValue(nameof(IndemniteLogement), ref indemniteLogement, value); }
+        public decimal IndemniteLogement
+        {
+            get => indemniteLogement;
+            set => SetPropertyValue(nameof(IndemniteLogement), ref indemniteLogement, value);
+        }
 
-        [Size(50)] public string CaisseSecurite { get => caisseSecurite; set => SetPropertyValue(nameof(CaisseSecurite), ref caisseSecurite, value); }
-        [Size(50)] public string NumeroIPRESS { get => numeroIPRESS; set => SetPropertyValue(nameof(NumeroIPRESS), ref numeroIPRESS, value); }
-        [Size(50)] public string NumeroCNI { get => numeroCNI; set => SetPropertyValue(nameof(NumeroCNI), ref numeroCNI, value); }
+        public int Base30Jour
+        {
+            get => base30Jour;
+            set => SetPropertyValue(nameof(Base30Jour), ref base30Jour, value);
+        }
 
-        public int Base30Jour { get => base30Jour; set => SetPropertyValue(nameof(Base30Jour), ref base30Jour, value); }
+        [Category("Rémunération"), XafDisplayName("Sursalaire")]
+        [DbType("decimal(18,0)")]
+        [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        public decimal Sursalaire
+        {
+            get => sursalaire;
+            set => SetPropertyValue(nameof(Sursalaire), ref sursalaire, value);
+        }
+        decimal sursalaire;
 
+        [Category("Rémunération"), XafDisplayName("Prime de transport")]
+        [DbType("decimal(18,0)")]
+        [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        public decimal PrimeTransport
+        {
+            get => primeTransport;
+            set => SetPropertyValue(nameof(PrimeTransport), ref primeTransport, value);
+        }
+        decimal primeTransport;
+
+        [Category("Rémunération"), XafDisplayName("Avantage en nature - Véhicule")]
+        [DbType("decimal(18,0)")]
+        [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        public decimal AvantageVehicule
+        {
+            get => avantageVehicule;
+            set => SetPropertyValue(nameof(AvantageVehicule), ref avantageVehicule, value);
+        }
+        decimal avantageVehicule;
+
+        [ModelDefault("Caption", "Possède un véhicule")]
+        [ModelDefault("ImmediatePostData", "True")]
+        public bool PossedeVehicule
+        {
+            get => _possedeVehicule;
+            set => SetPropertyValue(nameof(PossedeVehicule), ref _possedeVehicule, value);
+        }
+        private bool _possedeVehicule;
+
+        [RuleFromBoolProperty("Salarie_NoTransportWhenVehicle", DefaultContexts.Save,
+            CustomMessageTemplate = "Prime de transport interdite si un véhicule est attribué.")]
+        public bool IsNoTransportWhenVehicle => !PossedeVehicule || PrimeTransport == 0m;
+
+        // ── Notes ─────────────────────────────────────────────
         private string notes;
         [Size(4096)]
-        public string Notes { get => notes; set => SetPropertyValue(nameof(Notes), ref notes, value); }
+        public string Notes
+        {
+            get => notes;
+            set => SetPropertyValue(nameof(Notes), ref notes, value);
+        }
 
+        // ── Audit ─────────────────────────────────────────────
         [ModelDefault("AllowEdit", "False")]
         [System.ComponentModel.ReadOnly(true)]
-        public DateTime DateCreation { get => dateCreation; set => SetPropertyValue(nameof(DateCreation), ref dateCreation, value); }
+        public DateTime DateCreation
+        {
+            get => dateCreation;
+            set => SetPropertyValue(nameof(DateCreation), ref dateCreation, value);
+        }
 
         [ModelDefault("AllowEdit", "False")]
         [System.ComponentModel.ReadOnly(true)]
         [Size(50)]
-        public string CreePar { get => creePar; set => SetPropertyValue(nameof(CreePar), ref creePar, value); }
+        public string CreePar
+        {
+            get => creePar;
+            set => SetPropertyValue(nameof(CreePar), ref creePar, value);
+        }
+
+        // ── Sexe ──────────────────────────────────────────────
+        [XafDisplayName("Sexe")]
+        public Sexe Sexe
+        {
+            get => sexe;
+            set
+            {
+                var old = sexe;
+                SetPropertyValue(nameof(Sexe), ref sexe, value);
+                if (old != value) SyncCiviliteFromSexe();
+            }
+        }
+        Sexe sexe;
 
         // ── Echelon / Catégorie / Convention ──────────────────
         Echelons echelon;
@@ -181,93 +425,23 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Association("Categories-Salaries")]
         [ModelDefault("AllowEdit", "False")]
         [System.ComponentModel.ReadOnly(true)]
-        [Appearance("Categories_AlwaysReadOnly", Criteria = "True", Enabled = false, TargetItems = nameof(Categories))]
-        public Categories Categories { get => categories; set => SetPropertyValue(nameof(Categories), ref categories, value); }
+        [Appearance("Categories_AlwaysReadOnly", Criteria = "True",
+            Enabled = false, TargetItems = nameof(Categories))]
+        public Categories Categories
+        {
+            get => categories;
+            set => SetPropertyValue(nameof(Categories), ref categories, value);
+        }
 
         [ModelDefault("AllowEdit", "False")]
         [System.ComponentModel.ReadOnly(true)]
-        [Appearance("Convention_AlwaysReadOnly", Criteria = "True", Enabled = false, TargetItems = nameof(Convention))]
+        [Appearance("Convention_AlwaysReadOnly", Criteria = "True",
+            Enabled = false, TargetItems = nameof(Convention))]
         [Association("Convention-Salaries")]
-        public Convention Convention { get => convention; set => SetPropertyValue(nameof(Convention), ref convention, value); }
-
-        // ── Collections principales ───────────────────────────
-        [Association("Salarie-Modele"), Aggregated]
-        public XPCollection<BulletinModele> Modeles => GetCollection<BulletinModele>(nameof(Modeles));
-
-        [Association("Salarie-Bulletins"), Aggregated]
-        public XPCollection<Bulletin> Bulletins => GetCollection<Bulletin>(nameof(Bulletins));
-
-        [Association("Salarie-Conjoints"), Aggregated]
-        public XPCollection<Conjoint> Conjoints => GetCollection<Conjoint>(nameof(Conjoints));
-
-        [Association("Salarie-Prets")]
-        public XPCollection<Pret> Prets => GetCollection<Pret>(nameof(Prets));
-
-        [Association("Salarie-Conges")]
-        public XPCollection<CongeDemande> Conges => GetCollection<CongeDemande>(nameof(Conges));
-
-        // ── Compteurs conjoints ───────────────────────────────
-        [NonPersistent, XafDisplayName("Conjoints actuels")]
-        public int NbConjointsActuels => Conjoints.Count(c => c.DateFinUnion == null);
-
-        [NonPersistent, XafDisplayName("Conjoints inactifs à charge")]
-        public int NbConjointsInactifsACharge
+        public Convention Convention
         {
-            get
-            {
-                if (Session?.IsObjectsLoading == true || IsLoading)
-                    return _nbConjointsCache;
-                var crit = CriteriaOperator.Parse(
-                    "Salarie = ? AND IsNull(DateFinUnion) AND Statut = ? AND ACharge = true",
-                    this, Domain.DomainEnums.StatutConjoint.Inactif);
-                var res = Session.Evaluate(typeof(Conjoint), CriteriaOperator.Parse("Count()"), crit);
-                var n = (res is int i) ? i : (res is long l ? (int)l : 0);
-                _nbConjointsCache = n;
-                return n;
-            }
-        }
-        private int _nbConjointsCache = 0;
-
-        // ── Rémunération complémentaire ───────────────────────
-        [Category("Rémunération"), XafDisplayName("Sursalaire")]
-        [DbType("decimal(18,0)")]
-        [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        public decimal Sursalaire { get => sursalaire; set => SetPropertyValue(nameof(Sursalaire), ref sursalaire, value); }
-        decimal sursalaire;
-
-        [Category("Rémunération"), XafDisplayName("Prime de transport")]
-        [DbType("decimal(18,0)")]
-        [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        public decimal PrimeTransport { get => primeTransport; set => SetPropertyValue(nameof(PrimeTransport), ref primeTransport, value); }
-        decimal primeTransport;
-
-        [Category("Rémunération"), XafDisplayName("Avantage en nature - Véhicule")]
-        [DbType("decimal(18,0)")]
-        [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        public decimal AvantageVehicule { get => avantageVehicule; set => SetPropertyValue(nameof(AvantageVehicule), ref avantageVehicule, value); }
-        decimal avantageVehicule;
-
-        private bool _PossedeVehicule;
-        [ModelDefault("Caption", "Possède un véhicule")]
-        [ModelDefault("ImmediatePostData", "True")]
-        public bool PossedeVehicule { get => _PossedeVehicule; set => SetPropertyValue(nameof(PossedeVehicule), ref _PossedeVehicule, value); }
-
-        [RuleFromBoolProperty("Salarie_NoTransportWhenVehicle", DefaultContexts.Save,
-            CustomMessageTemplate = "Prime de transport interdite si un véhicule est attribué.")]
-        public bool IsNoTransportWhenVehicle => !PossedeVehicule || PrimeTransport == 0m;
-
-        // ── Sexe ──────────────────────────────────────────────
-        Sexe sexe;
-        [XafDisplayName("Sexe")]
-        public Sexe Sexe
-        {
-            get => sexe;
-            set
-            {
-                var old = sexe;
-                SetPropertyValue(nameof(Sexe), ref sexe, value);
-                if (old != value) SyncCiviliteFromSexe();
-            }
+            get => convention;
+            set => SetPropertyValue(nameof(Convention), ref convention, value);
         }
 
         // ── Département / Fonction ────────────────────────────
@@ -291,46 +465,75 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         private Fonction fonction;
 
+        // ── Manager hiérarchique (N+1) ────────────────────────
+        [XafDisplayName("Responsable hiérarchique (N+1)")]
+        [DataSourceCriteria("IsActif = true")]
+        public Salarie Manager
+        {
+            get => manager;
+            set => SetPropertyValue(nameof(Manager), ref manager, value);
+        }
+        Salarie manager;
+
         // ── Sécurité bulletins ────────────────────────────────
         [Size(2048)]
         public string PayslipKeyEnc { get; set; }
         public DateTime? PayslipKeyAssignedOn { get; set; }
 
-        // ── Simulations ───────────────────────────────────────
+        // ── Collections ───────────────────────────────────────
+        [Association("Salarie-Modele"), Aggregated]
+        public XPCollection<BulletinModele> Modeles
+            => GetCollection<BulletinModele>(nameof(Modeles));
+
+        [Association("Salarie-Bulletins"), Aggregated]
+        public XPCollection<Bulletin> Bulletins
+            => GetCollection<Bulletin>(nameof(Bulletins));
+
+        [Association("Salarie-Conjoints"), Aggregated]
+        public XPCollection<Conjoint> Conjoints
+            => GetCollection<Conjoint>(nameof(Conjoints));
+
+        [Association("Salarie-Prets")]
+        public XPCollection<Pret> Prets
+            => GetCollection<Pret>(nameof(Prets));
+
+        [Association("Salarie-Conges")]
+        public XPCollection<CongeDemande> Conges
+            => GetCollection<CongeDemande>(nameof(Conges));
+
         [Association("Salarie-Simulations")]
         public XPCollection<SimulationSursalaire> Simulations
             => GetCollection<SimulationSursalaire>(nameof(Simulations));
 
-        // ── GRH — Dossier / Entretiens / Attestations / Notifs ─
         [Association("Salarie-DossierSalarie"), Aggregated]
         public XPCollection<DossierSalarie> DossierSalarie
-              => GetCollection<DossierSalarie>(nameof(DossierSalarie));
+            => GetCollection<DossierSalarie>(nameof(DossierSalarie));
 
         [Association("Salarie-Entretiens"), Aggregated]
         [XafDisplayName("Entretiens annuels")]
-        public XPCollection<EntretienAnnuel> Entretiens => GetCollection<EntretienAnnuel>(nameof(Entretiens));
+        public XPCollection<EntretienAnnuel> Entretiens
+            => GetCollection<EntretienAnnuel>(nameof(Entretiens));
 
         [Association("Evaluateur-Entretiens")]
         [XafDisplayName("Entretiens menés (évaluateur)")]
-        public XPCollection<EntretienAnnuel> EntretiensMenes => GetCollection<EntretienAnnuel>(nameof(EntretiensMenes));
+        public XPCollection<EntretienAnnuel> EntretiensMenes
+            => GetCollection<EntretienAnnuel>(nameof(EntretiensMenes));
 
         [Association("Salarie-DemandesAttestation"), Aggregated]
         [XafDisplayName("Demandes d'attestation")]
-        public XPCollection<DemandeAttestation> DemandesAttestation => GetCollection<DemandeAttestation>(nameof(DemandesAttestation));
+        public XPCollection<DemandeAttestation> DemandesAttestation
+            => GetCollection<DemandeAttestation>(nameof(DemandesAttestation));
 
         [Association("Salarie-Notifications"), Aggregated]
         [XafDisplayName("Notifications")]
-        public XPCollection<NotificationSalarie> Notifications => GetCollection<NotificationSalarie>(nameof(Notifications));
-
-        [NonPersistent, XafDisplayName("Notifications non lues")]
-        public int NbNotificationsNonLues => Notifications.Count(n =>
-            n.Statut == Domain.DomainEnums.NotificationStatut.NonLue);
+        public XPCollection<NotificationSalarie> Notifications
+            => GetCollection<NotificationSalarie>(nameof(Notifications));
 
         [Association("Salarie-Deplacements"), Aggregated]
         [XafDisplayName("Demandes de déplacement")]
         public XPCollection<DemandeDeplacement> Deplacements
-    => GetCollection<DemandeDeplacement>(nameof(Deplacements));
-        // ── Avancements ───────────────────────────────────────────
+            => GetCollection<DemandeDeplacement>(nameof(Deplacements));
+
         [Association("Salarie-Avancements"), Aggregated]
         [XafDisplayName("Avancements / Promotions")]
         public XPCollection<DemandeAvancement> Avancements
@@ -346,20 +549,6 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public XPCollection<DemandeAvancement> AvancementsApprouves
             => GetCollection<DemandeAvancement>(nameof(AvancementsApprouves));
 
-
-
-
-        // ── Manager hiérarchique (N+1) ────────────────────────
-        [XafDisplayName("Responsable hiérarchique (N+1)")]
-        [DataSourceCriteria("IsActif = true")]
-        public Salarie Manager
-        {
-            get => manager;
-            set => SetPropertyValue(nameof(Manager), ref manager, value);
-        }
-        Salarie manager;
-
-        // ── Formation ─────────────────────────────────────────
         [Association("Salarie-InscriptionsFormation")]
         [XafDisplayName("Inscriptions formation")]
         public XPCollection<InscriptionFormation> InscriptionsFormation
@@ -379,34 +568,50 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Association("Salarie-SoldesConge")]
         [XafDisplayName("Soldes de congés")]
         public XPCollection<SoldeConge> SoldesConge
-               => GetCollection<SoldeConge>(nameof(SoldesConge));
+            => GetCollection<SoldeConge>(nameof(SoldesConge));
 
         [Association("Salarie-EvenementsConge")]
         [Browsable(false)]
         public XPCollection<EvenementConge> EvenementsConge
-    => GetCollection<EvenementConge>(nameof(EvenementsConge));
+            => GetCollection<EvenementConge>(nameof(EvenementsConge));
 
+        [Association("Salarie-Contrats"), Aggregated]
+        [XafDisplayName("Contrats de travail")]
+        public XPCollection<ContratSalarie> Contrats
+            => GetCollection<ContratSalarie>(nameof(Contrats));
 
-        public System.Collections.Generic.List<Salarie> GetManagerChain(int maxLevels = 2)
+        // ── Comptes bancaires ─────────────────────────────────
+        [Association("Salarie-ComptesBancaires"), Aggregated]
+        [XafDisplayName("Comptes bancaires")]
+        public XPCollection<CompteBancaireSalarie> ComptesBancaires
+            => GetCollection<CompteBancaireSalarie>(nameof(ComptesBancaires));
+
+        // ── Compteurs ─────────────────────────────────────────
+        [NonPersistent, XafDisplayName("Conjoints actuels")]
+        public int NbConjointsActuels => Conjoints.Count(c => c.DateFinUnion == null);
+
+        [NonPersistent, XafDisplayName("Conjoints inactifs à charge")]
+        public int NbConjointsInactifsACharge
         {
-            var chain = new System.Collections.Generic.List<Salarie>();
-            var current = this.Manager;
-            int level = 0;
-            while (current != null && level < maxLevels)
+            get
             {
-                chain.Add(current);
-                current = current.Manager;
-                level++;
+                if (Session?.IsObjectsLoading == true || IsLoading)
+                    return _nbConjointsCache;
+                var crit = CriteriaOperator.Parse(
+                    "Salarie = ? AND IsNull(DateFinUnion) AND Statut = ? AND ACharge = true",
+                    this, Domain.DomainEnums.StatutConjoint.Inactif);
+                var res = Session.Evaluate(typeof(Conjoint),
+                    CriteriaOperator.Parse("Count()"), crit);
+                var n = (res is int i) ? i : (res is long l ? (int)l : 0);
+                _nbConjointsCache = n;
+                return n;
             }
-            return chain;
         }
+        private int _nbConjointsCache = 0;
 
-        public bool EstManagerDe(Salarie subordonne, int maxLevels = 2)
-        {
-            if (subordonne == null) return false;
-            var chain = subordonne.GetManagerChain(maxLevels);
-            return chain.Any(m => m.Oid == this.Oid);
-        }
+        [NonPersistent, XafDisplayName("Notifications non lues")]
+        public int NbNotificationsNonLues =>
+            Notifications.Count(n => n.Statut == Domain.DomainEnums.NotificationStatut.NonLue);
 
         // ── Calculs fiscaux ───────────────────────────────────
         [NonPersistent, XafDisplayName("Nombre de parts fiscales")]
@@ -427,7 +632,138 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [NonPersistent, XafDisplayName("TRIMF (parts)")]
         public int TrimfParts => Math.Min(5, 1 + NbConjointsInactifsACharge);
 
+        // ── Virements bancaires ───────────────────────────────
+        /// <summary>
+        /// Calcule les virements pour un net donné.
+        /// Ordre : MontantFixe → Pourcentage → Reliquat.
+        /// </summary>
+        public List<(CompteBancaireSalarie Compte, decimal Montant)>
+            CalculerVirements(decimal netAPayer)
+        {
+            var result = new List<(CompteBancaireSalarie Compte, decimal Montant)>();
+
+            var actifs = ComptesBancaires
+                .OfType<CompteBancaireSalarie>()
+                .Where(c => c.Actif)
+                .OrderBy(c => (int)(c.Mode ?? ModeVirement.MontantFixe))
+                .ToList();
+
+            decimal alloue = 0m;
+            foreach (CompteBancaireSalarie compte in actifs)
+            {
+                decimal montant = compte.CalculerMontant(netAPayer, alloue);
+                if (montant > 0m)
+                {
+                    result.Add((compte, montant));
+                    alloue += montant;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Valide la cohérence de la répartition bancaire.
+        /// Retourne null si OK, sinon le message d'erreur.
+        /// </summary>
+        public string ValiderRepartitionBancaire(decimal netAPayer)
+        {
+            var comptes = ComptesBancaires
+                .OfType<CompteBancaireSalarie>()
+                .Where(c => c.Actif)
+                .ToList();
+
+            if (!comptes.Any()) return null;
+
+            // Un seul reliquat autorisé
+            int nbReliquats = comptes.Count(c => c.Mode == ModeVirement.Reliquat);
+            if (nbReliquats > 1)
+                return "Un seul compte reliquat est autorisé par salarié.";
+
+            // Total pourcentages ≤ 100
+            decimal totalPct = comptes
+                .Where(c => c.Mode == ModeVirement.Pourcentage)
+                .Sum(c => c.Valeur);
+            if (totalPct > 100)
+                return $"La somme des pourcentages ({totalPct:N1}%) dépasse 100%.";
+
+            // Total montants fixes + % ≤ net
+            decimal totalFixe = comptes
+                .Where(c => c.Mode == ModeVirement.MontantFixe)
+                .Sum(c => c.Valeur);
+            decimal totalPctMontant = netAPayer > 0 ? netAPayer * totalPct / 100m : 0m;
+
+            if (totalFixe + totalPctMontant > netAPayer)
+                return $"La somme des virements ({totalFixe + totalPctMontant:N0} FCFA) "
+                     + $"dépasse le net à payer ({netAPayer:N0} FCFA).";
+
+            return null;
+        }
+
+        // ── Hiérarchie ────────────────────────────────────────
+        public List<Salarie> GetManagerChain(int maxLevels = 2)
+        {
+            var chain = new List<Salarie>();
+            var current = Manager;
+            int level = 0;
+            while (current != null && level < maxLevels)
+            {
+                chain.Add(current);
+                current = current.Manager;
+                level++;
+            }
+            return chain;
+        }
+
+        public bool EstManagerDe(Salarie subordonne, int maxLevels = 2)
+        {
+            if (subordonne == null) return false;
+            return subordonne.GetManagerChain(maxLevels).Any(m => m.Oid == Oid);
+        }
+
         // ── Overrides ─────────────────────────────────────────
+        protected override void OnDeleting()
+        {
+            // ── Bulletins de paie ─────────────────────────────────────────
+            if (Bulletins != null && Bulletins.Any())
+                throw new UserFriendlyException(
+                    $"Impossible de supprimer {FullName} : "
+                    + $"{Bulletins.Count} bulletin(s) de paie existent. "
+                    + "Utilisez 'Désactiver' plutôt que de supprimer le salarié.");
+
+            // ── Prêts ─────────────────────────────────────────────────────
+            if (Prets != null && Prets.Any())
+                throw new UserFriendlyException(
+                    $"Impossible de supprimer {FullName} : "
+                    + $"{Prets.Count} prêt(s) existent pour ce salarié.");
+
+            // ── Contrats de travail ───────────────────────────────────────
+            if (Contrats != null && Contrats.Any())
+                throw new UserFriendlyException(
+                    $"Impossible de supprimer {FullName} : "
+                    + $"{Contrats.Count} contrat(s) de travail existent.");
+
+            // ── Comptes bancaires ─────────────────────────────────────────
+            if (ComptesBancaires != null && ComptesBancaires.Any())
+                throw new UserFriendlyException(
+                    $"Impossible de supprimer {FullName} : "
+                    + $"{ComptesBancaires.Count} compte(s) bancaire(s) existent. "
+                    + "Supprimez-les d'abord ou désactivez le salarié.");
+
+            // ── Dossier salarié ───────────────────────────────────────────
+            if (DossierSalarie != null && DossierSalarie.Any())
+                throw new UserFriendlyException(
+                    $"Impossible de supprimer {FullName} : "
+                    + "Un dossier RH existe pour ce salarié.");
+
+            // ── Avancements ───────────────────────────────────────────────
+            if (Avancements != null && Avancements.Any())
+                throw new UserFriendlyException(
+                    $"Impossible de supprimer {FullName} : "
+                    + $"{Avancements.Count} avancement(s) / promotion(s) existent.");
+
+            base.OnDeleting();
+        }
+
         protected override void OnLoaded()
         {
             base.OnLoaded();
@@ -545,7 +881,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public void RegenererModele()
         {
             if (Session.IsNewObject(this))
-                throw new UserFriendlyException("Enregistrez d'abord le salarié, puis relancez l'action.");
+                throw new UserFriendlyException(
+                    "Enregistrez d'abord le salarié, puis relancez l'action.");
 
             string[] codes = {
                 PaieConsts.Rubriques.SB,
@@ -554,11 +891,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 PaieConsts.Rubriques.AV_NAT_VEH,
                 PaieConsts.Rubriques.LOGT
             };
-            var missing = codes.Where(c => new XPQuery<Rubrique>(Session)
-                .FirstOrDefault(r => r.Actif && r.Code == c) == null).ToList();
+            var missing = codes.Where(c =>
+                new XPQuery<Rubrique>(Session)
+                    .FirstOrDefault(r => r.Actif && r.Code == c) == null).ToList();
             if (missing.Any())
-                throw new UserFriendlyException("Rubriques manquantes/inactives : " +
-                    string.Join(", ", missing) + ". Veuillez les créer/activer puis relancer l'action.");
+                throw new UserFriendlyException(
+                    "Rubriques manquantes/inactives : " + string.Join(", ", missing) +
+                    ". Veuillez les créer/activer puis relancer l'action.");
 
             EnsureBulletinModeleParDefaut();
         }

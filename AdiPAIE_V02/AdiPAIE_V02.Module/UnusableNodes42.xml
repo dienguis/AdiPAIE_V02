@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <Views Id="Views">
+    <ListView Id="Bulletin_Lignes_ListView" IsRootView="False">
+      <Columns Id="Columns">
+        <ColumnInfo Id="IsSystem" VisibleIndex="11" Visible="False" />
+        <ColumnInfo Id="OrdreLigne" Visible="False" />
+        <ColumnInfo Id="Reference" VisibleIndex="2" Visible="False" />
+        <ColumnInfo Id="RoleCanonique" Visible="False" />
+        <ColumnInfo Id="Rubrique" VisibleIndex="0" />
+        <ColumnInfo Id="SectionImpression" Visible="False" />
+        <ColumnInfo Id="Source" VisibleIndex="10" Visible="False" />
+        <ColumnInfo Id="TypeCalcul" VisibleIndex="9" />
+        <ColumnInfo Id="DisplayName" VisibleIndex="3" />
+        <ColumnInfo Id="OrdreCalcul" VisibleIndex="8" />
+        <ColumnInfo Id="Base" VisibleIndex="4" />
+        <ColumnInfo Id="Taux" VisibleIndex="5" />
+        <ColumnInfo Id="Montant" VisibleIndex="6" />
+        <ColumnInfo Id="MontantEmployeur" VisibleIndex="7" />
+        <ColumnInfo Id="Sens" VisibleIndex="1" />
+        <ColumnInfo Id="SectionImpressionKey" Visible="False" />
+      </Columns>
+    </ListView>
+    <ListView Id="BulletinLigne_ListView">
+      <Columns Id="Columns">
+        <ColumnInfo Id="IsSystem" Visible="False" />
+        <ColumnInfo Id="OrdreLigne" Visible="False" />
+        <ColumnInfo Id="RoleCanonique" Visible="False" />
+      </Columns>
+    </ListView>
+    <DetailView Id="BulletinModele_DetailView" PopupWindowWidth="1400" PopupWindowHeight="900">
+      <Layout Id="Layout">
+        <LayoutGroup Id="Main">
+          <LayoutGroup Id="Modele_Header">
+            <LayoutItem Id="Salarie" ViewItem="Salarie" />
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+    <ListView Id="ParametresPaie_ListView" IsRootView="True" />
+    <ListView Id="Salarie_Generation_ListView" IsRootView="True">
+      <Filters Id="Filters">
+        <Filter Id="Actifs" IsDefault="True" />
+      </Filters>
+    </ListView>
+    <ListView Id="Salarie_ListView" IsRoot="True" EnableMasterDetailMode="False" />
+    <DetailView Id="SimulationSursalaire_DetailView">
+      <Items Id="Items">
+        <PropertyEditor Id="NetCible" IsRequired="True" />
+      </Items>
+    </DetailView>
+    <DetailView Id="ParametresPaie_DetailView">
+      <Layout Id="Layout">
+        <LayoutGroup Id="Main">
+          <TabbedGroup Id="Tabs">
+            <LayoutGroup Id="Tab_General">
+              <LayoutGroup Id="Gen_Signatures">
+                <LayoutGroup Id="Gen_Sig_col2">
+                  <LayoutItem Id="VilleFait" ViewItem="VilleFait" />
+                </LayoutGroup>
+              </LayoutGroup>
+            </LayoutGroup>
+          </TabbedGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+  </Views>
+  <ActionDesign Id="ActionDesign">
+    <Actions Id="Actions">
+      <Action Id="EditObject" PaintStyle="Default" />
+      <Action Id="BulletinRecalcul" PaintStyle="Caption" ImageName="Action_Calculate" />
+      <Action Id="ApercuEnvoiBulletinsMois" PaintStyle="Caption" ImageName="MailMerge" />
+    </Actions>
+  </ActionDesign>
+  <NavigationItems Id="NavigationItems">
+    <Items Id="Items">
+      <Item Id="GRH - Administration">
+        <Items Id="Items">
+          <Item Id="Param_Workflows" ViewId="Workflows_View" />
+        </Items>
+      </Item>
+    </Items>
+  </NavigationItems>
+</Application>

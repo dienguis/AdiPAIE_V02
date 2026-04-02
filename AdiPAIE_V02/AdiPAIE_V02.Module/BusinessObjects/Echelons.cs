@@ -23,7 +23,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     "Code;Categories",
     SkipNullOrEmptyValues = false)]
         [DefaultClassOptions, XafDisplayName("Echelons")]
-    [DefaultProperty(nameof(Libelle))]
+    [DefaultProperty(nameof(DisplayName))]
 
     public class Echelons : BaseObject
     { // Inherit from a different class to provide a custom primary key, concurrency and deletion behavior, etc. (https://docs.devexpress.com/eXpressAppFramework/113146/business-model-design-orm/business-model-design-with-xpo/base-persistent-classes).
@@ -86,7 +86,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             get => idemniteLogement;
             set => SetPropertyValue(nameof(IdemniteLogement), ref idemniteLogement, value);
         }
-        
+
+        [PersistentAlias("Concat(Code, ' - ', Libelle)")]
+        [VisibleInLookupListView(true)]
+        public string DisplayName => Convert.ToString(EvaluateAlias(nameof(DisplayName)));
+
         [Association("Categories-Echelons")]
         public Categories Categories
         {

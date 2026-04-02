@@ -561,6 +561,120 @@ namespace AdiPAIE_V02.Module.Domain
             Non = 2,
         }
 
+        // ── Intérimaires ──────────────────────────────────────────────────────
+
+        public enum InterimaireStatut
+        {
+            [XafDisplayName("Actif")] Actif = 0,
+            [XafDisplayName("En mission")] EnMission = 1,
+            [XafDisplayName("Disponible")] Disponible = 2,
+            [XafDisplayName("Inactif")] Inactif = 3,
+            [XafDisplayName("Blacklisté")] Blackliste = 4,
+        }
+
+        public enum ContratInterimType
+        {
+            [XafDisplayName("Première mission")] PremiereMission = 0,
+            [XafDisplayName("Renouvellement")] Renouvellement = 1,
+        }
+
+        public enum ContratInterimStatut
+        {
+            [XafDisplayName("Brouillon")] Brouillon = 0,
+            [XafDisplayName("En cours")] EnCours = 1,
+            [XafDisplayName("Terminé")] Termine = 2,
+            [XafDisplayName("Résilié")] Resilie = 3,
+        }
+
+        public enum DemandeInterimaireStatut
+        {
+            [XafDisplayName("Brouillon")] Brouillon = 0,
+            [XafDisplayName("En attente N+1")] EnAttenteN1 = 1,
+            [XafDisplayName("En attente RH")] EnAttenteRH = 2,
+            [XafDisplayName("En attente RFE")] EnAttenteRFE = 3,
+            [XafDisplayName("Acceptée")] Acceptee = 10,
+            [XafDisplayName("En cours d'attribution")] EnCoursAttribution = 11,
+            [XafDisplayName("Intérimaire affecté")] InterimaireAffecte = 12,
+            [XafDisplayName("Refusée")] Refusee = 20,
+            [XafDisplayName("Annulée")] Annulee = 21,
+        }
+
+        public enum MouvementInterimaireType
+        {
+            [XafDisplayName("Affectation")] Affectation = 0,
+            [XafDisplayName("Réaffectation")] Reaffectation = 1,
+            [XafDisplayName("Mutation interne")] MutationInterne = 2,
+            [XafDisplayName("Fin de mission")] FinMission = 3,
+            [XafDisplayName("Démission")] Demission = 4,
+            [XafDisplayName("Rupture contrat")] RuptureContrat = 5,
+        }
+
+        public enum AlerteInterimaireType
+        {
+            [XafDisplayName("Mission expirée")] MissionExpiree = 0,
+            [XafDisplayName("Intérimaire sans affectation")] SansAffectation = 1,
+            [XafDisplayName("Doublon sur station")] DoublonStation = 2,
+            [XafDisplayName("Sureffectif")] Sureffectif = 3,
+            [XafDisplayName("Prolongation non enregistrée")] ProlongationNonEnregistree = 4,
+            [XafDisplayName("Mouvement non validé")] MouvementNonValide = 5,
+            [XafDisplayName("Mouvement tardif")] MouvementTardif = 6,
+            [XafDisplayName("Incohérence données")] IncoherenceDonnees = 7,
+        }
+
+        public enum AlerteInterimaireNiveau
+        {
+            [XafDisplayName("Info")] Info = 0,
+            [XafDisplayName("Alerte")] Alerte = 1,
+            [XafDisplayName("Urgent")] Urgent = 2,
+        }
+
+        public enum TypeContrat
+        {
+            [XafDisplayName("CDI — Contrat à Durée Indéterminée")]
+            CDI = 0,
+            [XafDisplayName("CDD — Contrat à Durée Déterminée")]
+            CDD = 1,
+            [XafDisplayName("Contrat de stage")]
+            Stage = 2,
+        }
+
+        public enum ContratSalarieStatut
+        {
+            [XafDisplayName("Brouillon")] Brouillon = 0,
+            [XafDisplayName("Actif")] Actif = 1,
+            [XafDisplayName("Suspendu")] Suspendu = 2,
+            [XafDisplayName("Expiré")] Expire = 3,
+            [XafDisplayName("Résilié")] Resilie = 4,
+        }
+
+        public enum MotifCDD
+        {
+            [XafDisplayName("Accroissement temporaire d'activité")] AccroissementActivite = 0,
+            [XafDisplayName("Remplacement d'un salarié absent")] Remplacement = 1,
+            [XafDisplayName("Emploi saisonnier")] Saisonnier = 2,
+            [XafDisplayName("Autre motif")] Autre = 3,
+        }
+        public enum MotifDepart
+        {
+            [XafDisplayName("Démission")] Demission = 0,
+            [XafDisplayName("Licenciement")] Licenciement = 1,
+            [XafDisplayName("Retraite")] Retraite = 2,
+            [XafDisplayName("Fin de CDD")] FinCDD = 3,
+            [XafDisplayName("Rupture conventionnelle")] RuptureConventionnelle = 4,
+            [XafDisplayName("Décès")] Deces = 5,
+            [XafDisplayName("Autre")] Autre = 6,
+        }
+
+        public enum OffboardingStatut
+        {
+            [XafDisplayName("Initié")] Initie = 0,
+            [XafDisplayName("En cours")] EnCours = 1,
+            [XafDisplayName("Solde calculé")] SoldeCalcule = 2,
+            [XafDisplayName("Validé RH")] ValideRH = 3,
+            [XafDisplayName("Validé DAF")] ValidéDAF = 4,
+            [XafDisplayName("Clôturé")] Cloture = 5,
+        }
+
 
     }
 }

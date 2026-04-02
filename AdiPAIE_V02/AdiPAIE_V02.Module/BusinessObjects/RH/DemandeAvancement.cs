@@ -1,5 +1,4 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects;
-using DevExpress.Data.Exceptions;
+﻿using DevExpress.Data.Exceptions;
 using DevExpress.Drawing;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
@@ -30,7 +29,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Demande d'avancement")]
     [DefaultProperty(nameof(DisplayAvancement))]
     [ImageName("BO_Employee")]
-    [NavigationItem("GRH - Administration")]
+   // [NavigationItem("Ressources humaines")]
     [Appearance("AvApprouve", TargetItems = "*",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+AvancementStatut,ApprouveDG#",
         FontColor = "#1B6C2A", FontStyle = DXFontStyle.Bold)]

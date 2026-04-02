@@ -1,5 +1,4 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
-using DevExpress.ExpressApp;
+﻿using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Model;
@@ -22,7 +21,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Inscription formation")]
     [DefaultProperty(nameof(DisplayInscription))]
     [ImageName("Action_SendMessage")]
-    [NavigationItem("GRH - Formation")]
+   // [NavigationItem("GRH - Formation")]
     [Appearance("InscriptionAnnulee", TargetItems = "*",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+InscriptionStatut,Annulee#",
         FontColor = "Gray", FontStyle = DevExpress.Drawing.DXFontStyle.Italic)]

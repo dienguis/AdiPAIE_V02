@@ -74,6 +74,18 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         public static List<string> ExtraireEmailsRH(XafApplication app)
             => ExtraireEmails(app, prm => prm?.EmailsRHAlertes);
 
+        public static List<string> ExtraireEmailsDAF(XafApplication app)
+    => ExtraireEmails(app, prm =>
+        !string.IsNullOrWhiteSpace(prm?.EmailDAF)
+            ? prm.EmailDAF
+            : prm?.EmailsRHAlertes);
+
+        public static List<string> ExtraireEmailsComptable(XafApplication app)
+    => ExtraireEmails(app, prm =>
+        !string.IsNullOrWhiteSpace(prm?.EmailsComptable)
+            ? prm.EmailsComptable
+            : prm?.EmailsRHAlertes);
+
         /// <summary>
         /// Construit un corps HTML pour les notifications RH (emails directs sans notif in-app).
         /// </summary>

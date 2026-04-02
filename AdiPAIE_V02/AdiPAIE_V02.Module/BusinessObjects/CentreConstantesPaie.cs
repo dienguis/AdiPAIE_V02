@@ -7,7 +7,7 @@ using DevExpress.Xpo;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions]
-    [NavigationItem("Paramétrage")]
+   // [NavigationItem("GRH - Administration")]
     [XafDisplayName("Centre des constantes paie")]
     public class CentreConstantesPaie : BaseObject
     {

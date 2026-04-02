@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <Views Id="Views">
+    <DetailView Id="Bulletin_DetailView">
+      <Layout Id="Layout">
+        <LayoutGroup Id="Main">
+          <LayoutGroup Id="SimpleEditors">
+            <LayoutGroup Id="Bulletin">
+              <LayoutGroup Id="Bulletin_col2">
+                <Node Id="IPRES_RC_Mois" UnusableNodeName="ColumnInfo" Index="3" RelativeSize="36.470588235294116" Removed="True" />
+              </LayoutGroup>
+            </LayoutGroup>
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+    <ListView Id="Bulletin_Lignes_ListView" IsRootView="False">
+      <Columns Id="Columns">
+        <ColumnInfo Id="IsSystem" VisibleIndex="11" Visible="False" />
+        <ColumnInfo Id="OrdreLigne" Visible="False" />
+        <ColumnInfo Id="Reference" VisibleIndex="2" Visible="False" />
+        <ColumnInfo Id="RoleCanonique" Visible="False" />
+        <ColumnInfo Id="Rubrique" VisibleIndex="0" />
+        <ColumnInfo Id="SectionImpression" Visible="False" />
+        <ColumnInfo Id="Source" VisibleIndex="10" Visible="False" />
+        <ColumnInfo Id="TypeCalcul" VisibleIndex="9" />
+        <ColumnInfo Id="DisplayName" VisibleIndex="3" />
+        <ColumnInfo Id="OrdreCalcul" VisibleIndex="8" />
+        <ColumnInfo Id="Base" VisibleIndex="4" />
+        <ColumnInfo Id="Taux" VisibleIndex="5" />
+        <ColumnInfo Id="Montant" VisibleIndex="6" />
+        <ColumnInfo Id="MontantEmployeur" VisibleIndex="7" />
+        <ColumnInfo Id="Sens" VisibleIndex="1" />
+        <ColumnInfo Id="SectionImpressionKey" Visible="False" />
+      </Columns>
+    </ListView>
+    <ListView Id="BulletinLigne_ListView">
+      <Columns Id="Columns">
+        <ColumnInfo Id="IsSystem" Visible="False" />
+        <ColumnInfo Id="OrdreLigne" Visible="False" />
+        <ColumnInfo Id="RoleCanonique" Visible="False" />
+      </Columns>
+    </ListView>
+    <ListView Id="ParametresPaie_ListView" IsRootView="True" />
+    <ListView Id="Salarie_Generation_ListView" IsRootView="True">
+      <Filters Id="Filters">
+        <Filter Id="Actifs" IsDefault="True" />
+      </Filters>
+    </ListView>
+    <ListView Id="Salarie_ListView" IsRoot="True" EnableMasterDetailMode="False" />
+    <DetailView Id="SimulationSursalaire_DetailView">
+      <Items Id="Items">
+        <PropertyEditor Id="NetCible" IsRequired="True" />
+      </Items>
+    </DetailView>
+    <DetailView Id="BulletinModele_DetailView" PopupWindowWidth="1400" PopupWindowHeight="900">
+      <Items Id="Items">
+        <PropertyEditor Id="DisplayName" Removed="True" />
+        <PropertyEditor Id="Unique_Salarie_ActifKey" Removed="True" />
+        <PropertyEditor Id="DateCreation" Removed="True" />
+      </Items>
+      <Layout Id="Layout">
+        <LayoutGroup Id="Main">
+          <LayoutGroup Id="SizeableEditors" Removed="True" />
+          <LayoutGroup Id="Modele_Header">
+            <LayoutItem Id="Salarie" ViewItem="Salarie" />
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+    <DetailView Id="ParametresPaie_DetailView">
+      <Layout Id="Layout">
+        <LayoutGroup Id="Main">
+          <TabbedGroup Id="Tabs">
+            <LayoutGroup Id="Tab_General">
+              <LayoutGroup Id="Gen_Signatures">
+                <LayoutGroup Id="Gen_Sig_col2">
+                  <LayoutItem Id="VilleFait" ViewItem="VilleFait" />
+                </LayoutGroup>
+              </LayoutGroup>
+            </LayoutGroup>
+          </TabbedGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+    <DetailView Id="Salarie_DetailView">
+      <Layout Id="Layout">
+        <LayoutGroup Id="Main">
+          <TabbedGroup Id="Item1" Removed="True" />
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+  </Views>
+  <NavigationItems Id="NavigationItems">
+    <Items Id="Items">
+      <Item Id="Traitement" Index="98" ImageName="Recurrence">
+        <Items Id="Items">
+          <Item Id="Pret_ListView" Removed="True" />
+        </Items>
+      </Item>
+      <Item Id="GRH - Espace salarié" Caption="OLD" Visible="False">
+        <Items Id="Items">
+          <Item Id="NotificationSalarie_ListView" Removed="True" />
+        </Items>
+      </Item>
+      <Item Id="GRH - Évaluation" Removed="True" />
+      <Item Id="GRH - Interimaires" Removed="True" />
+      <Item Id="GRH - Congés" Removed="True" />
+      <Item Id="GRH - Formation" Removed="True" />
+      <Item Id="GRH - Intérimaires" Removed="True" />
+      <Item Id="GRH - Administration">
+        <Items Id="Items">
+          <Item Id="Param_Workflows" ViewId="Workflows_View" />
+        </Items>
+      </Item>
+    </Items>
+  </NavigationItems>
+</Application>

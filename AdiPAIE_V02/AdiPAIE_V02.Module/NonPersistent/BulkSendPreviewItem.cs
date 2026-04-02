@@ -1,35 +1,41 @@
-﻿// NonPersistent/BulkSendPreviewItem.cs
-using DevExpress.ExpressApp;
-using DevExpress.ExpressApp.DC;     // DomainComponent
-using DevExpress.Persistent.Base;   // DefaultClassOptions
-using DevExpress.Persistent.Validation; // Key
-using DevExpress.Xpo;
+﻿using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.DC;
+using DevExpress.Persistent.Base;
 using System;
 
 namespace AdiPAIE_V02.Module.NonPersistent
 {
     [DomainComponent]
-   // [DefaultClassOptions]
-    public class BulkSendPreviewItem : IObjectSpaceLink
+    public class BulkSendPreviewItem : NonPersistentBaseObject
     {
-        // Clé requise pour les Domain Components
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        // Liaison à l’ObjectSpace (utile pour SetModified)
-        [NonPersistent] public IObjectSpace ObjectSpace { get; set; }
-
-        // --- Tes champs ---
+        [VisibleInDetailView(false)]
+        [VisibleInListView(false)]
+        [VisibleInLookupListView(false)]
         public Guid BulletinOid { get; set; }
+
+        [XafDisplayName("Sélectionner")]
         public bool Selected { get; set; } = true;
 
+        [XafDisplayName("Période")]
         public string Periode { get; set; }
+
+        [XafDisplayName("Matricule")]
         public string Matricule { get; set; }
+
+        [XafDisplayName("Nom complet")]
         public string FullName { get; set; }
+
+        [XafDisplayName("Email")]
         public string Email { get; set; }
 
+        [XafDisplayName("Archive PDF")]
         public bool HasArchive { get; set; }
+
+        [VisibleInListView(false)]
+        [VisibleInDetailView(false)]
         public string FileName { get; set; }
+
+        [XafDisplayName("Statut")]
         public string Note { get; set; }
     }
 }

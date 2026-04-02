@@ -26,7 +26,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Demande d'attestation")]
     [DefaultProperty(nameof(DisplayName))]
     [ImageName("BO_FileAttachment")]
-    [NavigationItem("GRH - Espace salarié")]
+  //  [NavigationItem("GRH - Espace salarié")]
 
     // Styles par statut
     [Appearance("Demande_Traitee_Style", TargetItems = "*",

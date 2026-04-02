@@ -1,6 +1,8 @@
 ﻿using AdiPAIE_V02.Module.Domain;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.SystemModule;
+using DevExpress.Persistent.Base;
+using DevExpress.ExpressApp.Utils;
 using System;
 using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
@@ -9,9 +11,16 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 {
     /// <summary>
     /// Crée automatiquement un BulletinModele actif pour un salarié
-    /// uniquement lors de "Save & Close" de la fiche salarié.
+    /// UNIQUEMENT lors de "Save &amp; Close" de la fiche salarié.
+    ///
+    /// Corrections v2 :
+    ///   - Bug logement : utilisait le fallback Sursalaire au lieu de IndemniteLogement
+    ///   - catch vide remplacé par Tracer.LogError
+    ///   - Lignes correctement créées avec bons ordres depuis PaieConsts
+    ///   - SalarieModeleAutoController supprimé (doublon incomplet)
     /// </summary>
-    public class SalarieModeleOnSaveCloseController : ObjectViewController<DetailView, Salarie>
+    public class SalarieModeleOnSaveCloseController
+        : ObjectViewController<DetailView, Salarie>
     {
         private ModificationsController _mods;
         private Guid? _pendingSalarieOid;
@@ -23,20 +32,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             _mods = Frame.GetController<ModificationsController>();
             if (_mods != null)
             {
-                // Save simple ⇒ ne crée pas le modèle
                 _mods.SaveAction.Executing += SaveAction_Executing_ClearPending;
-
-                // Save & Close ⇒ marquer l’intention
                 _mods.SaveAndCloseAction.Executing += SaveAndCloseAction_Executing_Mark;
-
-                // Cancel ⇒ nettoyer le flag
                 _mods.CancelAction.Executing += CancelAction_Executing_ClearPending;
             }
 
-            // Création après COMMIT effectif
             View.ObjectSpace.Committed += ObjectSpace_Committed_AfterSaveAndClose;
-
-            // Filet de sécurité si la vue se ferme autrement
             View.Closed += View_Closed_Cleanup;
         }
 
@@ -58,17 +59,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             base.OnDeactivated();
         }
 
+        // ── Handlers ──────────────────────────────────────────────────────
         private void SaveAction_Executing_ClearPending(object sender, EventArgs e)
-        {
-            // Un "Save" simple ne doit pas déclencher la création auto
-            _pendingSalarieOid = null;
-        }
+            => _pendingSalarieOid = null; // Save simple → pas de création
 
         private void CancelAction_Executing_ClearPending(object sender, EventArgs e)
-        {
-            // Annulation : on nettoie aussi
-            _pendingSalarieOid = null;
-        }
+            => _pendingSalarieOid = null;
 
         private void SaveAndCloseAction_Executing_Mark(object sender, EventArgs e)
         {
@@ -77,160 +73,164 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         private void View_Closed_Cleanup(object sender, EventArgs e)
-        {
-            // Si la vue se ferme sans commit (erreur, etc.), ne rien déclencher
-            _pendingSalarieOid = null;
-        }
+            => _pendingSalarieOid = null;
 
         private void ObjectSpace_Committed_AfterSaveAndClose(object sender, EventArgs e)
         {
             if (!_pendingSalarieOid.HasValue) return;
 
+            var oid = _pendingSalarieOid.Value;
+            _pendingSalarieOid = null; // consommer le flag avant tout traitement
+
             try
             {
                 using var os = Application.CreateObjectSpace(typeof(Salarie));
-                var s = os.GetObjectByKey<Salarie>(_pendingSalarieOid.Value);
-                _pendingSalarieOid = null; // consommer le flag
 
+                var s = os.GetObjectByKey<Salarie>(oid);
                 if (s == null) return;
 
                 var p = os.GetObjectsQuery<ParametresPaie>().FirstOrDefault();
 
-                // Paramètre global pour autoriser / bloquer la création auto
-                var autoriserCreation = (p?.ModeleAuto_CreerAuSave ?? true);
-                if (!autoriserCreation) return;
+                // Respect du paramètre global d'activation
+                if (!(p?.ModeleAuto_CreerAuSave ?? true)) return;
 
-                // Ne rien faire si un modèle actif existe déjà
-                var existe = os.GetObjectsQuery<BulletinModele>().Any(m => m.Salarie == s && m.Actif);
+                // Idempotent : ne rien faire si un modèle actif existe déjà
+                bool existe = os.GetObjectsQuery<BulletinModele>()
+                                .Any(m => m.Salarie == s && m.Actif);
                 if (existe) return;
 
                 CreerModeleParDefaut(os, s, p);
                 os.CommitChanges();
+
+                Tracing.Tracer.LogText(
+                    $"[MODELE_AUTO] Modèle créé pour Salarie={s.Matricule} ({s.FullName})");
             }
-            catch
+            catch (Exception ex)
             {
-                // Optionnel : log interne si tu as une infra de logging
+                // Ne jamais bloquer l'UX — log uniquement
+                Tracing.Tracer.LogError($"[MODELE_AUTO] Erreur création modèle : {ex.Message}");
             }
         }
 
-        // ===== Helpers "valeurs par défaut" & ordre =====
-
-        private static decimal CoalescePositive(decimal primary, decimal? fallbackNullable, decimal fallbackIfNull = 0m)
-        {
-            // Si la valeur primaire (issue du salarié) est > 0 -> on la prend
-            if (primary > 0m) return primary;
-
-            // Sinon on tente le paramètre (qui peut être decimal?)
-            var fb = fallbackNullable ?? fallbackIfNull;
-            return fb > 0m ? fb : 0m;
-        }
-
-        private static int NextOrdreFromRubrique(Rubrique rub, ref int cursor, int step = 10)
-        {
-            // Si la rubrique a un ordre d’affichage défini et > 0, on le reprend
-            if (rub?.OrdreAffichage.HasValue == true && rub.OrdreAffichage.Value > 0)
-                return rub.OrdreAffichage.Value;
-
-            // Sinon, on incrémente un curseur local
-            cursor += step;
-            return cursor;
-        }
-
-        // ===== Construction du modèle par défaut =====
-
-        private static void CreerModeleParDefaut(IObjectSpace os, Salarie s, ParametresPaie p)
+        // ── Construction du modèle ────────────────────────────────────────
+        private static void CreerModeleParDefaut(
+            IObjectSpace os, Salarie s, ParametresPaie p)
         {
             var modele = os.CreateObject<BulletinModele>();
             modele.Salarie = s;
             modele.Actif = true;
-            // Si tu as un champ Libelle :
-            // modele.Libelle = $"Modèle par défaut - {s.FullName}";
 
-            // 1) Valeurs issues du salarié (décimaux non-nullables) avec fallback ParametresPaie (decimal?)
-            var salaireBase = Math.Max(s.SalaireBase, 0m);
+            // ── Valeurs du salarié avec fallback ParametresPaie ───────────
+            decimal salaireBase = Math.Max(s.SalaireBase, 0m);
 
-            var sursalaire = CoalescePositive(
+            decimal logement = CoalescePositive(s.IndemniteLogement, null, 0m);
+            // ⚠ BUG CORRIGÉ : logement utilisait p?.ModeleAuto_Defaut_Sursalaire par erreur
+
+            decimal sursalaire = CoalescePositive(
                 s.Sursalaire,
-                p?.ModeleAuto_Defaut_Sursalaire /* decimal? */,
-                0m
-            );
+                p?.ModeleAuto_Defaut_Sursalaire,
+                0m);
 
-            var logement = CoalescePositive(
-                s.IndemniteLogement,
-                p?.ModeleAuto_Defaut_Sursalaire /* decimal? */,
-                0m
-            );
-
-            var primeTrans = CoalescePositive(
+            decimal primeTransport = CoalescePositive(
                 s.PrimeTransport,
-                p?.ModeleAuto_Defaut_PrimeTransport /* decimal? */,
-                0m
-            );
+                p?.ModeleAuto_Defaut_PrimeTransport,
+                0m);
 
-            var avVeh = CoalescePositive(
+            decimal avantageVehicule = CoalescePositive(
                 s.AvantageVehicule,
-                p?.ModeleAuto_Defaut_AvantageVehicule /* decimal? */,
-                0m
-            );
+                p?.ModeleAuto_Defaut_AvantageVehicule,
+                0m);
 
-            // 2) Ajout des lignes en respectant l’ordre de la rubrique si disponible
-            int ordreCursor = 100;
+            // ── Lignes standard (ordre depuis PaieConsts) ─────────────────
+            int cursor = 0;
 
-            AddLigne(os, modele, RubriqueCanonique.SalaireDeBase, ref ordreCursor,
-                baseDefaut: (salaireBase > 0m ? salaireBase : 0m),
-                montantDefaut: null,
-                inclureParDefaut: true);
+            // Salaire de base — toujours inclus
+            AddLigne(os, modele, RubriqueCanonique.SalaireDeBase, "SB",
+                ref cursor,
+                baseDefaut: salaireBase,
+                montantDefaut: null,  // calculé dynamiquement par le moteur
+                inclure: true);
 
+            // Sursalaire — si > 0
             if (sursalaire > 0m)
-                AddLigne(os, modele, RubriqueCanonique.Sursalaire, ref ordreCursor,
-                    baseDefaut: sursalaire, montantDefaut: sursalaire, inclureParDefaut: true);
+                AddLigne(os, modele, RubriqueCanonique.Sursalaire, "SURSAL",
+                    ref cursor,
+                    baseDefaut: sursalaire,
+                    montantDefaut: sursalaire,
+                    inclure: true);
 
-
+            // Indemnité logement — si > 0
             if (logement > 0m)
-                AddLigne(os, modele, RubriqueCanonique.IndemniteLogement, ref ordreCursor,
-                    baseDefaut: logement, montantDefaut: logement, inclureParDefaut: true);
+                AddLigne(os, modele, RubriqueCanonique.IndemniteLogement, "LOGT",
+                    ref cursor,
+                    baseDefaut: logement,
+                    montantDefaut: null, // calculé dynamiquement (prorata base30)
+                    inclure: true);
 
-            if (primeTrans > 0m)
-                AddLigne(os, modele, RubriqueCanonique.PrimeTransport, ref ordreCursor,
-                    baseDefaut: primeTrans, montantDefaut: primeTrans, inclureParDefaut: true);
+            // Prime de transport — si > 0 et pas de véhicule
+            if (primeTransport > 0m && !s.PossedeVehicule)
+                AddLigne(os, modele, RubriqueCanonique.PrimeTransport, "TRANS",
+                    ref cursor,
+                    baseDefaut: primeTransport,
+                    montantDefaut: primeTransport,
+                    inclure: true);
 
-            if (avVeh > 0m)
-                AddLigne(os, modele, RubriqueCanonique.AvantageNatureVehicule, ref ordreCursor,
-                    baseDefaut: avVeh, montantDefaut: avVeh, inclureParDefaut: true);
+            // Avantage en nature véhicule — si possède véhicule
+            if (avantageVehicule > 0m && s.PossedeVehicule)
+                AddLigne(os, modele, RubriqueCanonique.AvantageNatureVehicule, "AV_NAT_VEH",
+                    ref cursor,
+                    baseDefaut: avantageVehicule,
+                    montantDefaut: avantageVehicule,
+                    inclure: true);
         }
 
+        // ── Helpers ───────────────────────────────────────────────────────
         private static void AddLigne(
             IObjectSpace os,
             BulletinModele modele,
             RubriqueCanonique canonique,
-            ref int ordreCursor,
+            string fallbackCode,
+            ref int cursor,
             decimal? baseDefaut,
             decimal? montantDefaut,
-            bool inclureParDefaut)
+            bool inclure)
         {
-            var rub = os.GetObjectsQuery<Rubrique>()
-                        .FirstOrDefault(r => r.Canonique == canonique && r.Actif);
-            if (rub == null) return;
+            // Cherche la rubrique par canonique, sinon par code
+            var rubrique = os.GetObjectsQuery<Rubrique>()
+                             .FirstOrDefault(r => r.Actif && r.Canonique == canonique)
+                          ?? os.GetObjectsQuery<Rubrique>()
+                             .FirstOrDefault(r => r.Actif && r.Code == fallbackCode);
 
-            var l = os.CreateObject<BulletinModeleLigne>();
-            l.Modele = modele;
-            l.Rubrique = rub;
+            if (rubrique == null) return; // rubrique non configurée → on saute
 
-            // Ordre : priorité à OrdreAffichage de la rubrique
-            l.Ordre = NextOrdreFromRubrique(rub, ref ordreCursor);
+            // Ordre : depuis la rubrique si défini, sinon curseur auto
+            int ordre = (rubrique.OrdreAffichage.HasValue && rubrique.OrdreAffichage.Value > 0)
+                ? rubrique.OrdreAffichage.Value
+                : (cursor += 10);
 
-            l.InclureParDefaut = inclureParDefaut;
+            var ligne = os.CreateObject<BulletinModeleLigne>();
+            ligne.Modele = modele;
+            ligne.Rubrique = rubrique;
+            ligne.Ordre = ordre;
+            ligne.InclureParDefaut = inclure;
+            ligne.BaseDefaut = baseDefaut;
+            ligne.MontantDefaut = montantDefaut;
+            ligne.TauxDefaut = null;
+        }
 
-            // On n’affecte BaseDefaut / MontantDefaut que si > 0
-            if (baseDefaut.HasValue && baseDefaut.Value > 0m)
-                l.BaseDefaut = baseDefaut.Value;
-
-            // Si la rubrique est de type "montant" (pas %), poser MontantDefaut directement
-            if (montantDefaut.HasValue && montantDefaut.Value > 0m)
-                l.MontantDefaut = montantDefaut.Value;
-
-            // Pour une rubrique en %, tu pourrais renseigner l.TauxDefaut si besoin
-            // l.TauxDefaut = 5m; // exemple
+        /// <summary>
+        /// Retourne la valeur primaire si > 0, sinon le fallback nullable,
+        /// sinon fallbackIfNull. Utilisé pour prioriser la valeur salarié
+        /// sur le paramètre global.
+        /// </summary>
+        private static decimal CoalescePositive(
+            decimal primary,
+            decimal? fallbackNullable,
+            decimal fallbackIfNull = 0m)
+        {
+            if (primary > 0m) return primary;
+            var fb = fallbackNullable ?? fallbackIfNull;
+            return fb > 0m ? fb : 0m;
         }
     }
 }

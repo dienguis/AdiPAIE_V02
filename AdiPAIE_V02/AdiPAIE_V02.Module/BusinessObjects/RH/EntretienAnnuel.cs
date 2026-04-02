@@ -29,7 +29,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Entretien annuel")]
     [DefaultProperty(nameof(DisplayName))]
     [ImageName("BO_Contact")]
-    [NavigationItem("GRH - Évaluation")]
+   // [NavigationItem("GRH - Évaluation")]
 
     [RuleCriteria("Entretien_DateRealisation_Required",
         DefaultContexts.Save,

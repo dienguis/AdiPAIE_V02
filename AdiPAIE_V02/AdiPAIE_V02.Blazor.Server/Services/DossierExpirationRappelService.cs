@@ -1,5 +1,4 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
-using AdiPAIE_V02.Module.BusinessObjects.RH;
 using AdiPAIE_V02.Module.Services;
 using DevExpress.ExpressApp;
 using DevExpress.XtraPrinting.Preview;

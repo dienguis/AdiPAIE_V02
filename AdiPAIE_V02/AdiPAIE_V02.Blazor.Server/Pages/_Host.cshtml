@@ -5,23 +5,35 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <meta name="mobile-web-app-capable" content="yes" />
     <!-- meta name="theme-color" content="#000000" -->
-    <title>AdiPAIE_V02</title>
+    <title>SunuPaie</title>
     <base href="~/" />
     <component type="typeof(BootstrapThemeLink)" render-mode="Static" />
-</head>
-<body>
-    <component type="typeof(SplashScreen)" render-mode="Static" param-Caption='"AdiPAIE_V02"' param-ImagePath='"images/SplashScreen.svg"' />
 
+    <!-- CSS chargé EN PREMIER pour que le splash soit vert dès l'affichage -->
     <link href="_content/DevExpress.ExpressApp.Blazor/styles.css" asp-append-version="true" rel="stylesheet" />
     <link href="css/site.css" rel="stylesheet" />
-    <!-- Uncomment this link to enable CSS isolation. For more information, refer to the following topic: https://learn.microsoft.com/en-us/aspnet/core/blazor/components/css-isolation -->
-    <!-- <link href="AdiPAIE_V02.Blazor.Server.styles.css" rel="stylesheet"> -->
+
+    <!-- Couleurs splash screen inline pour garantir l'application avant tout rendu -->
+    <style>
+        .loading-items-center > .bg-primary {
+            background-color: #0F6E56 !important;
+        }
+
+        .loading-items-center > .border-primary {
+            border-color: #0F6E56 !important;
+        }
+    </style>
+</head>
+<body>
+    <component type="typeof(SplashScreen)"
+               render-mode="Static"
+               param-Caption='"Sunu Paie RH"'
+               param-ImagePath='"images/CustomSplashScreenImage.svg"' />
 
     <app class="d-none">
         <component type="typeof(App)" render-mode="Server" />
@@ -34,5 +46,6 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+    <script src="js/adipaie.js"></script>
 </body>
 </html>

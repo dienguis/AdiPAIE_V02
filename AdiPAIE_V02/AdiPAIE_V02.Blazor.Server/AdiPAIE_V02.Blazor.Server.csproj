@@ -36,4 +36,12 @@
   <ItemGroup>
     <ProjectReference Include="..\AdiPAIE_V02.Module\AdiPAIE_V02.Module.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Components\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="UnusableNodes.xml">
+      <DependentUpon>Model.xafml</DependentUpon>
+    </None>
+  </ItemGroup>
 </Project>

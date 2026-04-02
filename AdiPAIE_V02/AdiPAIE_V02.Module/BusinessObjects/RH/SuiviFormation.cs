@@ -1,5 +1,4 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
-using DevExpress.ExpressApp.DC;
+﻿using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
@@ -23,7 +22,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Suivi formation")]
     [DefaultProperty(nameof(DisplaySuivi))]
     [ImageName("BO_FileAttachment")]
-    [NavigationItem("GRH - Formation")]
+   // [NavigationItem("GRH - Formation")]
     public class SuiviFormation : BaseObject
     {
         public SuiviFormation(Session session) : base(session) { }

@@ -1,0 +1,21 @@
+@* WorkflowsView.razor — charge la page HTML statique dans un iframe *@
+@* Placer dans : AdiPAIE_V02.Blazor.Server/Components/ *@
+@* Prerequis : workflows.html dans wwwroot/ *@
+
+<div style="display:flex; flex-direction:column; height:calc(100vh - 120px); padding:8px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <h2 style="font-size:16px; font-weight:500; color:var(--color-text-primary);">
+            Diagrammes de workflow — AdiPAIE V02
+        </h2>
+        <a href="/workflows.html" target="_blank"
+           style="font-size:12px; color:#185fa5; text-decoration:none; padding:5px 12px;
+                  border:1px solid #85b7eb; border-radius:16px; background:#e6f1fb;">
+            Ouvrir dans un onglet
+        </a>
+    </div>
+    <iframe src="/workflows.html"
+            style="flex:1; border:1px solid #e0ddd6; border-radius:8px; background:#fff;"
+            frameborder="0"
+            title="Diagrammes de workflow AdiPAIE">
+    </iframe>
+</div>

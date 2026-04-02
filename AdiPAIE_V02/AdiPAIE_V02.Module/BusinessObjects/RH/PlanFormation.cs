@@ -1,5 +1,4 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
-using DevExpress.ExpressApp.ConditionalAppearance;
+﻿using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Model;
@@ -24,7 +23,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Plan de formation")]
     [DefaultProperty(nameof(Titre))]
     [ImageName("BO_List")]
-    [NavigationItem("GRH - Formation")]
+   // [NavigationItem("GRH - Formation")]
     [Appearance("PlanApprouve", TargetItems = "*",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PlanFormationStatut,Approuve#",
         FontColor = "#1B6C2A", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]

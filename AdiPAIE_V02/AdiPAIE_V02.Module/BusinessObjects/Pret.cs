@@ -15,8 +15,9 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
-    [NavigationItem("Traitement")]
-    [ XafDisplayName("Prêt salarié")]
+    //[NavigationItem("Traitement")]
+    [DefaultClassOptions]
+    [XafDisplayName("Prêt salarié")]
     [DefaultProperty(nameof(DisplayName))]
     public class Pret : BaseObject
     {
@@ -144,13 +145,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public XPCollection<PretEcheance> Echeances => GetCollection<PretEcheance>(nameof(Echeances));
 
         [Association("PretType-Prets")]
+        [RuleRequiredField(CustomMessageTemplate = "Le type de prêt est obligatoire.")]
         public PretType TypePret
         {
             get => type; set => SetPropertyValue(nameof(TypePret), ref type, value);
         }
         PretType type;
 
-        // (facultatif) garde la possibilité d’override au niveau du prêt
+        // (facultatif) garde la possibilité d'override au niveau du prêt
+        [RuleRequiredField(CustomMessageTemplate = "La rubrique de retenue est obligatoire.")]
         public Rubrique RubriqueRetenue
         {
             get => rub; set => SetPropertyValue(nameof(RubriqueRetenue), ref rub, value);

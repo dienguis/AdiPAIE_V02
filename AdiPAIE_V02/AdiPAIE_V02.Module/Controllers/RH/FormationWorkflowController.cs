@@ -432,18 +432,20 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             View.CurrentObjectChanged += (_, __) => UpdateActions();
         }
 
-        void UpdateActions()
+          void UpdateActions()
         {
             var session = View?.CurrentObject as SessionFormation;
             if (session == null) return;
             var s = session.Statut;
 
+         
             confirmerAction.Active["s"] = s == SessionFormationStatut.Planifiee;
             demarrerAction.Active["s"] = s == SessionFormationStatut.Confirmee;
             terminerAction.Active["s"] = s == SessionFormationStatut.EnCours;
             annulerAction.Active["s"] = s != SessionFormationStatut.Terminee
-                                       && s != SessionFormationStatut.Annulee;
+                                         && s != SessionFormationStatut.Annulee;
         }
+
     }
 
     // ════════════════════════════════════════════════════════════

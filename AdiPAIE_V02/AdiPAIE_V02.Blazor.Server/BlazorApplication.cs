@@ -16,7 +16,7 @@ namespace AdiPAIE_V02.Blazor.Server
     {
         public AdiPAIE_V02BlazorApplication()
         {
-            ApplicationName = "AdiPAIE_V02";
+            ApplicationName = "SunuPaie";
             CheckCompatibilityType = DevExpress.ExpressApp.CheckCompatibilityType.DatabaseSchema;
             DatabaseVersionMismatch += AdiPAIE_V02BlazorApplication_DatabaseVersionMismatch;
         }

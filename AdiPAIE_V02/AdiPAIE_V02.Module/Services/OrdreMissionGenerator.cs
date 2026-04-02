@@ -126,8 +126,8 @@ namespace AdiPAIE_V02.Module.Services
             for (int i = 1; i <= 8; i++)
             {
                 var e = etapes.ElementAtOrDefault(i - 1);
-                m[$"{{{{Etape{i}Depart}}}}"] = e?.VilleDepart ?? "";
-                m[$"{{{{Etape{i}Arrivee}}}}"] = e?.VilleArrivee ?? "";
+                m[$"{{{{Etape{i}Depart}}}}"] = e?.VilleDepart?.Nom ?? "";
+                m[$"{{{{Etape{i}Arrivee}}}}"] = e?.VilleArrivee?.Nom ?? "";
                 m[$"{{{{Etape{i}DateDepart}}}}"] = i == 1
                     ? d.DateDepart.ToString("dd/MM/yyyy") : "";
                 m[$"{{{{Etape{i}DateRetour}}}}"] = i == etapes.Count

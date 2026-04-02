@@ -36,6 +36,7 @@ namespace AdiPAIE_V02.Blazor.Server
            // services.AddHostedService<AttestationRappelService>();
             services.AddHostedService<DossierExpirationRappelService>();
             services.AddHostedService<EvaluationFroidRappelService>();
+            services.AddHostedService<AlerteInterimaireService>();
 
             services.AddXaf(Configuration, builder =>
             {
@@ -150,6 +151,17 @@ namespace AdiPAIE_V02.Blazor.Server
             app.UseRequestLocalization();
             app.UseStaticFiles();
             app.UseRouting();
+          
+            var cultureInfo = new System.Globalization.CultureInfo("fr-FR");
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+            System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("fr-FR"),
+                SupportedCultures = new[] { cultureInfo },
+                SupportedUICultures = new[] { cultureInfo }
+            });
+
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseAntiforgery();

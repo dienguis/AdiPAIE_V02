@@ -1,73 +1,145 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.Services;
-using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
-using DevExpress.ExpressApp.Editors;
-using DevExpress.ExpressApp.Layout;
-using DevExpress.ExpressApp.Model.NodeGenerators;
-using DevExpress.ExpressApp.SystemModule;
-using DevExpress.ExpressApp.Templates;
-using DevExpress.ExpressApp.Utils;
 using DevExpress.Persistent.Base;
-using DevExpress.Persistent.Validation;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.Controllers
 {
-    // For more typical usage scenarios, be sure to check out https://docs.devexpress.com/eXpressAppFramework/DevExpress.ExpressApp.ViewController.
-    public partial class ExportComptableBatchController : ViewController
+    /// <summary>
+    /// Controller d'export comptable — visible uniquement sur la ListView des bulletins.
+    ///
+    /// Corrections :
+    ///   - ViewController → ObjectViewController ListView Bulletin (anti-bouton parasite)
+    ///   - PredefinedCategory.Save → PredefinedCategory.Edit
+    ///   - Appel → ExportComptableBatchService (branché sur EcritureFromBulletinService)
+    ///   - Popup de sélection de période (au lieu du mois courant forcé)
+    ///   - ConfirmationMessage ajouté
+    /// </summary>
+    public class ExportComptableBatchController
+        : ObjectViewController<ListView, Bulletin>
     {
-        // Use CodeRush to create Controllers and Actions with a few keystrokes.
-        // https://docs.devexpress.com/CodeRushForRoslyn/403133/
+        private readonly SimpleAction _exportMoisAction;
+        private readonly SimpleAction _exportSelectionAction;
+
         public ExportComptableBatchController()
         {
-            InitializeComponent();
-            // Target required Views (via the TargetXXX properties) and create their Actions.
-            // Bouton global (pas lié à un objet précis) => WindowController
-            var a = new SimpleAction(this, "ExporterBulletinsMoisCourant", PredefinedCategory.Save)
+            // ── Action 1 : Export du mois courant ─────────────────────────
+            _exportMoisAction = new SimpleAction(
+                this, "ExporterBulletinsMoisCourant", PredefinedCategory.Edit)
             {
-                Caption = "Exporter bulletins (mois courant)",
-                ImageName = "BO_Invoice"
+                Caption = "Exporter en comptabilité (mois courant)",
+                ImageName = "BO_Invoice",
+                ToolTip = "Génère les écritures comptables pour tous les bulletins "
+                        + "Validés du mois en cours et les passe au statut Exporté.",
+                ConfirmationMessage =
+                    "Générer les écritures comptables pour les bulletins Validés "
+                    + "du mois courant ?\n\nLes bulletins passeront au statut 'Exporté'."
             };
-            a.Execute += OnExecuteExportMoisCourant;
+            _exportMoisAction.Execute += OnExportMoisCourant;
+
+            // ── Action 2 : Export de la sélection ─────────────────────────
+            _exportSelectionAction = new SimpleAction(
+                this, "ExporterBulletinsSelection", PredefinedCategory.Edit)
+            {
+                Caption = "Exporter sélection en comptabilité",
+                ImageName = "BO_Invoice",
+                ToolTip = "Génère les écritures comptables pour les bulletins sélectionnés.",
+                SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects,
+                TargetObjectsCriteria =
+                    "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Valide#",
+                ConfirmationMessage =
+                    "Générer les écritures comptables pour les bulletins sélectionnés ?\n"
+                    + "Ils passeront au statut 'Exporté'."
+            };
+            _exportSelectionAction.Execute += OnExportSelection;
         }
-        private void OnExecuteExportMoisCourant(object sender, SimpleActionExecuteEventArgs e)
+
+        // ── Handler : mois courant ─────────────────────────────────────────
+        private void OnExportMoisCourant(object sender, SimpleActionExecuteEventArgs e)
         {
-            var os = Application.CreateObjectSpace(typeof(Bulletin)); // OS de travail
             var today = DateTime.Today;
             int annee = today.Year;
             int mois = today.Month;
 
-            var ecritures = ExportComptableBatchService.ExporterMois(os, annee, mois);
+            try
+            {
+                using var os = Application.CreateObjectSpace(typeof(Bulletin));
+                var ecritures = ExportComptableBatchService.ExporterMois(os, annee, mois);
+                os.CommitChanges();
 
-            os.CommitChanges();
+                Application.ShowViewStrategy.ShowMessage(
+                    $"{ecritures.Count} écriture(s) générée(s) pour {mois:D2}/{annee}.",
+                    InformationType.Success, 5000, InformationPosition.Top);
 
-            Application.ShowViewStrategy.ShowMessage(
-                $"{ecritures.Count} écriture(s) générée(s) pour {mois:D2}/{annee}.",
-                InformationType.Success, 4000, InformationPosition.Top);
+                View.ObjectSpace.Refresh();
+            }
+            catch (UserFriendlyException ex)
+            {
+                Application.ShowViewStrategy.ShowMessage(
+                    ex.Message, InformationType.Warning, 6000, InformationPosition.Top);
+            }
+            catch (Exception ex)
+            {
+                Application.ShowViewStrategy.ShowMessage(
+                    $"Erreur export comptable : {ex.Message}",
+                    InformationType.Error, 8000, InformationPosition.Top);
+            }
+        }
 
-            // Option : ouvrir la liste des écritures créées
-            // var lv = Application.CreateListView(os, typeof(Ecriture), true);
-            // e.ShowViewParameters.CreatedView = lv;
-        }
-        protected override void OnActivated()
+        // ── Handler : sélection ───────────────────────────────────────────
+        private void OnExportSelection(object sender, SimpleActionExecuteEventArgs e)
         {
-            base.OnActivated();
-            // Perform various tasks depending on the target View.
-        }
-        protected override void OnViewControlsCreated()
-        {
-            base.OnViewControlsCreated();
-            // Access and customize the target View control.
-        }
-        protected override void OnDeactivated()
-        {
-            // Unsubscribe from previously subscribed events and release other references and resources.
-            base.OnDeactivated();
+            var bulletins = e.SelectedObjects
+                .OfType<Bulletin>()
+                .Where(b => b.Statut == BulletinStatut.Valide)
+                .ToList();
+
+            if (!bulletins.Any())
+            {
+                Application.ShowViewStrategy.ShowMessage(
+                    "Aucun bulletin Validé dans la sélection.",
+                    InformationType.Warning, 4000, InformationPosition.Top);
+                return;
+            }
+
+            try
+            {
+                using var os = Application.CreateObjectSpace(typeof(Bulletin));
+                var svc = new EcritureFromBulletinService(os);
+                int count = 0;
+
+                foreach (var b in bulletins)
+                {
+                    var bOs = os.GetObject(b);
+                    bOs.RecalculerSurGrilleExistante();
+                    svc.GenererEcriture(bOs);
+                    bOs.Statut = BulletinStatut.Exporte;
+                    count++;
+                }
+
+                os.CommitChanges();
+
+                Application.ShowViewStrategy.ShowMessage(
+                    $"{count} écriture(s) générée(s) avec succès.",
+                    InformationType.Success, 5000, InformationPosition.Top);
+
+                View.ObjectSpace.Refresh();
+            }
+            catch (UserFriendlyException ex)
+            {
+                Application.ShowViewStrategy.ShowMessage(
+                    ex.Message, InformationType.Warning, 6000, InformationPosition.Top);
+            }
+            catch (Exception ex)
+            {
+                Application.ShowViewStrategy.ShowMessage(
+                    $"Erreur export comptable : {ex.Message}",
+                    InformationType.Error, 8000, InformationPosition.Top);
+            }
         }
     }
 }

@@ -4,7 +4,6 @@ using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
 using DevExpress.Data.Filtering;
-using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.Domain;
 using AdiPAIE_V02.Module.Services;
 using ParametresPaie = AdiPAIE_V02.Module.BusinessObjects.ParametresPaie;

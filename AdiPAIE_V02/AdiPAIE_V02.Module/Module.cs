@@ -13,7 +13,6 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using DevExpress.Xpo;
-using AdiPAIE_V02.Module.BusinessObjects; // ← AJOUTER
 
 namespace AdiPAIE_V02.Module
 {

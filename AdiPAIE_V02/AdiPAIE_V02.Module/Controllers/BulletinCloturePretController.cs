@@ -1,4 +1,5 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects;
+﻿
+using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.Domain;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
@@ -10,120 +11,57 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.Controllers
 {
-    // Agit sur le DetailView d’un Bulletin
-    public class BulletinCloturePretController : ObjectViewController<DetailView, Bulletin>
+    public class BulletinCloturePretController : ObjectViewController<ObjectView, Bulletin>
     {
-        private SimpleAction cloturerAction;
-        private SimpleAction reouvrirAction;
+        private readonly SimpleAction cloturerAction;
+        private readonly SimpleAction reouvrirAction;
 
         public BulletinCloturePretController()
         {
-            // Action Clôturer
             cloturerAction = new SimpleAction(this, "CloturerBulletin", PredefinedCategory.Edit)
             {
-                Caption = "Clôturer le bulletin",
+                Caption = "Clôturer",
                 ImageName = "Action_Validation",
-                PaintStyle = ActionItemPaintStyle.CaptionAndImage,
-                SelectionDependencyType = SelectionDependencyType.RequireSingleObject
+                PaintStyle = ActionItemPaintStyle.Caption,
+                ToolTip = "Clôture le bulletin sélectionné.",
+                SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects,
+                ConfirmationMessage = "Clôturer le(s) bulletin(s) sélectionné(s) ?"
             };
             cloturerAction.Execute += CloturerAction_Execute;
 
-            // Action Réouvrir
             reouvrirAction = new SimpleAction(this, "ReouvrirBulletin", PredefinedCategory.Edit)
             {
-                Caption = "Réouvrir le bulletin",
+                Caption = "Réouvrir",
                 ImageName = "Action_Restore",
-                PaintStyle = ActionItemPaintStyle.CaptionAndImage,
-                SelectionDependencyType = SelectionDependencyType.RequireSingleObject
+                PaintStyle = ActionItemPaintStyle.Caption,
+                ToolTip = "Repasse le bulletin en Brouillon.",
+                SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects,
+                ConfirmationMessage = "Réouvrir le(s) bulletin(s) sélectionné(s) ?"
             };
             reouvrirAction.Execute += ReouvrirAction_Execute;
         }
 
-        // ===================== CLÔTURE =====================
-        //private void CloturerAction_Execute(object sender, SimpleActionExecuteEventArgs e)
-        //{
-        //    var os = ObjectSpace;
-        //    var b = (Bulletin)View.CurrentObject;
-        //    if (b == null) return;
-
-        //    // 1) Sécurités de base
-        //    if (b.Salarie == null)
-        //        throw new UserFriendlyException("Affectez d’abord le salarié.");
-        //    if (b.Annee <= 0 || b.Mois <= 0)
-        //        throw new UserFriendlyException("Période invalide.");
-
-        //    // 2) Vérifier qu’aucun bulletin précédent du salarié n’est en Brouillon
-        //    bool prevOpen = os.GetObjectsQuery<Bulletin>()
-        //        .Where(x => x.Salarie == b.Salarie
-        //                    && (x.Annee < b.Annee || (x.Annee == b.Annee && x.Mois < b.Mois))
-        //                    && x.Statut == BulletinStatut.Brouillon)
-        //        .Any();
-        //    if (prevOpen)
-        //        throw new UserFriendlyException("Tous les bulletins précédents du salarié doivent être clôturés.");
-
-        //    // 3) Agréger les échéances de prêts du mois (EnAttente)
-        //    var start = b.MoisStart;
-        //    var end = b.MoisEnd;
-
-        //    var echeancesDuMois = os.GetObjectsQuery<PretEcheance>()
-        //        .Where(ech => ech.Pret.Salarie == b.Salarie
-        //                      && ech.Statut == PretEcheanceStatut.Prevue 
-        //                      && ech.DateEcheance >= start
-        //                      && ech.DateEcheance <= end)
-        //        .ToList();
-
-
-
-        //    var totalPretMois = echeancesDuMois.Sum(ech => ech.MontantTotal);
-
-        //    // 4) Poser/mettre à jour la ligne de retenue "Remboursement prêt"
-        //    //    ⚠️ Assure-toi d’avoir RubriqueCanonique.RemboursementPret dans tes rubriques.
-        //    var lignePret = b.EnsureLine(DomainEnums.RubriqueCanonique.RemboursementPret, createIfMissing: true);
-        //    if (lignePret != null)
-        //    {
-        //        lignePret.Base = totalPretMois;
-        //        lignePret.Taux = null; // affichage; si tu veux % mets autre chose
-        //        lignePret.Montant = totalPretMois; // retenue salariale
-        //        lignePret.IsSystem = true;
-        //        if (!lignePret.OrdreCalcul.HasValue)
-        //            lignePret.OrdreCalcul = lignePret.Rubrique?.OrdreAffichage;
-        //    }
-
-        //    // 5) Marquer les échéances comme prélevées & lier au bulletin
-        //    foreach (var ech in echeancesDuMois)
-        //    {
-        //        ech.Statut = PretEcheanceStatut.Prelevee ;
-        //        ech.BulletinPreleveur = b;
-        //    }
-
-        //    // 6) Recalcul des totaux & passage du statut
-        //    b.RecalculerTotaux();
-
-        //    // Si tu as un statut BulletinStatut.Cloture → remplace la ligne suivante :
-        //    b.Statut = BulletinStatut.Valide;
-
-        //    os.CommitChanges();
-
-        //    Application.ShowViewStrategy.ShowMessage(
-        //        $"Bulletin clôturé. {echeancesDuMois.Count} échéance(s) prélevée(s), total {totalPretMois:N0}.",
-        //        InformationType.Success, 3000, InformationPosition.Bottom);
-
-        //    View.ObjectSpace.Refresh();
-        //}
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+            // Visible uniquement sur ListView
+            var isListView = View is ListView;
+            cloturerAction.Active["ListViewOnly"] = isListView;
+            reouvrirAction.Active["ListViewOnly"] = isListView;
+        }
 
         private void CloturerAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var os = ObjectSpace;
-            var b = (Bulletin)View.CurrentObject;
+            var b = e.SelectedObjects.OfType<Bulletin>().FirstOrDefault()
+                    ?? View.CurrentObject as Bulletin;
             if (b == null) return;
 
-            // 1) Sécurités de base
             if (b.Salarie == null)
-                throw new UserFriendlyException("Affectez d’abord le salarié.");
+                throw new UserFriendlyException("Affectez d'abord le salarié.");
             if (b.Annee <= 0 || b.Mois <= 0)
                 throw new UserFriendlyException("Période invalide.");
 
-            // 2) Vérifier qu’aucun bulletin précédent du salarié n’est en Brouillon
             bool prevOpen = os.GetObjectsQuery<Bulletin>()
                 .Where(x => x.Salarie == b.Salarie
                             && (x.Annee < b.Annee || (x.Annee == b.Annee && x.Mois < b.Mois))
@@ -132,140 +70,48 @@ namespace AdiPAIE_V02.Module.Controllers
             if (prevOpen)
                 throw new UserFriendlyException("Tous les bulletins précédents du salarié doivent être clôturés.");
 
-            // 3) Agréger les échéances de prêts du mois (Prevues)
-            var start = b.MoisStart;
-            var end = b.MoisEnd;
-
-            var echeancesDuMois = os.GetObjectsQuery<PretEcheance>()
-                .Where(ech => ech.Pret.Salarie == b.Salarie
-                              && ech.Statut == PretEcheanceStatut.Prevue
-                              && ech.DateEcheance >= start
-                              && ech.DateEcheance <= end)
-                .ToList();
-
-            var totalPretMois = echeancesDuMois.Sum(ech => ech.MontantTotal);
-
-            // 4) Poser/mettre à jour la ligne de retenue "Remboursement prêt"
-            var lignePret = b.EnsureLine(DomainEnums.RubriqueCanonique.RemboursementPret, createIfMissing: true);
-            if (lignePret != null)
-            {
-                lignePret.Base = totalPretMois;
-                lignePret.Taux = null;
-                lignePret.Montant = totalPretMois;
-
-                // ⚠️ Très important : on la marque NON système
-                // pour qu'elle ne soit pas supprimée par CalculerRetenuePrets()
-                lignePret.IsSystem = false;
-
-                if (!lignePret.OrdreCalcul.HasValue)
-                    lignePret.OrdreCalcul = lignePret.Rubrique?.OrdreAffichage;
-            }
-
-            // 5) Marquer les échéances comme prélevées & lier au bulletin
-            foreach (var ech in echeancesDuMois)
-            {
-                ech.Statut = PretEcheanceStatut.Prelevee;
-                ech.BulletinPreleveur = b;
-            }
-
-            // 6) Recalcul complet à partir de la grille (cotisations, IR, totaux, synthèse)
-            b.RecalculerSurGrilleExistante();
-
-            // Statut
-            b.Statut = BulletinStatut.Cloture; // ou Cloture si tu as ce statut
-
+            b.Statut = BulletinStatut.Cloture;
             os.CommitChanges();
+            View.ObjectSpace.Refresh();
 
             Application.ShowViewStrategy.ShowMessage(
-                $"Bulletin clôturé. {echeancesDuMois.Count} échéance(s) prélevée(s), total {totalPretMois:N0}.",
-                InformationType.Success, 3000, InformationPosition.Bottom);
-
-            View.ObjectSpace.Refresh();
+                "Bulletin clôturé.", InformationType.Success, 3000, InformationPosition.Top);
         }
-
-
-
-        // ===================== RÉOUVERTURE =====================
-        //private void ReouvrirAction_Execute(object sender, SimpleActionExecuteEventArgs e)
-        //{
-        //    var os = ObjectSpace;
-        //    var b = (Bulletin)View.CurrentObject;
-        //    if (b == null) return;
-
-        //    // 1) Retrouver les échéances marquées “Prelevee” par CE bulletin
-        //    var echeancesPrelevees = os.GetObjectsQuery<PretEcheance>()
-        //        .Where(ech => ech.BulletinPreleveur == b && ech.Statut == PretEcheanceStatut.Prelevee)
-        //        .ToList();
-
-        //    // 2) Les remettre “EnAttente” et délier
-        //    foreach (var ech in echeancesPrelevees)
-        //    {
-        //        ech.Statut = PretEcheanceStatut.Prevue;
-        //        ech.BulletinPreleveur = null;
-        //    }
-
-        //    // 3) Mettre à zéro la retenue de prêt sur la ligne (si elle existe)
-        //    var lignePret = b.Lignes.FirstOrDefault(l => l.Rubrique != null
-        //                                              && l.Rubrique.Canonique == DomainEnums.RubriqueCanonique.RemboursementPret);
-        //    if (lignePret != null)
-        //    {
-        //        lignePret.Base = 0m;
-        //        lignePret.Montant = 0m;
-        //    }
-
-        //    // 4) Statut brouillon + recalcul
-        //    b.Statut = BulletinStatut.Brouillon; // ou “EnCours” selon ton workflow
-        //    b.RecalculerTotaux();
-
-        //    os.CommitChanges();
-
-        //    Application.ShowViewStrategy.ShowMessage(
-        //        "Bulletin réouvert. Les remboursements de prêts de ce mois ont été remis en attente.",
-        //        InformationType.Info, 3000, InformationPosition.Bottom);
-
-        //    View.ObjectSpace.Refresh();
-        //  }
 
         private void ReouvrirAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var os = ObjectSpace;
-            var b = (Bulletin)View.CurrentObject;
+            var b = e.SelectedObjects.OfType<Bulletin>().FirstOrDefault()
+                    ?? View.CurrentObject as Bulletin;
             if (b == null) return;
 
-            // 1) Retrouver les échéances marquées “Prelevee” par CE bulletin
+            // Remettre les échéances en Prevue
             var echeancesPrelevees = os.GetObjectsQuery<PretEcheance>()
                 .Where(ech => ech.BulletinPreleveur == b && ech.Statut == PretEcheanceStatut.Prelevee)
                 .ToList();
-
-            // 2) Les remettre “Prevues” et délier
             foreach (var ech in echeancesPrelevees)
             {
                 ech.Statut = PretEcheanceStatut.Prevue;
                 ech.BulletinPreleveur = null;
             }
 
-            // 3) Mettre à zéro la retenue de prêt sur la ligne (si elle existe)
-            var lignePret = b.Lignes.FirstOrDefault(l => l.Rubrique != null
-                                                      && l.Rubrique.Canonique == DomainEnums.RubriqueCanonique.RemboursementPret);
+            // Remettre la ligne prêt à zéro
+            var lignePret = b.Lignes.FirstOrDefault(l =>
+                l.Rubrique?.Canonique == DomainEnums.RubriqueCanonique.RemboursementPret);
             if (lignePret != null)
             {
                 lignePret.Base = 0m;
                 lignePret.Montant = 0m;
-                // Tu peux décider de garder IsSystem=false ou true, ça n'a plus d'impact direct
             }
 
-            // 4) Statut brouillon + recalcul complet sur grille
             b.Statut = BulletinStatut.Brouillon;
             b.RecalculerSurGrilleExistante();
-
             os.CommitChanges();
+            View.ObjectSpace.Refresh();
 
             Application.ShowViewStrategy.ShowMessage(
-                "Bulletin réouvert. Les remboursements de prêts de ce mois ont été remis en attente.",
-                InformationType.Info, 3000, InformationPosition.Bottom);
-
-            View.ObjectSpace.Refresh();
+                "Bulletin réouvert en Brouillon.",
+                InformationType.Info, 3000, InformationPosition.Top);
         }
-
     }
 }

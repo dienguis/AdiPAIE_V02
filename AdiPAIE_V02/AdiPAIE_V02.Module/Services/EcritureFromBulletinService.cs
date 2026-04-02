@@ -5,8 +5,9 @@ using DevExpress.Persistent.Base;
 using System;
 using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
+using AdiPAIE_V02.Module.BusinessObjects;
 
-namespace AdiPAIE_V02.Module.BusinessObjects
+namespace AdiPAIE_V02.Module.Services
 {
     public class EcritureFromBulletinService
     {

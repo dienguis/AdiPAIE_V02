@@ -19,7 +19,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Catégorie de frais de mission")]
     [DefaultProperty(nameof(Libelle))]
     [ImageName("BO_List")]
-    [NavigationItem("Paramétrage")]
+   // [NavigationItem("GRH - Administration")]
 
     [Appearance("Inactif_Grise", Criteria = "Actif = false",
         FontColor = "Gray", FontStyle = DevExpress.Drawing.DXFontStyle.Italic,

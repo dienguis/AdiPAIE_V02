@@ -1,5 +1,4 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects;
-using AdiPAIE_V02.Module.Domain;
+﻿using AdiPAIE_V02.Module.Domain;
 using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
@@ -20,7 +19,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Historique de poste")]
     [DefaultProperty(nameof(DisplayHistorique))]
     [ImageName("BO_Audit")]
-    [NavigationItem("GRH - Administration")]
+   // [NavigationItem("Ressources humaines")]
     public class HistoriquePoste : BaseObject
     {
         public HistoriquePoste(Session session) : base(session) { }

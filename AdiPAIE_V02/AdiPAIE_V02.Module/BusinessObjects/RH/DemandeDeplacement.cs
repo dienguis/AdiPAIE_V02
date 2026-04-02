@@ -1,5 +1,4 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
-using DevExpress.Drawing;
+﻿using DevExpress.Drawing;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
@@ -25,7 +24,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Demande de déplacement")]
     [DefaultProperty(nameof(DisplayName))]
     [ImageName("Action_Forward")]
-    [NavigationItem("GRH - Espace salarié")]
+    //[NavigationItem("GRH - Espace salarié")]
 
     [RuleCriteria("Deplacement_DateRetour_GTE_DateDepart", DefaultContexts.Save,
         "DateRetour >= DateDepart",
@@ -461,25 +460,26 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         int ordre;
 
-        [RuleRequiredField]
-        [Size(100)]
-        [XafDisplayName("Ville de départ")]
-        public string VilleDepart
-        {
-            get => villeDepart;
-            set => SetPropertyValue(nameof(VilleDepart), ref villeDepart, value?.Trim());
-        }
-        string villeDepart;
 
         [RuleRequiredField]
-        [Size(100)]
+        [XafDisplayName("Ville de départ")]
+        [DataSourceCriteria("Actif = true")]
+        public VilleSenegal VilleDepart
+        {
+            get => villeDepart;
+            set => SetPropertyValue(nameof(VilleDepart), ref villeDepart, value);
+        }
+        VilleSenegal villeDepart;
+
+        [RuleRequiredField]
         [XafDisplayName("Ville d'arrivée")]
-        public string VilleArrivee
+        [DataSourceCriteria("Actif = true")]
+        public VilleSenegal VilleArrivee
         {
             get => villeArrivee;
-            set => SetPropertyValue(nameof(VilleArrivee), ref villeArrivee, value?.Trim());
+            set => SetPropertyValue(nameof(VilleArrivee), ref villeArrivee, value);
         }
-        string villeArrivee;
+        VilleSenegal villeArrivee;
 
         [XafDisplayName("Distance (km)")]
         [ModelDefault("DisplayFormat", "N0")]
@@ -501,8 +501,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [NonPersistent]
         public string DisplayEtape =>
-            $"{Ordre}. {VilleDepart} → {VilleArrivee}" +
-            (DistanceKm > 0 ? $" ({DistanceKm} km)" : "");
+         $"{Ordre}. {VilleDepart?.Nom ?? "—"} → {VilleArrivee?.Nom ?? "—"}"
+         + (DistanceKm > 0 ? $" ({DistanceKm} km)" : "");
     }
 
     // ════════════════════════════════════════════════════════

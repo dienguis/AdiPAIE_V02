@@ -28,7 +28,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     [XafDisplayName("Solde de congés")]
     [DefaultProperty(nameof(DisplaySolde))]
     [ImageName("BO_List")]
-    [NavigationItem("GRH - Congés")]
+    //[NavigationItem("GRH - Congés")]
     [Appearance("SoldeNegatif", TargetItems = "*",
         Criteria = "SoldeDisponible < 0",
         FontColor = "Red", FontStyle = DXFontStyle.Bold)]

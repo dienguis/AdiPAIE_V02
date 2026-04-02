@@ -1,5 +1,4 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects;
-using AdiPAIE_V02.Module.BusinessObjects.RH;
+﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
 using AdiPAIE_V02.Module.Domain;
 using DevExpress.Drawing;
 using DevExpress.ExpressApp;
@@ -23,7 +22,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     [XafDisplayName("Demande de congé")]
     [DefaultProperty(nameof(DisplayName))]
     [ImageName("Action_GrantPermission")]
-    [NavigationItem("GRH - Espace salarié")]
+   // [NavigationItem("GRH - Espace salarié")]
 
     // ── Validation ────────────────────────────────────────────
     [RuleCriteria("Conge_DateFin_GTE_DateDebut", DefaultContexts.Save,

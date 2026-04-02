@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  
+  <!-- Fond vert arrondi -->
+  <rect width="400" height="400" rx="60" fill="#0F6E56"/>
+  
+  <!-- ═══ RAYONS DU SOLEIL ═══ -->
+  <!-- Rayon haut -->
+  <line x1="200" y1="52" x2="200" y2="82" stroke="#FAC775" stroke-width="10" stroke-linecap="round"/>
+  <!-- Rayon haut-droite -->
+  <line x1="264" y1="70" x2="250" y2="94" stroke="#FAC775" stroke-width="10" stroke-linecap="round"/>
+  <!-- Rayon haut-gauche -->
+  <line x1="136" y1="70" x2="150" y2="94" stroke="#FAC775" stroke-width="10" stroke-linecap="round"/>
+  <!-- Rayon droite -->
+  <line x1="308" y1="128" x2="284" y2="134" stroke="#FAC775" stroke-width="10" stroke-linecap="round"/>
+  <!-- Rayon gauche -->
+  <line x1="92" y1="128" x2="116" y2="134" stroke="#FAC775" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- ═══ SOLEIL (demi-cercle + disque) ═══ -->
+  <path d="M94 230 A106 106 0 0 1 306 230 Z" fill="#FAC775"/>
+  <circle cx="200" cy="230" r="106" fill="#FAC775"/>
+
+  <!-- ═══ SILHOUETTE SALARIÉ (RH) ═══ -->
+  <!-- Tête -->
+  <circle cx="200" cy="200" r="26" fill="#0F6E56"/>
+  <!-- Corps -->
+  <path d="M162 248 C162 218 238 218 238 248" fill="#0F6E56"/>
+
+  <!-- ═══ PIÈCE ₣ CFA (Paie) ═══ -->
+  <circle cx="296" cy="308" r="46" fill="#085041"/>
+  <circle cx="296" cy="308" r="37" fill="none" stroke="#FAC775" stroke-width="3.5"/>
+  <!-- Symbole ₣ -->
+  <!-- Barre verticale -->
+  <line x1="290" y1="288" x2="290" y2="328" stroke="#FAC775" stroke-width="5" stroke-linecap="round"/>
+  <!-- Barre horizontale haute -->
+  <line x1="282" y1="300" x2="304" y2="300" stroke="#FAC775" stroke-width="5" stroke-linecap="round"/>
+  <!-- Barre horizontale milieu -->
+  <line x1="282" y1="313" x2="300" y2="313" stroke="#FAC775" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- ═══ TEXTE SUNU ═══ -->
+  <text x="168" y="354" 
+        font-family="Arial, Helvetica, sans-serif" 
+        font-size="44" 
+        font-weight="700" 
+        fill="white" 
+        letter-spacing="8"
+        text-anchor="middle">SUNU</text>
+
+  <!-- ═══ TEXTE PAIE ═══ -->
+  <text x="168" y="386" 
+        font-family="Arial, Helvetica, sans-serif" 
+        font-size="28" 
+        font-weight="400" 
+        fill="#9FE1CB" 
+        letter-spacing="12"
+        text-anchor="middle">PAIE</text>
+
+</svg>

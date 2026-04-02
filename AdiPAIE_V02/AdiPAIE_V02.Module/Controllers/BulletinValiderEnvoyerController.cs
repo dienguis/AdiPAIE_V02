@@ -1,5 +1,7 @@
-﻿
+﻿// AdiPAIE_V02.Module/Controllers/BulletinValiderEnvoyerController.cs
+// Visible sur DetailView ET ListView via Active["ViewType"]
 using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.Domain;
 using AdiPAIE_V02.Module.Services;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
@@ -15,29 +17,91 @@ using Attachment = System.Net.Mail.Attachment;
 namespace AdiPAIE_V02.Module.Controllers
 {
     public sealed class BulletinValiderEnvoyerController
-       : ObjectViewController<DetailView, Bulletin>
+        : ObjectViewController<ObjectView, Bulletin>
     {
         private readonly SimpleAction _validerEtEnvoyer;
         private readonly SimpleAction _renvoyer;
 
+        private readonly SimpleAction _valider;
+
         public BulletinValiderEnvoyerController()
         {
-            _validerEtEnvoyer = new SimpleAction(this, "ValiderEtEnvoyer", PredefinedCategory.RecordEdit)
+            _valider = new SimpleAction(this, "ValiderBulletin", PredefinedCategory.Edit)
+            {
+                Caption = "Valider",
+                ImageName = "Action_Validation",
+                PaintStyle = ActionItemPaintStyle.Caption,
+                ToolTip = "Valide le bulletin sans l'envoyer.",
+                SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
+                ConfirmationMessage = "Valider ce bulletin ?"
+            };
+            _valider.Execute += OnValider;
+
+            _validerEtEnvoyer = new SimpleAction(this, "ValiderEtEnvoyer", PredefinedCategory.Edit)
             {
                 Caption = "Valider et envoyer",
                 ImageName = "BO_Mail",
-                PaintStyle = ActionItemPaintStyle.CaptionAndImage,
-                ConfirmationMessage = "Valider ce bulletin et l'envoyer par e-mail ?"
+                PaintStyle = ActionItemPaintStyle.Caption,
+                ToolTip = "Valide le bulletin et envoie le PDF au salarié par e-mail.",
+                SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects,
+                ConfirmationMessage = "Valider et envoyer le(s) bulletin(s) sélectionné(s) ?"
             };
             _validerEtEnvoyer.Execute += OnValiderEtEnvoyerAsync;
 
-            _renvoyer = new SimpleAction(this, "RenvoyerBulletin", PredefinedCategory.RecordEdit)
+            _renvoyer = new SimpleAction(this, "RenvoyerBulletin", PredefinedCategory.Edit)
             {
                 Caption = "Renvoyer (PDF archivé)",
                 ImageName = "MailSend",
-                PaintStyle = ActionItemPaintStyle.CaptionAndImage
+                PaintStyle = ActionItemPaintStyle.Caption,
+                ToolTip = "Renvoie le PDF archivé au salarié.",
+                SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects
             };
             _renvoyer.Execute += OnRenvoyerAsync;
+        }
+
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+            if (View is DetailView)
+            {
+                // DetailView : uniquement "Renvoyer" — envoi géré par l'aperçu en lot
+                _validerEtEnvoyer.Active["UsesBatchSend"] = false;
+                _renvoyer.SelectionDependencyType = SelectionDependencyType.RequireSingleObject;
+            }
+            else
+            {
+                // ListView : les deux masqués — envoi via ApercuEnvoiBulletinsMois
+                _validerEtEnvoyer.Active["UsesBatchSend"] = false;
+                _renvoyer.SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects;
+            }
+        }
+
+        private void OnValider(object sender, SimpleActionExecuteEventArgs e)
+        {
+            var b = View.CurrentObject as Bulletin
+                    ?? throw new UserFriendlyException("Aucun bulletin en contexte.");
+
+            if (b.Statut != DomainEnums.BulletinStatut.Brouillon)
+            {
+                Application.ShowViewStrategy.ShowMessage(
+                    $"Le bulletin est déjà en statut {b.Statut}.",
+                    InformationType.Info, 3000, InformationPosition.Top);
+                return;
+            }
+
+            // 1. Passer en Valide
+            b.Statut = DomainEnums.BulletinStatut.Valide;
+
+            // 2. Marquer automatiquement les échéances du mois comme Prélevées
+            b.ValiderRemboursementsPrets();
+
+            ObjectSpace.SetModified(b);
+            ObjectSpace.CommitChanges();
+            View.ObjectSpace.Refresh();
+
+            Application.ShowViewStrategy.ShowMessage(
+                "Bulletin validé — remboursements prêts enregistrés.",
+                InformationType.Success, 2500, InformationPosition.Top);
         }
 
         private async void OnValiderEtEnvoyerAsync(object sender, SimpleActionExecuteEventArgs e)
@@ -45,75 +109,65 @@ namespace AdiPAIE_V02.Module.Controllers
             _validerEtEnvoyer.Active["Busy"] = false;
             try
             {
-                var b = View.CurrentObject as Bulletin ?? throw new UserFriendlyException("Aucun bulletin en contexte.");
+                var b = (View is DetailView
+                            ? View.CurrentObject as Bulletin
+                            : e.SelectedObjects.Count > 0
+                                ? e.SelectedObjects[0] as Bulletin
+                                : null)
+                        ?? throw new UserFriendlyException("Aucun bulletin sélectionné.");
+
                 if (string.IsNullOrWhiteSpace(b.Salarie?.Email))
                     throw new UserFriendlyException("Le salarié n'a pas d'adresse e-mail.");
 
-                // 1) Valider si nécessaire + commit
                 if (b.Statut == BulletinStatut.Brouillon)
                     b.Statut = BulletinStatut.Valide;
                 ObjectSpace.SetModified(b);
                 ObjectSpace.CommitChanges();
 
-                // 2) OS de lecture pour l’export (isolation)
                 using var osRead = Application.CreateObjectSpace(typeof(Bulletin));
                 var bReloaded = osRead.GetObjectByKey<Bulletin>(b.Oid)
                     ?? throw new UserFriendlyException("Bulletin introuvable après mise à jour.");
 
-                // 3) Clé PDF
                 var keyEnc = bReloaded.Salarie?.PayslipKeyEnc;
                 if (string.IsNullOrWhiteSpace(keyEnc))
-                    throw new UserFriendlyException("Clé PDF absente : générez d’abord la clé du salarié.");
-                var userPwd = LocalSecretProtector.Unprotect(keyEnc);
+                    throw new UserFriendlyException("Clé PDF absente : générez d'abord la clé du salarié.");
 
-                // 4) Export PDF protégé
+                var userPwd = LocalSecretProtector.Unprotect(keyEnc);
                 var pdfBytes = BulletinPdfService.BuildPdfByBulletinOid(osRead, bReloaded.Oid, userPwd);
                 var fileName = $"Bulletin_{bReloaded.Periode}_{bReloaded.Salarie?.Matricule}.pdf";
 
-                // 5) Archiver avant envoi
                 if (b.PdfArchive == null)
                     b.PdfArchive = ObjectSpace.CreateObject<FileData>();
-                using (var pdfForArchive = new MemoryStream(pdfBytes, writable: false))
+                using (var pdfForArchive = new MemoryStream(pdfBytes))
                     b.PdfArchive.LoadFromStream(fileName, pdfForArchive);
                 ObjectSpace.CommitChanges();
 
-                // 6) Envoi ASYNC (sans ConfigureAwait(false) !)
                 var p = ParametresPaie.TryGet(ObjectSpace)
                         ?? throw new UserFriendlyException("Paramètres de paie introuvables.");
                 var senderSvc = p.CreateEmailSender()
                              ?? throw new UserFriendlyException("Service d'envoi d'e-mails indisponible.");
 
-                using (var msAttach = new MemoryStream(pdfBytes, writable: false))
-                using (var att = new Attachment(msAttach, fileName, MediaTypeNames.Application.Pdf))
-                {
-                    var subject = $"Bulletin de paie – {bReloaded.Periode}";
-                    var bodyHtml = $@"
-<p>Bonjour {bReloaded.Salarie?.FullName},</p>
+                var subject = $"Bulletin de paie – {bReloaded.Periode}";
+                var bodyHtml = $@"<p>Bonjour {bReloaded.Salarie?.FullName},</p>
 <p>Veuillez trouver ci-joint votre bulletin de paie pour <b>{bReloaded.Periode}</b>.</p>
-<p><i>Le document est protégé par mot de passe.</i></p>
+<p><i>Ce document est protégé par votre clé personnelle.</i></p>
 <p>Cordialement,<br/>{p.MailFromDisplayName}</p>";
 
-                    await senderSvc.SendAsync(bReloaded.Salarie.Email, subject, bodyHtml, att);
-                }
+                using var msAttach = new MemoryStream(pdfBytes);
+                using var att = new Attachment(msAttach, fileName, MediaTypeNames.Application.Pdf);
+                await senderSvc.SendAsync(bReloaded.Salarie.Email, subject, bodyHtml, att);
 
-                // 7) Ces lignes s’exécutent maintenant sur le thread UI
                 b.Statut = BulletinStatut.Envoye;
                 ObjectSpace.CommitChanges();
+                if (View?.ObjectSpace != null) View.ObjectSpace.Refresh();
 
                 Application.ShowViewStrategy.ShowMessage(
-                    "Bulletin validé, archivé et envoyé (PDF protégé).",
+                    $"Bulletin envoyé à {bReloaded.Salarie?.Email}.",
                     InformationType.Success, 3000, InformationPosition.Top);
             }
             catch (UserFriendlyException) { throw; }
-            catch (Exception ex)
-            {
-               // DevExpress.ExpressApp.Utils.Tracing.Tracer.LogError(ex);
-                throw new UserFriendlyException($"Échec de l'envoi : {ex.Message}");
-            }
-            finally
-            {
-                _validerEtEnvoyer.Active.RemoveItem("Busy");
-            }
+            catch (Exception ex) { throw new UserFriendlyException($"Échec envoi : {ex.Message}"); }
+            finally { _validerEtEnvoyer.Active.RemoveItem("Busy"); }
         }
 
         private async void OnRenvoyerAsync(object sender, SimpleActionExecuteEventArgs e)
@@ -121,7 +175,13 @@ namespace AdiPAIE_V02.Module.Controllers
             _renvoyer.Active["Busy"] = false;
             try
             {
-                var b = View.CurrentObject as Bulletin ?? throw new UserFriendlyException("Aucun bulletin en contexte.");
+                var b = (View is DetailView
+                            ? View.CurrentObject as Bulletin
+                            : e.SelectedObjects.Count > 0
+                                ? e.SelectedObjects[0] as Bulletin
+                                : null)
+                        ?? throw new UserFriendlyException("Aucun bulletin sélectionné.");
+
                 if (string.IsNullOrWhiteSpace(b.Salarie?.Email))
                     throw new UserFriendlyException("Le salarié n'a pas d'adresse e-mail.");
 
@@ -131,51 +191,32 @@ namespace AdiPAIE_V02.Module.Controllers
 
                 var keyEnc = bReloaded.Salarie?.PayslipKeyEnc;
                 if (string.IsNullOrWhiteSpace(keyEnc))
-                    throw new UserFriendlyException("Clé PDF absente : générez d’abord la clé du salarié.");
+                    throw new UserFriendlyException("Clé PDF absente.");
 
                 var userPwd = LocalSecretProtector.Unprotect(keyEnc);
                 var pdfBytes = BulletinPdfService.BuildPdfByBulletinOid(osRead, bReloaded.Oid, userPwd);
                 var fileName = $"Bulletin_{bReloaded.Periode}_{bReloaded.Salarie?.Matricule}.pdf";
 
-                // Optionnel : remettre l’archive à jour
-                if (b.PdfArchive == null)
-                    b.PdfArchive = ObjectSpace.CreateObject<FileData>();
-                using (var pdfForArchive = new MemoryStream(pdfBytes, writable: false))
-                    b.PdfArchive.LoadFromStream(fileName, pdfForArchive);
-                ObjectSpace.CommitChanges();
-
                 var p = ParametresPaie.TryGet(ObjectSpace)
                         ?? throw new UserFriendlyException("Paramètres de paie introuvables.");
                 var senderSvc = p.CreateEmailSender()
-                             ?? throw new UserFriendlyException("Service d'envoi d'e-mails indisponible.");
+                             ?? throw new UserFriendlyException("Service d'envoi indisponible.");
 
-                using (var msAttach = new MemoryStream(pdfBytes, writable: false))
-                using (var att = new Attachment(msAttach, fileName, MediaTypeNames.Application.Pdf))
-                {
-                    var subject = $"[RENVOI] Bulletin de paie – {bReloaded.Periode}";
-                    var bodyHtml = $@"
-<p>Bonjour {bReloaded.Salarie?.FullName},</p>
+                var subject = $"[RENVOI] Bulletin de paie – {bReloaded.Periode}";
+                var bodyHtml = $@"<p>Bonjour {bReloaded.Salarie?.FullName},</p>
 <p>Je vous renvoie votre bulletin de paie pour <b>{bReloaded.Periode}</b> en pièce jointe.</p>
-<p><i>Le document est protégé par mot de passe.</i></p>
 <p>Cordialement,<br/>{p.MailFromDisplayName}</p>";
 
-                    await senderSvc.SendAsync(bReloaded.Salarie.Email, subject, bodyHtml, att);
-                }
+                using var msAttach = new MemoryStream(pdfBytes);
+                using var att = new Attachment(msAttach, fileName, MediaTypeNames.Application.Pdf);
+                await senderSvc.SendAsync(bReloaded.Salarie.Email, subject, bodyHtml, att);
 
                 Application.ShowViewStrategy.ShowMessage(
-                    "Bulletin renvoyé (PDF protégé).",
-                    InformationType.Success, 2500, InformationPosition.Top);
+                    "Bulletin renvoyé.", InformationType.Success, 2500, InformationPosition.Top);
             }
             catch (UserFriendlyException) { throw; }
-            catch (Exception ex)
-            {
-                //DevExpress.ExpressApp.Utils.Tracing.Tracer.LogError(ex);
-                throw new UserFriendlyException($"Échec du renvoi : {ex.Message}");
-            }
-            finally
-            {
-                _renvoyer.Active.RemoveItem("Busy");
-            }
+            catch (Exception ex) { throw new UserFriendlyException($"Échec renvoi : {ex.Message}"); }
+            finally { _renvoyer.Active.RemoveItem("Busy"); }
         }
     }
 }

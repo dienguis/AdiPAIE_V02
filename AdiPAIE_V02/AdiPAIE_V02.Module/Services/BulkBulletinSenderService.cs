@@ -143,11 +143,9 @@ namespace AdiPAIE_V02.Module.Services
                     ?? throw new UserFriendlyException("Période introuvable.");
 
             // Critère selon ton modèle :
-            // Variante 1 : Company directement sur Bulletin
-            CriteriaOperator crit = new GroupOperator(GroupOperatorType.And,
-                new BinaryOperator("Company", p.Company),
-                new BinaryOperator("Annee", p.Annee),
-                new BinaryOperator("Mois", p.Mois));
+           
+            CriteriaOperator crit = CriteriaOperator.Parse(
+    "Annee = ? AND Mois = ?", p.Annee, p.Mois);
 
             // // Variante 2 (si Company n'est pas sur Bulletin mais sur Salarie) :
             // crit = CriteriaOperator.Parse("Salarie.Company = ? AND Annee = ? AND Mois = ?", p.Company, p.Annee, p.Mois);

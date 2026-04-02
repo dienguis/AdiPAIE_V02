@@ -1,5 +1,4 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects.RH;
-using DevExpress.ExpressApp.ConditionalAppearance;
+﻿using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Model;
@@ -25,7 +24,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Session de formation")]
     [DefaultProperty(nameof(Intitule))]
     [ImageName("BO_Event")]
-    [NavigationItem("GRH - Formation")]
+  //  [NavigationItem("GRH - Formation")]
     [Appearance("SessionConfirmee", TargetItems = "*",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+SessionFormationStatut,Confirmee#",
         FontColor = "#1B6C2A")]

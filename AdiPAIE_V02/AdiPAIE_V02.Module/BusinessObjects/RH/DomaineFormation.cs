@@ -17,7 +17,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Domaine de formation")]
     [DefaultProperty(nameof(Libelle))]
     [ImageName("BO_Category")]
-    [NavigationItem("GRH - Formation")]
+  //  [NavigationItem("GRH - Formation")]
     public class DomaineFormation : BaseObject
     {
         public DomaineFormation(Session session) : base(session) { }

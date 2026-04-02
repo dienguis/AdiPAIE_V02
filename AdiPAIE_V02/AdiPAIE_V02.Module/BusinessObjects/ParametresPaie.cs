@@ -800,6 +800,61 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         FileData templateAttestationFormation;
 
 
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template contrat CDI (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [FileTypeFilter("Documents Word", "*.docx")]
+        public FileData TemplateContratCDI
+        {
+            get => templateContratCDI;
+            set => SetPropertyValue(nameof(TemplateContratCDI), ref templateContratCDI, value);
+        }
+        FileData templateContratCDI;
+
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template contrat CDD (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [FileTypeFilter("Documents Word", "*.docx")]
+        public FileData TemplateContratCDD
+        {
+            get => templateContratCDD;
+            set => SetPropertyValue(nameof(TemplateContratCDD), ref templateContratCDD, value);
+        }
+        FileData templateContratCDD;
+
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template contrat de stage (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [FileTypeFilter("Documents Word", "*.docx")]
+        public FileData TemplateContratStage
+        {
+            get => templateContratStage;
+            set => SetPropertyValue(nameof(TemplateContratStage), ref templateContratStage, value);
+        }
+        FileData templateContratStage;
+
+        [Category("Intégrations")]
+        [XafDisplayName("Google Maps API Key")]
+        [Size(200)]
+        [ModelDefault("IsPassword", "True")]
+        [ToolTip("Clé API Google Maps avec Distance Matrix activée. Utilisée pour le calcul automatique des distances dans le circuit de déplacement.")]
+        public string GoogleMapsApiKey
+        {
+            get => googleMapsApiKey;
+            set => SetPropertyValue(nameof(GoogleMapsApiKey), ref googleMapsApiKey, value?.Trim());
+        }
+        string googleMapsApiKey;
+
+        [Category("Intégrations")]
+        [XafDisplayName("GeoNames Username")]
+        [Size(100)]
+        [ToolTip("Compte GeoNames (gratuit sur geonames.org). Utilisé pour importer automatiquement les villes du Sénégal.")]
+        public string GeoNamesUsername
+        {
+            get => geoNamesUsername;
+            set => SetPropertyValue(nameof(GeoNamesUsername), ref geoNamesUsername, value?.Trim());
+        }
+        string geoNamesUsername;
     }
 
 }

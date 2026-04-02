@@ -25,7 +25,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [DefaultProperty(nameof(DisplayName))]
   [ImageName("BO_Event")]
     
-    [NavigationItem("GRH - Évaluation")]
+  //  [NavigationItem("GRH - Évaluation")]
    
     // Unicité Entreprise + Année
     [RuleCombinationOfPropertiesIsUnique(

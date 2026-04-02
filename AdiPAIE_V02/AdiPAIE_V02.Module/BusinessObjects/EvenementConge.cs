@@ -1,5 +1,4 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects;
-using DevExpress.ExpressApp.ConditionalAppearance;
+﻿using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
@@ -31,7 +30,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     [XafDisplayName("Planning congés")]
     [DefaultProperty(nameof(Subject))]
     [ImageName("BO_Event")]
-    [NavigationItem("GRH - Congés")]
+   // [NavigationItem("GRH - Congés")]
     [Appearance("CongeAccorde", TargetItems = "*",
         Criteria = "TypeEvenement = 0",
         FontColor = "#1B6C2A")]

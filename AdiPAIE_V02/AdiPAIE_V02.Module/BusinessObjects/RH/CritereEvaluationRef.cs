@@ -19,7 +19,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Critères d'évaluation")]
     [DefaultProperty(nameof(DisplayName))]
     [ImageName("BO_List")]
-    [NavigationItem("GRH - Évaluation")]
+   // [NavigationItem("GRH - Évaluation")]
     public class CritereEvaluationRef : BaseObject
     {
         public CritereEvaluationRef(Session session) : base(session) { }

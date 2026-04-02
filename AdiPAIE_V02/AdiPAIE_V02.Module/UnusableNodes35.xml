@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <NavigationItems Id="NavigationItems">
+    <Items Id="Items">
+      <Item Id="GRH - Paie" Caption="Paie" Index="0" ImageName="BO_Folder">
+        <Items Id="Items">
+          <Item Id="Paie_SalariesPaie" Caption="Bulletins de paie" ViewId="Salarie_Paie_ListView" Index="0" ImageName="BO_Sale_Item" />
+          <Item Id="PeriodePaie_ListView" Caption="Périodes de paie" ViewId="PeriodePaie_ListView" Index="1" ImageName="BO_Scheduler" />
+          <Item Id="RH_Prets" Caption="Prêts" ViewId="Pret_ListView" Index="2" ImageName="BO_Sale_Item" />
+          <Item Id="RH_EcheancesPrets" Caption="Échéances prêts" ViewId="PretEcheance_ListView" Index="3" />
+          <Item Id="SimulationSursalaire_ListView" Caption="Simulations de paie" ViewId="SimulationSursalaire_ListView" Index="4" ImageName="Business_Calculator" />
+          <Item Id="Paie_GenererBulletins" Caption="Générer les bulletins" ViewId="Salarie_Generation_ListView" Index="5" ImageName="Action_Printing_Preview" Visible="False" />
+        </Items>
+      </Item>
+      <Item Id="Ressources humaines" Caption="Gestion du personnel" Index="5" ImageName="BO_Employee">
+        <Items Id="Items">
+          <Item Id="RH_Salaries" Caption="Salariés" ViewId="Salarie_ListView" Index="0" ImageName="BO_Employee" />
+          <Item Id="ContratSalarie_ListView" Caption="Contrats de travail" ViewId="ContratSalarie_ListView" Index="1" ImageName="BO_Contract" />
+          <Item Id="RH_Avancements" Caption="Avancements / Promotions" ViewId="DemandeAvancement_ListView" Index="2" ImageName="Action_Forward" />
+          <Item Id="RH_HistoriquePostes" Caption="Historique de poste" ViewId="HistoriquePoste_ListView" Index="3" ImageName="BO_Audit" />
+          <Item Id="RH_Offboarding" Caption="Dossiers de départ" ViewId="DossierOffboarding_ListView" Index="4" ImageName="Action_Close" />
+          <Item Id="RH_Dossiers" Caption="Dossiers salariés" ViewId="DossierSalarie_ListView" Index="5" ImageName="Document" />
+          <Item Id="NotificationSalarie_ListView" Caption="Notifications" ViewId="NotificationSalarie_ListView" Index="6" />
+        </Items>
+      </Item>
+      <Item Id="GRH_Missions" Caption="Missions et déplacements" Index="15" ImageName="Action_Forward">
+        <Items Id="Items">
+          <Item Id="GRH_Deplacements" Caption="Demandes de déplacement" ViewId="DemandeDeplacement_ListView" Index="0" />
+          <Item Id="GRH_CategoriesFrais" Caption="Catégories de frais" ViewId="CategorieFraisMission_ListView" Index="1" />
+          <Item Id="Param_Villes" Caption="Villes (Sénégal)" ViewId="VilleSenegal_ListView" Index="2" ImageName="State_Confirmed" />
+        </Items>
+      </Item>
+      <Item Id="GRH_Evaluation" Caption="Formation et évaluation" Index="20" ImageName="BO_Task">
+        <Items Id="Items">
+          <Item Id="GRH_Campagnes" Caption="Campagnes d'évaluation" ViewId="CampagneEvaluation_ListView" Index="0" />
+          <Item Id="GRH_Entretiens" Caption="Entretiens annuels" ViewId="EntretienAnnuel_ListView" Index="1" />
+          <Item Id="GRH_Criteres" Caption="Critères d'évaluation" ViewId="CritereEvaluationRef_ListView" Index="2" />
+          <Item Id="GRH_SessionsFormation" Caption="Sessions de formation" ViewId="SessionFormation_ListView" Index="3" />
+          <Item Id="GRH_Attestations" Caption="Demandes d'attestation" ViewId="DemandeAttestation_ListView" Index="4" />
+          <Item Id="GRH_Declarations" Caption="Déclarations" ViewId="DeclarationMenu_ListView" Index="5" ImageName="BO_List" />
+        </Items>
+      </Item>
+      <Item Id="GRH_EspaceSalarie" Caption="Mon espace" Index="30" ImageName="BO_Person">
+        <Items Id="Items">
+          <Item Id="GRH_MesBulletins" Caption="Mes bulletins" ViewId="Salarie_Paie_ListView" Index="0" ImageName="BO_Sale_Item" />
+          <Item Id="GRH_MesConges" Caption="Mes congés" ViewId="CongeDemande_ListView" Index="1" ImageName="BO_Scheduler" />
+          <Item Id="GRH_MesSoldesConges" Caption="Mon solde de congés" ViewId="SoldeConge_ListView" Index="2" ImageName="BO_Scheduler" />
+          <Item Id="GRH_MesAttestations" Caption="Mes attestations" ViewId="DemandeAttestation_ListView" Index="3" />
+          <Item Id="GRH_MesEntretiens" Caption="Mon entretien annuel" ViewId="EntretienAnnuel_ListView" Index="4" />
+          <Item Id="GRH_MesDeplacements" Caption="Mes déplacements" ViewId="DemandeDeplacement_ListView" Index="5" />
+        </Items>
+      </Item>
+      <Item Id="Comptabilite" Caption="Comptabilité" Index="35" ImageName="Accounting_32x32">
+        <Items Id="Items">
+          <Item Id="Cpta_Ecritures" Caption="Écritures" ViewId="Ecriture_ListView" Index="0" />
+          <Item Id="Cpta_Parametres" Caption="Paramètres compta" ViewId="ParametresCompta_ListView" Index="1" />
+          <Item Id="Cpta_Plan" Caption="Plan comptable" ViewId="PlanComptable_ListView" Index="2" />
+        </Items>
+      </Item>
+      <Item Id="GRH - Administration" Caption="Paramétrage" Index="40" ImageName="ModelEditor_Settings">
+        <Items Id="Items">
+          <Item Id="Departement_ListView" Caption="Départements" ViewId="Departement_ListView" Index="0" />
+          <Item Id="Fonction_ListView" Caption="Fonctions" ViewId="Fonction_ListView" Index="1" />
+          <Item Id="Echelons_ListView" Caption="Échelons" ViewId="Echelons_ListView" Index="2" />
+          <Item Id="Param_Categories" Caption="Catégories salariales" ViewId="Categories_ListView" Index="3" ImageName="BO_Category" />
+          <Item Id="Param_Conventions" Caption="Conventions" ViewId="Convention_ListView" Index="4" />
+          <Item Id="Param_Rubriques" Caption="Rubriques" ViewId="Rubrique_ListView" Index="5" />
+          <Item Id="Param_RubriqueTypes" Caption="Types de rubrique" ViewId="RubriqueTypeRef_ListView" Index="6" />
+          <Item Id="Param_GroupesImpression" Caption="Groupes d'impression" ViewId="GroupeImpressionRef_ListView" Index="7" />
+          <Item Id="CentreConstantesPaie_ListView" Caption="Centre constantes" ViewId="CentreConstantesPaie_DetailView" Index="8" />
+          <Item Id="Constante Paie" Caption="Barèmes et taux" ImageName="Paid" Index="9">
+            <Items Id="Items">
+              <Item Id="BaremeTRIMF_ListView" ViewId="BaremeTRIMF_ListView" Index="0" />
+              <Item Id="IRReductionFamille_ListView" ViewId="IRReductionFamille_ListView" Index="1" />
+              <Item Id="Ref_BaremeIR" Caption="Barème IR (DPP)" ViewId="BaremeIR_ListView" ImageName="Shopping_Percent" Index="2" />
+            </Items>
+          </Item>
+          <Item Id="Param_DocumentTypes" Caption="Types de document" ViewId="DocumentTypeRef_ListView" Index="10" ImageName="Document Properties" />
+          <Item Id="Param_PretTypes" Caption="Types de prêt" ViewId="PretType_ListView" Index="11" />
+          <Item Id="Param_Workflows" Caption="Diagrammes de workflow" ViewId="Workflows_View" Index="12" ImageName="Action_Debug" />
+        </Items>
+      </Item>
+      <Item Id="Administration" Caption="Administration" Index="50" ImageName="ModelEditor_Settings">
+        <Items Id="Items">
+          <Item Id="Param_Company" Caption="Société" ViewId="Company_ListView" Index="0" ImageName="BO_Organization_32x32" />
+          <Item Id="ParametresPaie_ListView" Caption="Paramètres de paie" ViewId="ParametresPaie_ListView" Index="1" />
+        </Items>
+      </Item>
+      <Item Id="Traitement" Index="98" ImageName="Recurrence">
+        <Items Id="Items">
+          <Item Id="Pret_ListView" Removed="True" />
+        </Items>
+      </Item>
+      <Item Id="GRH - Espace salarié" Caption="OLD" Visible="False">
+        <Items Id="Items">
+          <Item Id="NotificationSalarie_ListView" Removed="True" />
+        </Items>
+      </Item>
+      <Item Id="GRH - Évaluation" Removed="True" />
+      <Item Id="GRH - Interimaires" Removed="True" />
+    </Items>
+  </NavigationItems>
+</Application>

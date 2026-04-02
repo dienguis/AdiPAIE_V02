@@ -1,18 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Application>
-  <Options UIType="TabbedMDI"
-         RestoreTabbedMdiLayout="True"
-         ShowTabImage="True"
-	 VirtualScrollingEnabled="True">
-  </Options>
-  <NavigationItems NavigationStyle="Accordion">
-    <Items>
-      <Item Id="KPI" Removed="True" />
-      <Item Id="Reports">
-        <Items>
-          <Item Id="Analysis_ListView" Removed="True" />
-        </Items>
-      </Item>
-    </Items>
-  </NavigationItems>
+<Application Logo="">
+  <NavigationItems NavigationStyle="Accordion" />
+  <Options UIType="TabbedMDI" RestoreTabbedMdiLayout="True" ShowTabImage="True" VirtualScrollingEnabled="True" />
+  <SchemaModules>
+    <SchemaModule Name="CloneObjectModule" Version="25.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerBlazorModule" Version="25.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerModuleBase" Version="25.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SystemModule" Version="25.1.9.0" IsNewNode="True" />
+  </SchemaModules>
 </Application>

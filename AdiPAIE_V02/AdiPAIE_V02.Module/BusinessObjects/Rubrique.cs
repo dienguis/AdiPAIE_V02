@@ -19,6 +19,7 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     //[NavigationItem("Référentiel")]
+    [DefaultClassOptions]
     [DefaultProperty(nameof(DisplayName))]
     public class Rubrique : BaseObject
     {

@@ -12,6 +12,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
+using Microsoft.Extensions.DependencyInjection;
+
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AdiPAIE_V02.Module.Controllers.RH
 {
@@ -162,55 +166,8 @@ namespace AdiPAIE_V02.Module.Controllers.RH
     //
     // Séparé pour ne pas modifier FormationWorkflowController.
     // ══════════════════════════════════════════════════════════════════════
-    public class EmargementActionController
-        : ObjectViewController<DetailView, SessionFormation>
-    {
-        private readonly SimpleAction _emargementAction;
-
-        public EmargementActionController()
-        {
-            _emargementAction = new SimpleAction(this,
-                "SessionFormation_Emargement",
-                PredefinedCategory.View)
-            {
-                Caption = "Feuille d'émargement",
-                ImageName = "Action_Print",
-                ToolTip = "Génère la feuille de présence PDF à imprimer."
-            };
-            _emargementAction.Execute += OnEmargementExecute;
-        }
-
-        // ─────────────────────────────────────────────────────────────────
-        private void OnEmargementExecute(object sender, SimpleActionExecuteEventArgs e)
-        {
-            var session = (SessionFormation)View.CurrentObject;
-            try
-            {
-                var (contenu, nomFichier, estPdf) =
-                    FeuillEmargementService.Generer(ObjectSpace, session);
-
-                // Sauvegarder en temp
-                var tempPath = Path.Combine(
-                    Path.GetTempPath(), "AdiPAIE_Emargement", nomFichier);
-                Directory.CreateDirectory(Path.GetDirectoryName(tempPath)!);
-                File.WriteAllBytes(tempPath, contenu);
-
-                var msg = estPdf
-                    ? $"Feuille d'émargement générée : {nomFichier}"
-                    : $"Feuille d'émargement générée (HTML — LibreOffice absent) : {nomFichier}";
-
-                Application.ShowViewStrategy?.ShowMessage(
-                    msg, InformationType.Success, 5000, InformationPosition.Top);
-            }
-            catch (Exception ex)
-            {
-                Application.ShowViewStrategy?.ShowMessage(
-                    $"Erreur feuille d'émargement : {ex.Message}",
-                    InformationType.Error, 8000, InformationPosition.Top);
-            }
-        }
-    }
-
+    
+ 
     // ══════════════════════════════════════════════════════════════════════
     // BUILDER HTML DU BILAN — classe utilitaire interne
     // ══════════════════════════════════════════════════════════════════════

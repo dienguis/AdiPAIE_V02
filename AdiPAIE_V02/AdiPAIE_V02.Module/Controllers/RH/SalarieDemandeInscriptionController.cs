@@ -51,11 +51,22 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         }
 
         // ─────────────────────────────────────────────────────────────────
+
         private void UpdateActionVisibility()
         {
-            // L'action n'est visible que si l'utilisateur a une fiche salarié
             var salarie = GetSalarieConnecte();
-            _demanderAction.Active["HasSalarie"] = salarie != null;
+            if (salarie == null)
+            {
+                _demanderAction.Active["HasSalarie"] = false;
+                return;
+            }
+
+            var session = View?.CurrentObject as SessionFormation;
+            var dejaInscrit = session?.Inscriptions
+                .Any(i => i.Salarie?.Oid == salarie.Oid
+                       && i.Statut != InscriptionStatut.Annulee) ?? false;
+
+            _demanderAction.Active["HasSalarie"] = !dejaInscrit;
         }
 
         // ─────────────────────────────────────────────────────────────────

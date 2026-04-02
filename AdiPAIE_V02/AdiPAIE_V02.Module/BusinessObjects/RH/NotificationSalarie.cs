@@ -20,7 +20,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Notification salarié")]
     [DefaultProperty(nameof(DisplayName))]
     [ImageName("Action_SendMessage")]
-    [NavigationItem("GRH - Espace salarié")]
+  //  [NavigationItem("GRH - Espace salarié")]
     [Appearance("Notif_Urgent_Style", TargetItems = "*",
         Criteria = "Priorite = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+NotificationPriorite,Urgent#",
         FontColor = "Red", FontStyle = DXFontStyle.Bold)]

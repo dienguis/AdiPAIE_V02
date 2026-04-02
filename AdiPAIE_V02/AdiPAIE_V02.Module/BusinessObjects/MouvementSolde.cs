@@ -20,7 +20,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     [XafDisplayName("Mouvement de solde")]
     [DefaultProperty(nameof(DisplayMouvement))]
     [ImageName("BO_Audit")]
-    [NavigationItem("GRH - Congés")]
+    //[NavigationItem("GRH - Congés")]
     public class MouvementSolde : BaseObject
     {
         public MouvementSolde(Session session) : base(session) { }
