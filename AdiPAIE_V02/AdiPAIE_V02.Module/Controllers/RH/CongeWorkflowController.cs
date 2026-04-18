@@ -106,6 +106,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             d.Soumettre();
 
             _NotifierResponsable(d);
+            AuditService.Enregistrer(Application, "CongeDemande", "Soumettre",
+                d.Oid.ToString(), d.Salarie?.FullName,
+                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy}",
+                ancienStatut: "Brouillon", nouveauStatut: "Soumise");
              ObjectSpace.CommitChanges();
             PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
             View.Refresh();
@@ -125,6 +129,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             // Popup de saisie via DetailView du congé avec DateReprise débloquée
             demande.DateReprise = dateReprise;
             demande.Accorder(dateReprise);
+            AuditService.Enregistrer(Application, "CongeDemande", "Accorder",
+                demande.Oid.ToString(), demande.Salarie?.FullName,
+                $"Demande du {demande.DateDebut:dd/MM/yyyy} au {demande.DateFin:dd/MM/yyyy} — Reprise le {dateReprise:dd/MM/yyyy}",
+                ancienStatut: "Soumise", nouveauStatut: "Accordée");
             osNew.CommitChanges();
 
             _NotifierSalarie(d,
@@ -156,6 +164,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 $"Période : {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy}. "
                 + "Motif : " + (d.CommentaireRH ?? "voir le service RH."));
 
+            AuditService.Enregistrer(Application, "CongeDemande", "Refuser",
+                d.Oid.ToString(), d.Salarie?.FullName,
+                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} — Motif : {d.CommentaireRH ?? "aucun motif enregistré"}",
+                ancienStatut: "Soumise", nouveauStatut: "Refusée");
             ObjectSpace.CommitChanges();
             PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
             View.Refresh();
@@ -178,6 +190,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 + $"{d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} en brouillon. "
                 + (string.IsNullOrWhiteSpace(d.CommentaireRH) ? "" : "Commentaire : " + d.CommentaireRH));
 
+            AuditService.Enregistrer(Application, "CongeDemande", "ModifierDates",
+                d.Oid.ToString(), d.Salarie?.FullName,
+                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} renvoyée en brouillon",
+                ancienStatut: "Soumise", nouveauStatut: "Brouillon");
             ObjectSpace.CommitChanges();
             View.Refresh();
         }
@@ -193,6 +209,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 + "a été annulé par le service RH. "
                 + (string.IsNullOrWhiteSpace(d.CommentaireRH) ? "" : "Motif : " + d.CommentaireRH));
 
+            AuditService.Enregistrer(Application, "CongeDemande", "Annuler",
+                d.Oid.ToString(), d.Salarie?.FullName,
+                $"Congé du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} annulé — Motif : {d.CommentaireRH ?? "aucun motif enregistré"}",
+                ancienStatut: "Accordée", nouveauStatut: "Annulée");
             ObjectSpace.CommitChanges();
             PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
             View.Refresh();

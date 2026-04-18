@@ -53,6 +53,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             soumettreAction.Execute += (s, e) =>
             {
                 var d = (DemandeDeplacement)View.CurrentObject;
+                var oldStatut = d.Statut;
                 d.Soumettre();
 
                 var info = Info(d);
@@ -63,6 +64,11 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                         $"Demande de déplacement à valider — {info.Salarie}",
                         $"{info.Salarie} souhaite effectuer un déplacement : {info.Objet}. "
                         + $"Départ : {info.Depart}, Retour : {info.Retour} ({info.Jours} j).");
+
+                AuditService.Enregistrer(Application, "DemandeDeplacement", "Soumettre",
+                    d.Oid.ToString(), d.DisplayName,
+                    "Demande soumise pour validation N+1",
+                    ancienStatut: oldStatut.ToString(), nouveauStatut: d.Statut.ToString());
 
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();
@@ -92,11 +98,17 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             validerN1Action.Execute += (s, e) =>
             {
                 var d = (DemandeDeplacement)View.CurrentObject;
+                var oldStatut = d.Statut;
                 var nom1 = d.ValideurN1?.FullName ?? "";
                 d.ValiderN1();
 
                 var info = Info(d);
                 var rhEmails = WorkflowEmailHelper.ExtraireEmailsRH(Application);
+
+                AuditService.Enregistrer(Application, "DemandeDeplacement", "ValiderN1",
+                    d.Oid.ToString(), d.DisplayName,
+                    $"Validée par {nom1}",
+                    ancienStatut: oldStatut.ToString(), nouveauStatut: d.Statut.ToString());
 
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();
@@ -128,6 +140,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 if (string.IsNullOrWhiteSpace(d.MotifRejet))
                     throw new UserFriendlyException("Veuillez saisir un motif de rejet.");
 
+                var oldStatut = d.Statut;
                 var motif = d.MotifRejet;
                 d.RejeterN1(motif);
 
@@ -138,6 +151,11 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     _Notifier(oidSal,
                         "Votre demande de déplacement a été rejetée",
                         $"Votre demande '{info.Objet}' a été rejetée. Motif : {motif}.");
+
+                AuditService.Enregistrer(Application, "DemandeDeplacement", "RejeterN1",
+                    d.Oid.ToString(), d.DisplayName,
+                    $"Rejetée. Motif : {motif}",
+                    ancienStatut: oldStatut.ToString(), nouveauStatut: d.Statut.ToString());
 
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();
@@ -178,10 +196,16 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             soumettreRHAction.Execute += (s, e) =>
             {
                 var d = (DemandeDeplacement)View.CurrentObject;
+                var oldStatut = d.Statut;
                 d.SoumettreAuRH();
 
                 var info = Info(d);
                 var rhEmails = WorkflowEmailHelper.ExtraireEmailsRH(Application);
+
+                AuditService.Enregistrer(Application, "DemandeDeplacement", "SoumettreRH",
+                    d.Oid.ToString(), d.DisplayName,
+                    $"Soumise au RH. Total frais : {info.Frais}",
+                    ancienStatut: oldStatut.ToString(), nouveauStatut: d.Statut.ToString());
 
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();
@@ -210,6 +234,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             approuverRHAction.Execute += (s, e) =>
             {
                 var d = (DemandeDeplacement)View.CurrentObject;
+                var oldStatut = d.Statut;
                 d.ApprouverRH();
 
                 var info = Info(d);
@@ -218,6 +243,11 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 // Générer les documents si pas encore fait
                 if (string.IsNullOrWhiteSpace(d.NumeroOrdre))
                     d.NumeroOrdre = GenererNumeroOrdre(d);
+
+                AuditService.Enregistrer(Application, "DemandeDeplacement", "ApprouverRH",
+                    d.Oid.ToString(), d.DisplayName,
+                    $"Approuvée par RH. Montant : {info.Frais}. N° {info.Ordre}",
+                    ancienStatut: oldStatut.ToString(), nouveauStatut: d.Statut.ToString());
 
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();
@@ -249,11 +279,17 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 if (string.IsNullOrWhiteSpace(d.MotifRejet))
                     throw new UserFriendlyException("Veuillez saisir un motif de rejet.");
 
+                var oldStatut = d.Statut;
                 var motif = d.MotifRejet;
                 var rhEmails = WorkflowEmailHelper.ExtraireEmailsRH(Application);
                 d.RejeterRH(motif);
 
                 var info = Info(d);
+
+                AuditService.Enregistrer(Application, "DemandeDeplacement", "RejeterRH",
+                    d.Oid.ToString(), d.DisplayName,
+                    $"Rejetée par RH. Motif : {motif}",
+                    ancienStatut: oldStatut.ToString(), nouveauStatut: d.Statut.ToString());
 
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();
@@ -299,10 +335,16 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             validerDAFAction.Execute += (s, e) =>
             {
                 var d = (DemandeDeplacement)View.CurrentObject;
+                var oldStatut = d.Statut;
                 d.ValiderDAF();
 
                 var info = Info(d);
                 var comptableEmails = WorkflowEmailHelper.ExtraireEmailsComptable(Application);
+
+                AuditService.Enregistrer(Application, "DemandeDeplacement", "ValiderDAF",
+                    d.Oid.ToString(), d.DisplayName,
+                    $"Décaissement validé. Montant : {info.Frais}",
+                    ancienStatut: oldStatut.ToString(), nouveauStatut: d.Statut.ToString());
 
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();
@@ -416,6 +458,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             confirmerComptableAction.Execute += (s, e) =>
             {
                 var d = (DemandeDeplacement)View.CurrentObject;
+                var oldStatut = d.Statut;
                 d.ConfirmerComptable();
                 _ArchiverDansDossier(d);
 
@@ -427,6 +470,11 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                         "Votre mission est clôturée",
                         $"L'opération comptable pour votre mission '{info.Objet}' "
                         + $"a été enregistrée. Montant : {info.Frais}.");
+
+                AuditService.Enregistrer(Application, "DemandeDeplacement", "ConfirmerComptable",
+                    d.Oid.ToString(), d.DisplayName,
+                    $"Opération comptable enregistrée et archivée. Montant : {info.Frais}",
+                    ancienStatut: oldStatut.ToString(), nouveauStatut: d.Statut.ToString());
 
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();

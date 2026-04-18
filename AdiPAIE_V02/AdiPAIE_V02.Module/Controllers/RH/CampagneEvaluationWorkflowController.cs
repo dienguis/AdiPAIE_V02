@@ -1,6 +1,7 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
 using AdiPAIE_V02.Module.Domain;
+using AdiPAIE_V02.Module.Services;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
@@ -8,6 +9,7 @@ using DevExpress.ExpressApp.Xpo;
 using DevExpress.Persistent.Base;
 using DevExpress.Xpo;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
@@ -66,9 +68,25 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void OuvrirAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var campagne = (CampagneEvaluation)e.CurrentObject;
+            var ancienStatut = campagne.Statut.ToString();
             campagne.Ouvrir();
+            var nouveauStatut = campagne.Statut.ToString();
+            AuditService.Enregistrer(Application, "CampagneEvaluation", "Ouvrir",
+                campagne.Oid.ToString(), campagne.DisplayName ?? campagne.Annee.ToString(),
+                ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
             ObjectSpace.CommitChanges();
             View.Refresh();
+
+            // Email → RH : campagne ouverte
+            WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
+                WorkflowEmailHelper.ExtraireEmailsRH(Application),
+                $"[AdiPAIE] Campagne d'évaluation ouverte — {campagne.Annee}",
+                WorkflowEmailHelper.HtmlTableau("Campagne d'évaluation ouverte",
+                    "La campagne est maintenant ouverte. Vous pouvez générer les entretiens.",
+                    new[] {
+                        ("Campagne", campagne.DisplayName ?? campagne.Annee.ToString()),
+                        ("Statut", nouveauStatut),
+                    }));
         }
 
         void GenererAction_Execute(object sender, SimpleActionExecuteEventArgs e)
@@ -99,6 +117,24 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             ObjectSpace.CommitChanges();
             View.Refresh();
 
+            // Email → tous les salariés concernés : entretien créé
+            var emailsSalaries = salaries
+                .Where(s => !string.IsNullOrWhiteSpace(s.Email))
+                .Select(s => s.Email.Trim())
+                .Where(e => e.Contains('@'))
+                .ToList();
+            if (emailsSalaries.Any())
+            {
+                WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
+                    emailsSalaries,
+                    $"[AdiPAIE] Campagne d'évaluation {campagne.Annee} — Votre entretien est planifié",
+                    WorkflowEmailHelper.HtmlTableau("Entretien annuel planifié",
+                        "Un entretien annuel a été créé dans le cadre de la campagne d'évaluation. Veuillez vous rapprocher de votre manager pour fixer la date.",
+                        new[] {
+                            ("Campagne", campagne.DisplayName ?? campagne.Annee.ToString()),
+                        }));
+            }
+
             Application.ShowViewStrategy?.ShowMessage(
                 $"{crees} entretien(s) créé(s). Campagne passée en état « En cours ».",
                 InformationType.Success, 5000, InformationPosition.Top);
@@ -107,9 +143,25 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void CloturerAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var campagne = (CampagneEvaluation)e.CurrentObject;
+            var ancienStatut = campagne.Statut.ToString();
             campagne.Cloturer();
+            var nouveauStatut = campagne.Statut.ToString();
+            AuditService.Enregistrer(Application, "CampagneEvaluation", "Cloturer",
+                campagne.Oid.ToString(), campagne.DisplayName ?? campagne.Annee.ToString(),
+                ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
             ObjectSpace.CommitChanges();
             View.Refresh();
+
+            // Email → RH : campagne clôturée
+            WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
+                WorkflowEmailHelper.ExtraireEmailsRH(Application),
+                $"[AdiPAIE] Campagne d'évaluation clôturée — {campagne.Annee}",
+                WorkflowEmailHelper.HtmlTableau("Campagne d'évaluation clôturée",
+                    "La campagne a été clôturée définitivement.",
+                    new[] {
+                        ("Campagne", campagne.DisplayName ?? campagne.Annee.ToString()),
+                        ("Entretiens", $"{campagne.Entretiens?.Count ?? 0}"),
+                    }));
         }
 
         protected override void OnActivated()

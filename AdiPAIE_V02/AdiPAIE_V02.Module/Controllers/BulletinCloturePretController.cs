@@ -1,6 +1,7 @@
 ﻿
 using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.Domain;
+using AdiPAIE_V02.Module.Services;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.ExpressApp.Templates;
@@ -74,6 +75,11 @@ namespace AdiPAIE_V02.Module.Controllers
             os.CommitChanges();
             View.ObjectSpace.Refresh();
 
+            AuditService.Enregistrer(Application, "Bulletin", "Clôturer",
+                b.Oid.ToString(), b.DisplayName,
+                $"Clôture bulletin {b.Salarie?.FullName} — {b.Periode}",
+                nouveauStatut: "Clôturé");
+
             Application.ShowViewStrategy.ShowMessage(
                 "Bulletin clôturé.", InformationType.Success, 3000, InformationPosition.Top);
         }
@@ -108,6 +114,11 @@ namespace AdiPAIE_V02.Module.Controllers
             b.RecalculerSurGrilleExistante();
             os.CommitChanges();
             View.ObjectSpace.Refresh();
+
+            AuditService.Enregistrer(Application, "Bulletin", "Réouvrir",
+                b.Oid.ToString(), b.DisplayName,
+                $"Réouverture bulletin {b.Salarie?.FullName} — {b.Periode}",
+                nouveauStatut: "Brouillon");
 
             Application.ShowViewStrategy.ShowMessage(
                 "Bulletin réouvert en Brouillon.",

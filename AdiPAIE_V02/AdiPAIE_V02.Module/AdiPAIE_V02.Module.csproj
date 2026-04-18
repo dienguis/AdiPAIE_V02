@@ -14,6 +14,11 @@
     <None Remove="Images\Salary Slip.png" />
     <None Remove="Images\sunupaie_256.png" />
     <None Remove="Images\sunupaie_32.png" />
+    <None Remove="Images\btn_reordonner.png" />
+    <None Remove="Images\btn_recalculer.png" />
+    <None Remove="Images\btn_valider.png" />
+    <None Remove="Images\btn_renvoyer.png" />
+    <None Remove="Images\btn_charger.png" />
     <None Remove="Model.DesignedDiffs.xafml" />
   </ItemGroup>
   <ItemGroup>
@@ -22,36 +27,44 @@
     <EmbeddedResource Include="Images\Salary Slip.png" />
     <EmbeddedResource Include="Images\sunupaie_256.png" />
     <EmbeddedResource Include="Images\sunupaie_32.png" />
+    <EmbeddedResource Include="Images\btn_reordonner.png" />
+    <EmbeddedResource Include="Images\btn_recalculer.png" />
+    <EmbeddedResource Include="Images\btn_valider.png" />
+    <EmbeddedResource Include="Images\btn_renvoyer.png" />
+    <EmbeddedResource Include="Images\btn_charger.png" />
     <EmbeddedResource Include="Model.DesignedDiffs.xafml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
-    <PackageReference Include="DevExpress.ExpressApp" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.AuditTrail.Xpo" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Chart" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.CloneObject" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.ConditionalAppearance" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Dashboards" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Kpi" Version="25.1.*" />
+    <PackageReference Include="DevExpress.ExpressApp" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.AuditTrail.Xpo" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.Chart" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.CloneObject" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="25.1.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="DevExpress.ExpressApp.ConditionalAppearance" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.Dashboards" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Kpi" Version="25.1.10" />
  
-    <PackageReference Include="DevExpress.ExpressApp.Notifications" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Objects" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Office" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.PivotChart" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.PivotGrid" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.ReportsV2" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Scheduler" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.ScriptRecorder" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Security" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.StateMachine" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.TreeListEditors" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Validation" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.ViewVariantsModule" Version="25.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="25.1.*" />
-    <PackageReference Include="DevExpress.Persistent.Base" Version="25.1.*" />
-    <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="25.1.*" />
+    <PackageReference Include="DevExpress.ExpressApp.Notifications" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.Objects" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Office" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.PivotChart" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.PivotGrid" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.ReportsV2" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Scheduler" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.ScriptRecorder" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.Security" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.StateMachine" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.TreeListEditors" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.Validation" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.ViewVariantsModule" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="25.1.10" />
+    <PackageReference Include="DevExpress.Persistent.Base" Version="25.1.10" />
+    <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="25.1.10" />
     <PackageReference Include="Azure.Identity" Version="1.16.0" />
     <PackageReference Include="DevExpress.Win.Design" Version="25.1.9" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.4.1" />
@@ -59,7 +72,6 @@
     <PackageReference Include="Microsoft.Graph" Version="5.93.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.0" />
 	<PackageReference Include="Microsoft.JSInterop" Version="8.0.0" />
-	<PackageReference Include="ClosedXML" Version="0.102.3" />
   </ItemGroup>
   <ItemGroup>
     <None Update="UnusableNodes.xml">

@@ -95,6 +95,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [Size(500)]
         [XafDisplayName("Précision motif")]
+        [VisibleInListView(false)]
         public string PrecisionMotif
         {
             get => precisionMotif;
@@ -121,6 +122,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         DateTime dateSortie;
 
         [XafDisplayName("Durée préavis (jours)")]
+        [VisibleInListView(false)]
         public int DureePreavis
         {
             get => dureePreavis;
@@ -131,6 +133,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Snapshot rémunération ─────────────────────────────────────
         [ModelDefault("DisplayFormat", "N0")]
         [XafDisplayName("Salaire de base (snapshot)")]
+        [VisibleInListView(false)]
         public decimal SalaireBase
         {
             get => salaireBase;
@@ -140,6 +143,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [ModelDefault("DisplayFormat", "N0")]
         [XafDisplayName("Indemnité logement (snapshot)")]
+        [VisibleInListView(false)]
         public decimal IndemniteLogement
         {
             get => indemniteLogement;
@@ -149,6 +153,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [ModelDefault("DisplayFormat", "N0")]
         [XafDisplayName("Ancienneté (années)")]
+        [VisibleInListView(false)]
         public int AncienneteAnnees
         {
             get => ancienneteAnnees;
@@ -158,6 +163,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [ModelDefault("DisplayFormat", "N2")]
         [XafDisplayName("Congés disponibles (jours)")]
+        [VisibleInListView(false)]
         public decimal CongesDisponibles
         {
             get => congesDisponibles;
@@ -168,6 +174,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Calcul solde de tout compte ───────────────────────────────
         [ModelDefault("DisplayFormat", "N0")]
         [XafDisplayName("Indemnité congés non pris (FCFA)")]
+        [VisibleInListView(false)]
         public decimal IndemniteCongés
         {
             get => indemniteCongés;
@@ -177,6 +184,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [ModelDefault("DisplayFormat", "N0")]
         [XafDisplayName("Indemnité de préavis (FCFA)")]
+        [VisibleInListView(false)]
         public decimal IndemnitePreavis
         {
             get => indemnitePreavis;
@@ -186,6 +194,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [ModelDefault("DisplayFormat", "N0")]
         [XafDisplayName("Indemnité de licenciement (FCFA)")]
+        [VisibleInListView(false)]
         public decimal IndemniteLicenciement
         {
             get => indemniteLicenciement;
@@ -195,6 +204,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [ModelDefault("DisplayFormat", "N0")]
         [XafDisplayName("Salaire du mois prorata (FCFA)")]
+        [VisibleInListView(false)]
         public decimal SalaireProrata
         {
             get => salaireProrata;
@@ -204,6 +214,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [ModelDefault("DisplayFormat", "N0")]
         [XafDisplayName("Autres éléments (FCFA)")]
+        [VisibleInListView(false)]
         public decimal AutresElements
         {
             get => autresElements;
@@ -232,6 +243,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         [Size(50)]
         [ModelDefault("AllowEdit", "False")]
         [XafDisplayName("Initié par")]
+        [VisibleInListView(false)]
         public string InitiePar
         {
             get => initiePar;
@@ -242,6 +254,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         [Size(50)]
         [ModelDefault("AllowEdit", "False")]
         [XafDisplayName("Validé RH par")]
+        [VisibleInListView(false)]
         public string ValideRHPar
         {
             get => valideRHPar;
@@ -251,6 +264,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [ModelDefault("AllowEdit", "False")]
         [XafDisplayName("Date validation RH")]
+        [VisibleInListView(false)]
         public DateTime? DateValidationRH
         {
             get => dateValidationRH;
@@ -261,6 +275,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         [Size(50)]
         [ModelDefault("AllowEdit", "False")]
         [XafDisplayName("Validé DAF par")]
+        [VisibleInListView(false)]
         public string ValideDAFPar
         {
             get => valideDAFPar;
@@ -270,6 +285,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [ModelDefault("AllowEdit", "False")]
         [XafDisplayName("Date validation DAF")]
+        [VisibleInListView(false)]
         public DateTime? DateValidationDAF
         {
             get => dateValidationDAF;
@@ -279,6 +295,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [Size(1000)]
         [XafDisplayName("Observations")]
+        [VisibleInListView(false)]
         public string Observations
         {
             get => observations;
@@ -289,6 +306,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Document solde de tout compte ─────────────────────────────
         [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
         [XafDisplayName("Document solde de tout compte (.pdf)")]
+        [VisibleInListView(false)]
         public FileData DocumentSolde
         {
             get => documentSolde;

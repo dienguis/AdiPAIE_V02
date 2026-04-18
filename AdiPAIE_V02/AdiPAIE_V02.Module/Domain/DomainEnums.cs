@@ -50,7 +50,23 @@ namespace AdiPAIE_V02.Module.Domain
             IRPP = 310,   // Impôt sur le revenu (barémisé) - à paramétrer
             CFCE = 311,
             RemboursementPret =500,
-            RemboursementAvance =501
+            RemboursementAvance =501,
+            HeuresSupplementaires = 600
+        }
+
+        public enum TypeHeureSupplementaire
+        {
+            [XafDisplayName("Jour ouvrable (15%)")]
+            JourOuvrable = 0,
+
+            [XafDisplayName("Nuit (40%)")]
+            Nuit = 1,
+
+            [XafDisplayName("Dimanche / Jour férié (60%)")]
+            DimancheFerie = 2,
+
+            [XafDisplayName("Nuit dimanche / Jour férié (100%)")]
+            NuitDimancheFerie = 3,
         }
 
         public enum TypeAffectationCompte
@@ -675,6 +691,34 @@ namespace AdiPAIE_V02.Module.Domain
             [XafDisplayName("Clôturé")] Cloture = 5,
         }
 
+        // ── Disciplinaire ─────────────────────────────────────────
+
+        public enum DisciplinaireStatut
+        {
+            [XafDisplayName("Initié")] Initie = 0,
+            [XafDisplayName("Notifié au salarié")] Notifie = 1,
+            [XafDisplayName("Audition programmée")] AuditionProgrammee = 2,
+            [XafDisplayName("Audition réalisée")] AuditionRealisee = 3,
+            [XafDisplayName("Sanction prononcée")] SanctionPrononcee = 4,
+            [XafDisplayName("Clôturé")] Cloture = 5,
+        }
+
+        public enum CategorieFaute
+        {
+            [XafDisplayName("Faute simple")] Simple = 0,
+            [XafDisplayName("Faute grave")] Grave = 1,
+            [XafDisplayName("Faute lourde")] Lourde = 2,
+        }
+
+        public enum TypeSanction
+        {
+            [XafDisplayName("Avertissement")] Avertissement = 0,
+            [XafDisplayName("Blâme")] Blame = 1,
+            [XafDisplayName("Mise à pied disciplinaire")] MiseAPied = 2,
+            [XafDisplayName("Rétrogradation")] Retrogradation = 3,
+            [XafDisplayName("Licenciement pour faute")] LicenciementFaute = 4,
+            [XafDisplayName("Licenciement pour faute lourde")] LicenciementFauteLourde = 5,
+        }
 
     }
 }

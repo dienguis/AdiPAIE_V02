@@ -59,6 +59,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         [RuleRequiredField]
         [XafDisplayName("Salarié")]
         [ImmediatePostData]
+        [VisibleInDetailView(true)]
+        [VisibleInListView(true)]
+        [VisibleInLookupListView(false)]
         public Salarie Salarie
         {
             get => salarie;

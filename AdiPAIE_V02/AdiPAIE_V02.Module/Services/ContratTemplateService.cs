@@ -108,9 +108,26 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{FullName}}"] = s?.FullName ?? "—",
                 ["{{Matricule}}"] = s?.Matricule ?? "—",
                 ["{{DateNaissance}}"] = GetBirthday(s, Fr),
+                ["{{FilsDe}}"] = s?.FilsDe ?? "—",
+                ["{{Sexe}}"] = s?.Sexe switch
+                {
+                    Sexe.Masculin => "Masculin",
+                    Sexe.Feminin  => "Féminin",
+                    _ => "—"
+                },
                 ["{{Nationalite}}"] = s?.Nationalite ?? "Sénégalaise",
+                ["{{SituationFamille}}"] = s?.SatutMarital switch
+                {
+                    SituationMaritale.Celibataire => "Célibataire",
+                    SituationMaritale.Marie       => "Marié(e)",
+                    SituationMaritale.Divorce     => "Divorcé(e)",
+                    SituationMaritale.Veuf        => "Veuf/Veuve",
+                    _ => "—"
+                },
                 ["{{Adresse}}"] = GetAdresse(s),
                 ["{{NumeroCNI}}"] = s?.NumeroCNI ?? "—",
+                ["{{PersonneUrgence}}"] = s?.ContactUrgenceNom ?? "—",
+                ["{{TelUrgence}}"] = s?.ContactUrgenceTel ?? "—",
 
                 // ── Poste ─────────────────────────────────────────────
                 ["{{Fonction}}"] = s?.Fonction?.Intitule ?? "—",
@@ -135,9 +152,21 @@ namespace AdiPAIE_V02.Module.Services
 
                 // ── Rémunération ──────────────────────────────────────
                 ["{{SalaireBase}}"] = c.SalaireBase.ToString("N0", Fr) + " FCFA",
+                ["{{Sursalaire}}"] = (s?.Sursalaire ?? 0m) > 0
+                    ? (s!.Sursalaire.ToString("N0", Fr) + " FCFA")
+                    : "—",
                 ["{{IndemniteLogement}}"] = c.IndemniteLogement.ToString("N0", Fr) + " FCFA",
                 ["{{PrimeTransport}}"] = c.PrimeTransport.ToString("N0", Fr) + " FCFA",
                 ["{{TotalBrut}}"] = c.TotalBrut.ToString("N0", Fr) + " FCFA",
+
+                // ── Durée contrat (phrase complète) ───────────────────
+                ["{{DureeContrat}}"] = (c.TypeContrat ?? TypeContrat.CDI) switch
+                {
+                    TypeContrat.CDI   => "indéterminée",
+                    TypeContrat.CDD   => $"déterminée de {c.DureeMois?.ToString() ?? "?"} mois",
+                    TypeContrat.Stage => $"stage de {c.DureeMois?.ToString() ?? "?"} mois",
+                    _ => "indéterminée"
+                },
 
                 // ── Société ───────────────────────────────────────────
                 ["{{RaisonSociale}}"] = company?.RaisonSociale ?? prm?.SignatoryName ?? "—",

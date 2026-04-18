@@ -33,7 +33,7 @@ namespace AdiPAIE_V02.Win
                     options.DesignerFormStyle = DevExpress.XtraBars.Ribbon.RibbonFormStyle.Ribbon;
                 })
                 .AddFileAttachments()
-                .AddKpi()
+                //.AddKpi() // Désactivé temporairement — conflit version 25.1.9 vs 25.1.10
                 .AddNotifications()
                 .AddOffice()
                 .AddPivotChart()
@@ -84,6 +84,7 @@ namespace AdiPAIE_V02.Win
                     {
                         ((SecurityStrategy)securityStrategy).PermissionsReloadMode =
                             PermissionsReloadMode.NoCache;
+                        SecurityStrategy.EnableSecurityForActions = true;
                     };
                 })
                 .AddPasswordAuthentication();

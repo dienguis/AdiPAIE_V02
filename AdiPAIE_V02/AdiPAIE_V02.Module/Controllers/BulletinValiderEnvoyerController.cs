@@ -3,6 +3,7 @@
 using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.Domain;
 using AdiPAIE_V02.Module.Services;
+using SvcAudit = AdiPAIE_V02.Module.Services.AuditService;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.ExpressApp.Templates;
@@ -29,7 +30,7 @@ namespace AdiPAIE_V02.Module.Controllers
             _valider = new SimpleAction(this, "ValiderBulletin", PredefinedCategory.Edit)
             {
                 Caption = "Valider",
-                ImageName = "Action_Validation",
+                ImageName = "btn_valider",
                 PaintStyle = ActionItemPaintStyle.Caption,
                 ToolTip = "Valide le bulletin sans l'envoyer.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
@@ -51,7 +52,7 @@ namespace AdiPAIE_V02.Module.Controllers
             _renvoyer = new SimpleAction(this, "RenvoyerBulletin", PredefinedCategory.Edit)
             {
                 Caption = "Renvoyer (PDF archivé)",
-                ImageName = "MailSend",
+                ImageName = "btn_renvoyer",
                 PaintStyle = ActionItemPaintStyle.Caption,
                 ToolTip = "Renvoie le PDF archivé au salarié.",
                 SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects
@@ -98,6 +99,11 @@ namespace AdiPAIE_V02.Module.Controllers
             ObjectSpace.SetModified(b);
             ObjectSpace.CommitChanges();
             View.ObjectSpace.Refresh();
+
+            SvcAudit.Enregistrer(Application, "Bulletin", "Valider",
+                b.Oid.ToString(), b.DisplayName,
+                $"Net à payer : {b.NetAPayer:N0} FCFA",
+                ancienStatut: "Brouillon", nouveauStatut: "Validé");
 
             Application.ShowViewStrategy.ShowMessage(
                 "Bulletin validé — remboursements prêts enregistrés.",

@@ -2,7 +2,9 @@
 using AdiPAIE_V02.Module.Services;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
+using DevExpress.ExpressApp.Xpo;
 using DevExpress.Persistent.Base;
+using DevExpress.Xpo;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
@@ -12,10 +14,12 @@ namespace AdiPAIE_V02.Module.Controllers
 {
     // ════════════════════════════════════════════════════════════
     // CONTROLLER SOLDE — Actions RH sur la fiche SoldeConge
+    // Salarié connecté → actions masquées (consultation seule)
     // ════════════════════════════════════════════════════════════
     public class SoldeCongeController
         : ObjectViewController<DetailView, SoldeConge>
     {
+        private const string ReasonKey = "RhOnlyAction";
         readonly ParametrizedAction ajusterAction;
         readonly SimpleAction acquirirMoisAction;
 
@@ -55,6 +59,32 @@ namespace AdiPAIE_V02.Module.Controllers
                     result.Succes ? InformationType.Success : InformationType.Warning,
                     4000, InformationPosition.Top);
             };
+        }
+
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+
+            // Masquer les actions RH si l'utilisateur est un salarié
+            // et passer la vue en lecture seule (empêche la modification du TypeConge, etc.)
+            if (EstSalarieConnecte())
+            {
+                ajusterAction.Active[ReasonKey] = false;
+                acquirirMoisAction.Active[ReasonKey] = false;
+                View.AllowEdit[ReasonKey] = false;
+            }
+        }
+
+        protected override void OnDeactivated()
+        {
+            ajusterAction.Active.RemoveItem(ReasonKey);
+            acquirirMoisAction.Active.RemoveItem(ReasonKey);
+            base.OnDeactivated();
+        }
+
+        private bool EstSalarieConnecte()
+        {
+            return EspaceSalarieHelper.EstSalarieConnecte(ObjectSpace);
         }
 
         // ── Handler ajustement ───────────────────────────────
@@ -104,11 +134,12 @@ namespace AdiPAIE_V02.Module.Controllers
 
     // ════════════════════════════════════════════════════════════
     // CONTROLLER BATCH — Acquisition mensuelle tous salariés
-    // Sur une vue liste fictive ou depuis un écran de lancement
+    // Salarié connecté → actions masquées (réservées RH)
     // ════════════════════════════════════════════════════════════
     public class AcquisitionMensuelleController
         : ObjectViewController<ListView, SoldeConge>
     {
+        private const string ReasonKey = "RhOnlyAction";
         readonly SimpleAction lancerBatchAction;
         readonly SimpleAction reporterExerciceAction;
 
@@ -157,6 +188,30 @@ namespace AdiPAIE_V02.Module.Controllers
                     result.HasErrors ? InformationType.Warning : InformationType.Success,
                     5000, InformationPosition.Top);
             };
+        }
+
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+
+            // Masquer les actions batch si l'utilisateur est un salarié
+            if (EstSalarieConnecte())
+            {
+                lancerBatchAction.Active[ReasonKey] = false;
+                reporterExerciceAction.Active[ReasonKey] = false;
+            }
+        }
+
+        protected override void OnDeactivated()
+        {
+            lancerBatchAction.Active.RemoveItem(ReasonKey);
+            reporterExerciceAction.Active.RemoveItem(ReasonKey);
+            base.OnDeactivated();
+        }
+
+        private bool EstSalarieConnecte()
+        {
+            return EspaceSalarieHelper.EstSalarieConnecte(ObjectSpace);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
+using AdiPAIE_V02.Module.Services;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
@@ -105,6 +106,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                         $"[AdiPAIE] Avancement à approuver — {d.Salarie?.FullName}", body);
                 }
 
+                AuditService.Enregistrer(Application, "DemandeAvancement", "Soumettre",
+                    d.Oid.ToString(), d.Reference ?? d.DisplayAvancement,
+                    $"Avancement {d.TypeAvancement} pour {d.Salarie?.FullName}",
+                    ancienStatut: AvancementStatut.Brouillon.ToString(),
+                    nouveauStatut: AvancementStatut.SoumisRH.ToString());
+
                 ObjectSpace.CommitChanges();
                 UpdateActions(); View.Refresh();
                 Application.ShowViewStrategy?.ShowMessage(
@@ -147,6 +154,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                         $"[AdiPAIE] Avancement approuvé — {d.Salarie?.FullName}", body);
                 }
 
+                AuditService.Enregistrer(Application, "DemandeAvancement", "Approuver",
+                    d.Oid.ToString(), d.Reference ?? d.DisplayAvancement,
+                    $"Approuvé par {dg?.FullName ?? "Direction"}",
+                    ancienStatut: AvancementStatut.SoumisRH.ToString(),
+                    nouveauStatut: AvancementStatut.ApprouveDG.ToString());
+
                 ObjectSpace.CommitChanges();
                 UpdateActions(); View.Refresh();
                 Application.ShowViewStrategy?.ShowMessage(
@@ -171,6 +184,13 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     throw new UserFriendlyException(
                         "Saisissez un motif de rejet dans le champ Motif de rejet avant de rejeter.");
                 d.Rejeter(d.MotifRejet);
+
+                AuditService.Enregistrer(Application, "DemandeAvancement", "Rejeter",
+                    d.Oid.ToString(), d.Reference ?? d.DisplayAvancement,
+                    $"Motif: {d.MotifRejet}",
+                    ancienStatut: AvancementStatut.SoumisRH.ToString(),
+                    nouveauStatut: AvancementStatut.Rejete.ToString());
+
                 ObjectSpace.CommitChanges();
                 UpdateActions(); View.Refresh();
                 Application.ShowViewStrategy?.ShowMessage(
@@ -205,7 +225,15 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             annulerAction.Execute += (s, e) =>
             {
                 var d = (DemandeAvancement)View.CurrentObject;
+                var ancienStatut = d.Statut;
                 d.Annuler();
+
+                AuditService.Enregistrer(Application, "DemandeAvancement", "Annuler",
+                    d.Oid.ToString(), d.Reference ?? d.DisplayAvancement,
+                    "Demande annulée",
+                    ancienStatut: ancienStatut.ToString(),
+                    nouveauStatut: AvancementStatut.Annule.ToString());
+
                 ObjectSpace.CommitChanges();
                 UpdateActions(); View.Refresh();
             };
@@ -246,6 +274,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 }
 
                 // ── 3. Mettre à jour le statut avancement ─────────
+                var detailsChangement = $"Fonction: {sal.Fonction?.Intitule ?? "—"}, " +
+                    $"Salaire: {sal.SalaireBase:N0} FCFA, " +
+                    $"Indemnité: {sal.IndemniteLogement:N0} FCFA, " +
+                    $"Département: {sal.Departement?.Nom ?? "—"}, " +
+                    $"Échelon: {sal.Echelon?.Code ?? "—"}";
+
                 d.Statut = AvancementStatut.Applique;
                 d.DateApplication = DateTime.Now;
                 try { d.AppliquePar = SecuritySystem.CurrentUserName; } catch { }
@@ -259,6 +293,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                                 + $"Salaire : {sal.SalaireBase:N0} FCFA.";
                 notif.Categorie = "Avancement";
                 notif.Priorite = NotificationPriorite.Important;
+
+                AuditService.Enregistrer(Application, "DemandeAvancement", "Appliquer",
+                    d.Oid.ToString(), d.Reference ?? d.DisplayAvancement,
+                    detailsChangement,
+                    ancienStatut: AvancementStatut.ApprouveDG.ToString(),
+                    nouveauStatut: AvancementStatut.Applique.ToString());
 
                 ObjectSpace.CommitChanges();
                 UpdateActions(); View.Refresh();

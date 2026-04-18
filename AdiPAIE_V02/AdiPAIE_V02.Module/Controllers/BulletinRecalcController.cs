@@ -19,7 +19,7 @@ namespace AdiPAIE_V02.Module.Controllers
             recalcAction = new SimpleAction(this, "Bulletin_RecalculerMaintenant", PredefinedCategory.Edit)
             {
                 Caption = "Recalculer",
-                ImageName = "Action_Refresh",
+                ImageName = "btn_recalculer",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ToolTip = "Recalcule toutes les cotisations et totaux du bulletin.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject
@@ -41,11 +41,21 @@ namespace AdiPAIE_V02.Module.Controllers
 
             try
             {
-                b.RecalculerCotisationsEtTotaux();
+                // Recalcul complet depuis le paramétrage salarié :
+                // recalcule SB, LOGT, ANC, SURSAL depuis le profil, puis toutes les cotisations.
+                b.RecalculerDepuisParametrage();
                 ObjectSpace.CommitChanges();
                 View.ObjectSpace.Refresh();
                 Application.ShowViewStrategy.ShowMessage(
                     "Recalcul terminé.", InformationType.Success, 3000, InformationPosition.Top);
+            }
+            catch (DevExpress.Xpo.DB.Exceptions.LockingException)
+            {
+                Application.ShowViewStrategy.ShowMessage(
+                    "Ce bulletin a été modifié par un autre utilisateur. " +
+                    "Veuillez rafraîchir la vue (F5) et réessayer.",
+                    InformationType.Warning, 6000, InformationPosition.Top);
+                View.ObjectSpace.Refresh();
             }
             catch (Exception ex)
             {

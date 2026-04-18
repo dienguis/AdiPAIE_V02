@@ -24,6 +24,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [XafDisplayName("Session de formation")]
     [DefaultProperty(nameof(Intitule))]
     [ImageName("BO_Event")]
+    [RuleCriteria("Session_DateFin_GTE_DateDebut", DefaultContexts.Save,
+        "DateFin >= DateDebut",
+        CustomMessageTemplate = "La date de fin doit être postérieure ou égale à la date de début.")]
   //  [NavigationItem("GRH - Formation")]
     [Appearance("SessionConfirmee", TargetItems = "*",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+SessionFormationStatut,Confirmee#",

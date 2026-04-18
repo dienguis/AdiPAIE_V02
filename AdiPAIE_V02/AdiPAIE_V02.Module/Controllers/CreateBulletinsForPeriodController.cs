@@ -1,4 +1,5 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.Services;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
@@ -47,30 +48,35 @@ namespace AdiPAIE_V02.Module.Controllers
             openBulletinsAction.Execute += OpenBulletinsAction_Execute;
         }
 
-        // ====== NOUVEAU: handler "Voir bulletins du salarié" ======
+        // ====== Handler "Voir bulletins du salarié" ======
         private void OpenBulletinsAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var salFromView = View.SelectedObjects.Cast<Salarie>().FirstOrDefault();
             if (salFromView == null)
                 throw new UserFriendlyException("Sélectionnez un salarié.");
 
+            // Récupérer l'Oid AVANT de créer un autre ObjectSpace (thread-safe)
+            var salarieOid = salFromView.Oid;
+            var salarieNom = salFromView.FullName;
+
             // Ouvrir une ListView<Bulletin> filtrée sur ce salarié
             var osBul = Application.CreateObjectSpace(typeof(Bulletin));
-            var sal = osBul.GetObject(salFromView);
+            var collSrc = Application.CreateCollectionSource(osBul, typeof(Bulletin), "Bulletin_ListView");
 
-            var lv = Application.CreateListView(osBul, typeof(Bulletin), false);
+            // Filtre par Oid (plus fiable qu'une référence objet cross-ObjectSpace)
+            collSrc.Criteria["ByEmployee"] =
+                CriteriaOperator.Parse("Salarie.Oid = ?", salarieOid);
 
-            // Filtre : bulletins du salarié
-            lv.CollectionSource.Criteria["ByEmployee"] = CriteriaOperator.Parse("Salarie = ?", sal);
+            var lv = Application.CreateListView("Bulletin_ListView", collSrc, true);
+            lv.Caption = $"Bulletins — {salarieNom}";
 
-            // Tri : année/mois décroissants
-            lv.CollectionSource.Sorting.Clear();
-            lv.CollectionSource.Sorting.Add(new DevExpress.Xpo.SortProperty(nameof(Bulletin.Annee), DevExpress.Xpo.DB.SortingDirection.Descending));
-            lv.CollectionSource.Sorting.Add(new DevExpress.Xpo.SortProperty(nameof(Bulletin.Mois), DevExpress.Xpo.DB.SortingDirection.Descending));
-
-            // Ouvrir dans une nouvelle fenêtre (popup/document)
-            var svp = new ShowViewParameters(lv) { TargetWindow = TargetWindow.NewWindow };
-            Application.ShowViewStrategy.ShowView(svp, new ShowViewSource(Frame, null));
+            // Ouvrir dans le document courant (onglet, pas popup)
+            var svp = new ShowViewParameters(lv)
+            {
+                TargetWindow = TargetWindow.Current,
+                CreatedView = lv
+            };
+            Application.ShowViewStrategy.ShowView(svp, new ShowViewSource(Frame, openBulletinsAction));
         }
 
         // ====== le reste de ton contrôleur inchangé (création des bulletins) ======
@@ -148,6 +154,18 @@ namespace AdiPAIE_V02.Module.Controllers
 
                 var s = osBull.GetObject(sal);
 
+                // Contrôle : pas de bulletin avant la date d'embauche
+                if (s.DateEmbauche != default)
+                {
+                    var finMois = new DateTime(perBull.Annee, perBull.Mois, 1)
+                                      .AddMonths(1).AddDays(-1);
+                    if (s.DateEmbauche > finMois)
+                    {
+                        skipped++;
+                        continue; // Salarié pas encore recruté pour cette période
+                    }
+                }
+
                 var b = osBull.GetObjectsQuery<Bulletin>()
                               .FirstOrDefault(bb => bb.Salarie == s && bb.Annee == perBull.Annee && bb.Mois == perBull.Mois);
                 if (b != null) { skipped++; continue; }
@@ -172,6 +190,11 @@ namespace AdiPAIE_V02.Module.Controllers
             }
 
             os.CommitChanges();
+
+            // Audit trail for batch creation
+            AuditService.Enregistrer(Application, "Bulletin", "BatchCreate",
+                per.Oid.ToString(), $"Période {prm.Mois:00}/{prm.Annee}",
+                $"{created} bulletin(s) créé(s) pour {prm.Mois:00}/{prm.Annee}");
 
             Application.ShowViewStrategy.ShowMessage(
                 $"Bulletins {prm.Mois:00}/{prm.Annee} : {created} créé(s), {skipped} déjà présent(s).",

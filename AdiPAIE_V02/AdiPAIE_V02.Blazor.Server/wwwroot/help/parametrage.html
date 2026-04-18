@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parametrage — SunuPaie</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
+        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
+        h2 { color: #0F6E56; margin-top: 25px; }
+        h3 { color: #555; }
+        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
+        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
+        .bouton strong { color: #0F6E56; }
+        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
+        td { border: 1px solid #ddd; padding: 8px; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
+        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
+        nav a:hover { text-decoration: underline; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
+        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-decoration: none; color: #333; transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .card h3 { color: #0F6E56; margin-top: 0; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">Accueil</a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Periodes</a>
+        <a href="/help/prets.html">Prets</a>
+        <a href="/help/salaries.html">Salaries</a>
+        <a href="/help/conges.html">Conges</a>
+        <a href="/help/missions.html">Missions</a>
+        <a href="/help/formations.html">Formations</a>
+        <a href="/help/evaluations.html">Evaluations</a>
+        <a href="/help/parametrage.html">Parametrage</a>
+        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
+        <a href="/help/offboarding.html">Offboarding</a>
+        <a href="/help/disciplinaire.html">Disciplinaire</a>
+        <a href="/help/audit.html">Audit</a>
+        <a href="/help/import-salaries.html">Import</a>
+        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+    </nav>
+
+    <h1>Parametrage</h1>
+
+    <h2>Types de rubrique</h2>
+    <div class="bouton">
+        <strong>BruteFiscal / BruteSocial :</strong> determine les assiettes de cotisation. <strong>Col 13/14 etat 1024 :</strong> pour la declaration DGID annuelle.
+    </div>
+
+    <h2>Rubriques de paie</h2>
+    <div class="bouton">
+        <strong>Ordre d'affichage :</strong> determine l'ordre dans le bulletin (10, 20, 30...). <strong>Canonique :</strong> role technique (SalaireDeBase, IPRES_RG, TRIMF, etc.). <strong>Taux1</strong> = part salariale / <strong>Taux2</strong> = part patronale.
+    </div>
+
+    <h2>Baremes</h2>
+    <div class="bouton">
+        <strong>IR (IRPP) :</strong> bareme progressif DGID — mettre a jour chaque annee.
+    </div>
+    <div class="bouton">
+        <strong>TRIMF :</strong> bareme mensuel et annuel — mettre a jour chaque annee.
+    </div>
+    <div class="bouton">
+        <strong>Reduction familiale IR :</strong> par nombre de parts.
+    </div>
+
+    <h2>Parametres SMTP</h2>
+    <div class="bouton">
+        Configurer pour l'envoi des bulletins et notifications. Tester avec le bouton "Test email".
+    </div>
+
+    <h2>Cotisations Senegal</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Cotisation</th>
+                <th>Salarie</th>
+                <th>Employeur</th>
+                <th>Plafond mensuel</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>IPRES RG</td>
+                <td>5,60%</td>
+                <td>8,40%</td>
+                <td>432 000 FCFA</td>
+            </tr>
+            <tr>
+                <td>IPRES RC (cadres)</td>
+                <td>2,40%</td>
+                <td>3,60%</td>
+                <td>1 296 000 FCFA</td>
+            </tr>
+            <tr>
+                <td>CSS AT</td>
+                <td>0%</td>
+                <td>Variable</td>
+                <td>Pas de plafond</td>
+            </tr>
+            <tr>
+                <td>CSS AF</td>
+                <td>0%</td>
+                <td>Variable</td>
+                <td>Pas de plafond</td>
+            </tr>
+            <tr>
+                <td>CFCE</td>
+                <td>0%</td>
+                <td>Variable</td>
+                <td>Base = brut fiscal</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>IR — Abattement</h2>
+    <div class="alerte">
+        <ul>
+            <li>30% du revenu brut fiscal</li>
+            <li>Minimum annuel : 0 FCFA</li>
+            <li>Maximum annuel : 900 000 FCFA (75 000 FCFA/mois)</li>
+        </ul>
+    </div>
+</body>
+</html>

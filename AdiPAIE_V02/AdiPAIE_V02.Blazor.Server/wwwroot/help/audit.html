@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal d'audit — SunuPaie</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
+        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
+        h2 { color: #0F6E56; margin-top: 25px; }
+        h3 { color: #555; }
+        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
+        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
+        .bouton strong { color: #0F6E56; }
+        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .info { background: #e3f2fd; border-left: 4px solid #2196F3; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
+        td { border: 1px solid #ddd; padding: 8px; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
+        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
+        nav a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">Accueil</a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Periodes</a>
+        <a href="/help/prets.html">Prets</a>
+        <a href="/help/salaries.html">Salaries</a>
+        <a href="/help/conges.html">Conges</a>
+        <a href="/help/missions.html">Missions</a>
+        <a href="/help/formations.html">Formations</a>
+        <a href="/help/evaluations.html">Evaluations</a>
+        <a href="/help/parametrage.html">Parametrage</a>
+        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
+        <a href="/help/offboarding.html">Offboarding</a>
+        <a href="/help/disciplinaire.html">Disciplinaire</a>
+        <a href="/help/audit.html">Audit</a>
+        <a href="/help/import-salaries.html">Import</a>
+        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+    </nav>
+
+    <h1>Journal d'audit</h1>
+
+    <!-- ===== DESCRIPTION ===== -->
+    <h2>Objectif</h2>
+    <div class="info">
+        Le journal d'audit trace automatiquement <strong>toutes les actions significatives</strong> effectuees dans SunuPaie. Chaque entree enregistre : qui a fait quoi, quand, sur quel objet, et avec quels details. Les entrees d'audit sont en <strong>lecture seule</strong> et ne peuvent pas etre modifiees ou supprimees.
+    </div>
+
+    <!-- ===== ACTIONS TRACEES ===== -->
+    <h2>Actions tracees</h2>
+    <table>
+        <tr><th>Module</th><th>Actions tracees</th></tr>
+        <tr>
+            <td>Bulletins de paie</td>
+            <td>Valider, Cloturer, Reouvrir</td>
+        </tr>
+        <tr>
+            <td>Offboarding (STC)</td>
+            <td>Calculer le solde, Valider RH, Valider DAF, Cloturer</td>
+        </tr>
+        <tr>
+            <td>Disciplinaire</td>
+            <td>Notifier, Programmer audition, Enregistrer audition, Prononcer sanction, Cloturer</td>
+        </tr>
+    </table>
+
+    <!-- ===== CHAMPS ===== -->
+    <h2>Informations enregistrees</h2>
+    <table>
+        <tr><th>Champ</th><th>Description</th><th>Exemple</th></tr>
+        <tr><td>Date</td><td>Date et heure exacte de l'action</td><td>17/04/2026 14:32</td></tr>
+        <tr><td>Utilisateur</td><td>Nom de l'utilisateur connecte</td><td>Abdoulaye DIENG</td></tr>
+        <tr><td>Entite</td><td>Type d'objet concerne</td><td>Bulletin</td></tr>
+        <tr><td>Action</td><td>Nom de l'action effectuee</td><td>Valider</td></tr>
+        <tr><td>Identifiant objet</td><td>Cle unique (Oid) de l'objet</td><td>3fa85f64-...</td></tr>
+        <tr><td>Libelle objet</td><td>Description lisible de l'objet</td><td>DIOP Moussa — 04/2026</td></tr>
+        <tr><td>Details</td><td>Informations complementaires</td><td>Net a payer : 385 000 FCFA</td></tr>
+        <tr><td>Ancien statut</td><td>Statut avant l'action</td><td>Brouillon</td></tr>
+        <tr><td>Nouveau statut</td><td>Statut apres l'action</td><td>Valide</td></tr>
+    </table>
+
+    <!-- ===== MODE OPERATOIRE ===== -->
+    <h2>Mode operatoire — Consultation</h2>
+    <div class="flux">
+        <ol>
+            <li>Aller dans <strong>Administration &rarr; Journal d'audit</strong></li>
+            <li>La liste affiche toutes les entrees, les plus recentes en premier</li>
+            <li>Utiliser les <strong>filtres</strong> pour affiner :
+                <ul>
+                    <li>Par utilisateur : filtrer sur la colonne "Utilisateur"</li>
+                    <li>Par entite : filtrer sur "Entite" (Bulletin, DossierOffboarding, etc.)</li>
+                    <li>Par date : filtrer sur la colonne "Date"</li>
+                    <li>Par action : filtrer sur "Action" (Valider, Cloturer, etc.)</li>
+                </ul>
+            </li>
+            <li>Cliquer sur une entree pour voir les <strong>details complets</strong></li>
+        </ol>
+    </div>
+
+    <!-- ===== CAS D'USAGE ===== -->
+    <h2>Cas d'usage</h2>
+
+    <h3>Qui a valide ce bulletin ?</h3>
+    <div class="info">
+        Filtrer : Entite = "Bulletin", Action = "Valider", puis rechercher le libelle du bulletin concerne. L'entree montre l'utilisateur et la date/heure exacte.
+    </div>
+
+    <h3>Historique complet d'un dossier de depart</h3>
+    <div class="info">
+        Filtrer : Entite = "DossierOffboarding", puis chercher le nom du salarie dans le libelle. Toutes les etapes du workflow (calcul STC, validation RH, validation DAF, cloture) apparaissent avec leurs horodatages.
+    </div>
+
+    <h3>Audit des sanctions disciplinaires</h3>
+    <div class="info">
+        Filtrer : Entite = "DossierDisciplinaire". Chaque etape de la procedure (notification, audition, sanction, cloture) est tracee avec le nom de l'utilisateur qui l'a effectuee.
+    </div>
+
+    <!-- ===== REGLES ===== -->
+    <h2>Regles importantes</h2>
+    <div class="alerte">
+        <ul>
+            <li>Les entrees d'audit sont <strong>en lecture seule</strong> — aucune modification possible</li>
+            <li>L'audit ne bloque jamais le flux metier — en cas d'erreur d'ecriture audit, l'action principale s'execute quand meme</li>
+            <li>Chaque entree utilise un ObjectSpace separe pour garantir l'integrite</li>
+            <li>Les entrees sont indexees par date, utilisateur et entite pour des recherches rapides</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -68,6 +68,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             // Notification salarié
             _NotifierSalarie(d);
 
+            AuditService.Enregistrer(Application, "CongeDemande", "Accorder",
+                d.Oid.ToString(), d.Salarie?.FullName,
+                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} — Reprise le {d.DateReprise:dd/MM/yyyy}",
+                ancienStatut: "Soumise", nouveauStatut: "Accordée");
             ObjectSpace.CommitChanges();
             PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
             ObjectSpace.CommitChanges();
@@ -87,11 +91,21 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             var d = View?.CurrentObject as CongeDemande;
             if (d == null) return;
 
+            bool estSoumise = d.Statut == CongeStatut.Soumise;
+
             var editor = View.FindItem(nameof(CongeDemande.DateReprise));
             if (editor is DevExpress.ExpressApp.Editors.PropertyEditor pe)
             {
-                pe.AllowEdit.SetItemValue("AccordMode",
-                    d.Statut == CongeStatut.Soumise);
+                // Forcer l'editabilite : supprimer tout verrou puis autoriser
+                if (estSoumise)
+                {
+                    pe.AllowEdit.Clear();
+                    pe.AllowEdit.SetItemValue("AccordMode", true);
+                }
+                else
+                {
+                    pe.AllowEdit.SetItemValue("AccordMode", false);
+                }
             }
         }
 

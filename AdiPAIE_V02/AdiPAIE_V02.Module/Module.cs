@@ -46,7 +46,7 @@ namespace AdiPAIE_V02.Module
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.CloneObject.CloneObjectModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.ConditionalAppearance.ConditionalAppearanceModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Dashboards.DashboardsModule));
-            RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Kpi.KpiModule));
+            // RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Kpi.KpiModule)); // Désactivé temporairement — conflit version 25.1.9 vs 25.1.10
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Notifications.NotificationsModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Office.OfficeModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.PivotChart.PivotChartModuleBase));

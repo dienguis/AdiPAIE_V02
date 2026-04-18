@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Periodes de paie — SunuPaie</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
+        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
+        h2 { color: #0F6E56; margin-top: 25px; }
+        h3 { color: #555; }
+        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
+        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
+        .bouton strong { color: #0F6E56; }
+        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
+        td { border: 1px solid #ddd; padding: 8px; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
+        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
+        nav a:hover { text-decoration: underline; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
+        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-decoration: none; color: #333; transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .card h3 { color: #0F6E56; margin-top: 0; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">Accueil</a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Periodes</a>
+        <a href="/help/prets.html">Prets</a>
+        <a href="/help/salaries.html">Salaries</a>
+        <a href="/help/conges.html">Conges</a>
+        <a href="/help/missions.html">Missions</a>
+        <a href="/help/formations.html">Formations</a>
+        <a href="/help/evaluations.html">Evaluations</a>
+        <a href="/help/parametrage.html">Parametrage</a>
+        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
+        <a href="/help/offboarding.html">Offboarding</a>
+        <a href="/help/disciplinaire.html">Disciplinaire</a>
+        <a href="/help/audit.html">Audit</a>
+        <a href="/help/import-salaries.html">Import</a>
+        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+    </nav>
+
+    <h1>Periodes de paie</h1>
+
+    <h2>Flux</h2>
+    <div class="flux">
+        <ol>
+            <li>Creer une periode (Mois/Annee)</li>
+            <li>Ouvrir → statut Ouverte</li>
+            <li>Generer les bulletins</li>
+            <li>Cloturer apres validation de tous les bulletins</li>
+        </ol>
+    </div>
+
+    <h2>Regles</h2>
+    <div class="alerte">
+        <ul>
+            <li>Une seule periode Ouverte a la fois</li>
+            <li>Impossible de creer un bulletin sans periode Ouverte</li>
+            <li>Cloturer bloque toute modification des bulletins du mois</li>
+        </ul>
+    </div>
+
+    <!-- ===== DECLARATIONS ET EXPORTS ===== -->
+    <h2>Declarations et exports</h2>
+
+    <p>Depuis la liste des periodes de paie, plusieurs boutons d'export sont disponibles :</p>
+
+    <h3>Boutons disponibles</h3>
+    <div class="bouton">
+        <strong>Generer etat 1024 :</strong> exporte la declaration annuelle des salaires (DGID Senegal) en Excel. Selectionner la ou les periodes concernees.
+    </div>
+    <div class="bouton">
+        <strong>Generer etat VRS :</strong> exporte l'etat mensuel VRS (Versement Retenue a la Source) en Excel. Colonnes : Matricule, Statut, Nom, BRUT, IR, TRIMF, CFCE, IPRES (RG/RC salarie et employeur), CSS (AT/AF), NET.
+    </div>
+    <div class="bouton">
+        <strong>Generer bordereau IPRES :</strong> exporte le bordereau mensuel IPRES en Excel. Contient les cotisations Regime General (salarie + employeur) et Regime Cadre (salarie + employeur) pour chaque salarie, avec totaux et sous-totaux.
+    </div>
+    <div class="bouton">
+        <strong>Generer bordereau CSS :</strong> exporte le bordereau mensuel CSS en Excel. Contient les cotisations Accident du Travail et Allocation Familiale (parts employeur) pour chaque salarie, avec totaux.
+    </div>
+
+    <h3>Mode operatoire — Declarations sociales</h3>
+    <div class="flux">
+        <ol>
+            <li>Aller dans <strong>Paie &rarr; Periodes de paie</strong></li>
+            <li>S'assurer que tous les bulletins du mois sont <strong>valides</strong></li>
+            <li>Selectionner la periode dans la liste</li>
+            <li>Cliquer sur le bouton souhaite :
+                <ul>
+                    <li><strong>Generer bordereau IPRES</strong> pour la declaration IPRES</li>
+                    <li><strong>Generer bordereau CSS</strong> pour la declaration CSS</li>
+                    <li><strong>Generer etat VRS</strong> pour la declaration fiscale</li>
+                </ul>
+            </li>
+            <li>Confirmer la periode dans le popup (pre-remplie)</li>
+            <li>Le fichier Excel est telecharge automatiquement</li>
+        </ol>
+    </div>
+
+    <h3>Contenu des bordereaux</h3>
+    <table>
+        <tr><th>Declaration</th><th>Organisme</th><th>Frequence</th><th>Colonnes principales</th></tr>
+        <tr>
+            <td>Bordereau IPRES</td>
+            <td>IPRES</td>
+            <td>Mensuel</td>
+            <td>Matricule, Nom, Categorie, Brut Social, RG Salarie/Employeur, RC Salarie/Employeur, Total</td>
+        </tr>
+        <tr>
+            <td>Bordereau CSS</td>
+            <td>CSS</td>
+            <td>Mensuel</td>
+            <td>Matricule, Nom, Brut Social, Accident Travail, Allocation Familiale, Total</td>
+        </tr>
+        <tr>
+            <td>Etat VRS</td>
+            <td>DGID</td>
+            <td>Mensuel</td>
+            <td>Matricule, Statut, Nom, BRUT, IR, TRIMF, CFCE, IPRES, CSS, NET</td>
+        </tr>
+        <tr>
+            <td>Declaration 1024</td>
+            <td>DGID</td>
+            <td>Annuel</td>
+            <td>Declaration annuelle des salaires</td>
+        </tr>
+    </table>
+
+    <div class="alerte">
+        <strong>Important :</strong> seuls les bulletins <strong>valides, envoyes ou clotures</strong> sont pris en compte dans les declarations. Les bulletins en brouillon sont ignores.
+    </div>
+
+    <h2>Erreurs frequentes</h2>
+    <div class="erreur">
+        <strong>"Aucun bulletin valide trouve" &rarr;</strong> Verifier que les bulletins du mois sont bien valides (pas en Brouillon).
+    </div>
+    <div class="erreur">
+        <strong>Montants IPRES/CSS a 0 &rarr;</strong> Verifier que les rubriques IPRES_RG, IPRES_RC, CSS_AccidentTravail, CSS_AllocationFamiliale sont bien parametrees avec les bons taux.
+    </div>
+</body>
+</html>

@@ -56,6 +56,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         {
             var demande = (DemandeAttestation)e.CurrentObject;
             var salarieConnecte = GetSalarieConnecte();
+            var ancienStatut = demande.Statut.ToString();
 
             if (demande.Statut == DemandeStatut.EnAttenteN1)
             {
@@ -73,6 +74,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 _NotifierRH(demande);
             }
 
+            AuditService.Enregistrer(Application, "DemandeAttestation", "Valider",
+                demande.Oid.ToString(), demande.Salarie?.FullName,
+                $"Demande d'attestation {demande.Nature} du {demande.DateDemande:dd/MM/yyyy} validée",
+                ancienStatut: ancienStatut, nouveauStatut: demande.Statut.ToString());
             ObjectSpace.CommitChanges();
             View.Refresh();
         }
@@ -80,6 +85,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void RejeterAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var demande = (DemandeAttestation)e.CurrentObject;
+            var ancienStatut = demande.Statut.ToString();
 
             demande.RejeterHierarchie();
 
@@ -90,6 +96,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 + $"{demande.DateDemande:dd/MM/yyyy} a été refusée par votre responsable. "
                 + "Motif : " + (demande.CommentaireRH ?? "voir votre responsable."));
 
+            AuditService.Enregistrer(Application, "DemandeAttestation", "Rejeter",
+                demande.Oid.ToString(), demande.Salarie?.FullName,
+                $"Demande d'attestation {demande.Nature} du {demande.DateDemande:dd/MM/yyyy} rejetée — Motif : {demande.CommentaireRH ?? "aucun motif enregistré"}",
+                ancienStatut: ancienStatut, nouveauStatut: demande.Statut.ToString());
             ObjectSpace.CommitChanges();
             View.Refresh();
         }

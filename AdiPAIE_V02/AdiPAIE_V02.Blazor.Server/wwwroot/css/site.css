@@ -53,14 +53,78 @@ app {
     z-index: 100001;
 }
 
-/* ── Bouton "Confirmé" (State_Confirmed) ─────────── */
-.dxbl-toolbar-item button:has(img[src*="State_Confirmed"]) {
+/* ═══════════════════════════════════════════════════
+   Toolbar Bulletin — boutons colorés
+   Chaque bouton est ciblé par son ImageName unique
+   ═══════════════════════════════════════════════════ */
+
+/* ── Réordonner lignes → gris ardoise ───────────── */
+.dxbl-toolbar-item button:has(img[src*="btn_reordonner"]) {
+    background-color: #64748b !important;
+    color: #ffffff !important;
+    border: 1px solid #475569 !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    transition: background-color 0.2s ease !important;
+}
+
+    .dxbl-toolbar-item button:has(img[src*="btn_reordonner"]):hover {
+        background-color: #475569 !important;
+    }
+
+/* ── Recalculer → vert SunuPaie ─────────────────── */
+.dxbl-toolbar-item button:has(img[src*="btn_recalculer"]) {
+    background-color: #0F6E56 !important;
+    color: #ffffff !important;
+    border: 1px solid #0a5240 !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    transition: background-color 0.2s ease !important;
+}
+
+    .dxbl-toolbar-item button:has(img[src*="btn_recalculer"]):hover {
+        background-color: #0a5240 !important;
+    }
+
+/* ── Valider → vert validation ───────────────────── */
+.dxbl-toolbar-item button:has(img[src*="btn_valider"]) {
     background-color: #16a34a !important;
     color: #ffffff !important;
-    border: 2px solid #15803d !important;
-    font-weight: 700 !important;
+    border: 1px solid #15803d !important;
     border-radius: 6px !important;
-    padding: 4px 16px !important;
-    box-shadow: 0 2px 8px rgba(21, 128, 61, 0.45) !important;
-    transition: all 0.2s ease !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 6px rgba(21,128,61,0.35) !important;
+    transition: background-color 0.2s ease !important;
 }
+
+    .dxbl-toolbar-item button:has(img[src*="btn_valider"]):hover {
+        background-color: #15803d !important;
+    }
+
+/* ── Renvoyer → orange envoi ─────────────────────── */
+.dxbl-toolbar-item button:has(img[src*="btn_renvoyer"]) {
+    background-color: #ea580c !important;
+    color: #ffffff !important;
+    border: 1px solid #c2410c !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    transition: background-color 0.2s ease !important;
+}
+
+    .dxbl-toolbar-item button:has(img[src*="btn_renvoyer"]):hover {
+        background-color: #c2410c !important;
+    }
+
+/* ── Charger depuis le modèle → violet import ────── */
+.dxbl-toolbar-item button:has(img[src*="btn_charger"]) {
+    background-color: #7c3aed !important;
+    color: #ffffff !important;
+    border: 1px solid #6d28d9 !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    transition: background-color 0.2s ease !important;
+}
+
+    .dxbl-toolbar-item button:has(img[src*="btn_charger"]):hover {
+        background-color: #6d28d9 !important;
+    }

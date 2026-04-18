@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiches salaries — SunuPaie</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
+        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
+        h2 { color: #0F6E56; margin-top: 25px; }
+        h3 { color: #555; }
+        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
+        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
+        .bouton strong { color: #0F6E56; }
+        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
+        td { border: 1px solid #ddd; padding: 8px; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
+        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
+        nav a:hover { text-decoration: underline; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
+        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-decoration: none; color: #333; transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .card h3 { color: #0F6E56; margin-top: 0; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">Accueil</a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Periodes</a>
+        <a href="/help/prets.html">Prets</a>
+        <a href="/help/salaries.html">Salaries</a>
+        <a href="/help/conges.html">Conges</a>
+        <a href="/help/missions.html">Missions</a>
+        <a href="/help/formations.html">Formations</a>
+        <a href="/help/evaluations.html">Evaluations</a>
+        <a href="/help/parametrage.html">Parametrage</a>
+        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
+        <a href="/help/offboarding.html">Offboarding</a>
+        <a href="/help/disciplinaire.html">Disciplinaire</a>
+        <a href="/help/audit.html">Audit</a>
+        <a href="/help/import-salaries.html">Import</a>
+        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+    </nav>
+
+    <h1>Fiches salaries</h1>
+
+    <h2>Onglets de la fiche</h2>
+    <div class="bouton">
+        <strong>Identification :</strong> etat civil, coordonnees, CNI, IPRES
+    </div>
+    <div class="bouton">
+        <strong>Contrat et Poste :</strong> departement, fonction, echelon, date embauche
+    </div>
+    <div class="bouton">
+        <strong>Remuneration :</strong> salaire de base, logement, sursalaire, transport, parts fiscales
+    </div>
+    <div class="bouton">
+        <strong>Famille :</strong> conjoint(s), enfants, situation maritale
+    </div>
+    <div class="bouton">
+        <strong>Pieces d'identite :</strong> CNI, passeport
+    </div>
+    <div class="bouton">
+        <strong>Comptes bancaires :</strong> RIB pour virement
+    </div>
+    <div class="bouton">
+        <strong>Informations RH :</strong> responsable N+1, notes RH
+    </div>
+
+    <h2>Regles</h2>
+    <div class="alerte">
+        <ul>
+            <li>UserName du compte XAF doit correspondre a l'Email de la fiche salarie (pour l'espace salarie)</li>
+            <li>Parts fiscales : 1 part = celibataire sans enfant</li>
+            <li>Chaque enfant a charge = +0,5 part (max 5 parts)</li>
+            <li>Responsable N+1 : utilise pour les workflows de validation (conges, missions, evaluations, avancements)</li>
+        </ul>
+    </div>
+    <h2>Controles automatiques</h2>
+    <p>SunuPaie verifie automatiquement les donnees a chaque enregistrement :</p>
+
+    <table>
+        <thead><tr><th>Regle</th><th>Message d'erreur</th></tr></thead>
+        <tbody>
+            <tr><td>Matricule obligatoire et unique</td><td>Ce matricule est deja utilise par un autre salarie.</td></tr>
+            <tr><td>Date de sortie >= Date d'embauche</td><td>La date de sortie ne peut pas etre anterieure a la date d'embauche.</td></tr>
+            <tr><td>Salaire de base >= 0 (sans echelon)</td><td>Le salaire de base doit etre positif (ou affectez un echelon).</td></tr>
+            <tr><td>Remunerations non negatives</td><td>Les montants de remuneration ne peuvent pas etre negatifs.</td></tr>
+            <tr><td>Format email valide</td><td>Format d'email invalide. Exemple : prenom.nom@domaine.sn</td></tr>
+            <tr><td>Categorie = echelon.categorie</td><td>La categorie du salarie doit correspondre a celle de l'echelon.</td></tr>
+            <tr><td>Convention = echelon.convention</td><td>La convention du salarie doit correspondre a celle de l'echelon.</td></tr>
+            <tr><td>Manager different de soi-meme</td><td>Un salarie ne peut pas etre son propre responsable.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Notifications par email</h2>
+    <p>Les salaries recoivent des emails automatiques lors de :</p>
+    <table>
+        <thead><tr><th>Evenement</th><th>Destinataire</th></tr></thead>
+        <tbody>
+            <tr><td>Pret suspendu / relance</td><td>Le salarie concerne</td></tr>
+            <tr><td>Dossier de sortie cloture</td><td>Le salarie concerne</td></tr>
+            <tr><td>Entretien annuel cree (campagne)</td><td>Tous les salaries actifs</td></tr>
+            <tr><td>Conge accorde / refuse</td><td>Le salarie concerne</td></tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

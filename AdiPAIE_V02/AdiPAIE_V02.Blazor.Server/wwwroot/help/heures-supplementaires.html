@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heures supplementaires — SunuPaie</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
+        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
+        h2 { color: #0F6E56; margin-top: 25px; }
+        h3 { color: #555; }
+        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
+        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
+        .bouton strong { color: #0F6E56; }
+        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .info { background: #e3f2fd; border-left: 4px solid #2196F3; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
+        td { border: 1px solid #ddd; padding: 8px; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
+        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
+        nav a:hover { text-decoration: underline; }
+        code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+        .formule { background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 12px; border-radius: 4px; margin: 10px 0; font-family: monospace; }
+        .example { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 4px; padding: 15px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">Accueil</a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Periodes</a>
+        <a href="/help/prets.html">Prets</a>
+        <a href="/help/salaries.html">Salaries</a>
+        <a href="/help/conges.html">Conges</a>
+        <a href="/help/missions.html">Missions</a>
+        <a href="/help/formations.html">Formations</a>
+        <a href="/help/evaluations.html">Evaluations</a>
+        <a href="/help/parametrage.html">Parametrage</a>
+        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
+        <a href="/help/offboarding.html">Offboarding</a>
+        <a href="/help/disciplinaire.html">Disciplinaire</a>
+        <a href="/help/audit.html">Audit</a>
+        <a href="/help/import-salaries.html">Import</a>
+        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+    </nav>
+
+    <h1>Heures supplementaires</h1>
+
+    <!-- ===== ACTIVATION ===== -->
+    <h2>Activation du module</h2>
+
+    <div class="info">
+        Le module Heures supplementaires est <strong>desactive par defaut</strong>. Pour l'activer :
+        <ol>
+            <li>Aller dans <strong>Parametrage &rarr; Parametres de paie</strong></li>
+            <li>Onglet <strong>Heures supplementaires</strong></li>
+            <li>Cocher <strong>Activer les heures supplementaires</strong></li>
+            <li>Verifier les taux de majoration (pre-remplis avec les taux legaux senegalais)</li>
+            <li>Enregistrer</li>
+        </ol>
+    </div>
+
+    <div class="alerte">
+        Tant que le module est desactive, le bouton "Ajouter HS" n'apparait pas sur les bulletins et la collection Heures supplementaires est masquee.
+    </div>
+
+    <!-- ===== TAUX LEGAUX ===== -->
+    <h2>Taux de majoration legaux (Senegal)</h2>
+
+    <p>Le Code du Travail senegalais prevoit quatre niveaux de majoration :</p>
+
+    <table>
+        <tr>
+            <th>Type</th>
+            <th>Taux de majoration</th>
+            <th>Quand</th>
+        </tr>
+        <tr>
+            <td>Jour ouvrable</td>
+            <td><strong>15%</strong></td>
+            <td>Heures supplementaires en journee, du lundi au samedi</td>
+        </tr>
+        <tr>
+            <td>Nuit</td>
+            <td><strong>40%</strong></td>
+            <td>Heures supplementaires de nuit (21h &agrave; 5h), jours ouvrables</td>
+        </tr>
+        <tr>
+            <td>Dimanche / Jour ferie</td>
+            <td><strong>60%</strong></td>
+            <td>Heures supplementaires le dimanche ou un jour ferie, en journee</td>
+        </tr>
+        <tr>
+            <td>Nuit dimanche / Jour ferie</td>
+            <td><strong>100%</strong></td>
+            <td>Heures supplementaires la nuit du dimanche ou d'un jour ferie</td>
+        </tr>
+    </table>
+
+    <div class="info">
+        Ces taux sont <strong>modifiables</strong> dans Parametres de paie &rarr; Heures supplementaires. Si un taux est mis a 0, le systeme utilise automatiquement le taux legal par defaut.
+    </div>
+
+    <!-- ===== CALCUL ===== -->
+    <h2>Methode de calcul</h2>
+
+    <h3>Taux horaire de base</h3>
+    <div class="formule">
+        Taux horaire = Salaire de base mensuel / 173,33 heures
+    </div>
+    <p>Les 173,33 heures correspondent a la duree legale mensuelle : 40 heures &times; 52 semaines / 12 mois.</p>
+
+    <h3>Calcul par ligne d'heures supplementaires</h3>
+    <div class="formule">
+        Montant base = Nombre d'heures &times; Taux horaire<br>
+        Montant majoration = Montant base &times; Taux majoration / 100<br>
+        Montant total = Montant base + Montant majoration
+    </div>
+
+    <h3>Integration au bulletin</h3>
+    <p>Le total de toutes les lignes HS est regroupe dans une <strong>ligne de gain unique</strong> avec la rubrique canonique <code>HeuresSupplementaires</code>. Ce montant entre dans le <strong>Brut Fiscal</strong> et le <strong>Brut Social</strong> (si la rubrique est parametree ainsi).</p>
+
+    <!-- ===== EXEMPLE ===== -->
+    <h2>Exemple concret</h2>
+
+    <div class="example">
+        <h3>Salarie : Moussa DIOP — Salaire de base : 300 000 FCFA</h3>
+
+        <p><strong>Taux horaire :</strong> 300 000 / 173,33 = <strong>1 731 FCFA/h</strong></p>
+
+        <table>
+            <tr>
+                <th>Type</th>
+                <th>Heures</th>
+                <th>Taux maj.</th>
+                <th>Montant base</th>
+                <th>Majoration</th>
+                <th>Total</th>
+            </tr>
+            <tr>
+                <td>Jour ouvrable (15%)</td>
+                <td>8h</td>
+                <td>15%</td>
+                <td>13 848</td>
+                <td>2 077</td>
+                <td><strong>15 925</strong></td>
+            </tr>
+            <tr>
+                <td>Nuit (40%)</td>
+                <td>4h</td>
+                <td>40%</td>
+                <td>6 924</td>
+                <td>2 770</td>
+                <td><strong>9 694</strong></td>
+            </tr>
+            <tr>
+                <td>Dimanche (60%)</td>
+                <td>6h</td>
+                <td>60%</td>
+                <td>10 386</td>
+                <td>6 232</td>
+                <td><strong>16 618</strong></td>
+            </tr>
+            <tr style="background: #e8f5e9; font-weight: bold;">
+                <td colspan="5">Total heures supplementaires</td>
+                <td><strong>42 237 FCFA</strong></td>
+            </tr>
+        </table>
+
+        <p>Ce montant de <strong>42 237 FCFA</strong> apparait comme une ligne de gain "Heures supplementaires" dans le bulletin et s'ajoute au Brut.</p>
+    </div>
+
+    <!-- ===== MODE OPERATOIRE ===== -->
+    <h2>Mode operatoire</h2>
+
+    <div class="flux">
+        <ol>
+            <li>Ouvrir le bulletin du salarie (statut <strong>Brouillon</strong>)</li>
+            <li>Cliquer sur le bouton <strong>Ajouter HS</strong></li>
+            <li>Dans le popup :
+                <ul>
+                    <li>Choisir le <strong>Type</strong> d'heure supplementaire</li>
+                    <li>Saisir le <strong>Nombre d'heures</strong></li>
+                    <li>Le taux de majoration s'affiche automatiquement</li>
+                </ul>
+            </li>
+            <li>Cliquer <strong>OK</strong> &rarr; la ligne HS est creee et le bulletin est recalcule</li>
+            <li>Repeter pour d'autres types d'heures si necessaire</li>
+            <li>Verifier la ligne "Heures supplementaires" dans les gains du bulletin</li>
+            <li><strong>Valider</strong> le bulletin</li>
+        </ol>
+    </div>
+
+    <h3>Modifier ou supprimer des heures supplementaires</h3>
+    <div class="info">
+        <ul>
+            <li>Les lignes HS sont visibles dans la collection <strong>Heures supplementaires</strong> du bulletin</li>
+            <li>Vous pouvez modifier le nombre d'heures ou le type directement dans la collection</li>
+            <li>Pour supprimer : selectionnez la ligne HS et supprimez-la</li>
+            <li>Apres toute modification, cliquez <strong>Recalculer</strong> pour mettre a jour le bulletin</li>
+        </ul>
+    </div>
+
+    <!-- ===== REGLES ===== -->
+    <h2>Regles metier</h2>
+
+    <div class="alerte">
+        <ul>
+            <li>Les heures supplementaires ne peuvent etre ajoutees que sur un bulletin en <strong>Brouillon</strong></li>
+            <li>Le taux horaire est calcule automatiquement depuis le <strong>Salaire de base</strong> du salarie</li>
+            <li>Les taux de majoration sont lus depuis <strong>Parametres de paie</strong> (modifiables par l'administrateur)</li>
+            <li>Le montant total des HS est integre comme un <strong>gain</strong> dans le bulletin (rubrique canonique <code>HeuresSupplementaires</code>)</li>
+            <li>Les HS entrent dans le calcul du <strong>Brut Fiscal</strong> et du <strong>Brut Social</strong></li>
+            <li>Toutes les cotisations (IPRES, CSS, IR, TRIMF) sont recalculees en tenant compte des HS</li>
+            <li>Si le module est desactive dans les parametres, les lignes HS existantes sont ignorees au recalcul</li>
+        </ul>
+    </div>
+
+    <!-- ===== PARAMETRAGE ===== -->
+    <h2>Parametrage</h2>
+
+    <h3>Dans Parametres de paie &rarr; Heures supplementaires</h3>
+    <table>
+        <tr><th>Champ</th><th>Description</th><th>Defaut</th></tr>
+        <tr><td>Activer les heures supplementaires</td><td>Active/desactive tout le module HS</td><td>Non (desactive)</td></tr>
+        <tr><td>Taux jour ouvrable (%)</td><td>Majoration pour les HS en journee</td><td>15%</td></tr>
+        <tr><td>Taux nuit (%)</td><td>Majoration pour les HS de nuit</td><td>40%</td></tr>
+        <tr><td>Taux dimanche / ferie (%)</td><td>Majoration pour les HS dimanche/ferie</td><td>60%</td></tr>
+        <tr><td>Taux nuit dimanche / ferie (%)</td><td>Majoration pour les HS nuit dimanche/ferie</td><td>100%</td></tr>
+    </table>
+
+    <h3>Rubrique a creer</h3>
+    <div class="info">
+        Pour que les heures supplementaires apparaissent dans le bulletin, il faut creer une <strong>rubrique</strong> avec :
+        <ul>
+            <li><strong>Canonique :</strong> <code>HeuresSupplementaires</code></li>
+            <li><strong>Type calcul :</strong> Gain</li>
+            <li><strong>Brut Fiscal :</strong> Oui</li>
+            <li><strong>Brut Social :</strong> Oui</li>
+            <li><strong>Code :</strong> <code>HS</code> (suggestion)</li>
+            <li><strong>Libelle :</strong> Heures supplementaires</li>
+        </ul>
+    </div>
+
+    <!-- ===== ERREURS ===== -->
+    <h2>Erreurs frequentes</h2>
+
+    <div class="erreur">
+        <strong>Bouton "Ajouter HS" invisible &rarr;</strong> le module est desactive. Aller dans Parametres de paie &rarr; Heures supplementaires &rarr; cocher "Activer les heures supplementaires".
+    </div>
+    <div class="erreur">
+        <strong>Ligne HS a 0 dans le bulletin &rarr;</strong> verifier qu'une rubrique avec le canonique <code>HeuresSupplementaires</code> existe et est active. Voir la section Parametrage ci-dessus.
+    </div>
+    <div class="erreur">
+        <strong>Taux horaire a 0 &rarr;</strong> le Salaire de base du salarie est probablement a 0. Verifier la fiche salarie.
+    </div>
+    <div class="erreur">
+        <strong>"Le bulletin doit etre en Brouillon" &rarr;</strong> les HS ne peuvent etre ajoutees que sur un bulletin non valide. Reouvrir le bulletin si necessaire.
+    </div>
+
+</body>
+</html>

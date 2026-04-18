@@ -117,6 +117,7 @@ namespace AdiPAIE_V02.Blazor.Server
                             // and used until the current user logs out.
                             // See the following article for more details: https://docs.devexpress.com/eXpressAppFramework/DevExpress.ExpressApp.Security.SecurityStrategy.PermissionsReloadMode.
                             ((SecurityStrategy)securityStrategy).PermissionsReloadMode = PermissionsReloadMode.NoCache;
+                            SecurityStrategy.EnableSecurityForActions = true;
                         };
                     })
                     .AddPasswordAuthentication(options =>

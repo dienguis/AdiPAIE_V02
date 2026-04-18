@@ -1,5 +1,6 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
+using AdiPAIE_V02.Module.Services;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
@@ -41,7 +42,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             soumettreAction.Execute += (s, e) =>
             {
                 var plan = (PlanFormation)View.CurrentObject;
+                var ancienStatut = plan.Statut.ToString();
                 plan.Soumettre();
+                var nouveauStatut = plan.Statut.ToString();
+                AuditService.Enregistrer(Application, "PlanFormation", "Soumettre",
+                    plan.Oid.ToString(), plan.Titre,
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions();
                 View.Refresh();
@@ -63,9 +69,15 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             approuverAction.Execute += (s, e) =>
             {
                 var plan = (PlanFormation)View.CurrentObject;
+                var ancienStatut = plan.Statut.ToString();
                 // Récupérer le salarié connecté comme approbateur
                 var salarie = _GetSalarieConnecte();
                 plan.Approuver(salarie);
+                var nouveauStatut = plan.Statut.ToString();
+                AuditService.Enregistrer(Application, "PlanFormation", "Approuver",
+                    plan.Oid.ToString(), plan.Titre,
+                    $"Approuvé par {salarie?.FullName ?? "Direction"}",
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions();
                 View.Refresh();
@@ -109,7 +121,13 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 if (string.IsNullOrWhiteSpace(plan.Commentaire))
                     throw new UserFriendlyException(
                         "Veuillez saisir un motif de rejet dans le champ Commentaire avant de rejeter.");
+                var ancienStatut = plan.Statut.ToString();
                 plan.Rejeter(plan.Commentaire);
+                var nouveauStatut = plan.Statut.ToString();
+                AuditService.Enregistrer(Application, "PlanFormation", "Rejeter",
+                    plan.Oid.ToString(), plan.Titre,
+                    plan.Commentaire,
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions();
                 View.Refresh();
@@ -131,7 +149,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             demarrerAction.Execute += (s, e) =>
             {
                 var plan = (PlanFormation)View.CurrentObject;
+                var ancienStatut = plan.Statut.ToString();
                 plan.Demarrer();
+                var nouveauStatut = plan.Statut.ToString();
+                AuditService.Enregistrer(Application, "PlanFormation", "Demarrer",
+                    plan.Oid.ToString(), plan.Titre,
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions();
                 View.Refresh();
@@ -153,7 +176,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             cloturerAction.Execute += (s, e) =>
             {
                 var plan = (PlanFormation)View.CurrentObject;
+                var ancienStatut = plan.Statut.ToString();
                 plan.Cloturer();
+                var nouveauStatut = plan.Statut.ToString();
+                AuditService.Enregistrer(Application, "PlanFormation", "Cloturer",
+                    plan.Oid.ToString(), plan.Titre,
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions();
                 View.Refresh();
@@ -176,7 +204,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             annulerAction.Execute += (s, e) =>
             {
                 var plan = (PlanFormation)View.CurrentObject;
+                var ancienStatut = plan.Statut.ToString();
                 plan.Annuler();
+                var nouveauStatut = plan.Statut.ToString();
+                AuditService.Enregistrer(Application, "PlanFormation", "Annuler",
+                    plan.Oid.ToString(), plan.Titre,
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions();
                 View.Refresh();
@@ -249,7 +282,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             confirmerAction.Execute += (s, e) =>
             {
                 var session = (SessionFormation)View.CurrentObject;
+                var ancienStatut = session.Statut.ToString();
                 session.Confirmer();
+                var nouveauStatut = session.Statut.ToString();
+                AuditService.Enregistrer(Application, "SessionFormation", "Confirmer",
+                    session.Oid.ToString(), session.Intitule,
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions();
                 View.Refresh();
@@ -316,7 +354,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             demarrerAction.Execute += (s, e) =>
             {
                 var session = (SessionFormation)View.CurrentObject;
+                var ancienStatut = session.Statut.ToString();
                 session.Demarrer();
+                var nouveauStatut = session.Statut.ToString();
+                AuditService.Enregistrer(Application, "SessionFormation", "Demarrer",
+                    session.Oid.ToString(), session.Intitule,
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions();
                 View.Refresh();
@@ -339,7 +382,9 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             terminerAction.Execute += (s, e) =>
             {
                 var session = (SessionFormation)View.CurrentObject;
+                var ancienStatut = session.Statut.ToString();
                 session.Terminer();
+                var nouveauStatut = session.Statut.ToString();
 
                 // Créer les SuiviFormation pour toutes les inscriptions non annulées
                 // (Presence peut être saisie après — on crée le suivi pour tout le monde)
@@ -370,6 +415,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     if (suivi != null) nbSuivis++;
                 }
 
+                AuditService.Enregistrer(Application, "SessionFormation", "Terminer",
+                    session.Oid.ToString(), session.Intitule,
+                    $"{nbSuivis} suivi(s) créé(s)",
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions();
                 View.Refresh();
@@ -397,7 +446,9 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     throw new UserFriendlyException(
                         "Veuillez saisir un motif d'annulation dans le champ prévu avant d'annuler.");
 
+                var ancienStatut = session.Statut.ToString();
                 session.Annuler(session.MotifAnnulation);
+                var nouveauStatut = session.Statut.ToString();
 
                 // Notifier les inscrits
                 var inscrits = session.Inscriptions
@@ -415,6 +466,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     notif.Priorite = NotificationPriorite.Important;
                 }
 
+                AuditService.Enregistrer(Application, "SessionFormation", "Annuler",
+                    session.Oid.ToString(), session.Intitule,
+                    session.MotifAnnulation,
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions();
                 View.Refresh();
@@ -471,7 +526,13 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             };
             confirmerAction.Execute += (s, e) =>
             {
-                ((InscriptionFormation)View.CurrentObject).Confirmer();
+                var insc = (InscriptionFormation)View.CurrentObject;
+                var ancienStatut = insc.Statut.ToString();
+                insc.Confirmer();
+                var nouveauStatut = insc.Statut.ToString();
+                AuditService.Enregistrer(Application, "InscriptionFormation", "Confirmer",
+                    insc.Oid.ToString(), $"{insc.Salarie?.FullName ?? "N/A"} - {insc.SessionFormation?.Intitule ?? "N/A"}",
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions(); View.Refresh();
             };
@@ -491,7 +552,13 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 if (string.IsNullOrWhiteSpace(insc.MotifAnnulation))
                     throw new UserFriendlyException(
                         "Veuillez saisir un motif d'annulation avant d'annuler.");
+                var ancienStatut = insc.Statut.ToString();
                 insc.Annuler(insc.MotifAnnulation);
+                var nouveauStatut = insc.Statut.ToString();
+                AuditService.Enregistrer(Application, "InscriptionFormation", "Annuler",
+                    insc.Oid.ToString(), $"{insc.Salarie?.FullName ?? "N/A"} - {insc.SessionFormation?.Intitule ?? "N/A"}",
+                    insc.MotifAnnulation,
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions(); View.Refresh();
             };
@@ -506,7 +573,13 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             };
             marquerAbsentAction.Execute += (s, e) =>
             {
-                ((InscriptionFormation)View.CurrentObject).MarquerAbsent();
+                var insc = (InscriptionFormation)View.CurrentObject;
+                var ancienStatut = insc.Statut.ToString();
+                insc.MarquerAbsent();
+                var nouveauStatut = insc.Statut.ToString();
+                AuditService.Enregistrer(Application, "InscriptionFormation", "MarquerAbsent",
+                    insc.Oid.ToString(), $"{insc.Salarie?.FullName ?? "N/A"} - {insc.SessionFormation?.Intitule ?? "N/A"}",
+                    ancienStatut: ancienStatut, nouveauStatut: nouveauStatut);
                 ObjectSpace.CommitChanges();
                 UpdateActions(); View.Refresh();
             };

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offboarding & Solde de tout compte — SunuPaie</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
+        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
+        h2 { color: #0F6E56; margin-top: 25px; }
+        h3 { color: #555; }
+        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
+        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
+        .bouton strong { color: #0F6E56; }
+        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .info { background: #e3f2fd; border-left: 4px solid #2196F3; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
+        td { border: 1px solid #ddd; padding: 8px; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
+        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
+        nav a:hover { text-decoration: underline; }
+        .formule { background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 12px; border-radius: 4px; margin: 10px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">Accueil</a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Periodes</a>
+        <a href="/help/prets.html">Prets</a>
+        <a href="/help/salaries.html">Salaries</a>
+        <a href="/help/conges.html">Conges</a>
+        <a href="/help/missions.html">Missions</a>
+        <a href="/help/formations.html">Formations</a>
+        <a href="/help/evaluations.html">Evaluations</a>
+        <a href="/help/parametrage.html">Parametrage</a>
+        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
+        <a href="/help/offboarding.html">Offboarding</a>
+        <a href="/help/disciplinaire.html">Disciplinaire</a>
+        <a href="/help/audit.html">Audit</a>
+        <a href="/help/import-salaries.html">Import</a>
+        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+    </nav>
+
+    <h1>Offboarding &amp; Solde de tout compte</h1>
+
+    <!-- ===== WORKFLOW ===== -->
+    <h2>Flux de travail</h2>
+    <div class="flux">
+        <ol>
+            <li>RH &rarr; Dossiers de depart &rarr; <strong>Nouveau</strong></li>
+            <li>Selectionner le salarie &rarr; les donnees sont pre-remplies (salaire, anciennete, conges)</li>
+            <li>Renseigner le <strong>Motif de depart</strong>, la <strong>Date de sortie</strong>, et la <strong>Duree de preavis</strong></li>
+            <li>Cliquer <strong>Charger donnees salarie</strong> pour rafraichir les donnees</li>
+            <li>Cliquer <strong>Calculer le solde</strong> &rarr; calcul automatique de tous les elements</li>
+            <li>Cliquer <strong>Valider (RH)</strong> &rarr; approbation RH</li>
+            <li>Cliquer <strong>Valider (DAF)</strong> &rarr; validation financiere</li>
+            <li>Cliquer <strong>Cloturer le dossier</strong> &rarr; le salarie est desactive et sa date de sortie enregistree</li>
+        </ol>
+    </div>
+
+    <!-- ===== BOUTONS ===== -->
+    <h2>Boutons disponibles</h2>
+    <div class="bouton">
+        <strong>Charger donnees salarie :</strong> charge le salaire de base, l'indemnite de logement, l'anciennete et le solde de conges depuis la fiche du salarie.
+    </div>
+    <div class="bouton">
+        <strong>Calculer le solde :</strong> calcule automatiquement les 4 elements du solde de tout compte (conges non pris, preavis, licenciement, prorata). Passe le statut en "Solde calcule".
+    </div>
+    <div class="bouton">
+        <strong>Valider (RH) :</strong> le RH approuve le solde calcule. Enregistre le nom de l'approbateur et la date.
+    </div>
+    <div class="bouton">
+        <strong>Valider (DAF) :</strong> le DAF valide le montant a payer. Enregistre le nom et la date.
+    </div>
+    <div class="bouton">
+        <strong>Cloturer le dossier :</strong> desactive le salarie (IsActif = false), enregistre la DateSortie. Action irreversible.
+    </div>
+
+    <!-- ===== CALCUL STC ===== -->
+    <h2>Calcul du solde de tout compte</h2>
+
+    <div class="info">
+        Le calcul suit le <strong>droit du travail senegalais</strong> (Code du Travail). Les formules sont appliquees automatiquement depuis les donnees snapshot du salarie.
+    </div>
+
+    <h3>1. Indemnite de conges non pris</h3>
+    <div class="formule">
+        Indemnite conges = Jours disponibles &times; (SalaireBase / 26)
+    </div>
+    <p>Base : 26 jours ouvrables par mois (convention senegalaise).</p>
+
+    <h3>2. Indemnite de preavis</h3>
+    <div class="formule">
+        Indemnite preavis = (SalaireBase + IndemniteLogement) / 30 &times; DureePreavis (jours)
+    </div>
+    <div class="alerte">
+        <strong>Applicable uniquement</strong> en cas de licenciement ou de rupture conventionnelle. Les demissions et fins de CDD ne donnent pas lieu a indemnite de preavis.
+    </div>
+
+    <h3>3. Indemnite de licenciement</h3>
+    <div class="formule">
+        Pour chaque annee d'anciennete :<br>
+        &bull; Annees 1 a 5 : 25% &times; (SalaireBase + Logement)<br>
+        &bull; Annees 6 a 10 : 30% &times; (SalaireBase + Logement)<br>
+        &bull; Au-dela de 10 ans : 40% &times; (SalaireBase + Logement)
+    </div>
+    <div class="alerte">
+        Applicable uniquement en cas de licenciement ou rupture conventionnelle, et <strong>si l'anciennete est d'au moins 1 an</strong>.
+    </div>
+
+    <h3>4. Salaire prorata du mois</h3>
+    <div class="formule">
+        Salaire prorata = (SalaireBase + IndemniteLogement) / 30 &times; Jour de sortie
+    </div>
+
+    <h3>5. Autres elements</h3>
+    <p>Le champ <strong>Autres elements</strong> est a saisir manuellement par le RH pour toute prime ou indemnite supplementaire (prime de bilan, gratification, etc.).</p>
+
+    <h3>Total</h3>
+    <div class="formule">
+        TOTAL STC = Conges + Preavis + Licenciement + Prorata + Autres
+    </div>
+
+    <!-- ===== EXEMPLE ===== -->
+    <h2>Exemple de calcul</h2>
+    <table>
+        <tr><th>Element</th><th>Donnees</th><th>Calcul</th><th>Montant (FCFA)</th></tr>
+        <tr>
+            <td>Salarie</td>
+            <td>Moussa DIOP, SB = 400 000, LOGT = 60 000, Anciennete = 7 ans</td>
+            <td>—</td><td>—</td>
+        </tr>
+        <tr>
+            <td>Conges non pris</td>
+            <td>12 jours disponibles</td>
+            <td>12 &times; (400 000 / 26)</td>
+            <td>184 615</td>
+        </tr>
+        <tr>
+            <td>Preavis (licenciement)</td>
+            <td>30 jours</td>
+            <td>(400 000 + 60 000) / 30 &times; 30</td>
+            <td>460 000</td>
+        </tr>
+        <tr>
+            <td>Licenciement</td>
+            <td>7 ans</td>
+            <td>5 &times; 460 000 &times; 25% + 2 &times; 460 000 &times; 30%</td>
+            <td>851 000</td>
+        </tr>
+        <tr>
+            <td>Prorata (sortie le 15)</td>
+            <td>15 jours</td>
+            <td>460 000 / 30 &times; 15</td>
+            <td>230 000</td>
+        </tr>
+        <tr>
+            <td colspan="3"><strong>TOTAL STC</strong></td>
+            <td><strong>1 725 615</strong></td>
+        </tr>
+    </table>
+
+    <!-- ===== MOTIFS ===== -->
+    <h2>Motifs de depart</h2>
+    <table>
+        <tr><th>Motif</th><th>Preavis</th><th>Licenciement</th><th>Conges</th><th>Prorata</th></tr>
+        <tr><td>Demission</td><td>Non</td><td>Non</td><td>Oui</td><td>Oui</td></tr>
+        <tr><td>Licenciement</td><td>Oui</td><td>Oui (&ge; 1 an)</td><td>Oui</td><td>Oui</td></tr>
+        <tr><td>Rupture conventionnelle</td><td>Oui</td><td>Oui (&ge; 1 an)</td><td>Oui</td><td>Oui</td></tr>
+        <tr><td>Retraite</td><td>Non</td><td>Non</td><td>Oui</td><td>Oui</td></tr>
+        <tr><td>Fin de CDD</td><td>Non</td><td>Non</td><td>Oui</td><td>Oui</td></tr>
+        <tr><td>Deces</td><td>Non</td><td>Non</td><td>Oui (ayants droit)</td><td>Oui</td></tr>
+    </table>
+
+    <!-- ===== ERREURS ===== -->
+    <h2>Erreurs frequentes</h2>
+    <div class="erreur">
+        <strong>"Salarie non renseigne" &rarr;</strong> Selectionnez un salarie avant de calculer.
+    </div>
+    <div class="erreur">
+        <strong>"Salaire = 0" &rarr;</strong> Cliquez "Charger donnees salarie" pour mettre a jour le snapshot.
+    </div>
+    <div class="erreur">
+        <strong>Conges disponibles = 0 &rarr;</strong> Verifiez le solde de conges du salarie pour l'annee en cours.
+    </div>
+    <div class="erreur">
+        <strong>Indemnite licenciement = 0 &rarr;</strong> Verifie que le motif est "Licenciement" ou "Rupture conventionnelle" ET que l'anciennete est &ge; 1 an.
+    </div>
+    <div class="erreur">
+        <strong>Boutons grise &rarr;</strong> Le workflow est sequentiel. Chaque etape doit etre validee avant de passer a la suivante.
+    </div>
+</body>
+</html>

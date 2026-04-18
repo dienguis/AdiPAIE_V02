@@ -47,13 +47,12 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
         {
             base.OnActivated();
 
-            // Visible uniquement si compte lié à une fiche salarié
+            // Visible uniquement si compte lie a une fiche salarie
             try
             {
-                var userName = DevExpress.ExpressApp.SecuritySystem.CurrentUserName;
-                var user = ObjectSpace.GetObjectsQuery<ApplicationUser>()
-                    .FirstOrDefault(u => u.UserName == userName);
-                _telecharger.Active["estSalarie"] = user?.Salarie != null;
+                _telecharger.Active["estSalarie"] =
+                    AdiPAIE_V02.Module.Controllers.EspaceSalarieHelper
+                        .EstSalarieConnecte(ObjectSpace);
             }
             catch
             {

@@ -1,4 +1,5 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.BusinessObjects.RH;
 using AdiPAIE_V02.Module.Domain;
 using AdiPAIE_V02.Module.Properties;
 using AdiPAIE_V02.Module.Reports;
@@ -37,40 +38,282 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         {
             base.UpdateDatabaseAfterUpdateSchema();
 
-            //Security Implementatation 10/09/2025 ADIENG
+            // ═══════════════════════════════════════════════════════
+            // Rôle Employe — Permissions espace salarié (idempotent)
+            // ═══════════════════════════════════════════════════════
             var role = ObjectSpace.FirstOrDefault<PermissionPolicyRole>(r => r.Name == "Employe")
                 ?? ObjectSpace.CreateObject<PermissionPolicyRole>();
             role.Name = "Employe";
 
-            // Bulletins : navigation + lecture OK, pas d’édition
-            role.AddTypePermission<Bulletin>(SecurityOperations.Navigate, SecurityPermissionState.Allow);
-            role.AddTypePermission<Bulletin>(SecurityOperations.Read, SecurityPermissionState.Allow);
-            role.AddTypePermission<Bulletin>(SecurityOperations.Write, SecurityPermissionState.Deny);
-            role.AddTypePermission<Bulletin>(SecurityOperations.Delete, SecurityPermissionState.Deny);
-            role.AddTypePermission<Bulletin>(SecurityOperations.Create, SecurityPermissionState.Deny);
-            // Filtre d’objets : uniquement mes bulletins (login = email)
+            // Nettoyer les permissions existantes pour éviter les doublons
+            // à chaque redémarrage de l’application
+            while (role.TypePermissions.Count > 0)
+                role.TypePermissions.Remove(role.TypePermissions[0]);
+
+            // Helper : Navigate + Read
+            const string NavRead = SecurityOperations.Navigate + ";" + SecurityOperations.Read;
+            // Helper : Navigate + CRUD complet
+            const string NavCrud = SecurityOperations.Navigate + ";" + SecurityOperations.Read + ";"
+                + SecurityOperations.Write + ";" + SecurityOperations.Create + ";" + SecurityOperations.Delete;
+            // Helper : Navigate + Read + Write + Create (sans Delete)
+            const string NavRwc = SecurityOperations.Navigate + ";" + SecurityOperations.Read + ";"
+                + SecurityOperations.Write + ";" + SecurityOperations.Create;
+
+            // ── Bulletins : lecture seule de ses propres bulletins ──
+            role.AddTypePermissionsRecursively<Bulletin>(NavRead, SecurityPermissionState.Allow);
             role.AddObjectPermission<Bulletin>(
                 SecurityOperations.Read,
                 "Salarie.Email = CurrentUserName()",
                 SecurityPermissionState.Allow);
 
-            // Même logique pour les prêts/échéances si tu veux les exposer aux salariés :
-            role.AddTypePermission<Pret>(SecurityOperations.Navigate, SecurityPermissionState.Allow);
-            role.AddTypePermission<Pret>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            // ── Prêts : lecture seule ──
+            role.AddTypePermissionsRecursively<Pret>(NavRead, SecurityPermissionState.Allow);
             role.AddObjectPermission<Pret>(
                 SecurityOperations.Read,
                 "Salarie.Email = CurrentUserName()",
                 SecurityPermissionState.Allow);
 
-            role.AddTypePermission<PretEcheance>(SecurityOperations.Navigate, SecurityPermissionState.Allow);
-            role.AddTypePermission<PretEcheance>(SecurityOperations.Read, SecurityPermissionState.Allow);
-
+            role.AddTypePermissionsRecursively<PretEcheance>(NavRead, SecurityPermissionState.Allow);
             role.AddObjectPermission<PretEcheance>(
                 SecurityOperations.Read,
                 "Pret.Salarie.Email = CurrentUserName()",
                 SecurityPermissionState.Allow);
 
+            // ── Congés : créer, modifier, supprimer ses propres demandes ──
+            // Type-level : autorise Navigate + Read + Write + Create + Delete
+            role.AddTypePermissionsRecursively<CongeDemande>(NavCrud, SecurityPermissionState.Allow);
+            // Object-level : Read + Write + Delete uniquement (Create n’est pas valide ici)
+            const string RWD = SecurityOperations.Read + ";" + SecurityOperations.Write + ";" + SecurityOperations.Delete;
+            role.AddObjectPermission<CongeDemande>(
+                RWD,
+                "Salarie.Email = CurrentUserName()",
+                SecurityPermissionState.Allow);
+
+            // Types de congé : lecture seule (référentiel)
+            role.AddTypePermissionsRecursively<CongeType>(NavRead, SecurityPermissionState.Allow);
+
+            // ── Soldes de congé : lecture seule ──
+            role.AddTypePermissionsRecursively<SoldeConge>(NavRead, SecurityPermissionState.Allow);
+            role.AddObjectPermission<SoldeConge>(
+                SecurityOperations.Read,
+                "Salarie.Email = CurrentUserName()",
+                SecurityPermissionState.Allow);
+
+            // ── Demandes d’attestation : créer et modifier ──
+            role.AddTypePermissionsRecursively<DemandeAttestation>(NavRwc, SecurityPermissionState.Allow);
+            const string RW = SecurityOperations.Read + ";" + SecurityOperations.Write;
+            role.AddObjectPermission<DemandeAttestation>(
+                RW,
+                "Salarie.Email = CurrentUserName()",
+                SecurityPermissionState.Allow);
+
+            // ── Entretiens annuels : lecture seule ──
+            role.AddTypePermissionsRecursively<EntretienAnnuel>(NavRead, SecurityPermissionState.Allow);
+            role.AddObjectPermission<EntretienAnnuel>(
+                SecurityOperations.Read,
+                "Salarie.Email = CurrentUserName()",
+                SecurityPermissionState.Allow);
+
+            // ── Déplacements : créer et modifier ──
+            role.AddTypePermissionsRecursively<DemandeDeplacement>(NavRwc, SecurityPermissionState.Allow);
+            role.AddObjectPermission<DemandeDeplacement>(
+                RW,
+                "Salarie.Email = CurrentUserName()",
+                SecurityPermissionState.Allow);
+
+            // ── Référentiels déplacement : lookups nécessaires ──
+            role.AddTypePermissionsRecursively<VilleSenegal>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<LigneCircuit>(NavCrud, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<LigneFraisMission>(NavCrud, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<CategorieFraisMission>(NavRead, SecurityPermissionState.Allow);
+
+            // ── ParametresPaie : lecture (pour clé API Google Maps, etc.) ──
+            role.AddTypePermissionsRecursively<ParametresPaie>(NavRead, SecurityPermissionState.Allow);
+
+            // ── Salarié : lecture de sa propre fiche ──
+            role.AddTypePermissionsRecursively<Salarie>(NavRead, SecurityPermissionState.Allow);
+            role.AddObjectPermission<Salarie>(
+                SecurityOperations.Read,
+                "Email = CurrentUserName()",
+                SecurityPermissionState.Allow);
+
+            // ── NotificationSalarie : le salarié doit pouvoir créer une notif
+            //    quand il soumet une demande de congé (pour alerter le N+1) ──
+            role.AddTypePermissionsRecursively<NotificationSalarie>(
+                SecurityOperations.Navigate + ";" + SecurityOperations.Create + ";" + SecurityOperations.Write,
+                SecurityPermissionState.Allow);
+
+            // ── FileData : pour les pièces jointes (justificatifs congé, etc.) ──
+            role.AddTypePermissionsRecursively<FileData>(NavRwc, SecurityPermissionState.Allow);
+
+            // ═══════════════════════════════════════════════════════
+            // Navigation Permissions — rendre le menu "Mon espace" visible
+            // ═══════════════════════════════════════════════════════
+            // Nettoyer les NavigationPermissions existantes (idempotent)
+            while (role.NavigationPermissions.Count > 0)
+                role.NavigationPermissions.Remove(role.NavigationPermissions[0]);
+
+            // Groupe parent
+            role.AddNavigationPermission(@"Application/NavigationItems/Items/GRH_EspaceSalarie", SecurityPermissionState.Allow);
+            // Éléments enfants
+            role.AddNavigationPermission(@"Application/NavigationItems/Items/GRH_EspaceSalarie/Items/GRH_MesBulletins", SecurityPermissionState.Allow);
+            role.AddNavigationPermission(@"Application/NavigationItems/Items/GRH_EspaceSalarie/Items/GRH_MesConges", SecurityPermissionState.Allow);
+            role.AddNavigationPermission(@"Application/NavigationItems/Items/GRH_EspaceSalarie/Items/GRH_MesSoldesConges", SecurityPermissionState.Allow);
+            role.AddNavigationPermission(@"Application/NavigationItems/Items/GRH_EspaceSalarie/Items/GRH_MesAttestations", SecurityPermissionState.Allow);
+            role.AddNavigationPermission(@"Application/NavigationItems/Items/GRH_EspaceSalarie/Items/GRH_MesEntretiens", SecurityPermissionState.Allow);
+            role.AddNavigationPermission(@"Application/NavigationItems/Items/GRH_EspaceSalarie/Items/GRH_MesDeplacements", SecurityPermissionState.Allow);
+
+            // ═══════════════════════════════════════════════════════
+            // Denied Actions — Actions RH interdites pour un employé
+            // L'employé ne peut que créer, sauvegarder et soumettre.
+            // ═══════════════════════════════════════════════════════
+            // Nettoyer les ActionPermissions existantes (idempotent)
+            while (role.ActionPermissions.Count > 0)
+                role.ActionPermissions.Remove(role.ActionPermissions[0]);
+
+            var deniedActions = new[]
+            {
+                // ── Bulletins ──
+                "CloturerBulletin",
+                "ReouvrirBulletin",
+                "ValiderBulletin",
+                "ValiderEtEnvoyer",
+                "RenvoyerBulletin",
+                "Bulletin_RecalculerMaintenant",
+                "NormalizeBulletinLines",
+                "ReloadModeleDefaults",
+                "EnvoyerBulletinEmail",
+                "ExporterBulletinsMoisCourant",
+                "ExporterBulletinsSelection",
+                "GenererEcritureComptable",
+                "GenerateEcritureFromBulletin",
+                "CreateBulletinsForPeriod",
+                "BulkBulletin_OuvrirParams",
+                // ── Congés ──
+                "Conge_Accorder",
+                "Conge_Accorder_Detail",
+                "Conge_Refuser",
+                "Conge_ModifierDates",
+                "Conge_Annuler",
+                // ── Déplacements ──
+                "Deplacement_InitialiserFrais",
+                "Deplacement_SoumettreRH",
+                "Deplacement_ApprouverRH",
+                "Deplacement_RejeterRH",
+                "Deplacement_GenererOrdre",
+                "Deplacement_GenererEtatFrais",
+                "Deplacement_ValiderDAF",
+                "Deplacement_ConfirmerComptable",
+                // "Deplacement_CalculerDistances", // L'employé a besoin de calculer les distances
+                // ── Attestations ──
+                "Demande_PrendreEnCharge",
+                "Demande_Traiter",
+                "Demande_Rejeter",
+                "Attestation_Generer",
+                // ── Entretiens ──
+                "Entretien_Planifier",
+                "Entretien_LancerEvaluation",
+                "Entretien_Cloturer",
+                "Entretien_RecalculerScore",
+                "Entretien_GenererFiche",
+                // ── Avancements ──
+                "Avancement_PreRemplir",
+                "Avancement_Soumettre",
+                "Avancement_Approuver",
+                "Avancement_Rejeter",
+                "Avancement_Appliquer",
+                "Avancement_Annuler",
+                // ── Salarié (fiche) ──
+                "Salarie.Active",
+                "Salarie.Desactive",
+                "Salarie.RegenererModele",
+                "OpenDossierRH",
+                "EnvoyerClePDF",
+            };
+
+            foreach (var actionId in deniedActions)
+            {
+                role.CreateActionPermissionObject(actionId);
+            }
+
             ObjectSpace.CommitChanges();
+
+            // ═══════════════════════════════════════════════════════
+            // Rôle RH — AllowAllByDefault + DENY navigation Comptabilité / Mon espace
+            // Pas IsAdministrative, mais accès CRUD complet sur toutes les données
+            // sauf la navigation vers les menus interdits.
+            // ═══════════════════════════════════════════════════════
+            // Chercher TOUS les rôles RH existants pour éviter les doublons
+            var allRolesRH = ObjectSpace.GetObjectsQuery<PermissionPolicyRole>()
+                .Where(r => r.Name == "RH")
+                .ToList();
+
+            PermissionPolicyRole roleRH;
+            if (allRolesRH.Count == 0)
+            {
+                roleRH = ObjectSpace.CreateObject<PermissionPolicyRole>();
+                roleRH.Name = "RH";
+            }
+            else
+            {
+                // Prendre le premier, supprimer les doublons éventuels
+                roleRH = allRolesRH[0];
+                for (int i = 1; i < allRolesRH.Count; i++)
+                {
+                    // Migrer les utilisateurs du doublon vers le rôle principal
+                    var duplicate = allRolesRH[i];
+                    var usersOnDuplicate = ObjectSpace.GetObjectsQuery<ApplicationUser>()
+                        .Where(u => u.Roles.Any(r => r.Oid == duplicate.Oid))
+                        .ToList();
+                    foreach (var u in usersOnDuplicate)
+                    {
+                        if (!u.Roles.Contains(roleRH))
+                            u.Roles.Add(roleRH);
+                        u.Roles.Remove(duplicate);
+                    }
+                    ObjectSpace.Delete(duplicate);
+                }
+            }
+            roleRH.IsAdministrative = false;
+            roleRH.PermissionPolicy = SecurityPermissionPolicy.AllowAllByDefault;
+
+            // Nettoyer les NavigationPermissions existantes (idempotent)
+            while (roleRH.NavigationPermissions.Count > 0)
+                roleRH.NavigationPermissions.Remove(roleRH.NavigationPermissions[0]);
+
+            // DENY navigation vers Comptabilité et Mon espace
+            roleRH.AddNavigationPermission(
+                @"Application/NavigationItems/Items/Comptabilite",
+                SecurityPermissionState.Deny);
+            roleRH.AddNavigationPermission(
+                @"Application/NavigationItems/Items/GRH_EspaceSalarie",
+                SecurityPermissionState.Deny);
+
+            // S'assurer que les utilisateurs RH n'ont PAS le rôle Default
+            // (qui contient des Deny explicites pouvant bloquer AllowAllByDefault)
+            var usersRH = ObjectSpace.GetObjectsQuery<ApplicationUser>()
+                .Where(u => u.Roles.Any(r => r.Name == "RH"))
+                .ToList();
+            var roleDefault = ObjectSpace.FirstOrDefault<PermissionPolicyRole>(r => r.Name == "Default");
+            if (roleDefault != null)
+            {
+                foreach (var userRH in usersRH)
+                {
+                    if (userRH.Roles.Contains(roleDefault))
+                        userRH.Roles.Remove(roleDefault);
+                }
+            }
+
+            ObjectSpace.CommitChanges();
+
+            // ═══════════════════════════════════════════════════════
+            // Fix ONE-SHOT : Supprimer le ModelDifference pour DemandeAvancement_DetailView
+            // Un layout personnalisé en base a supprimé le champ Salarié.
+            // En nettoyant le nœud, XAF régénère le layout par défaut.
+            // → COMMENTEZ cette ligne après le premier lancement réussi
+            //   pour ne pas écraser de futures personnalisations du layout.
+            // ═══════════════════════════════════════════════════════
+            // ResetDemandeAvancementDetailView(); // Désactivé — le fix [Aggregated] retiré de Salarie.Avancements résout le problème
 
             //Security Implementatation 10/09/2025
             //
@@ -915,6 +1158,65 @@ END";
                     dash.Content = xml ?? string.Empty;
             }
             return dash; // pas de Commit ici
+        }
+
+        /// <summary>
+        /// Supprime le nœud DemandeAvancement_DetailView des ModelDifferences
+        /// stockées en base. Cela force XAF à régénérer le layout par défaut
+        /// (qui inclura le champ Salarié supprimé par erreur lors d'une
+        /// personnalisation du layout dans le Model Editor).
+        /// Idempotent : si le nœud n'existe pas, rien n'est modifié.
+        /// </summary>
+        private void ResetDemandeAvancementDetailView()
+        {
+            try
+            {
+                var xpOs = ObjectSpace as XPObjectSpace;
+                if (xpOs == null) return;
+
+                var session = xpOs.Session;
+                var diffs = new XPQuery<ModelDifference>(session)
+                    .ToList();
+
+                bool modified = false;
+                foreach (var diff in diffs)
+                {
+                    foreach (var aspect in diff.Aspects)
+                    {
+                        if (string.IsNullOrEmpty(aspect.Xml)) continue;
+                        if (!aspect.Xml.Contains("DemandeAvancement_DetailView")) continue;
+
+                        try
+                        {
+                            var doc = new System.Xml.XmlDocument();
+                            doc.LoadXml(aspect.Xml);
+
+                            // Chercher et supprimer les nœuds DemandeAvancement_DetailView
+                            var nodes = doc.SelectNodes(
+                                "//*[@Id='DemandeAvancement_DetailView']");
+                            if (nodes != null && nodes.Count > 0)
+                            {
+                                foreach (System.Xml.XmlNode node in nodes)
+                                    node.ParentNode?.RemoveChild(node);
+
+                                aspect.Xml = doc.OuterXml;
+                                modified = true;
+                            }
+                        }
+                        catch
+                        {
+                            // Parsing XML échoue — on skip cet aspect
+                        }
+                    }
+                }
+
+                if (modified)
+                    ObjectSpace.CommitChanges();
+            }
+            catch
+            {
+                // Ne pas bloquer le démarrage si le nettoyage échoue
+            }
         }
     }
 }

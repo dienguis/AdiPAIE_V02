@@ -56,7 +56,8 @@ namespace AdiPAIE_V02.Module.Controllers
         protected override void OnActivated()
         {
             base.OnActivated();
-            // Perform various tasks depending on the target View.
+            // Bouton retiré de l'interface
+            foreach (ActionBase a in Actions) a.Active["Retired"] = false;
         }
         protected override void OnViewControlsCreated()
         {

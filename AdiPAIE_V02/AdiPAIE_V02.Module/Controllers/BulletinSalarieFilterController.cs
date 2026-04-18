@@ -1,60 +1,53 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.BusinessObjects;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
-using DevExpress.ExpressApp.Xpo;
-using DevExpress.Xpo;
-using System.Linq;
+using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.Controllers
 {
     /// <summary>
-    /// Filtre la ListView Bulletin pour l'espace salarié.
+    /// Filtre la ListView Bulletin pour l'espace salarie.
     ///
-    ///   Salarié connecté → voit uniquement SES bulletins (Validé ou Envoyé)
-    ///   RH / Admin       → voit tout (aucun filtre appliqué ici)
-    ///
-    /// Pattern identique à EntretienFilterController et FormationFilterController.
+    ///   Salarie connecte -> voit uniquement SES bulletins Envoye / Comptabilise / Cloture
+    ///   RH / Admin       -> ne touche pas au filtre (voit tout)
     /// </summary>
     public class BulletinSalarieFilterController
         : ObjectViewController<ListView, Bulletin>
     {
+        private const string FilterKey = "BulletinSalarieFilter";
+
         protected override void OnActivated()
         {
             base.OnActivated();
-            AppliquerFiltre();
+
+            // Récupérer le salarié lié à l'utilisateur
+            var salConn = EspaceSalarieHelper.GetSalarieConnecte(ObjectSpace);
+            if (salConn == null)
+                return; // Pas de salarié lié → ne rien toucher
+
+            // RH : pas de filtre → return sans toucher aux criteria
+            if (!EspaceSalarieHelper.DoitRestreindreEspaceSalarie(ObjectSpace))
+                return;
+
+            // Employé : ses bulletins + statuts >= Envoye uniquement
+            var filtreStatut = new InOperator("Statut", new object[]
+            {
+                BulletinStatut.Envoye,
+                BulletinStatut.Comptabilise,
+                BulletinStatut.Cloture
+            });
+
+            View.CollectionSource.Criteria[FilterKey] =
+                new GroupOperator(GroupOperatorType.And,
+                    CriteriaOperator.Parse("Salarie.Oid = ?", salConn.Oid),
+                    filtreStatut);
         }
 
-        private void AppliquerFiltre()
+        protected override void OnDeactivated()
         {
-            var session = ((XPObjectSpace)ObjectSpace).Session;
-            var userName = DevExpress.ExpressApp.SecuritySystem.CurrentUserName;
-
-            var user = new XPQuery<ApplicationUser>(session)
-                .FirstOrDefault(u => u.UserName == userName);
-
-            // Pas de fiche salarié → profil RH/Admin — aucun filtre
-            if (user?.Salarie == null)
-            {
-                View.CollectionSource.Criteria["BulletinSalarieFilter"] = null;
-                return;
-            }
-
-            var salConn = user.Salarie;
-
-            // Salarié voit uniquement ses bulletins Validé ou Envoyé
-            //View.CollectionSource.Criteria["BulletinSalarieFilter"] =
-            //    new GroupOperator(GroupOperatorType.And,
-            //        CriteriaOperator.Parse("Salarie = ?", salConn),
-            //        CriteriaOperator.Parse(
-            //            "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Valide# " +
-            //            "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Envoye# " +
-            //            "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Cloture#"));
-
-            View.CollectionSource.Criteria["BulletinSalarieFilter"] =
-    new GroupOperator(GroupOperatorType.And,
-        CriteriaOperator.Parse("Salarie = ?", salConn),
-        CriteriaOperator.Parse(
-            "Statut != ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Brouillon#"));
+            if (View?.CollectionSource != null)
+                View.CollectionSource.Criteria.Remove(FilterKey);
+            base.OnDeactivated();
         }
     }
 }

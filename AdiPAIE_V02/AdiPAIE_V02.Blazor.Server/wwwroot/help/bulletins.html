@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulletins de paie — SunuPaie</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
+        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
+        h2 { color: #0F6E56; margin-top: 25px; }
+        h3 { color: #555; }
+        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
+        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
+        .bouton strong { color: #0F6E56; }
+        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .info { background: #e3f2fd; border-left: 4px solid #2196F3; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
+        td { border: 1px solid #ddd; padding: 8px; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
+        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
+        nav a:hover { text-decoration: underline; }
+        code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+        .formule { background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 12px; border-radius: 4px; margin: 10px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">Accueil</a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Periodes</a>
+        <a href="/help/prets.html">Prets</a>
+        <a href="/help/salaries.html">Salaries</a>
+        <a href="/help/conges.html">Conges</a>
+        <a href="/help/missions.html">Missions</a>
+        <a href="/help/formations.html">Formations</a>
+        <a href="/help/evaluations.html">Evaluations</a>
+        <a href="/help/parametrage.html">Parametrage</a>
+        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
+        <a href="/help/offboarding.html">Offboarding</a>
+        <a href="/help/disciplinaire.html">Disciplinaire</a>
+        <a href="/help/audit.html">Audit</a>
+        <a href="/help/import-salaries.html">Import</a>
+        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+    </nav>
+
+    <h1>Bulletins de paie</h1>
+
+    <h2>Flux de travail</h2>
+    <div class="flux">
+        <ol>
+            <li>Paie &rarr; Periodes de paie &rarr; Creer/Ouvrir une periode</li>
+            <li>Liste des salaries actifs &rarr; Selectionner &rarr; <strong>Creer bulletins (periode)</strong></li>
+            <li>Ouvrir un bulletin &rarr; Verifier le champ <strong>Jours travailles</strong> (prorata)</li>
+            <li>Cliquer <strong>Recalculer</strong></li>
+            <li>Verifier les lignes &rarr; <strong>Valider</strong></li>
+        </ol>
+    </div>
+
+    <h2>Boutons disponibles</h2>
+
+    <h3>Sur le bulletin (DetailView)</h3>
+    <div class="bouton">
+        <strong>Recalculer :</strong> recalcule toutes les cotisations et retenues (IPRES, CSS, IR, TRIMF, CFCE) depuis le parametrage salarie. Detecte automatiquement le prorata si c'est un premier bulletin avec embauche en cours de mois.
+    </div>
+    <div class="bouton">
+        <strong>Valider :</strong> passe le bulletin en statut Valide. Marque automatiquement les echeances de prets du mois comme "Prelevees".
+    </div>
+    <div class="bouton">
+        <strong>Remplacer depuis le modele :</strong> supprime toutes les lignes et repart de zero depuis le modele du salarie.
+    </div>
+    <div class="bouton">
+        <strong>Charger depuis le modele :</strong> ajoute les lignes manquantes sans ecraser les lignes existantes.
+    </div>
+    <div class="bouton">
+        <strong>Remplacer lignes du modele uniquement :</strong> recharge les lignes issues du modele, mais garde les lignes manuelles.
+    </div>
+    <div class="bouton">
+        <strong>Recharger lignes standard :</strong> met a jour SB, LOGT, Sursalaire, Transport depuis la fiche salarie.
+    </div>
+    <div class="bouton">
+        <strong>Reordonner lignes :</strong> renumerote les lignes en 10, 20, 30...
+    </div>
+    <div class="bouton">
+        <strong>Renvoyer (PDF archive) :</strong> renvoie par email le PDF deja genere.
+    </div>
+
+    <h3>Sur la liste des bulletins (ListView)</h3>
+    <div class="bouton">
+        <strong>Telecharger PDF :</strong> genere et telecharge le bulletin selectionne en PDF. Si une archive existe, elle est servie directement. Sinon le PDF est genere a la volee et archive pour les prochains telechargements. <em>Visible uniquement pour le RH/Admin.</em>
+    </div>
+    <div class="bouton">
+        <strong>Envoyer au salarie :</strong> envoie le bulletin PDF par email au salarie concerne. Le bulletin doit etre au minimum en statut <strong>Valide</strong> (pas Brouillon). Le statut passe automatiquement a Envoye. <em>Visible uniquement pour le RH/Admin.</em>
+    </div>
+    <div class="bouton">
+        <strong>Filtre rapide :</strong> filtre predetermine pour retrouver rapidement les bulletins. Options disponibles :
+        <ul style="margin:5px 0 0 20px;">
+            <li><strong>Tous</strong> : affiche tous les bulletins (retire le filtre)</li>
+            <li><strong>Mois en cours</strong> : bulletins du mois actuel</li>
+            <li><strong>Mois precedent</strong> : bulletins du mois precedent</li>
+            <li><strong>Brouillons</strong> : bulletins en statut Brouillon</li>
+            <li><strong>Valides (non envoyes)</strong> : bulletins valides mais pas encore envoyes</li>
+            <li><strong>Envoyes</strong> : bulletins deja envoyes au salarie</li>
+            <li><strong>Clotures</strong> : bulletins clotures definitivement</li>
+        </ul>
+    </div>
+    <div class="bouton">
+        <strong>Cloturer :</strong> cloture le bulletin (irreversible sauf reopening RH). Verifie que tous les bulletins anterieurs sont clotures.
+    </div>
+    <div class="bouton">
+        <strong>Reouvrir :</strong> remet le bulletin en Brouillon. Annule les prelevements de prets du mois, remet les echeances en "Prevue", et recalcule le bulletin.
+    </div>
+
+    <h3>Sur Periodes de paie (ListView)</h3>
+    <div class="bouton">
+        <strong>Generer etat 1024 :</strong> exporte la declaration annuelle des salaires (DGID Senegal) en Excel.
+    </div>
+    <div class="bouton">
+        <strong>Generer etat VRS :</strong> exporte l'etat mensuel VRS (Versement Retenue a la Source) en Excel. Colonnes : Matricule, Statut, Nom, BRUT, IR, TRIMF, CFCE, IPRES (RG/RC salarie et employeur), CSS (AT/AF), NET. Avec totaux et sous-totaux par groupe.
+    </div>
+
+    <!-- ===== PRORATA ===== -->
+    <h2>Prorata — Jours travailles</h2>
+
+    <div class="info">
+        Chaque bulletin a un champ <strong>Jours travailles</strong> (defaut : 30). Ce champ controle le prorata du salaire de base et de l'indemnite de logement. Il est modifiable par le RH directement sur le bulletin, <strong>sans toucher a la fiche salarie</strong>.
+    </div>
+
+    <h3>Cas d'utilisation</h3>
+    <table>
+        <tr><th>Situation</th><th>Jours travailles</th><th>Qui modifie ?</th></tr>
+        <tr><td>Salarie normal, mois complet</td><td>30</td><td>Automatique (defaut)</td></tr>
+        <tr><td>Nouvelle recrue embauche le 17 du mois</td><td>14</td><td>Automatique au Recalcul (premier bulletin detecte)</td></tr>
+        <tr><td>Arret pour faute (10 jours non payes)</td><td>20</td><td>Le RH modifie manuellement</td></tr>
+        <tr><td>Absence non payee (5 jours)</td><td>25</td><td>Le RH modifie manuellement</td></tr>
+    </table>
+
+    <h3>Formule de calcul</h3>
+    <div class="formule">
+        Salaire de base = (SalaireBase / 30) &times; JoursTravailles<br>
+        Indemnite logement = (IndemniteLogement / 30) &times; JoursTravailles
+    </div>
+
+    <h3>Fonctionnement automatique</h3>
+    <div class="alerte">
+        <ul>
+            <li>Quand le RH clique <strong>Recalculer</strong> sur un bulletin neuf : si la DateEmbauche tombe dans le mois du bulletin et qu'il n'y a aucun bulletin anterieur, les jours travailles sont calcules automatiquement : <code>30 - (jour embauche - 1)</code>.</li>
+            <li>Si le RH a deja modifie JoursTravailles (valeur != 30), le recalcul <strong>ne l'ecrase pas</strong>.</li>
+            <li>Le mois suivant, JoursTravailles revient a 30 automatiquement (nouveau bulletin).</li>
+        </ul>
+    </div>
+
+    <!-- ===== CONTROLE EMBAUCHE ===== -->
+    <h2>Controle date d'embauche</h2>
+
+    <div class="erreur">
+        <strong>Un bulletin ne peut pas etre cree pour un mois anterieur a la date d'embauche.</strong><br>
+        Exemple : un salarie recrute le 17/04/2026 ne peut pas avoir de bulletin pour mars 2026 ou avant.
+    </div>
+    <div class="info">
+        <ul>
+            <li><strong>En generation batch :</strong> le salarie est simplement ignore (compte dans les "ignores").</li>
+            <li><strong>En creation manuelle :</strong> une erreur s'affiche a la sauvegarde avec le message : "Impossible de creer un bulletin pour 03/2026. [Nom] n'a ete recrute(e) que le 17/04/2026."</li>
+        </ul>
+    </div>
+
+    <!-- ===== REGLES METIER ===== -->
+    <h2>Regles metier</h2>
+    <div class="alerte">
+        <ul>
+            <li>Le bulletin doit etre en <strong>Brouillon</strong> pour etre modifie</li>
+            <li>Valider integre automatiquement le remboursement des prets du mois</li>
+            <li>Les lignes avec Source=Calcul sont recalculees automatiquement</li>
+            <li>Les lignes manuelles ne sont PAS recalculees (intentionnel)</li>
+            <li>Pour forcer le recalcul de SB/LOGT : utiliser "Recalculer"</li>
+            <li>Les cotisations IPRES/CSS sont calculees sur le <strong>Brut Social</strong></li>
+            <li>L'IR et la TRIMF sont calcules sur le <strong>Brut Fiscal</strong></li>
+            <li>La CFCE est une charge patronale uniquement (pas de retenue salarie)</li>
+        </ul>
+    </div>
+
+    <!-- ===== VERROUILLAGE ===== -->
+    <h2>Verrouillage optimiste</h2>
+
+    <div class="info">
+        Le bulletin est protege par un <strong>verrouillage optimiste</strong> : si deux utilisateurs modifient le meme bulletin en meme temps, le deuxieme a enregistrer recoit un message d'avertissement et doit rafraichir la page (F5) avant de reessayer. Cela evite les ecrasements de donnees involontaires.
+    </div>
+
+    <div class="alerte">
+        <strong>Message "Ce bulletin a ete modifie par un autre utilisateur" :</strong> un autre RH a modifie et enregistre ce bulletin pendant que vous travailliez dessus. Rafraichissez la vue (F5) pour charger la version a jour, puis refaites vos modifications si necessaire.
+    </div>
+
+    <!-- ===== HEURES SUPPLEMENTAIRES ===== -->
+    <h2>Heures supplementaires</h2>
+
+    <div class="info">
+        Si le module HS est active (voir <a href="/help/heures-supplementaires.html">Aide Heures Sup.</a>), un bouton <strong>Ajouter HS</strong> apparait sur le bulletin. Les heures supplementaires sont calculees automatiquement et integrees dans le Brut.
+    </div>
+
+    <!-- ===== ERREURS ===== -->
+    <h2>Erreurs frequentes</h2>
+    <div class="erreur">
+        <strong>SB ou LOGT = 0 &rarr;</strong> cliquer "Recalculer". Verifier aussi que la fiche salarie a un SalaireBase et IndemniteLogement renseignes.
+    </div>
+    <div class="erreur">
+        <strong>Pret non visible &rarr;</strong> verifier que le pret est En cours et que la date echeance correspond au mois du bulletin. Voir <a href="/help/prets.html">Aide Prets</a>.
+    </div>
+    <div class="erreur">
+        <strong>IR = 0 &rarr;</strong> verifier les parts fiscales du salarie et le bareme IR parametre.
+    </div>
+    <div class="erreur">
+        <strong>"Impossible de creer un bulletin..." &rarr;</strong> la DateEmbauche du salarie est posterieure au mois du bulletin. Le premier bulletin possible est le mois d'embauche.
+    </div>
+    <div class="erreur">
+        <strong>JoursTravailles revient a 30 apres Recalcul &rarr;</strong> cela se produit uniquement si la valeur etait deja a 30 ou 0. Si vous avez mis une valeur specifique (ex: 20), elle est preservee.
+    </div>
+    <div class="erreur">
+        <strong>"Ce bulletin a ete modifie par un autre utilisateur" &rarr;</strong> conflit de verrouillage optimiste. Rafraichissez la vue (F5) et reessayez.
+    </div>
+    <div class="erreur">
+        <strong>"Un bulletin existe deja pour ce salarie sur cette periode" &rarr;</strong> un bulletin avec le meme salarie, annee et mois existe deja. Chaque salarie ne peut avoir qu'un seul bulletin par mois.
+    </div>
+    <div class="erreur">
+        <strong>"Les montants d'une ligne de bulletin ne peuvent pas etre negatifs" &rarr;</strong> la base, le montant salarie ou le montant employeur d'une ligne est negatif. Corrigez la saisie.
+    </div>
+</body>
+</html>

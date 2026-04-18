@@ -345,6 +345,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             ModeleAuto_Defaut_PrimeTransport = 0m;
             ModeleAuto_Defaut_Sursalaire = 0m;
 
+            // Heures supplémentaires : désactivées par défaut, taux légaux sénégalais
+            ActiverHeuresSupplementaires = false;
+            TauxHS_JourOuvrable = 15m;
+            TauxHS_Nuit = 40m;
+            TauxHS_DimancheFerie = 60m;
+            TauxHS_NuitDimancheFerie = 100m;
+
             if (SmtpPort == 0) SmtpPort = 587;
             if (string.IsNullOrWhiteSpace(SmtpHost)) SmtpHost = "smtp.office365.com";
             if (!SmtpUseSsl) SmtpUseSsl = true;
@@ -832,6 +839,81 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(TemplateContratStage), ref templateContratStage, value);
         }
         FileData templateContratStage;
+
+        // ── ONGLET : Heures supplémentaires ─────────────────────────
+
+        [Category("Heures supplémentaires")]
+        [XafDisplayName("Activer les heures supplémentaires")]
+        [ToolTip("Si désactivé, la saisie d'heures supplémentaires n'est pas disponible sur les bulletins.")]
+        public bool ActiverHeuresSupplementaires
+        {
+            get => activerHS;
+            set => SetPropertyValue(nameof(ActiverHeuresSupplementaires), ref activerHS, value);
+        }
+        bool activerHS;
+
+        [Category("Heures supplémentaires")]
+        [XafDisplayName("Taux jour ouvrable (%)")]
+        [DbType("decimal(18,2)")]
+        [ModelDefault("DisplayFormat", "N2"), ModelDefault("EditMask", "N2")]
+        [ToolTip("Majoration légale : 15% au Sénégal")]
+        public decimal TauxHS_JourOuvrable
+        {
+            get => tauxHsJour;
+            set => SetPropertyValue(nameof(TauxHS_JourOuvrable), ref tauxHsJour, value);
+        }
+        decimal tauxHsJour;
+
+        [Category("Heures supplémentaires")]
+        [XafDisplayName("Taux nuit (%)")]
+        [DbType("decimal(18,2)")]
+        [ModelDefault("DisplayFormat", "N2"), ModelDefault("EditMask", "N2")]
+        [ToolTip("Majoration légale : 40% au Sénégal")]
+        public decimal TauxHS_Nuit
+        {
+            get => tauxHsNuit;
+            set => SetPropertyValue(nameof(TauxHS_Nuit), ref tauxHsNuit, value);
+        }
+        decimal tauxHsNuit;
+
+        [Category("Heures supplémentaires")]
+        [XafDisplayName("Taux dimanche / férié (%)")]
+        [DbType("decimal(18,2)")]
+        [ModelDefault("DisplayFormat", "N2"), ModelDefault("EditMask", "N2")]
+        [ToolTip("Majoration légale : 60% au Sénégal")]
+        public decimal TauxHS_DimancheFerie
+        {
+            get => tauxHsDim;
+            set => SetPropertyValue(nameof(TauxHS_DimancheFerie), ref tauxHsDim, value);
+        }
+        decimal tauxHsDim;
+
+        [Category("Heures supplémentaires")]
+        [XafDisplayName("Taux nuit dimanche / férié (%)")]
+        [DbType("decimal(18,2)")]
+        [ModelDefault("DisplayFormat", "N2"), ModelDefault("EditMask", "N2")]
+        [ToolTip("Majoration légale : 100% au Sénégal")]
+        public decimal TauxHS_NuitDimancheFerie
+        {
+            get => tauxHsNuitDim;
+            set => SetPropertyValue(nameof(TauxHS_NuitDimancheFerie), ref tauxHsNuitDim, value);
+        }
+        decimal tauxHsNuitDim;
+
+        /// <summary>Renvoie le taux HS paramétré pour un type donné, ou le taux légal par défaut.</summary>
+        public decimal GetTauxHS(TypeHeureSupplementaire type)
+        {
+            var taux = type switch
+            {
+                TypeHeureSupplementaire.JourOuvrable => TauxHS_JourOuvrable,
+                TypeHeureSupplementaire.Nuit => TauxHS_Nuit,
+                TypeHeureSupplementaire.DimancheFerie => TauxHS_DimancheFerie,
+                TypeHeureSupplementaire.NuitDimancheFerie => TauxHS_NuitDimancheFerie,
+                _ => 0m
+            };
+            // Si le taux n'a pas été configuré (= 0), utiliser le taux légal par défaut
+            return taux > 0 ? taux : HeureSupplementaire.GetTauxLegalDefaut(type);
+        }
 
         [Category("Intégrations")]
         [XafDisplayName("Google Maps API Key")]

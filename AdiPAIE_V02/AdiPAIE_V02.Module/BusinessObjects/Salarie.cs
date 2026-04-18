@@ -66,6 +66,18 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         DefaultContexts.Save,
         "IsNull(Manager) OR Manager.Oid != Oid",
         CustomMessageTemplate = "Un salarié ne peut pas être son propre responsable.")]
+    [RuleCriteria("Salarie_DateSortie_GTE_DateEmbauche",
+        DefaultContexts.Save,
+        "DateSortie = #01/01/0001# OR DateSortie >= DateEmbauche",
+        CustomMessageTemplate = "La date de sortie ne peut pas être antérieure à la date d'embauche.")]
+    [RuleCriteria("Salarie_SalaireBase_Positif",
+        DefaultContexts.Save,
+        "Not IsNull(Echelon) OR SalaireBase >= 0",
+        CustomMessageTemplate = "Le salaire de base doit être positif (ou affectez un échelon).")]
+    [RuleCriteria("Salarie_Remunerations_NonNegatives",
+        DefaultContexts.Save,
+        "IndemniteLogement >= 0 AND Sursalaire >= 0 AND PrimeTransport >= 0 AND AvantageVehicule >= 0",
+        CustomMessageTemplate = "Les montants de rémunération ne peuvent pas être négatifs.")]
     public class Salarie : Person
     {
         public Salarie(Session session) : base(session) { }
@@ -110,6 +122,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         string contactUrgenceLien;
         string groupeSanguin;
         string permisConduire;
+        string filsDe;
 
         // ── Identité ──────────────────────────────────────────
         [Size(20)]
@@ -139,6 +152,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         {
             get => nationalite;
             set => SetPropertyValue(nameof(Nationalite), ref nationalite, value);
+        }
+
+        [Size(200)]
+        [Category("Identité")]
+        [XafDisplayName("Fils / Fille de")]
+        public string FilsDe
+        {
+            get => filsDe;
+            set => SetPropertyValue(nameof(FilsDe), ref filsDe, value?.Trim());
         }
 
         [ImmediatePostData]
@@ -534,7 +556,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public XPCollection<DemandeDeplacement> Deplacements
             => GetCollection<DemandeDeplacement>(nameof(Deplacements));
 
-        [Association("Salarie-Avancements"), Aggregated]
+        [Association("Salarie-Avancements")]  // Retiré [Aggregated] — il empêchait XAF d'afficher Salarie dans la DetailView du child
         [XafDisplayName("Avancements / Promotions")]
         public XPCollection<DemandeAvancement> Avancements
             => GetCollection<DemandeAvancement>(nameof(Avancements));
@@ -774,7 +796,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         {
             base.OnSaving();
             if (!IsDeleted && !string.IsNullOrWhiteSpace(Email))
+            {
                 Email = Email.Trim().ToLowerInvariant();
+                if (!System.Text.RegularExpressions.Regex.IsMatch(Email,
+                    @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                    throw new UserFriendlyException(
+                        $"Format d'email invalide : « {Email} ». Exemple : prenom.nom@domaine.sn");
+            }
         }
 
         protected override void OnChanged(string propertyName, object oldValue, object newValue)

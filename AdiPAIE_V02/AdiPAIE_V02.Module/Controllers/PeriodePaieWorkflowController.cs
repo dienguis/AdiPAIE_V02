@@ -1,6 +1,9 @@
-﻿using DevExpress.ExpressApp;
+﻿using AdiPAIE_V02.Module.Controllers.RH;
+using AdiPAIE_V02.Module.Services;
+using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
+using System.Linq;
 
 namespace AdiPAIE_V02.Module.Controllers
 {
@@ -21,9 +24,32 @@ namespace AdiPAIE_V02.Module.Controllers
             ouvrirAction.Execute += (s, e) => {
                 var p = (BusinessObjects.PeriodePaie)e.CurrentObject;
                 p?.Ouvrir();
+
+                if (p != null)
+                {
+                    AuditService.Enregistrer(Application, "PeriodePaie", "Ouvrir",
+                        p.Oid.ToString(), p.DisplayName,
+                        $"Période {p.DateDebut:MM/yyyy} à {p.DateFin:MM/yyyy} ouverte",
+                        ancienStatut: Domain.DomainEnums.PeriodePaieStatut.Brouillon.ToString(),
+                        nouveauStatut: Domain.DomainEnums.PeriodePaieStatut.Ouverte.ToString());
+                }
+
                 ObjectSpace.CommitChanges();
                 View.Refresh();
                 UpdateActionStates();
+
+                // Email → RH : période ouverte
+                if (p != null)
+                    WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
+                        WorkflowEmailHelper.ExtraireEmailsRH(Application),
+                        $"[AdiPAIE] Période de paie ouverte — {p.DisplayName}",
+                        WorkflowEmailHelper.HtmlTableau("Période de paie ouverte",
+                            "La période est ouverte. Vous pouvez créer et calculer les bulletins.",
+                            new[] {
+                                ("Période", p.DisplayName ?? "—"),
+                                ("Début", $"{p.DateDebut:dd/MM/yyyy}"),
+                                ("Fin", $"{p.DateFin:dd/MM/yyyy}"),
+                            }));
             };
 
             // Réouvrir
@@ -36,6 +62,16 @@ namespace AdiPAIE_V02.Module.Controllers
             reouvrirAction.Execute += (s, e) => {
                 var p = (BusinessObjects.PeriodePaie)e.CurrentObject;
                 p?.Reouvrir();
+
+                if (p != null)
+                {
+                    AuditService.Enregistrer(Application, "PeriodePaie", "Réouvrir",
+                        p.Oid.ToString(), p.DisplayName,
+                        $"Période {p.DateDebut:MM/yyyy} à {p.DateFin:MM/yyyy} réouverte",
+                        ancienStatut: Domain.DomainEnums.PeriodePaieStatut.Cloturee.ToString(),
+                        nouveauStatut: Domain.DomainEnums.PeriodePaieStatut.Ouverte.ToString());
+                }
+
                 ObjectSpace.CommitChanges();
                 View.Refresh();
                 UpdateActionStates();
@@ -52,9 +88,37 @@ namespace AdiPAIE_V02.Module.Controllers
             cloturerAction.Execute += (s, e) => {
                 var p = (BusinessObjects.PeriodePaie)e.CurrentObject;
                 p?.Cloturer();
+
+                if (p != null)
+                {
+                    AuditService.Enregistrer(Application, "PeriodePaie", "Clôturer",
+                        p.Oid.ToString(), p.DisplayName,
+                        $"Période {p.DateDebut:MM/yyyy} à {p.DateFin:MM/yyyy} clôturée",
+                        ancienStatut: Domain.DomainEnums.PeriodePaieStatut.Ouverte.ToString(),
+                        nouveauStatut: Domain.DomainEnums.PeriodePaieStatut.Cloturee.ToString());
+                }
+
                 ObjectSpace.CommitChanges();
                 View.Refresh();
                 UpdateActionStates();
+
+                // Email → RH + DAF + Comptable : période clôturée
+                if (p != null)
+                {
+                    var dests = WorkflowEmailHelper.ExtraireEmailsRH(Application)
+                        .Concat(WorkflowEmailHelper.ExtraireEmailsDAF(Application))
+                        .Concat(WorkflowEmailHelper.ExtraireEmailsComptable(Application))
+                        .Distinct().ToList();
+                    WorkflowEmailHelper.EnvoyerEmailsAsync(Application, dests,
+                        $"[AdiPAIE] Période de paie clôturée — {p.DisplayName}",
+                        WorkflowEmailHelper.HtmlTableau("Période de paie clôturée",
+                            "La période a été clôturée définitivement. Les bulletins sont verrouillés.",
+                            new[] {
+                                ("Période", p.DisplayName ?? "—"),
+                                ("Début", $"{p.DateDebut:dd/MM/yyyy}"),
+                                ("Fin", $"{p.DateFin:dd/MM/yyyy}"),
+                            }));
+                }
             };
 
             // Masquage simple par statut + Company renseignée

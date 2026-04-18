@@ -1,4 +1,5 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.Controllers;
 using AdiPAIE_V02.Module.Services;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
 using DevExpress.ExpressApp;
@@ -50,6 +51,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void ValiderAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var d = (CongeDemande)e.CurrentObject;
+            var ancienStatut = d.Statut.ToString();
 
             if (d.Statut == CongeStatut.EnAttenteN1)
             {
@@ -65,6 +67,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 _NotifierRH(d);
             }
 
+            AuditService.Enregistrer(Application, "CongeDemande", "Valider",
+                d.Oid.ToString(), d.Salarie?.FullName,
+                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} validée",
+                ancienStatut: ancienStatut, nouveauStatut: d.Statut.ToString());
             ObjectSpace.CommitChanges();
             View.Refresh();
         }
@@ -72,6 +78,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void RejeterAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var d = (CongeDemande)e.CurrentObject;
+            var ancienStatut = d.Statut.ToString();
 
             // Libérer la réservation de solde si elle avait été faite
             if (d.SoldeVerifie && d.Type != null && d.Salarie != null)
@@ -92,6 +99,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 + (string.IsNullOrWhiteSpace(d.MotifRejet) ? "" : "Motif : " + d.MotifRejet + ". ")
                 + "Vous pouvez la modifier et la resoumettre depuis votre espace salarié.");
 
+            AuditService.Enregistrer(Application, "CongeDemande", "Rejeter",
+                d.Oid.ToString(), d.Salarie?.FullName,
+                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} rejetée — Motif : {d.MotifRejet ?? "aucun motif enregistré"}",
+                ancienStatut: ancienStatut, nouveauStatut: d.Statut.ToString());
             ObjectSpace.CommitChanges();
             PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
             View.Refresh();
@@ -142,10 +153,9 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         {
             try
             {
-                var userName = DevExpress.ExpressApp.SecuritySystem.CurrentUserName;
-                var user = ObjectSpace.GetObjectsQuery<ApplicationUser>()
-                    .FirstOrDefault(u => u.UserName == userName);
-                return user?.Salarie;
+                // Utilise le helper centralise (3 strategies de detection)
+                // pour etre coherent avec EspaceSalarieHelper
+                return EspaceSalarieHelper.GetSalarieConnecte(ObjectSpace);
             }
             catch { return null; }
         }

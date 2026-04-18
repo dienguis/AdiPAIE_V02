@@ -2,36 +2,29 @@
 <Application xmlns="http://schemas.devexpress.com/eXpressApp/2005/01/Model.xafml" Title="SunuPaie" DateTimeFormat="dd/MM/yyyy" DateEditMask="dd/MM/yyyy">
   <ActionDesign>
     <Actions>
-  
-  
-      <Action Id="CopyRubrique" ImageName="Action_Copy" />
-     
-      <Action Id="Periode_Cloturer" ImageName="Action_Close" />
-      <Action Id="Periode_Ouvrir" ImageName="Open" />
-     <!-- ═══ Actions standards XAF — CaptionAndImage sur Bulletin DetailView ═══ -->
-     <Action Id="Save" PaintStyle="Default" />
+    <Action Id="Save" PaintStyle="Default" />
       <Action Id="SaveAndClose" PaintStyle="Default" />
       <Action Id="Cancel" PaintStyle="Default" />
       <Action Id="Delete" PaintStyle="Default" />
       <Action Id="EditObject" PaintStyle="Default" />
       <Action Id="CloneObject" PaintStyle="Default" />
-      <Action Id="Bulletin_RecalculerMaintenant" PaintStyle="Caption" ImageName="Action_Refresh" />
-      <Action Id="BulletinRecalcul" PaintStyle="Caption" ImageName="Action_Calculate" />
-      <Action Id="RemplacerDepuisModele" PaintStyle="Caption" ImageName="Action_Reset" />
-      <Action Id="ChargerDepuisModele" PaintStyle="Caption" ImageName="Action_Import" />
-      <Action Id="NormalizeBulletinLines" PaintStyle="Caption" ImageName="ArrangeBringToFront" />
-      <Action Id="RemplacerLignesModeleSeulement" PaintStyle="Caption" ImageName="Action_Reset" />
-      <Action Id="ReloadModeleDefaults" PaintStyle="Caption" ImageName="Action_Refresh" />
-      <Action Id="Bulletin.ActionRecalculerDepuisParametrageSalarie" PaintStyle="Caption" ImageName="Action_Refresh" />
-      <Action Id="Bulletin.ActionRecalculerGrille" PaintStyle="Caption" ImageName="Action_Calculate" />
-      <Action Id="RenvoyerBulletin" PaintStyle="Caption" ImageName="MailSend" />
-      <Action Id="ValiderBulletin" PaintStyle="Caption" ImageName="Action_Validation" />
+      <Action Id="Bulletin_RecalculerMaintenant" PaintStyle="CaptionAndImage" ImageName="btn_recalculer" />
+      <Action Id="BulletinRecalcul" PaintStyle="Caption" ImageName="btn_recalculer" IsVisible="False" />
+      <Action Id="RemplacerDepuisModele" PaintStyle="Caption" ImageName="Action_Reset" IsVisible="False" />
+      <Action Id="ChargerDepuisModele" PaintStyle="CaptionAndImage" ImageName="btn_charger" />
+      <Action Id="NormalizeBulletinLines" PaintStyle="CaptionAndImage" ImageName="btn_reordonner" />
+      <Action Id="RemplacerLignesModeleSeulement" PaintStyle="Caption" ImageName="Action_Reset" IsVisible="False" />
+      <Action Id="ReloadModeleDefaults" PaintStyle="Caption" ImageName="Action_Refresh" IsVisible="False" />
+      <Action Id="Bulletin.ActionRecalculerDepuisParametrageSalarie" PaintStyle="Caption" ImageName="btn_recalculer" IsVisible="False" />
+      <Action Id="Bulletin.ActionRecalculerGrille" PaintStyle="Caption" ImageName="btn_recalculer" IsVisible="False" />
+      <Action Id="RenvoyerBulletin" PaintStyle="CaptionAndImage" ImageName="btn_renvoyer" />
+      <Action Id="ValiderBulletin" PaintStyle="CaptionAndImage" ImageName="btn_valider" />
       <Action Id="EnvoyerClePDF" PaintStyle="Caption" ImageName="BO_Security_Permission" />
       <Action Id="ApercuEnvoiBulletinsMois" PaintStyle="Caption" ImageName="MailMerge" />
       <Action Id="ExporterBulletinsMoisCourant" PaintStyle="Caption" ImageName="BO_Invoice" />
       <Action Id="ExporterBulletinsSelection" PaintStyle="Caption" ImageName="BO_Invoice" />
       <Action Id="ToggleBulletinScope" PaintStyle="Caption" ImageName="Action_Filter" />
-   
+      <Action Id="OpenHelp" PaintStyle="CaptionAndImage" ImageName="Help" ToolTip="Ouvre le guide d'utilisation du module courant." />
     </Actions>
   </ActionDesign>
   <BOModel>
@@ -42,11 +35,12 @@
       <Item Id="GRH - Paie" Caption="Paie" Index="0" ImageName="BO_Folder" IsNewNode="True">
         <Items IsNewNode="True">
           <Item Id="Paie_SalariesPaie" Caption="Bulletins de paie" ViewId="Salarie_Paie_ListView" Index="0" ImageName="BO_Sale_Item" IsNewNode="True" />
-          <Item Id="PeriodePaie_ListView" Caption="Périodes de paie" ViewId="PeriodePaie_ListView" Index="1" ImageName="BO_Scheduler" IsNewNode="True" />
-          <Item Id="RH_Prets" Caption="Prêts" ViewId="Pret_ListView" Index="2" ImageName="BO_Sale_Item" IsNewNode="True" />
-          <Item Id="RH_EcheancesPrets" Caption="Échéances prêts" ViewId="PretEcheance_ListView" Index="3" IsNewNode="True" />
-          <Item Id="SimulationSursalaire_ListView" Caption="Simulations de paie" ViewId="SimulationSursalaire_ListView" Index="4" ImageName="Business_Calculator" IsNewNode="True" />
-          <Item Id="Paie_GenererBulletins" Caption="Générer les bulletins" ViewId="Salarie_Generation_ListView" Index="5" ImageName="Action_Printing_Preview" Visible="False" IsNewNode="True" />
+          <Item Id="Paie_ConsultationBulletins" Caption="Consultation bulletins" ViewId="Bulletin_ListView" Index="1" ImageName="BO_Sale_Item" IsNewNode="True" />
+          <Item Id="PeriodePaie_ListView" Caption="Périodes de paie" ViewId="PeriodePaie_ListView" Index="2" ImageName="BO_Scheduler" IsNewNode="True" />
+          <Item Id="RH_Prets" Caption="Prêts" ViewId="Pret_ListView" Index="3" ImageName="BO_Sale_Item" IsNewNode="True" />
+          <Item Id="RH_EcheancesPrets" Caption="Échéances prêts" ViewId="PretEcheance_ListView" Index="4" IsNewNode="True" />
+          <Item Id="SimulationSursalaire_ListView" Caption="Simulations de paie" ViewId="SimulationSursalaire_ListView" Index="5" ImageName="Business_Calculator" IsNewNode="True" />
+          <Item Id="Paie_GenererBulletins" Caption="Générer les bulletins" ViewId="Salarie_Generation_ListView" Index="6" ImageName="Action_Printing_Preview" Visible="False" IsNewNode="True" />
         </Items>
       </Item>
       <Item Id="Ressources humaines" Caption="Gestion du personnel" Index="5" ImageName="BO_Employee" IsNewNode="True">
@@ -102,7 +96,7 @@
       </Item>
       <Item Id="GRH_EspaceSalarie" Caption="Mon espace" Index="30" ImageName="BO_Person" IsNewNode="True">
         <Items IsNewNode="True">
-          <Item Id="GRH_MesBulletins" Caption="Mes bulletins" ViewId="Salarie_Paie_ListView" Index="0" ImageName="BO_Sale_Item" IsNewNode="True" />
+          <Item Id="GRH_MesBulletins" Caption="Mes bulletins" ViewId="Bulletin_ListView" Index="0" ImageName="BO_Sale_Item" IsNewNode="True" />
           <Item Id="GRH_MesConges" Caption="Mes congés" ViewId="CongeDemande_ListView" Index="1" ImageName="BO_Scheduler" IsNewNode="True" />
           <Item Id="GRH_MesSoldesConges" Caption="Mon solde de congés" ViewId="SoldeConge_ListView" Index="2" ImageName="BO_Scheduler" IsNewNode="True" />
           <Item Id="GRH_MesAttestations" Caption="Mes attestations" ViewId="DemandeAttestation_ListView" Index="3" IsNewNode="True" />
@@ -766,6 +760,11 @@
                 <LayoutItem Id="TemplateCertificatEmploi" ViewItem="TemplateCertificatEmploi" RelativeSize="25" IsNewNode="True" />
                 <LayoutItem Id="TemplateCessationPaiement" ViewItem="TemplateCessationPaiement" RelativeSize="25" IsNewNode="True" />
               </LayoutGroup>
+              <LayoutGroup Id="Tmpl_Contrats" ShowCaption="True" Caption="Contrats de travail" Direction="Vertical" RelativeSize="25" IsNewNode="True">
+                <LayoutItem Id="TemplateContratCDI" ViewItem="TemplateContratCDI" RelativeSize="33" IsNewNode="True" />
+                <LayoutItem Id="TemplateContratCDD" ViewItem="TemplateContratCDD" RelativeSize="33" IsNewNode="True" />
+                <LayoutItem Id="TemplateContratStage" ViewItem="TemplateContratStage" RelativeSize="34" IsNewNode="True" />
+              </LayoutGroup>
               <LayoutGroup Id="Tmpl_Mission" ShowCaption="True" Caption="Missions" Direction="Vertical" RelativeSize="25" IsNewNode="True">
                 <LayoutItem Id="TemplateEtatFrais" ViewItem="TemplateEtatFrais" RelativeSize="50" IsNewNode="True" />
                 <LayoutItem Id="TemplateOrdreMission" ViewItem="TemplateOrdreMission" RelativeSize="50" IsNewNode="True" />
@@ -1007,7 +1006,8 @@
                   <LayoutItem Id="LastName" ViewItem="LastName" Index="3" RelativeSize="15" IsNewNode="True" />
                   <LayoutItem Id="FullName" ViewItem="FullName" Index="4" RelativeSize="15" IsNewNode="True" />
                   <LayoutItem Id="Birthday" ViewItem="Birthday" Index="5" RelativeSize="13" IsNewNode="True" />
-                  <LayoutItem Id="Nationalite" ViewItem="Nationalite" Index="6" RelativeSize="15" IsNewNode="True" />
+                  <LayoutItem Id="Nationalite" ViewItem="Nationalite" Index="6" RelativeSize="13" IsNewNode="True" />
+                  <LayoutItem Id="FilsDe" ViewItem="FilsDe" Index="7" RelativeSize="12" IsNewNode="True" />
                 </LayoutGroup>
                 <LayoutGroup Id="Id_Col2" ShowCaption="False" RelativeSize="35" IsNewNode="True">
                   <LayoutItem Id="Photo" ShowCaption="False" ViewItem="Photo" Index="0" RelativeSize="50" IsNewNode="True" />

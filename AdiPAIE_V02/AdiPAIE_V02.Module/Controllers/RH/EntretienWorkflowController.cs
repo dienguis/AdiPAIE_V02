@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
+using DevExpress.Persistent.Base;
 
 namespace AdiPAIE_V02.Module.Controllers.RH
 {
@@ -68,8 +69,15 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             planifierAction.Execute += (s, e) =>
             {
                 var en = (EntretienAnnuel)View.CurrentObject;
+                var oldStatut = en.Statut;
                 var date = en.DatePlanifiee ?? DateTime.Today.AddDays(7);
                 en.Planifier(date);
+
+                AuditService.Enregistrer(Application, "EntretienAnnuel", "Planifier",
+                    en.Oid.ToString(), en.DisplayName,
+                    $"Planifié pour le {date:dd/MM/yyyy}",
+                    ancienStatut: oldStatut.ToString(), nouveauStatut: en.Statut.ToString());
+
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();
             };
@@ -183,12 +191,18 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void LancerEvaluationAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var en = (EntretienAnnuel)View.CurrentObject;
+            var oldStatut = en.Statut;
             en.LancerEvaluation();
 
             // Initialise aptitudes si encadrant
             if (en.EstEnSituationEncadrement)
                 EntretienManagementInitializer.Initialiser(en,
                     ((DevExpress.ExpressApp.Xpo.XPObjectSpace)ObjectSpace).Session);
+
+            AuditService.Enregistrer(Application, "EntretienAnnuel", "LancerEvaluation",
+                en.Oid.ToString(), en.DisplayName,
+                $"Évaluation lancée vers {en.Evaluateur?.FullName}",
+                ancienStatut: oldStatut.ToString(), nouveauStatut: en.Statut.ToString());
 
             ObjectSpace.CommitChanges();
 
@@ -213,7 +227,14 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 throw new UserFriendlyException(
                     "Veuillez renseigner la note globale avant de soumettre au salarié.");
 
+            var oldStatut = en.Statut;
             en.SoumettreAuSalarie();
+
+            AuditService.Enregistrer(Application, "EntretienAnnuel", "SoumettreAuSalarie",
+                en.Oid.ToString(), en.DisplayName,
+                $"Transmis à {en.Salarie?.FullName} pour observations",
+                ancienStatut: oldStatut.ToString(), nouveauStatut: en.Statut.ToString());
+
             ObjectSpace.CommitChanges();
 
             // Notifie le salarié
@@ -232,7 +253,14 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void SoumettreObservationsAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var en = (EntretienAnnuel)View.CurrentObject;
+            var oldStatut = en.Statut;
             en.SoumettreObservations();
+
+            AuditService.Enregistrer(Application, "EntretienAnnuel", "SoumettreObservations",
+                en.Oid.ToString(), en.DisplayName,
+                $"Observations soumises par {en.Salarie?.FullName}",
+                ancienStatut: oldStatut.ToString(), nouveauStatut: en.Statut.ToString());
+
             ObjectSpace.CommitChanges();
 
             // Notifie N+1
@@ -250,7 +278,14 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void ValiderObservationsAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var en = (EntretienAnnuel)View.CurrentObject;
+            var oldStatut = en.Statut;
             en.ValiderObservationsN1();
+
+            AuditService.Enregistrer(Application, "EntretienAnnuel", "ValiderObservations",
+                en.Oid.ToString(), en.DisplayName,
+                $"Observations validées par {en.Evaluateur?.FullName}",
+                ancienStatut: oldStatut.ToString(), nouveauStatut: en.Statut.ToString());
+
             ObjectSpace.CommitChanges();
 
             if (en.Statut == EntretienStatut.EnAttenteN2)
@@ -280,7 +315,14 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void ValiderN2Action_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var en = (EntretienAnnuel)View.CurrentObject;
+            var oldStatut = en.Statut;
             en.ValiderN2();
+
+            AuditService.Enregistrer(Application, "EntretienAnnuel", "ValiderN2",
+                en.Oid.ToString(), en.DisplayName,
+                $"Validée par {en.ValideurN2?.FullName} (N+2)",
+                ancienStatut: oldStatut.ToString(), nouveauStatut: en.Statut.ToString());
+
             ObjectSpace.CommitChanges();
 
             _NotifierRHEmail(en);
@@ -305,7 +347,14 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 throw new UserFriendlyException(
                     "Veuillez saisir un motif de rejet dans le champ 'Motif de rejet N+2'.");
 
+            var oldStatut = en.Statut;
             en.RejeterN2(en.MotifRejetN2);
+
+            AuditService.Enregistrer(Application, "EntretienAnnuel", "RejeterN2",
+                en.Oid.ToString(), en.DisplayName,
+                $"Rejetée par {en.ValideurN2?.FullName} (N+2). Motif : {en.MotifRejetN2}",
+                ancienStatut: oldStatut.ToString(), nouveauStatut: en.Statut.ToString());
+
             ObjectSpace.CommitChanges();
 
             // Notifie N+1
@@ -324,8 +373,15 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         void CloturerAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var en = (EntretienAnnuel)View.CurrentObject;
+            var oldStatut = en.Statut;
             en.Cloturer();
             _ArchiverDansDossier(en);
+
+            AuditService.Enregistrer(Application, "EntretienAnnuel", "Cloturer",
+                en.Oid.ToString(), en.DisplayName,
+                $"Clôturé. Score final : {en.ScoreGlobal:N2}/5",
+                ancienStatut: oldStatut.ToString(), nouveauStatut: en.Statut.ToString());
+
             ObjectSpace.CommitChanges();
 
             // Notifie le salarié

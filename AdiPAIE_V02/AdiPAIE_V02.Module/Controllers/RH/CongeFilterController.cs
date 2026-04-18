@@ -1,9 +1,7 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.Controllers;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
-using DevExpress.ExpressApp.Xpo;
-using DevExpress.Xpo;
-using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.Controllers.RH
@@ -15,11 +13,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
     /// N+1        → ses demandes + EnAttenteN1 dont il est ValideurN1
     /// N+2        → ses demandes + EnAttenteN2 dont il est ValideurN2
     /// RH / Admin → toutes les demandes Soumise, Accordée, Refusée, Annulée
-    ///              (PAS les Brouillon ni les EnAttente encore en circuit hiérarchique)
     /// </summary>
     public class CongeFilterController
         : ObjectViewController<ListView, CongeDemande>
     {
+        private const string FilterKey = "RoleFilter";
+
         protected override void OnActivated()
         {
             base.OnActivated();
@@ -28,18 +27,17 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
         private void AppliquerFiltre()
         {
-            var session = ((XPObjectSpace)ObjectSpace).Session;
-            var userName = DevExpress.ExpressApp.SecuritySystem.CurrentUserName;
+            // Récupérer le salarié connecté
+            var salConn = EspaceSalarieHelper.GetSalarieConnecte(ObjectSpace);
 
-            var user = new XPQuery<ApplicationUser>(session)
-                .FirstOrDefault(u => u.UserName == userName);
-
-            var salConn = user?.Salarie;
-
+            // Pas de salarié lié → ne rien toucher
             if (salConn == null)
+                return;
+
+            // RH → filtre RH (voit les demandes soumises/accordées/refusées/annulées)
+            if (!EspaceSalarieHelper.DoitRestreindreEspaceSalarie(ObjectSpace))
             {
-                // ── RH / Admin ─────────────────────────────────────
-                View.CollectionSource.Criteria["RoleFilter"] =
+                View.CollectionSource.Criteria[FilterKey] =
                     CriteriaOperator.Parse(
                         "Statut = ? OR Statut = ? OR Statut = ? OR Statut = ?",
                         (int)CongeStatut.Soumise,
@@ -49,22 +47,29 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 return;
             }
 
-            // ── Profil avec fiche salarié ──────────────────────────
-            var criterePropres = CriteriaOperator.Parse("Salarie = ?", salConn);
+            // ── Employé : ses propres demandes + celles où il est valideur ──
+            var criterePropres = CriteriaOperator.Parse("Salarie.Oid = ?", salConn.Oid);
 
             var critereValideurN1 = CriteriaOperator.Parse(
-                "Statut = ? AND ValideurN1 = ?",
-                (int)CongeStatut.EnAttenteN1, salConn);
+                "Statut = ? AND ValideurN1.Oid = ?",
+                (int)CongeStatut.EnAttenteN1, salConn.Oid);
 
             var critereValideurN2 = CriteriaOperator.Parse(
-                "Statut = ? AND ValideurN2 = ?",
-                (int)CongeStatut.EnAttenteN2, salConn);
+                "Statut = ? AND ValideurN2.Oid = ?",
+                (int)CongeStatut.EnAttenteN2, salConn.Oid);
 
-            View.CollectionSource.Criteria["RoleFilter"] = new GroupOperator(
+            View.CollectionSource.Criteria[FilterKey] = new GroupOperator(
                 GroupOperatorType.Or,
                 criterePropres,
                 critereValideurN1,
                 critereValideurN2);
+        }
+
+        protected override void OnDeactivated()
+        {
+            if (View?.CollectionSource != null)
+                View.CollectionSource.Criteria.Remove(FilterKey);
+            base.OnDeactivated();
         }
     }
 }

@@ -1,56 +1,54 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.BusinessObjects;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
-using DevExpress.ExpressApp.Xpo;
-using DevExpress.Xpo;
-using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.Controllers
 {
     /// <summary>
-    /// Filtre la ListView SoldeConge pour l'espace salarié.
+    /// Filtre la ListView SoldeConge pour l'espace salarie.
     ///
-    ///   Salarié    → voit uniquement SES soldes actifs (année en cours)
-    ///   RH / Admin → voit tout (aucun filtre)
-    ///
-    /// Vue en lecture seule — aucune action d'édition.
+    ///   Salarie pur → voit uniquement SES soldes actifs (annee en cours et N-1)
+    ///   RH          → voit tout (aucun filtre)
+    ///   Autres      → ne touche pas au filtre
     /// </summary>
     public class SoldeCongeEspaceSalarieController
         : ObjectViewController<ListView, SoldeConge>
     {
+        private const string FilterKey = "SoldeCongeEspaceFilter";
+
         protected override void OnActivated()
         {
             base.OnActivated();
-            AppliquerFiltre();
-        }
 
-        private void AppliquerFiltre()
-        {
-            var session = ((XPObjectSpace)ObjectSpace).Session;
-            var userName = DevExpress.ExpressApp.SecuritySystem.CurrentUserName;
+            // Étape 1 : récupérer le salarié connecté
+            var salConn = EspaceSalarieHelper.GetSalarieConnecte(ObjectSpace);
 
-            var user = new XPQuery<ApplicationUser>(session)
-                .FirstOrDefault(u => u.UserName == userName);
-
-            // RH / Admin — aucun filtre
-            if (user?.Salarie == null)
-            {
-                View.CollectionSource.Criteria["SoldeCongeEspaceFilter"] = null;
+            // Pas de salarié lié → ne rien toucher (admin pur sans fiche salarié)
+            if (salConn == null)
                 return;
-            }
 
-            var salConn = user.Salarie;
+            // Étape 2 : vérifier si on doit restreindre (true = pas RH)
+            if (!EspaceSalarieHelper.DoitRestreindreEspaceSalarie(ObjectSpace))
+                return;
+
+            // Étape 3 : appliquer le filtre — l'employé voit uniquement SES soldes
             var annee = System.DateTime.Today.Year;
 
-            // Salarié voit ses soldes actifs de l'année en cours et N-1
-            View.CollectionSource.Criteria["SoldeCongeEspaceFilter"] =
+            View.CollectionSource.Criteria[FilterKey] =
                 new GroupOperator(GroupOperatorType.And,
-                    CriteriaOperator.Parse("Salarie = ?", salConn),
-                    CriteriaOperator.Parse(
-                        "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+SoldeCongeStatut,Actif#"),
-                    CriteriaOperator.Parse(
-                        "Annee = ? OR Annee = ?", annee, annee - 1));
+                    CriteriaOperator.Parse("Salarie.Oid = ?", salConn.Oid),
+                    CriteriaOperator.Parse("Statut = ?", (int)SoldeCongeStatut.Actif),
+                    new GroupOperator(GroupOperatorType.Or,
+                        CriteriaOperator.Parse("Annee = ?", annee),
+                        CriteriaOperator.Parse("Annee = ?", annee - 1)));
+        }
+
+        protected override void OnDeactivated()
+        {
+            if (View?.CollectionSource != null)
+                View.CollectionSource.Criteria.Remove(FilterKey);
+            base.OnDeactivated();
         }
     }
 }

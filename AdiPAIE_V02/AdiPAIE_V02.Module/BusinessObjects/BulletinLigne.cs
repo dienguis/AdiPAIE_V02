@@ -16,6 +16,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     //[DefaultClassOptions]
     [XafDisplayName("Ligne de bulletin")]
     [DefaultProperty(nameof(DisplayName))]
+    [RuleCriteria("BL_Montants_NonNegatifs", DefaultContexts.Save,
+        "Base >= 0 AND Montant >= 0 AND MontantEmployeur >= 0",
+        CustomMessageTemplate = "Les montants d'une ligne de bulletin ne peuvent pas être négatifs.")]
     [Appearance(
     "BL_Disable_All_When_Not_Manual",
     // ➜ ligne non manuelle = grisée (lecture seule)

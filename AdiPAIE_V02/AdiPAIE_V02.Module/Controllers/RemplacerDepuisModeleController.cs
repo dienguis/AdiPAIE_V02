@@ -46,7 +46,12 @@ namespace AdiPAIE_V02.Module.Controllers
                 InformationType.Success, 3000, InformationPosition.Top);
         }
 
-        protected override void OnActivated() => base.OnActivated();
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+            // Bouton retiré de l'interface (remplacé par Recalculer)
+            foreach (ActionBase a in Actions) a.Active["Retired"] = false;
+        }
         protected override void OnDeactivated() => base.OnDeactivated();
     }
 }

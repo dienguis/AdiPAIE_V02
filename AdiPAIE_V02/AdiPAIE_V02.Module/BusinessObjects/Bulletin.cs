@@ -22,6 +22,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     [DefaultClassOptions]
     [DefaultProperty(nameof(DisplayName))]
     [ImageName("BO_Person")]
+    [OptimisticLocking(true)]
+    [RuleCombinationOfPropertiesIsUnique(
+        "Bulletin_Salarie_Annee_Mois_Unique", DefaultContexts.Save,
+        "Salarie;Annee;Mois",
+        CustomMessageTemplate = "Un bulletin existe déjà pour ce salarié sur cette période ({Annee}/{Mois}).")]
     [Appearance(
     "Bulletin_ReadOnly_When_Closed",
     AppearanceItemType = "ViewItem",
@@ -83,6 +88,20 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         BulletinStatut statut = BulletinStatut.Brouillon;
         public BulletinStatut Statut { get => statut; set => SetPropertyValue(nameof(Statut), ref statut, value); }
 
+        // --- Jours travaillés (prorata) ---
+        // Valeur par défaut = 30. Modifiable par le RH pour proratiser le salaire
+        // (recrue en cours de mois, arrêt pour faute, absence non payée, etc.)
+        // sans toucher à la fiche salarié (Salarie.Base30Jour reste intact).
+        int joursTravailles = 30;
+        [XafDisplayName("Jours travaillés")]
+        [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [RuleRange(0, 30, CustomMessageTemplate = "Les jours travaillés doivent être entre 0 et 30.")]
+        public int JoursTravailles
+        {
+            get => joursTravailles;
+            set => SetPropertyValue(nameof(JoursTravailles), ref joursTravailles, value);
+        }
+
         // --- Totaux ---
         [DbType("decimal(18,0)"), EditorAlias(EditorAliases.DecimalPropertyEditor)]
         public decimal TotalGains { get => totalGains; set => SetPropertyValue(nameof(TotalGains), ref totalGains, value); }
@@ -134,6 +153,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [Association("Bulletin-PretsPreleves")]
         public XPCollection<PretEcheance> EcheancesPrelevees => GetCollection<PretEcheance>(nameof(EcheancesPrelevees));
+
+        [Association("Bulletin-HeuresSupplementaires"), Aggregated]
+        public XPCollection<HeureSupplementaire> HeuresSupplementaires => GetCollection<HeureSupplementaire>(nameof(HeuresSupplementaires));
 
         [NonPersistent]
         public string DisplayName => $"{Salarie?.FullName} - {Periode}";
@@ -223,33 +245,59 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 DateFin = DateDebut.Value.AddMonths(1).AddDays(-1);
             }
             if (NombrePartsFiscales <= 0m) NombrePartsFiscales = 1m;
+
+            // Jours travaillés : 30 par défaut, sera ajusté si prorata détecté
+            if (joursTravailles <= 0) JoursTravailles = 30;
         }
 
-        [Action(
-    Caption = "Recalculer depuis les données salarié",
-    ImageName = "Reset",
-    AutoCommit = true,
-    ToolTip = "Recharge les montants standards (salaire, logement, ancienneté, etc.) depuis le salarié, puis recalcule toutes les cotisations et totaux."
-)]
-        public void ActionRecalculerDepuisParametrageSalarie()
+        // NOTE : Le recalcul est géré par BulletinRecalcController (bouton "Recalculer" en toolbar)
+        // Les méthodes [Action] ci-dessous ont été supprimées car redondantes.
+
+        // ── Initialisation intelligente des jours travaillés ─────────────
+        // Appelé dans RecalculerCotisationsEtTotaux(depuisParametrage=true).
+        // À ce stade Salarie, Annee et Mois sont tous renseignés.
+        //
+        // Règle : on ne touche à JoursTravailles QUE si le RH ne l'a pas
+        // déjà modifié manuellement. Le marqueur est simple :
+        //   - JoursTravailles == 30 (ou 0) → on peut ajuster (prorata)
+        //   - JoursTravailles != 30 et != 0 → le RH a touché → on respecte
+        //
+        // Détection prorata premier bulletin :
+        //   - DateEmbauche tombe dans le mois du bulletin
+        //   - Aucun bulletin antérieur pour ce salarié
+        //   → JoursTravailles = 30 - (jourEmbauche - 1)
+        private void InitJoursTravailles()
         {
-            RecalculerDepuisParametrage(); // appelle RecalculerCotisationsEtTotaux(true)
+            if (Salarie == null || Annee <= 0 || Mois <= 0) return;
+
+            // Si le RH a manuellement mis une valeur différente de 30 → on respecte
+            if (JoursTravailles != 30 && JoursTravailles != 0) return;
+
+            // Base par défaut depuis la fiche salarié
+            var base30 = Salarie.Base30Jour > 0 ? Salarie.Base30Jour : 30;
+            JoursTravailles = base30;
+
+            // Détection prorata : embauche en cours de mois
+            var embauche = Salarie.DateEmbauche;
+            if (embauche != default
+                && embauche.Year == Annee
+                && embauche.Month == Mois
+                && embauche.Day > 1)
+            {
+                // Premier bulletin ? Vérifier qu'il n'y a pas de bulletin antérieur
+                var dejaBulletin = Session.FindObject<Bulletin>(
+                    CriteriaOperator.Parse(
+                        "Salarie = ? AND (Annee < ? OR (Annee = ? AND Mois < ?))",
+                        Salarie, Annee, Annee, Mois));
+
+                if (dejaBulletin == null)
+                {
+                    // Prorata : jours restants dans le mois (base 30)
+                    JoursTravailles = Math.Max(1, 30 - (embauche.Day - 1));
+                }
+            }
         }
 
-
-        [Action(
-    Caption = "Recalculer (grille actuelle)",
-    ImageName = "Action_Refresh",
-    AutoCommit = true
-)]
-        public void ActionRecalculerGrille()
-        {
-            RecalculerSurGrilleExistante();
-        }
-
-
-        //   [Action(Caption = "Recalculer totaux", ImageName = "Action_Refresh", AutoCommit = true)]
-        //public void RecalculerTotaux()
         private void RecalculerTotauxDepuisLignes()
         {
             decimal gains = 0m, retFisc = 0m, cotSoc = 0m, autresRet = 0m;
@@ -296,9 +344,40 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             {
                 if (Salarie == null) throw new UserFriendlyException("Salarié obligatoire.");
                 if (Annee <= 0 || Mois <= 0) throw new UserFriendlyException("Période invalide.");
-               // RecalculerCotisationsEtTotaux();
+
+                // Contrôle : pas de bulletin avant la date d'embauche
+                ValiderPeriodeEmbauche();
+
+                // RecalculerCotisationsEtTotaux();
                 RecalculerSurGrilleExistante();
-                //UpdateSyntheseFiscale(); 
+                //UpdateSyntheseFiscale();
+            }
+        }
+
+        /// <summary>
+        /// Empêche la création/sauvegarde d'un bulletin pour un mois
+        /// où le salarié n'était pas encore recruté.
+        /// Ex : embauché le 17/04/2026 → pas de bulletin mars 2026 ni avant.
+        /// </summary>
+        private void ValiderPeriodeEmbauche()
+        {
+            if (Salarie == null || Annee <= 0 || Mois <= 0) return;
+
+            var embauche = Salarie.DateEmbauche;
+            if (embauche == default) return; // DateEmbauche non renseignée → on laisse passer
+
+            // Le bulletin couvre le mois Annee/Mois.
+            // Le salarié doit avoir été embauché au plus tard dans ce mois.
+            // Si embauché le 17/04 → avril OK (prorata), mars KO.
+            var debutMoisBulletin = new DateTime(Annee, Mois, 1);
+            var finMoisBulletin = debutMoisBulletin.AddMonths(1).AddDays(-1);
+
+            if (embauche > finMoisBulletin)
+            {
+                throw new UserFriendlyException(
+                    $"Impossible de créer un bulletin pour {Mois:D2}/{Annee}. " +
+                    $"{Salarie.FullName} n'a été recruté(e) que le {embauche:dd/MM/yyyy}. " +
+                    $"Le premier bulletin possible est {embauche:MM/yyyy}.");
             }
         }
 
@@ -311,7 +390,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             Session.FlushChanges();
 
             CopierDepuisModele(null, overwriteExistingLines: false, onlyIncludeDefault: onlyIncludeDefault);
-           // RecalculerTotaux();
+            // RecalculerTotaux();
             RecalculerSurGrilleExistante();
         }
 
@@ -323,7 +402,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(BulletinModeleSource), ref bulletinModeleSource, value);
         }
 
- 
+
         // ===== Helpers ordre (dans la classe Bulletin) =====
         private static int ComputeOrdreFor(BulletinModeleLigne ml, ref int cursor)
         {
@@ -448,7 +527,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             }
 
             // 5) Recalcule les totaux
-           // RecalculerTotaux();
+            // RecalculerTotaux();
             RecalculerSurGrilleExistante();
         }
 
@@ -461,12 +540,28 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             _recalcLock = true;
             try
             {
-             
+                // Prorata automatique : si JoursTravailles n'a jamais été initialisé
+                // (= 30 par défaut) et qu'on détecte un premier bulletin avec embauche
+                // en cours de mois, on ajuste automatiquement. Le RH peut toujours
+                // corriger JoursTravailles manuellement avant de relancer le recalcul.
+                if (depuisParametrage)
+                    InitJoursTravailles();
+
                 // Ici : on ne touche aux gains standards QUE si on veut repartir du paramétrage
                 if (depuisParametrage)
                 {
-                    RecalculerGainsStandards();  // ou CopierDepuisModele, etc. suivant ton implémentation
+                    RecalculerGainsStandards();  // recalcule SB, LOGT, ANC, SURSAL, TRANSPORT depuis le profil salarié
                 }
+                else
+                {
+                    // Filet de sécurité : si SB ou LOGT ont Base > 0 mais Montant = 0
+                    // (ex. chargé depuis modèle sans MontantDefaut), on calcule le Montant
+                    // sans toucher aux lignes saisies manuellement qui ont déjà un Montant correct.
+                    RepairerGainsNuls();
+                }
+
+                // Heures supplémentaires → met à jour la ligne HS dans les gains
+                CalculerHeuresSupplementaires();
 
                 var bf = CalculerBrutFiscal();
                 var bs = CalculerBrutSocial();
@@ -485,7 +580,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 UpdateSyntheseFiscale();
             }
             finally
-    {
+            {
                 _recalcLock = false;
             }
         }
@@ -502,9 +597,32 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             => RecalculerCotisationsEtTotaux(false);
 
 
+        // ─── Filet de sécurité : répare les lignes SB/LOGT dont Base > 0 mais Montant = 0 ──────────
+        // Appelé uniquement en mode "grille existante" (depuisParametrage=false).
+        // Ne touche PAS aux lignes qui ont déjà un Montant > 0 (valeurs manuelles respectées).
+        private void RepairerGainsNuls()
+        {
+            // Utilise JoursTravailles du bulletin (prorata par bulletin, pas par salarié)
+            var jours = Math.Max(0, JoursTravailles > 0 ? JoursTravailles : 30);
+
+            var sbLine = FindLine(RubriqueCanonique.SalaireDeBase);
+            if (sbLine != null && N(sbLine.Base) > 0m && N(sbLine.Montant) == 0m)
+                sbLine.Montant = Math.Round((N(sbLine.Base) / 30m) * jours, 0, MidpointRounding.AwayFromZero);
+
+            var logtLine = FindLine(RubriqueCanonique.IndemniteLogement);
+            if (logtLine != null && N(logtLine.Base) > 0m && N(logtLine.Montant) == 0m)
+                logtLine.Montant = Math.Round((N(logtLine.Base) / 30m) * jours, 0, MidpointRounding.AwayFromZero);
+
+            // Ancienneté : Taux renseigné mais Montant = 0
+            var ancLine = FindLine(RubriqueCanonique.PrimeAnciennete);
+            if (ancLine != null && N(ancLine.Base) > 0m && N(ancLine.Taux) > 0m && N(ancLine.Montant) == 0m)
+                ancLine.Montant = Math.Round(N(ancLine.Base) * N(ancLine.Taux) / 100m, 0, MidpointRounding.AwayFromZero);
+        }
+
         private void RecalculerGainsStandards()
         {
-            var jours = Math.Max(0, Salarie?.Base30Jour ?? 30);
+            // Utilise JoursTravailles du bulletin (prorata par bulletin, pas par salarié)
+            var jours = Math.Max(0, JoursTravailles > 0 ? JoursTravailles : 30);
 
             // Salaire de base
             var sb = EnsureLine(RubriqueCanonique.SalaireDeBase);
@@ -533,11 +651,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             // Ancienneté 2..25 ans
             var finPeriode = new DateTime(Annee, Mois, 1).AddMonths(1).AddDays(-1);
             var anc = AncienneteHelper.NombreAnnee(Salarie?.DateEmbauche ?? DateTime.Today, finPeriode);
-           // var ancLine = EnsureLine(RubriqueCanonique.PrimeAnciennete, createIfMissing: anc >= 2 && anc <= 25);
+            // var ancLine = EnsureLine(RubriqueCanonique.PrimeAnciennete, createIfMissing: anc >= 2 && anc <= 25);
             // On NE crée rien par défaut : on regarde s'il existe déjà une ligne
             var ancLine = FindLine(RubriqueCanonique.PrimeAnciennete);
 
- 
+
             if (anc >= 2 && anc <= 25)
             {
                 // créer si manquante
@@ -616,6 +734,55 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 DeleteLineIfExists(RubriqueCanonique.AvantageNatureVehicule);
             }
 
+        }
+
+        // ─── Heures supplémentaires ─────────────────────────────────────────
+        // Totalise les HeuresSupplementaires du bulletin et crée/met à jour
+        // une ligne de gain avec la rubrique canonique HeuresSupplementaires.
+        // Si le module HS est désactivé ou qu'il n'y a aucune HS, la ligne est supprimée.
+        private void CalculerHeuresSupplementaires()
+        {
+            var prm = ParametresPaie.TryGet(Session);
+            var hsActif = prm?.ActiverHeuresSupplementaires ?? false;
+
+            var hsLines = HeuresSupplementaires?.ToList()
+                          ?? new System.Collections.Generic.List<HeureSupplementaire>();
+
+            if (!hsActif || hsLines.Count == 0)
+            {
+                DeleteLineIfExists(RubriqueCanonique.HeuresSupplementaires);
+                return;
+            }
+
+            // Recalculer chaque ligne HS (taux horaire + montants)
+            foreach (var hs in hsLines)
+            {
+                hs.CalculerTauxHoraireBase();
+                hs.RecalculerMontants();
+            }
+
+            var totalHS = hsLines.Sum(h => h.MontantTotal);
+
+            if (totalHS <= 0m)
+            {
+                DeleteLineIfExists(RubriqueCanonique.HeuresSupplementaires);
+                return;
+            }
+
+            var totalHeures = hsLines.Sum(h => h.NombreHeures);
+
+            var ligne = EnsureLine(RubriqueCanonique.HeuresSupplementaires, createIfMissing: true);
+            if (ligne != null)
+            {
+                ligne.Base = totalHS;          // Base = montant total des HS
+                ligne.Taux = null;
+                ligne.Montant = totalHS;       // Gain = montant total
+                ligne.MontantEmployeur = 0m;
+                ligne.IsSystem = true;
+                ligne.Source = RubriqueSource.Calcul;
+                if (!ligne.OrdreCalcul.HasValue)
+                    ligne.OrdreCalcul = ligne.Rubrique?.OrdreAffichage;
+            }
         }
 
         private decimal CalculerBrutFiscal()
@@ -853,7 +1020,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                      (r.Libelle ?? "").ToLower().Contains("pret") || (r.Libelle ?? "").ToLower().Contains("prêt")));
         }
 
-  
+
         private void CalculerRetenuePrets()
         {
             var debutMois = new DateTime(Annee, Mois, 1);
@@ -904,7 +1071,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
 
-        
+
 
         // ======= IRPP =======
         private BaremeIR GetBaremeIR()
@@ -1073,7 +1240,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             return line;
         }
 
-        
+
         // Helpers (à mettre dans la classe Bulletin si pas déjà présents)
         private BulletinLigne FindLine(RubriqueCanonique rc)
             => Lignes?.FirstOrDefault(l => l.Rubrique != null && l.Rubrique.Canonique == rc);

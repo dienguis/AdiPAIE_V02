@@ -1,40 +1,23 @@
-﻿using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
+using AdiPAIE_V02.Module.Controllers;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
-using DevExpress.ExpressApp.Xpo;
-using DevExpress.Xpo;
-using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.Controllers.RH
 {
     /// <summary>
-    /// Filtre automatique de la ListView DemandeAttestation selon le profil connecté.
+    /// Filtre la ListView DemandeAttestation selon le profil connecté.
     ///
-    /// Logique de filtrage :
-    ///
-    ///   Salarié (a une fiche Salarie liée) :
-    ///     → Voit uniquement SES propres demandes
-    ///
-    ///   Responsable N+1 (est ValideurN1 sur des demandes) :
-    ///     → Voit les demandes EnAttenteN1 dont il est le ValideurN1
-    ///     → Plus ses propres demandes en tant que salarié
-    ///
-    ///   Responsable N+2 (est ValideurN2 sur des demandes) :
-    ///     → Voit les demandes EnAttenteN2 dont il est le ValideurN2
-    ///     → Plus ses propres demandes en tant que salarié
-    ///
-    ///   RH / Admin (pas de fiche Salarie liée, ou rôle admin) :
-    ///     → Voit toutes les demandes en statut Soumise, EnTraitement, Traitee, Rejetee
-    ///     → NE voit PAS les demandes encore en circuit hiérarchique (EnAttenteN1/N2)
-    ///
-    /// Note : Un responsable peut avoir à la fois son propre rôle salarié ET
-    /// son rôle de valideur — les deux filtres sont combinés avec OR.
+    /// Salarié    → ses propres demandes + celles où il est valideur
+    /// RH / Admin → demandes Soumise, EnTraitement, Traitee, Rejetee
     /// </summary>
     public class DemandeAttestationFilterController
         : ObjectViewController<ListView, DemandeAttestation>
     {
+        private const string FilterKey = "RoleFilter";
+
         protected override void OnActivated()
         {
             base.OnActivated();
@@ -43,20 +26,17 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
         private void AppliquerFiltre()
         {
-            var session = ((XPObjectSpace)ObjectSpace).Session;
-            var userName = DevExpress.ExpressApp.SecuritySystem.CurrentUserName;
+            // Récupérer le salarié connecté
+            var salConn = EspaceSalarieHelper.GetSalarieConnecte(ObjectSpace);
 
-            // Récupère le compte connecté
-            var user = new XPQuery<ApplicationUser>(session)
-                .FirstOrDefault(u => u.UserName == userName);
-
-            var salConn = user?.Salarie;
-
+            // Pas de salarié lié → ne rien toucher
             if (salConn == null)
+                return;
+
+            // RH → filtre RH
+            if (!EspaceSalarieHelper.DoitRestreindreEspaceSalarie(ObjectSpace))
             {
-                // ── Profil RH / Admin ──────────────────────────────────
-                // Voit toutes les demandes ayant dépassé le circuit hiérarchique
-                View.CollectionSource.Criteria["RoleFilter"] =
+                View.CollectionSource.Criteria[FilterKey] =
                     CriteriaOperator.Parse(
                         "Statut = ? OR Statut = ? OR Statut = ? OR Statut = ?",
                         (int)DemandeStatut.Soumise,
@@ -66,30 +46,29 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 return;
             }
 
-            // ── Profil avec fiche salarié ──────────────────────────────
-            // Construit le filtre combiné selon les rôles du salarié connecté
+            // ── Employé : ses propres demandes + celles où il est valideur ──
+            var criterePropres = CriteriaOperator.Parse("Salarie.Oid = ?", salConn.Oid);
 
-            // 1. Ses propres demandes (toujours)
-            var criterePropres = CriteriaOperator.Parse("Salarie = ?", salConn);
-
-            // 2. Demandes EnAttenteN1 dont il est le ValideurN1
             var critereValideurN1 = CriteriaOperator.Parse(
-                "Statut = ? AND ValideurN1 = ?",
-                (int)DemandeStatut.EnAttenteN1, salConn);
+                "Statut = ? AND ValideurN1.Oid = ?",
+                (int)DemandeStatut.EnAttenteN1, salConn.Oid);
 
-            // 3. Demandes EnAttenteN2 dont il est le ValideurN2
             var critereValideurN2 = CriteriaOperator.Parse(
-                "Statut = ? AND ValideurN2 = ?",
-                (int)DemandeStatut.EnAttenteN2, salConn);
+                "Statut = ? AND ValideurN2.Oid = ?",
+                (int)DemandeStatut.EnAttenteN2, salConn.Oid);
 
-            // Combine avec OR
-            var filtreFinal = new GroupOperator(
+            View.CollectionSource.Criteria[FilterKey] = new GroupOperator(
                 GroupOperatorType.Or,
                 criterePropres,
                 critereValideurN1,
                 critereValideurN2);
+        }
 
-            View.CollectionSource.Criteria["RoleFilter"] = filtreFinal;
+        protected override void OnDeactivated()
+        {
+            if (View?.CollectionSource != null)
+                View.CollectionSource.Criteria.Remove(FilterKey);
+            base.OnDeactivated();
         }
     }
 }

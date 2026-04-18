@@ -41,12 +41,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             }
 
             // Salarié voit ses propres inscriptions
-            var critPropre = CriteriaOperator.Parse("Salarie = ?", salConn);
+            var critPropre = CriteriaOperator.Parse("Salarie.Oid = ?", salConn.Oid);
 
             // Manager voit aussi les inscriptions de ses subordonnés directs
             // (où salarie.Manager = salConn)
             var critSubordonne = CriteriaOperator.Parse(
-                "Salarie.Manager = ?", salConn);
+                "Salarie.Manager.Oid = ?", salConn.Oid);
 
             View.CollectionSource.Criteria["InscriptionFilter"] =
                 new GroupOperator(GroupOperatorType.Or,
@@ -84,9 +84,9 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 return;
             }
 
-            var critPropre = CriteriaOperator.Parse("Salarie = ?", salConn);
+            var critPropre = CriteriaOperator.Parse("Salarie.Oid = ?", salConn.Oid);
             var critSubordonne = CriteriaOperator.Parse(
-                "Salarie.Manager = ?", salConn);
+                "Salarie.Manager.Oid = ?", salConn.Oid);
 
             View.CollectionSource.Criteria["SuiviFilter"] =
                 new GroupOperator(GroupOperatorType.Or,

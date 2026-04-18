@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 
 namespace AdiPAIE_V02.Module.Utils
 {
@@ -9,15 +8,18 @@ namespace AdiPAIE_V02.Module.Utils
     {
         static readonly CultureInfo Fr = CultureInfo.GetCultureInfo("fr-FR");
 
-        // Mots-outils à laisser en minuscule (sauf 1er mot)
+        // Mots-outils a laisser en minuscule (sauf 1er mot)
         static readonly HashSet<string> LowerWords = new(StringComparer.OrdinalIgnoreCase) {
-            "de","du","des","d","la","le","les","l","à","au","aux",
+            "de","du","des","d","la","le","les","l","\u00e0","au","aux",
             "et","ou","par","pour","sur","dans","en","chez"
         };
 
-        // Acronymes à préserver (ajoute-en si besoin)
+        // Acronymes a preserver en MAJUSCULES
         static readonly HashSet<string> Acronyms = new(StringComparer.OrdinalIgnoreCase) {
-          "IPRES","IR","IPM","CSS"
+          "IPRES","IR","IPM","CSS",
+          "RG","RC","AT","AF",
+          "TRIMF","CFCE","VRS","STC","HS",
+          "CNSS","TVA","DGID","CDD","CDI"
         };
 
         public static string ToTitleCaseFrPreserveAcronyms(string input)
@@ -36,18 +38,19 @@ namespace AdiPAIE_V02.Module.Utils
         {
             if (string.IsNullOrEmpty(word)) return word;
 
-            // Apostrophes (’ ou ')
-            if (word.Contains('’') || word.Contains('\''))
+            // Apostrophes : ASCII straight quote or Unicode right single quotation mark
+            const char curlyApo = '\u2019';
+            if (word.Contains(curlyApo) || word.Contains('\''))
             {
-                char apo = word.Contains('’') ? '’' : '\'';
-                var parts = word.Split(new[] { '\'', '’' }, 2);
+                char apo = word.Contains(curlyApo) ? curlyApo : '\'';
+                var parts = word.Split(new[] { '\'', curlyApo }, 2);
                 string head = parts[0];
                 string rest = parts.Length > 1 ? parts[1] : null;
 
                 string headOut = HandleHyphen(head, forceCap: isFirst);
                 if (rest == null) return headOut;
 
-                string restOut = HandleHyphen(rest, forceCap: true); // après apostrophe, on force la majuscule
+                string restOut = HandleHyphen(rest, forceCap: true);
                 return headOut + apo + restOut;
             }
 
@@ -58,7 +61,9 @@ namespace AdiPAIE_V02.Module.Utils
         {
             var segs = token.Split('-', StringSplitOptions.None);
             for (int i = 0; i < segs.Length; i++)
-                segs[i] = NormalizeSegment(segs[i], forceCap || i == 0);
+                // i > 0 : chaque segment apres un trait d'union est capitalise
+                // i == 0 : on respecte le forceCap du parent
+                segs[i] = NormalizeSegment(segs[i], forceCap || i > 0);
             return string.Join("-", segs);
         }
 
@@ -66,22 +71,17 @@ namespace AdiPAIE_V02.Module.Utils
         {
             if (string.IsNullOrEmpty(seg)) return seg;
 
-            // Acronymes (ex: CNSS, IR, TVA)
+            // 1. Acronymes explicites (ex: IPRES, IR, CSS)
             if (Acronyms.Contains(StripDots(seg)))
                 return Acronymize(seg);
 
-            // Si segment déjà TOUT en MAJ (≥2 lettres) → conserver
-            var letters = new string(seg.Where(char.IsLetter).ToArray());
-            if (letters.Length >= 2 && letters.All(c => char.IsUpper(c)))
-                return seg.ToUpper(Fr);
-
             var lower = seg.ToLower(Fr);
 
-            // Mots-outils en minuscule (sauf si forceCap)
+            // 2. Mots-outils en minuscule (sauf si forceCap = 1er mot de la phrase)
             if (!forceCap && LowerWords.Contains(lower))
                 return lower;
 
-            // 1re lettre maj, reste min
+            // 3. 1re lettre maj, reste min
             return char.ToUpper(lower[0], Fr) + (lower.Length > 1 ? lower[1..] : "");
         }
 

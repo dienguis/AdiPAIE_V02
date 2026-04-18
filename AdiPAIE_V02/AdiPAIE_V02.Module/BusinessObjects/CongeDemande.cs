@@ -28,6 +28,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     [RuleCriteria("Conge_DateFin_GTE_DateDebut", DefaultContexts.Save,
         "DateFin >= DateDebut",
         CustomMessageTemplate = "La date de fin doit être >= à la date de début.")]
+    [RuleCriteria("Conge_DateReprise_PostDateFin", DefaultContexts.Save,
+        "DateReprise IS NULL OR DateReprise > DateFin",
+        CustomMessageTemplate = "La date de reprise doit être postérieure à la date de fin du congé.")]
 
     // ── Apparences selon statut ───────────────────────────────
     [Appearance("Conge_Accordee", TargetItems = "*",
@@ -52,12 +55,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         Criteria = "Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Brouillon#",
         Enabled = false)]
 
-    // ── DateReprise visible uniquement si Accordée ────────────
+    // ── DateReprise : visible quand Soumise ou Accordée, caché sinon ──
+    // L'editabilite est geree par CongeAccordController.UpdateDateRepriseEditable()
     [Appearance("Conge_DateReprise_Visible",
-        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Accordee#",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Soumise#"
+            + " OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Accordee#",
         Visibility = ViewItemVisibility.Show, TargetItems = nameof(DateReprise))]
     [Appearance("Conge_DateReprise_Hidden",
-        Criteria = "Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Accordee#",
+        Criteria = "Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Soumise#"
+            + " AND Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Accordee#",
         Visibility = ViewItemVisibility.Hide, TargetItems = nameof(DateReprise))]
     public class CongeDemande : BaseObject
     {
@@ -281,7 +287,6 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         /// Peut différer de DateFin + 1 jour (récupération, pont, weekend, etc.)
         /// </summary>
         [XafDisplayName("Date de reprise")]
-        [ModelDefault("AllowEdit", "False")]
         public DateTime? DateReprise
         {
             get => dateReprise;

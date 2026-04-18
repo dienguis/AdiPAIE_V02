@@ -37,6 +37,13 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             {
                 var d = (DemandeAttestation)e.CurrentObject;
                 d.PrendreEnCharge();
+
+                AuditService.Enregistrer(Application, "DemandeAttestation", "PrendreEnCharge",
+                    d.Oid.ToString(), d.DisplayName,
+                    $"Attestation {d.Nature} prise en charge",
+                    ancienStatut: DemandeStatut.Soumise.ToString(),
+                    nouveauStatut: DemandeStatut.EnTraitement.ToString());
+
                 ObjectSpace.CommitChanges();
                 View.Refresh();
             };
@@ -58,6 +65,13 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 // Crée une notification automatique pour le salarié
                 _EnvoyerNotifTraitement(d);
                 _ArchiverDansDossier(d);
+
+                AuditService.Enregistrer(Application, "DemandeAttestation", "Traiter",
+                    d.Oid.ToString(), d.DisplayName,
+                    $"Attestation {d.Nature} traitée et archivée",
+                    ancienStatut: DemandeStatut.EnTraitement.ToString(),
+                    nouveauStatut: DemandeStatut.Traitee.ToString());
+
                 ObjectSpace.CommitChanges();
                 View.Refresh();
             };
@@ -75,9 +89,17 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             rejeterAction.Execute += (s, e) =>
             {
                 var d = (DemandeAttestation)e.CurrentObject;
+                var ancienStatut = d.Statut;
                 d.Rejeter("Demande non recevable - voir le service RH.");
 
                 _EnvoyerNotifRejet(d);
+
+                AuditService.Enregistrer(Application, "DemandeAttestation", "Rejeter",
+                    d.Oid.ToString(), d.DisplayName,
+                    $"Raison: {d.CommentaireRH ?? "Non recevable"}",
+                    ancienStatut: ancienStatut.ToString(),
+                    nouveauStatut: DemandeStatut.Rejetee.ToString());
+
                 ObjectSpace.CommitChanges();
                 View.Refresh();
             };

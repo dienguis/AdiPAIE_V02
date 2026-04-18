@@ -31,12 +31,12 @@ namespace AdiPAIE_V02.Module.Controllers
             var a = new SimpleAction(this, "ChargerDepuisModele", PredefinedCategory.Edit)
             {
                 Caption = "Charger depuis le modèle",
-                ImageName = "Action_Import"
+                ImageName = "btn_charger"
             };
             a.Execute += OnExecute;
         }
 
-     
+
 
         private void OnExecute(object sender, SimpleActionExecuteEventArgs e)
         {

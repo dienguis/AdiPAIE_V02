@@ -274,6 +274,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         protected override void OnSaving()
         {
             base.OnSaving();
+            // RecalculerEtat respecte déjà le statut Suspendu (if Statut != Suspendu)
+            // mais on évite tout appel si le prêt est supprimé
             if (!IsDeleted) RecalculerEtat();
         }
     }
