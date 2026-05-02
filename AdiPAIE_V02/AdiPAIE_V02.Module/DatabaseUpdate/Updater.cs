@@ -389,6 +389,16 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             roleRHM.AddTypePermissionsRecursively<ApplicationUser>(
                 SecurityOperations.Read, SecurityPermissionState.Allow);
 
+            // ═══════════════════════════════════════════════════════════════
+            //  Étendre l'accès aux dashboards aux rôles RH et DAF (Étape 7.SEC)
+            //  Pour le rôle RH (AllowAllByDefault) : les permissions sont déjà
+            //  ouvertes mais on ajoute explicitement le menu pour la clarté.
+            //  Pour DAF (créé par InitialiserRolesGRHController) : on ajoute
+            //  les permissions Read sur les sources des dashboards.
+            // ═══════════════════════════════════════════════════════════════
+            GrantDashboardAccessToExistingRole("RH");
+            GrantDashboardAccessToExistingRole("DAF");
+
             ObjectSpace.CommitChanges();
 
             // ═══════════════════════════════════════════════════════
@@ -1067,6 +1077,49 @@ string adminUserName = "Admin";
         //    IObjectSpace os, string code, string libelle, RubriqueTypeRef typeRef,
         //    int ordre, RubriqueCanonique? canon = null)
         //    => EnsureRubrique(os, code, libelle, typeRef, ordre, canon); // [DEPRECATED]
+
+        // ===========================
+        // RBAC Dashboards (Étape 7.SEC)
+        // ===========================
+        /// <summary>
+        /// Étend les permissions d'un rôle existant (RH, DAF) pour qu'il
+        /// puisse accéder au module Tableaux de Bord RH. Idempotent : si
+        /// le rôle n'existe pas, ne fait rien (sera traité au prochain
+        /// démarrage si l'utilisateur l'a créé entre temps).
+        ///
+        /// Permissions ajoutées :
+        ///   - Navigate + Read sur DashboardsRHMenu (l'entrée de menu)
+        ///   - Read sur les entités sources des 6 dashboards
+        /// </summary>
+        private void GrantDashboardAccessToExistingRole(string roleName)
+        {
+            var role = ObjectSpace.GetObjectsQuery<PermissionPolicyRole>()
+                .Where(r => r.Name == roleName)
+                .FirstOrDefault();
+            if (role == null) return;   // rôle pas encore créé : skip
+
+            const string NavRead =
+                SecurityOperations.Navigate + ";" + SecurityOperations.Read;
+
+            // Menu d'entrée (toujours utile, même si AllowAllByDefault)
+            role.AddTypePermissionsRecursively<DashboardsRHMenu>(
+                NavRead, SecurityPermissionState.Allow);
+
+            // Entités sources (Read) — utilisées par les services dashboards
+            role.AddTypePermissionsRecursively<Salarie>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<ContratSalarie>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<Interimaire>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<ContratInterim>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<MouvementInterimaire>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<Departement>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<Categories>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<Site>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<StationService>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<Bulletin>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<BulletinLigne>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<CongeDemande>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<CongeType>(NavRead, SecurityPermissionState.Allow);
+        }
 
         // ===========================
         // SEEDs spécifiques

@@ -12,8 +12,14 @@
 
 @page "/dashboards"
 @attribute [Authorize]
+
+@using AdiPAIE_V02.Blazor.Server.Services
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+
 @inject NavigationManager Nav
 @inject IHttpContextAccessor HttpCtx
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
 
 <PageTitle>Tableaux de Bord RH</PageTitle>
 
@@ -181,13 +187,14 @@
 @code {
 
     /// <summary>
-    /// Guard d'authentification — App.razor utilise RouteView et non
+    /// Guard d'authentification + RBAC — App.razor utilise RouteView et non
     /// AuthorizeRouteView, donc @attribute [Authorize] est ignoré.
-    /// On force la redirection vers /LoginPage si non authentifié.
+    /// Le helper vérifie auth + appartenance à un rôle autorisé
+    /// (Administrators / RH_Manager / RH / DAF).
     /// </summary>
     protected override void OnInitialized()
     {
-        if (HttpCtx?.HttpContext?.User?.Identity?.IsAuthenticated != true)
+        if (!DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
         {
             Nav.NavigateTo("/LoginPage", forceLoad: true);
         }

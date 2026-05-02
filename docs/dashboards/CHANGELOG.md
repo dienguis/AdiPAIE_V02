@@ -25,6 +25,119 @@ Chaque entrée précise :
 
 ---
 
+## [Étape 7.SEC RBAC] 2026-05-03 0530 — RBAC complet (4 rôles autorisés)
+
+**Demande utilisateur** : ajouter un vrai check RBAC (rôle) au-delà du simple
+check d'authentification — éviter qu'un salarié logué quelconque puisse
+voir le Bilan Social complet et les données rémunération de tous ses
+collègues (risque RGPD).
+
+### Décisions
+
+**Rôles autorisés à voir les dashboards** :
+| Rôle | Cible métier | Politique XAF |
+|---|---|---|
+| `Administrators` | Sysadmin | IsAdministrative |
+| `RH_Manager` | DG / COMEX (consultation pure) | DenyAllByDefault + Read sources |
+| `RH` | Équipe RH opérationnelle | AllowAllByDefault sauf Compta |
+| `DAF` | Direction financière (masse salariale) | Permissions ciblées + dashboards |
+
+### Implémentation
+
+1. **Helper partagé** `AdiPAIE_V02.Blazor.Server/Services/DashboardAuthHelper.cs` :
+   - Méthode `CanAccessDashboards(httpCtx, osFactory)`
+   - Vérifie auth cookie ASP.NET + appartenance à un rôle de la liste
+   - Charge `ApplicationUser` via NonSecuredObjectSpace (évite récursion permission)
+   - **Fail closed** : en cas d'erreur, refuse l'accès
+
+2. **Refactor des 7 pages** : remplacement du check ad-hoc par
+   `DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory)`
+   uniformisé.
+
+3. **`Updater.cs` étendu** : nouvelle méthode `GrantDashboardAccessToExistingRole(roleName)`
+   appelée pour `RH` et `DAF` à chaque démarrage. Ajoute idempotemment :
+   - Navigate + Read sur `DashboardsRHMenu`
+   - Read sur les 13 entités sources (Salarie, Bulletin, BulletinLigne,
+     ContratInterim, Site, StationService, Departement, Categories,
+     CongeDemande, CongeType, etc.)
+
+4. **`_Imports.razor`** : ajout de `@using AdiPAIE_V02.Blazor.Server.Services`
+   pour exposer le helper globalement.
+
+### Fichiers créés / modifiés
+
+| Fichier | Type | Nature |
+|---|---|---|
+| `Blazor.Server/Services/DashboardAuthHelper.cs` | nouveau | Helper RBAC partagé |
+| `Module/Services/Dashboards/DashboardAuthHelper.cs` | modif | Vide (commentaire de redirection — l'implem est côté Blazor.Server à cause de la dép. INonSecuredObjectSpaceFactory) |
+| `Module/DatabaseUpdate/Updater.cs` | modif | + méthode `GrantDashboardAccessToExistingRole` + appels pour RH et DAF |
+| `Blazor.Server/_Imports.razor` | modif | + @using Blazor.Server.Services |
+| `Blazor.Server/Pages/Dashboards/DashboardHome.razor` | modif | utilise helper |
+| `Blazor.Server/Pages/Dashboards/Effectif/EffectifDetailleDashboard.razor` | modif | idem |
+| `Blazor.Server/Pages/Dashboards/Effectif/AnalyseEffectifDashboard.razor` | modif | idem |
+| `Blazor.Server/Pages/Dashboards/Mouvements/MouvementsDashboard.razor` | modif | idem |
+| `Blazor.Server/Pages/Dashboards/Remuneration/RemunerationDashboard.razor` | modif | idem |
+| `Blazor.Server/Pages/Dashboards/Absences/SuiviAbsencesDashboard.razor` | modif | idem |
+| `Blazor.Server/Pages/Dashboards/BilanSocial/BilanSocialDashboard.razor` | modif | idem |
+
+### Tests à effectuer
+
+1. Avec un utilisateur **`RH_Manager`** : tous les dashboards doivent s'ouvrir ✓
+2. Avec **`RH`** : idem ✓ (était déjà OK car AllowAllByDefault, mais maintenant explicite)
+3. Avec **`DAF`** : doit pouvoir s'ouvrir (les nouvelles permissions XPO le permettent)
+4. Avec **`Default`** seul : doit être **redirigé vers /LoginPage** (RBAC bloque)
+5. **Sans login** (navigation privée + URL directe) : doit être **redirigé vers /LoginPage**
+
+---
+
+## [Étape 7.2 enrichissement] 2026-05-03 0445 — Onglet Synthèse + DataBars visuels (Excel)
+
+**Constat utilisateur** : l'export Excel multi-onglets fonctionne mais
+l'utilisateur découvrant l'export ne voyait que la 1ʳᵉ feuille (KPI) et
+ne réalisait pas que les autres sections étaient dans des onglets
+adjacents. Demande aussi : retrouver le visuel des barres orange comme
+sur la page web.
+
+### Améliorations apportées
+
+1. **Onglet « Synthese » en première position** dans chaque export :
+   - Titre principal sur fond navy ELTON (banner 14pt)
+   - Sous-titre (filtres actifs)
+   - Grille de KPI sur 1 ligne (header navy + valeurs en gras 12pt)
+   - Bordure gauche orange ELTON sur chaque cellule de valeur
+   - Note pied de page renvoyant vers les onglets détaillés
+   - Mise en page paysage prête à imprimer
+
+2. **Synthèse enrichie pour Tab 4 Rémunération** (le plus complexe) :
+   - KPI + tableau « Égalité par catégorie professionnelle » + tableau
+     « Égalité par segment » empilés sur la même feuille
+   - 2 sections avec sous-titre encadré bordure orange
+   - DataBars natifs Excel sur les colonnes Total
+
+3. **DataBars (barres visuelles dans cellule)** sur :
+   - Colonne `Total` des tableaux Égalité (Rémunération)
+   - Colonne `Valeur` des bar charts (Mouvements, Absences, Analyse Effectif)
+   - Couleur orange ELTON (`#F18A1C`)
+   - Reproduit visuellement le rendu des bar charts de la page web
+
+### Fichier modifié
+
+| Fichier | Nature |
+|---|---|
+| `AdiPAIE_V02.Module/Services/Dashboards/DashboardExcelExportService.cs` | + helpers `BuildSyntheseGenerique`, `BuildSyntheseRemuneration`, `AppendEgaliteRows` ; ajout DataBars dans `WriteEgaliteSheet` et `WriteBarSheet` ; appel de la synthèse dans les 6 méthodes Export* |
+
+### Ce qui change pour l'utilisateur final
+
+Avant : `[KPI] [Egalite par segment] [Egalite par categorie] [Evolution mensuelle] [Decompos rubriques]`
+
+Après : `[Synthese] [KPI] [Egalite par segment] [Egalite par categorie] [Evolution mensuelle] [Decompos rubriques]`
+
+Le 1er onglet « Synthese » donne un panorama complet en une page (idéal
+pour impression / copie dans rapport Word). Les onglets suivants restent
+disponibles pour analyse détaillée et création de TCD.
+
+---
+
 ## [Étape 7 hot-fix sécurité] 2026-05-03 0400 — Guard d'authentification + Bootstrap Icons CDN
 
 **🚨 Faille de sécurité corrigée** : les pages `/dashboards/*` étaient

@@ -38,6 +38,7 @@
 | 7.4 | Bilan Social option B — ligne « dont Intérimaires » | ✅ done | _commit pending_ | 2026-05-03 |
 | 7.x | Hot-fix nouvel onglet + lisibilité boutons | ✅ done | _commit pending_ | 2026-05-03 |
 | 7.SEC | Guard d'authentification (faille critique) + Bootstrap Icons CDN | ✅ done | _commit pending_ | 2026-05-03 |
+| 7.SEC RBAC | RBAC complet (Administrators / RH_Manager / RH / DAF) + helper partagé | ✅ done | _commit pending_ | 2026-05-03 |
 | Final | Livrables (README, scripts SQL) | 🕒 pending | — | — |
 
 ## 2. Architecture du module — fichiers clés

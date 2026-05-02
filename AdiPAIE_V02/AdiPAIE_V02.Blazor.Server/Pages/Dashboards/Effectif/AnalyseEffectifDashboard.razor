@@ -551,7 +551,7 @@ else
 
     protected override void OnInitialized()
     {
-        if (HttpCtx?.HttpContext?.User?.Identity?.IsAuthenticated != true)
+        if (!Services.DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
         {
             Nav.NavigateTo("/LoginPage", forceLoad: true);
             return;

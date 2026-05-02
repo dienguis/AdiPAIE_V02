@@ -349,16 +349,12 @@ else
 
     protected override void OnInitialized()
     {
-        // ── Guard d'authentification ──
-        // App.razor utilise RouteView (et non AuthorizeRouteView) donc
-        // @attribute [Authorize] n'est pas appliqué. On vérifie nous-mêmes
-        // l'authentification cookie ASP.NET avant d'afficher le tableau.
-        if (HttpCtx?.HttpContext?.User?.Identity?.IsAuthenticated != true)
+        // ── Guard d'authentification + RBAC ──
+        if (!Services.DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
         {
             Nav.NavigateTo("/LoginPage", forceLoad: true);
             return;
         }
-
         LoadLookups();
         LoadData();
     }
