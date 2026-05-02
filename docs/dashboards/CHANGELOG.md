@@ -25,6 +25,49 @@ Chaque entrée précise :
 
 ---
 
+## [Étape 7.UX] 2026-05-03 0600 — Nettoyage menus « Tableaux de bord » en doublon
+
+**Constat utilisateur** : 4 entrées « Tableaux de bord » apparaissaient dans
+le menu de gauche (3 héritées d'anciens BO/menus, 1 nouveau).
+
+### Inventaire
+| Source | Caption affiché | Décision |
+|---|---|---|
+| `DashboardsRHMenu.cs` (Étape 2) | **GRH - Tableaux de Bord** | ✅ GARDER |
+| `Model.DesignedDiffs.xafml` Item `GRH_Dashboards` | Tableaux de bord | Masqué |
+| Auto `[NavigationItem("Tableaux de Bord")]` sur `TableauBordInterimaire` + `TableauBordEffectif` | Tableaux de Bord | Masqué |
+| Auto `[NavigationItem("Tableaux de bord")]` sur `RapportPowerBI` | Tableaux de bord | Masqué |
+
+### Implémentation
+3 entrées ajoutées dans `Model.DesignedDiffs.xafml` au niveau du
+NavigationItems root :
+```xml
+<Item Id="Tableaux de Bord" Visible="False" />
+<Item Id="Tableaux de bord" Visible="False" />
+<Item Id="GRH_Dashboards" ... Visible="False"> ... </Item>
+```
+
+Les BusinessObjects legacy (`TableauBordInterimaire`, `TableauBordEffectif`,
+`RapportPowerBI`) **ne sont pas supprimés** — la suppression définitive
+est différée pour permettre un rollback rapide si besoin.
+
+### Fichier modifié
+
+| Fichier | Nature |
+|---|---|
+| `Model.DesignedDiffs.xafml` | + 3 `Visible="False"` sur les groupes legacy |
+
+### Suppression définitive (à faire plus tard)
+
+Quand validé en prod sur quelques semaines :
+1. Supprimer l'attribut `[NavigationItem("Tableaux de bord")]` sur `RapportPowerBI.cs`
+2. Supprimer `[NavigationItem("Tableaux de Bord")]` sur `TableauBordInterimaire.cs` + `TableauBordEffectif.cs`
+3. Supprimer le bloc `<Item Id="GRH_Dashboards"...>` de `Model.DesignedDiffs.xafml`
+4. Optionnel : si les BusinessObjects legacy ne servent plus du tout, marquer
+   `[NonPersistent]` ou les supprimer du modèle XPO (attention à la migration de schéma SQL)
+
+---
+
 ## [Étape 7.SEC RBAC] 2026-05-03 0530 — RBAC complet (4 rôles autorisés)
 
 **Demande utilisateur** : ajouter un vrai check RBAC (rôle) au-delà du simple
