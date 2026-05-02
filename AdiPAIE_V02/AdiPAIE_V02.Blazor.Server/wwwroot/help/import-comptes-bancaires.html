@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import en masse des comptes bancaires — SunuPaie</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
+        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
+        h2 { color: #0F6E56; margin-top: 25px; }
+        h3 { color: #555; }
+        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
+        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
+        .bouton strong { color: #0F6E56; }
+        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
+        td { border: 1px solid #ddd; padding: 8px; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
+        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
+        nav a:hover { text-decoration: underline; }
+        code { background: #e8f5e9; padding: 2px 6px; border-radius: 3px; font-size: 0.95em; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">Accueil</a>
+        <a href="/help/salaries.html">Salaries</a>
+        <a href="/help/import-salaries.html">Import Salariés</a>
+        <a href="/help/import-conjoints.html">Import Conjoints</a>
+        <a href="/help/import-comptes-bancaires.html"><strong>Import Comptes</strong></a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/prets.html">Prêts</a>
+    </nav>
+
+    <h1>Import en masse des comptes bancaires</h1>
+
+    <p>
+        Permet d'importer les comptes bancaires de domiciliation des salariés en masse.
+        Idéal pour la migration initiale depuis un ancien système ou la mise à jour
+        des coordonnées bancaires.
+    </p>
+
+    <h2>Boutons disponibles</h2>
+    <p>Les boutons apparaissent sur la <strong>liste des Salariés</strong>.</p>
+
+    <div class="bouton">
+        <strong>Modèle Comptes :</strong>
+        Télécharge un fichier Excel modèle (<code>Modele_Import_ComptesBancaires.xlsx</code>)
+        avec les en-têtes attendus et 2 lignes d'exemple.
+    </div>
+
+    <div class="bouton">
+        <strong>Importer Comptes :</strong>
+        Ouvre un popup pour sélectionner votre fichier Excel (.xlsx).
+        Cliquez sur « Importer » pour lancer le traitement.
+    </div>
+
+    <h2>Colonnes attendues</h2>
+
+    <h3>Obligatoires</h3>
+    <table>
+        <tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr>
+        <tr><td><code>MatriculeSalarie</code></td><td>Texte</td><td>SAL001</td>
+            <td>Matricule du salarié titulaire</td></tr>
+        <tr><td><code>Banque</code></td><td>Texte</td><td>SGBS ROUME PART</td>
+            <td>Nom de la banque (et éventuellement de l'agence)</td></tr>
+        <tr><td><code>NumeroCompte</code></td><td>Texte</td><td>004002089747</td>
+            <td>Numéro de compte (laissez les zéros initiaux)</td></tr>
+    </table>
+
+    <h3>Optionnelles</h3>
+    <table>
+        <tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr>
+        <tr><td><code>CodeBanque</code></td><td>Texte</td><td>SN011</td>
+            <td>Code banque (5 lettres)</td></tr>
+        <tr><td><code>CodeGuichet</code></td><td>Texte</td><td>1029</td>
+            <td>Code guichet</td></tr>
+        <tr><td><code>CleRib</code></td><td>Texte</td><td>81</td>
+            <td>Clé RIB (2 chiffres)</td></tr>
+        <tr><td><code>BIC</code></td><td>Texte</td><td>SGSNSNDA</td>
+            <td>Code BIC/SWIFT (8 ou 11 caractères)</td></tr>
+        <tr><td><code>NomTitulaire</code></td><td>Texte</td><td>(vide)</td>
+            <td>Par défaut : nom complet du salarié</td></tr>
+        <tr><td><code>Mode</code></td><td>Texte</td><td>Reliquat</td>
+            <td>« MontantFixe », « Pourcentage », « Reliquat ». Par défaut : Reliquat.</td></tr>
+        <tr><td><code>Valeur</code></td><td>Nombre</td><td>0</td>
+            <td>Montant FCFA si MontantFixe, % si Pourcentage. Ignoré si Reliquat.</td></tr>
+        <tr><td><code>Actif</code></td><td>Texte</td><td>Oui</td>
+            <td>« Oui » ou « Non ». Par défaut : Oui.</td></tr>
+        <tr><td><code>Observations</code></td><td>Texte</td><td>Compte principal</td>
+            <td>Note libre (200 caractères max)</td></tr>
+    </table>
+
+    <h2>Modes de répartition</h2>
+    <div class="flux">
+        <strong>Reliquat (le plus courant) :</strong> le salarié reçoit tout son net sur ce compte unique.
+        À utiliser quand il n'y a qu'un seul compte par salarié.<br><br>
+        <strong>MontantFixe :</strong> un montant FCFA déterminé est viré sur ce compte.
+        Utile pour un compte épargne (ex : 50 000 FCFA fixe / mois).<br><br>
+        <strong>Pourcentage :</strong> un % du net est viré sur ce compte.
+        Utile pour répartir le salaire (ex : 30% sur compte joint, 70% sur compte personnel).
+    </div>
+
+    <h2>Règles de traitement</h2>
+    <div class="alerte">
+        <ul>
+            <li><strong>Matricule + Banque + NumeroCompte obligatoires</strong></li>
+            <li><strong>Idempotent :</strong> si un compte avec le même NumeroCompte existe déjà
+                pour ce salarié → ligne ignorée.</li>
+            <li><strong>Plusieurs comptes :</strong> autorisé. Mettez plusieurs lignes avec le même
+                MatriculeSalarie. Au moins un doit être en mode Reliquat (le compte par défaut).</li>
+            <li><strong>Total Pourcentages ≤ 100% :</strong> contrôlé à la sauvegarde.</li>
+            <li><strong>Un seul Reliquat par salarié :</strong> contrôlé à la sauvegarde.</li>
+            <li><strong>NomTitulaire vide :</strong> rempli automatiquement avec le nom complet du salarié.</li>
+        </ul>
+    </div>
+
+    <h2>Exemple complet</h2>
+    <table style="font-size:0.85em;">
+        <tr>
+            <th>Mat.</th><th>Banque</th><th>NumeroCompte</th>
+            <th>CodeBq</th><th>Guichet</th><th>RIB</th>
+            <th>Mode</th><th>Valeur</th>
+        </tr>
+        <tr><td>SAL001</td><td>SGBS ROUME</td><td>004002089747</td>
+            <td>SN011</td><td>1029</td><td>81</td><td>Reliquat</td><td>0</td></tr>
+        <tr><td>SAL001</td><td>BHS Épargne</td><td>061186702701</td>
+            <td>SN039</td><td>1001</td><td>29</td><td>MontantFixe</td><td>50000</td></tr>
+        <tr><td>SAL002</td><td>CBAO</td><td>035157380901</td>
+            <td>SN012</td><td>1284</td><td>52</td><td>Reliquat</td><td>0</td></tr>
+    </table>
+    <p>
+        Résultat : <strong>3 créés, 0 ignorés, 0 erreurs</strong>.<br>
+        SAL001 a deux comptes : 50 000 FCFA fixe vers BHS épargne, le reste sur SGBS principal.
+    </p>
+
+</body>
+</html>

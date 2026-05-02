@@ -18,6 +18,7 @@ using AdiPAIE_V02.Module.NonPersistent;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.ExpressApp.SystemModule;
+using DevExpress.ExpressApp.Templates;
 using DevExpress.Persistent.Base;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;

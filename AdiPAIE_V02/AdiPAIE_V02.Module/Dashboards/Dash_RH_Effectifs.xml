@@ -1,0 +1,262 @@
+<Dashboard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.devexpress.com/dashboard/2016/dashboard">
+	<Title Text="RH — Tableau de Bord Effectifs" />
+	<DataSources>
+		<ObjectDataSource ComponentName="odsSalarie" Name="Salarie" DataSource="AdiPAIE_V02.Module.BusinessObjects.Salarie, AdiPAIE_V02.Module">
+			<CalculatedFields>
+				<CalculatedField Name="EstActif" DataType="Boolean" Expression="[DateSortie] = #01/01/0001# Or [DateSortie] &gt;= Today()" />
+				<CalculatedField Name="Age" DataType="Int32" Expression="DateDiffYear([Birthday], Today())" />
+				<CalculatedField Name="TrancheAge" DataType="String" Expression="Iif([Age] &lt; 25, 'Moins de 25', Iif([Age] &lt; 30, '25-29', Iif([Age] &lt; 35, '30-34', Iif([Age] &lt; 40, '35-39', Iif([Age] &lt; 45, '40-44', Iif([Age] &lt; 50, '45-49', Iif([Age] &lt; 55, '50-54', Iif([Age] &lt; 60, '55-59', '60 et plus'))))))))" />
+				<CalculatedField Name="Anciennete" DataType="Int32" Expression="DateDiffYear([DateEmbauche], Today())" />
+				<CalculatedField Name="TrancheAnciennete" DataType="String" Expression="Iif([Anciennete] &lt; 1, 'Moins de 1 an', Iif([Anciennete] &lt; 5, '1-4 ans', Iif([Anciennete] &lt; 10, '5-9 ans', Iif([Anciennete] &lt; 15, '10-14 ans', Iif([Anciennete] &lt; 20, '15-19 ans', Iif([Anciennete] &lt; 25, '20-24 ans', '25 ans et plus'))))))" />
+				<CalculatedField Name="EstHomme" DataType="Boolean" Expression="[Sexe] = 0" />
+				<CalculatedField Name="EstFemme" DataType="Boolean" Expression="[Sexe] = 1" />
+				<CalculatedField Name="EmbaucheAnnee" DataType="Int32" Expression="GetYear([DateEmbauche])" />
+				<CalculatedField Name="DepartAnnee" DataType="Int32" Expression="Iif(IsNull([DateSortie]), 0, GetYear([DateSortie]))" />
+			</CalculatedFields>
+		</ObjectDataSource>
+		<ObjectDataSource ComponentName="odsContrat" Name="ContratSalarie" DataSource="AdiPAIE_V02.Module.BusinessObjects.ContratSalarie, AdiPAIE_V02.Module" />
+	</DataSources>
+
+	<Items>
+		<!-- ═══ KPI Cards ═══ -->
+		<Cards ComponentName="cardEffTotal" Name="Effectif Total" DataSource="odsSalarie">
+			<FilterString>[EstActif] = True</FilterString>
+			<DataItems>
+				<Measure DataMember="Oid" SummaryType="Count" UniqueName="mEff" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="mEff" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+
+		<Cards ComponentName="cardHommes" Name="Hommes" DataSource="odsSalarie">
+			<FilterString>[EstActif] = True And [EstHomme] = True</FilterString>
+			<DataItems>
+				<Measure DataMember="Oid" SummaryType="Count" UniqueName="mH" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="mH" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+
+		<Cards ComponentName="cardFemmes" Name="Femmes" DataSource="odsSalarie">
+			<FilterString>[EstActif] = True And [EstFemme] = True</FilterString>
+			<DataItems>
+				<Measure DataMember="Oid" SummaryType="Count" UniqueName="mF" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="mF" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+
+		<Cards ComponentName="cardAgeMoyen" Name="Âge Moyen" DataSource="odsSalarie">
+			<FilterString>[EstActif] = True</FilterString>
+			<DataItems>
+				<Measure DataMember="Age" SummaryType="Average" UniqueName="mAge" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="mAge" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+
+		<Cards ComponentName="cardAncMoy" Name="Ancienneté Moy." DataSource="odsSalarie">
+			<FilterString>[EstActif] = True</FilterString>
+			<DataItems>
+				<Measure DataMember="Anciennete" SummaryType="Average" UniqueName="mAnc" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="mAnc" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+
+		<!-- ═══ Répartition par sexe (Pie) ═══ -->
+		<Pie ComponentName="pieSexe" Name="Répartition H/F" DataSource="odsSalarie">
+			<FilterString>[EstActif] = True</FilterString>
+			<Arguments>
+				<Dimension DataMember="Sexe" />
+			</Arguments>
+			<Values>
+				<Measure DataMember="Oid" SummaryType="Count" />
+			</Values>
+			<Legend Visible="true" />
+		</Pie>
+
+		<!-- ═══ Par tranche d'âge ═══ -->
+		<Chart ComponentName="chartAge" Name="Par tranche d'âge" DataSource="odsSalarie">
+			<FilterString>[EstActif] = True</FilterString>
+			<Arguments>
+				<Dimension DataMember="TrancheAge" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="Bar">
+							<Value>
+								<Measure DataMember="Oid" SummaryType="Count" />
+							</Value>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="false" />
+		</Chart>
+
+		<!-- ═══ Par ancienneté ═══ -->
+		<Chart ComponentName="chartAnc" Name="Par ancienneté" DataSource="odsSalarie">
+			<FilterString>[EstActif] = True</FilterString>
+			<Arguments>
+				<Dimension DataMember="TrancheAnciennete" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="Bar">
+							<Value>
+								<Measure DataMember="Oid" SummaryType="Count" />
+							</Value>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="false" />
+		</Chart>
+
+		<!-- ═══ Par département ═══ -->
+		<Chart ComponentName="chartDept" Name="Par département" DataSource="odsSalarie">
+			<FilterString>[EstActif] = True</FilterString>
+			<Arguments>
+				<Dimension DataMember="Departement.Libelle" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="Bar">
+							<Value>
+								<Measure DataMember="Oid" SummaryType="Count" />
+							</Value>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="false" />
+		</Chart>
+
+		<!-- ═══ Par fonction ═══ -->
+		<Chart ComponentName="chartFonction" Name="Par fonction" DataSource="odsSalarie">
+			<FilterString>[EstActif] = True</FilterString>
+			<Arguments>
+				<Dimension DataMember="Fonction.Libelle" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="Bar">
+							<Value>
+								<Measure DataMember="Oid" SummaryType="Count" />
+							</Value>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="false" />
+		</Chart>
+
+		<!-- ═══ Par type de contrat ═══ -->
+		<Pie ComponentName="pieContrat" Name="Type de contrat" DataSource="odsContrat">
+			<Arguments>
+				<Dimension DataMember="TypeContrat" />
+			</Arguments>
+			<Values>
+				<Measure DataMember="Oid" SummaryType="Count" />
+			</Values>
+			<Legend Visible="true" />
+		</Pie>
+
+		<!-- ═══ Tableau détaillé des effectifs ═══ -->
+		<Grid ComponentName="gridEffectifs" Name="Détail des effectifs" DataSource="odsSalarie">
+			<FilterString>[EstActif] = True</FilterString>
+			<Columns>
+				<GridDimensionColumn>
+					<Dimension DataMember="Departement.Libelle" DisplayName="Département" />
+					<WidthType>Weight</WidthType>
+					<Weight>20</Weight>
+				</GridDimensionColumn>
+				<GridDimensionColumn>
+					<Dimension DataMember="Sexe" DisplayName="Sexe" />
+					<WidthType>Weight</WidthType>
+					<Weight>10</Weight>
+				</GridDimensionColumn>
+				<GridMeasureColumn>
+					<Measure DataMember="Oid" SummaryType="Count" DisplayName="Effectif" />
+					<WidthType>Weight</WidthType>
+					<Weight>15</Weight>
+				</GridMeasureColumn>
+				<GridMeasureColumn>
+					<Measure DataMember="Anciennete" SummaryType="Average" DisplayName="Anc. Moy." />
+					<WidthType>Weight</WidthType>
+					<Weight>15</Weight>
+				</GridMeasureColumn>
+			</Columns>
+			<ShowCaption>true</ShowCaption>
+		</Grid>
+	</Items>
+
+	<LayoutTree>
+		<LayoutGroup Orientation="Vertical">
+			<!-- Ligne 1 : KPIs -->
+			<LayoutGroup Orientation="Horizontal" Weight="10">
+				<LayoutItem DashboardItem="cardEffTotal"  Weight="20" />
+				<LayoutItem DashboardItem="cardHommes"    Weight="20" />
+				<LayoutItem DashboardItem="cardFemmes"    Weight="20" />
+				<LayoutItem DashboardItem="cardAgeMoyen"  Weight="20" />
+				<LayoutItem DashboardItem="cardAncMoy"    Weight="20" />
+			</LayoutGroup>
+			<!-- Ligne 2 : Graphiques distribution -->
+			<LayoutGroup Orientation="Horizontal" Weight="35">
+				<LayoutItem DashboardItem="pieSexe"     Weight="20" />
+				<LayoutItem DashboardItem="chartAge"    Weight="25" />
+				<LayoutItem DashboardItem="chartAnc"    Weight="25" />
+				<LayoutItem DashboardItem="pieContrat"  Weight="30" />
+			</LayoutGroup>
+			<!-- Ligne 3 : Par département et fonction -->
+			<LayoutGroup Orientation="Horizontal" Weight="30">
+				<LayoutItem DashboardItem="chartDept"     Weight="50" />
+				<LayoutItem DashboardItem="chartFonction"  Weight="50" />
+			</LayoutGroup>
+			<!-- Ligne 4 : Tableau détaillé -->
+			<LayoutGroup Orientation="Horizontal" Weight="23">
+				<LayoutItem DashboardItem="gridEffectifs" Weight="100" />
+			</LayoutGroup>
+		</LayoutGroup>
+	</LayoutTree>
+</Dashboard>

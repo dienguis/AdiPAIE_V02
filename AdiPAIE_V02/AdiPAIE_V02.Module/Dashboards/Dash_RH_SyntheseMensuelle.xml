@@ -1,0 +1,182 @@
+<Dashboard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.devexpress.com/dashboard/2016/dashboard">
+	<Title Text="RH — Synthèse Mensuelle" />
+	<DataSources>
+		<ObjectDataSource ComponentName="odsBulletin" Name="Bulletin" DataSource="AdiPAIE_V02.Module.BusinessObjects.Bulletin, AdiPAIE_V02.Module" />
+		<ObjectDataSource ComponentName="odsSalarie" Name="Salarie" DataSource="AdiPAIE_V02.Module.BusinessObjects.Salarie, AdiPAIE_V02.Module">
+			<CalculatedFields>
+				<CalculatedField Name="EstActif" DataType="Boolean" Expression="[DateSortie] = #01/01/0001# Or [DateSortie] &gt;= Today()" />
+			</CalculatedFields>
+		</ObjectDataSource>
+		<ObjectDataSource ComponentName="odsCongeDemande" Name="CongeDemande" DataSource="AdiPAIE_V02.Module.BusinessObjects.RH.CongeDemande, AdiPAIE_V02.Module" />
+	</DataSources>
+
+	<Parameters>
+		<Parameter Name="pAnnee" Description="Année" Type="System.Int32" Value="2025" />
+	</Parameters>
+
+	<Items>
+		<!-- ═══ KPI Cards ═══ -->
+		<Cards ComponentName="cardEffectif" Name="Effectif Total" DataSource="odsSalarie">
+			<FilterString>[EstActif] = True</FilterString>
+			<DataItems>
+				<Measure DataMember="Oid" SummaryType="Count" UniqueName="mEff" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="mEff" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+
+		<Cards ComponentName="cardMasseSal" Name="Masse Salariale" DataSource="odsBulletin">
+			<FilterString>[Annee] = ?pAnnee</FilterString>
+			<DataItems>
+				<Measure DataMember="TotalGains" SummaryType="Sum" UniqueName="mMasse" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="mMasse" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+
+		<Cards ComponentName="cardCharges" Name="Charges Patronales" DataSource="odsBulletin">
+			<FilterString>[Annee] = ?pAnnee</FilterString>
+			<DataItems>
+				<Measure DataMember="TotalCotisationsSociales" SummaryType="Sum" UniqueName="mCharges" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="mCharges" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+
+		<Cards ComponentName="cardAbsences" Name="Jours Absences" DataSource="odsCongeDemande">
+			<FilterString>GetYear([DateDebut]) = ?pAnnee And [Statut] = 20</FilterString>
+			<DataItems>
+				<Measure DataMember="DureeJours" SummaryType="Sum" UniqueName="mAbs" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="mAbs" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+
+		<!-- ═══ Tableau synthèse mensuelle (page 6 du document) ═══ -->
+		<Pivot ComponentName="pivotSynthese" Name="Synthèse par mois" DataSource="odsBulletin">
+			<FilterString>[Annee] = ?pAnnee</FilterString>
+			<Rows>
+				<Dimension DataMember="Mois" />
+			</Rows>
+			<Values>
+				<Measure DataMember="Salarie.Oid" SummaryType="Count" DisplayName="Effectif" />
+				<Measure DataMember="TotalGains" SummaryType="Sum" DisplayName="Masse Salariale" />
+				<Measure DataMember="TotalCotisationsSociales" SummaryType="Sum" DisplayName="Charges Patronales" />
+				<Measure DataMember="TotalRetenuesFiscales" SummaryType="Sum" DisplayName="Retenues Fiscales" />
+				<Measure DataMember="NetAPayer" SummaryType="Sum" DisplayName="Net à Payer" />
+			</Values>
+			<ShowCaption>true</ShowCaption>
+			<ShowColumnGrandTotals>true</ShowColumnGrandTotals>
+			<ShowRowGrandTotals>true</ShowRowGrandTotals>
+		</Pivot>
+
+		<!-- ═══ Évolution masse salariale mensuelle ═══ -->
+		<Chart ComponentName="chartMasseMensuelle" Name="Évolution Masse Salariale" DataSource="odsBulletin">
+			<FilterString>[Annee] = ?pAnnee</FilterString>
+			<Arguments>
+				<Dimension DataMember="Mois" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="Bar">
+							<Value>
+								<Measure DataMember="TotalGains" SummaryType="Sum" />
+							</Value>
+							<Name>Masse Salariale</Name>
+						</Simple>
+						<Simple SeriesType="Line">
+							<Value>
+								<Measure DataMember="NetAPayer" SummaryType="Sum" />
+							</Value>
+							<Name>Net à Payer</Name>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="true" />
+		</Chart>
+
+		<!-- ═══ Répartition Charges vs Net ═══ -->
+		<Chart ComponentName="chartRepartition" Name="Charges vs Net" DataSource="odsBulletin">
+			<FilterString>[Annee] = ?pAnnee</FilterString>
+			<Arguments>
+				<Dimension DataMember="Mois" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="StackedBar">
+							<Value>
+								<Measure DataMember="NetAPayer" SummaryType="Sum" />
+							</Value>
+							<Name>Net à Payer</Name>
+						</Simple>
+						<Simple SeriesType="StackedBar">
+							<Value>
+								<Measure DataMember="TotalCotisationsSociales" SummaryType="Sum" />
+							</Value>
+							<Name>Cotisations Sociales</Name>
+						</Simple>
+						<Simple SeriesType="StackedBar">
+							<Value>
+								<Measure DataMember="TotalRetenuesFiscales" SummaryType="Sum" />
+							</Value>
+							<Name>Retenues Fiscales</Name>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="true" />
+		</Chart>
+	</Items>
+
+	<LayoutTree>
+		<LayoutGroup Orientation="Vertical">
+			<!-- Ligne 1 : KPIs -->
+			<LayoutGroup Orientation="Horizontal" Weight="15">
+				<LayoutItem DashboardItem="cardEffectif"  Weight="25" />
+				<LayoutItem DashboardItem="cardMasseSal"  Weight="25" />
+				<LayoutItem DashboardItem="cardCharges"   Weight="25" />
+				<LayoutItem DashboardItem="cardAbsences"  Weight="25" />
+			</LayoutGroup>
+			<!-- Ligne 2 : Tableau pivot -->
+			<LayoutGroup Orientation="Horizontal" Weight="45">
+				<LayoutItem DashboardItem="pivotSynthese" Weight="100" />
+			</LayoutGroup>
+			<!-- Ligne 3 : Graphiques -->
+			<LayoutGroup Orientation="Horizontal" Weight="40">
+				<LayoutItem DashboardItem="chartMasseMensuelle" Weight="55" />
+				<LayoutItem DashboardItem="chartRepartition"    Weight="45" />
+			</LayoutGroup>
+		</LayoutGroup>
+	</LayoutTree>
+</Dashboard>
