@@ -30,8 +30,12 @@
 @using static AdiPAIE_V02.Module.Domain.DomainEnums
 
 @inject IEffectifDetailleDashboardService Service
+@inject IDashboardExcelExportService ExcelExport
+@inject IDashboardPdfExportService PdfExport
+@inject IJSRuntime JS
 @inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
 @inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
 
 <PageTitle>Effectif détaillé — Tableaux de Bord RH</PageTitle>
 
@@ -175,6 +179,9 @@ else
             <button class="ed-btn ed-btn--icon" title="Export Excel (Étape 7)" @onclick="OnExportExcelClick" disabled="@_loading">
                 <i class="bi bi-file-earmark-excel"></i>
             </button>
+            <a class="ed-btn ed-btn--icon" title="Aide ce tableau" href="/help/dashboards/effectif-detaille.html" target="_blank" rel="noopener">
+                <i class="bi bi-question-circle"></i>
+            </a>
         </div>
     </div>
 </header>
@@ -760,6 +767,11 @@ else
 
     protected override void OnInitialized()
     {
+        if (HttpCtx?.HttpContext?.User?.Identity?.IsAuthenticated != true)
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
         LoadLookups();
         LoadData();
     }
@@ -837,16 +849,28 @@ else
         return Task.CompletedTask;
     }
 
-    private Task OnExportPdfClick()
+    private async Task OnExportPdfClick()
     {
-        _errorMessage = "Export PDF — à implémenter à l'Étape 7 (UI commune).";
-        return Task.CompletedTask;
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = PdfExport.ExportEffectifDetaille(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName, "application/pdf", Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export PDF : {ex.Message}"; }
     }
 
-    private Task OnExportExcelClick()
+    private async Task OnExportExcelClick()
     {
-        _errorMessage = "Export Excel — à implémenter à l'Étape 7 (UI commune).";
-        return Task.CompletedTask;
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = ExcelExport.ExportEffectifDetaille(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export Excel : {ex.Message}"; }
     }
 
     /// <summary>

@@ -13,6 +13,7 @@
 @page "/dashboards"
 @attribute [Authorize]
 @inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
 
 <PageTitle>Tableaux de Bord RH</PageTitle>
 
@@ -178,6 +179,19 @@
 </style>
 
 @code {
+
+    /// <summary>
+    /// Guard d'authentification — App.razor utilise RouteView et non
+    /// AuthorizeRouteView, donc @attribute [Authorize] est ignoré.
+    /// On force la redirection vers /LoginPage si non authentifié.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (HttpCtx?.HttpContext?.User?.Identity?.IsAuthenticated != true)
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+        }
+    }
 
     /// <summary>Description d'une carte de tableau de bord.</summary>
     private record CardInfo(

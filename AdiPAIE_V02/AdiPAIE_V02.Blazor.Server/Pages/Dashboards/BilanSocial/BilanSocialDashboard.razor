@@ -28,8 +28,12 @@
 @using DevExpress.ExpressApp.Blazor.Services
 
 @inject IBilanSocialDashboardService Service
+@inject IDashboardExcelExportService ExcelExport
+@inject IDashboardPdfExportService PdfExport
+@inject IJSRuntime JS
 @inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
 @inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
 
 <PageTitle>Bilan Social Mensuel — Tableaux de Bord RH</PageTitle>
 
@@ -94,6 +98,9 @@ else
                 <button class="ed-btn ed-btn--icon" title="Export Excel (Étape 7)" @onclick="OnExportExcelClick" disabled="@_loading">
                     <i class="bi bi-file-earmark-excel"></i>
                 </button>
+                <a class="ed-btn ed-btn--icon" title="Aide ce tableau" href="/help/dashboards/bilan-social.html" target="_blank" rel="noopener">
+                    <i class="bi bi-question-circle"></i>
+                </a>
             </div>
         </div>
     </header>
@@ -176,6 +183,43 @@ else
                     </table>
                 </div>
             </section>
+
+            @* ── Ligne complémentaire « dont Intérimaires » (option B) ── *@
+            @if (_data.DontInterimaires != null && _data.DontInterimaires.NbContrats > 0)
+            {
+                <section class="ed-section">
+                    <h3 class="ed-section__title">
+                        <i class="bi bi-info-square"></i> Complément managérial — dont Intérimaires (hors DTSS officiel)
+                    </h3>
+                    <p class="bs-note">
+                        Ces données concernent le <strong>Personnel Externe (Intérimaires)</strong> et sont
+                        fournies à titre informatif. Elles ne font <em>pas</em> partie du formulaire DTSS officiel
+                        (qui concerne les salariés permanents).
+                    </p>
+                    <table class="bs-table bs-table--inline">
+                        <thead>
+                            <tr>
+                                <th class="bs-th-left">Indicateur</th>
+                                <th class="bs-th-num">Effectif moyen mensuel</th>
+                                <th class="bs-th-num">Nb contrats actifs année</th>
+                                <th class="bs-th-num">Arrivées contrats</th>
+                                <th class="bs-th-num">Départs contrats</th>
+                                <th class="bs-th-num bs-th-orange">Coût total estimé</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="bs-td-left"><strong>Intérimaires @_filter.Annee</strong></td>
+                                <td class="bs-td-num">@_data.DontInterimaires.EffectifMoyen.ToString("N0", FrCulture)</td>
+                                <td class="bs-td-num">@_data.DontInterimaires.NbContrats.ToString("N0", FrCulture)</td>
+                                <td class="bs-td-num bs-td-blue">@_data.DontInterimaires.ArriveesContrats.ToString("N0", FrCulture)</td>
+                                <td class="bs-td-num bs-td-red">@_data.DontInterimaires.DepartsContrats.ToString("N0", FrCulture)</td>
+                                <td class="bs-td-num bs-td-orange"><strong>@FormatFcfa(_data.DontInterimaires.CoutTotal)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+            }
 
             @* ── Indicateurs non disponibles (note méthodologique) ────── *@
             <section class="ed-section bs-info">
@@ -305,6 +349,16 @@ else
 
     protected override void OnInitialized()
     {
+        // ── Guard d'authentification ──
+        // App.razor utilise RouteView (et non AuthorizeRouteView) donc
+        // @attribute [Authorize] n'est pas appliqué. On vérifie nous-mêmes
+        // l'authentification cookie ASP.NET avant d'afficher le tableau.
+        if (HttpCtx?.HttpContext?.User?.Identity?.IsAuthenticated != true)
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
+
         LoadLookups();
         LoadData();
     }
@@ -353,8 +407,28 @@ else
         return Task.CompletedTask;
     }
 
-    private Task OnExportPdfClick()   { _errorMessage = "Export PDF — Étape 7."; return Task.CompletedTask; }
-    private Task OnExportExcelClick() { _errorMessage = "Export Excel — Étape 7."; return Task.CompletedTask; }
+    private async Task OnExportPdfClick()
+    {
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = PdfExport.ExportBilanSocial(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName, "application/pdf", Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export PDF : {ex.Message}"; }
+    }
+    private async Task OnExportExcelClick()
+    {
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = ExcelExport.ExportBilanSocial(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export Excel : {ex.Message}"; }
+    }
 
     private static string FormatFcfa(decimal v) =>
         Math.Round(v, 0).ToString("#,##0", FcfaFmt);

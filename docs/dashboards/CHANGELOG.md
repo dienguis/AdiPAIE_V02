@@ -25,6 +25,240 @@ Chaque entrée précise :
 
 ---
 
+## [Étape 7 hot-fix sécurité] 2026-05-03 0400 — Guard d'authentification + Bootstrap Icons CDN
+
+**🚨 Faille de sécurité corrigée** : les pages `/dashboards/*` étaient
+accessibles **sans authentification**. Cause racine : `App.razor` utilise
+`<RouteView>` (et non `<AuthorizeRouteView>`), donc l'attribut
+`@attribute [Authorize]` placé sur chaque dashboard était silencieusement
+ignoré.
+
+**Solution** (sans toucher à `App.razor` pour ne pas impacter le reste
+de l'app XAF) : ajout d'un **guard d'authentification** dans le
+`OnInitialized()` de chaque page dashboard.
+
+```csharp
+@inject IHttpContextAccessor HttpCtx
+
+protected override void OnInitialized()
+{
+    if (HttpCtx?.HttpContext?.User?.Identity?.IsAuthenticated != true)
+    {
+        Nav.NavigateTo("/LoginPage", forceLoad: true);
+        return;
+    }
+    LoadLookups();
+    LoadData();
+}
+```
+
+`IHttpContextAccessor` est déjà enregistré dans `Startup.cs`
+(`services.AddHttpContextAccessor()`).
+
+### Fichiers modifiés (7)
+
+| Fichier | Nature |
+|---|---|
+| `Pages/Dashboards/DashboardHome.razor` | + guard auth |
+| `Pages/Dashboards/Effectif/EffectifDetailleDashboard.razor` | + guard auth |
+| `Pages/Dashboards/Effectif/AnalyseEffectifDashboard.razor` | + guard auth |
+| `Pages/Dashboards/Mouvements/MouvementsDashboard.razor` | + guard auth |
+| `Pages/Dashboards/Remuneration/RemunerationDashboard.razor` | + guard auth |
+| `Pages/Dashboards/Absences/SuiviAbsencesDashboard.razor` | + guard auth |
+| `Pages/Dashboards/BilanSocial/BilanSocialDashboard.razor` | + guard auth |
+
+### Bonus : Bootstrap Icons (icônes invisibles)
+
+Les boutons header (Refresh / PDF / Excel / ?) ainsi que les pictos KPI
+n'affichaient rien car `bootstrap-icons.css` n'était pas chargé.
+
+**Fix** : ajout dans `_Host.cshtml` du CDN jsDelivr :
+```html
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+```
+
+À défaut, hébergement local `wwwroot/lib/bootstrap-icons/` recommandé
+pour la prod (si serveur sans accès Internet).
+
+### Note méthodologique sur le guard
+
+Le pattern `@attribute [Authorize]` reste présent sur chaque page (au
+cas où App.razor serait corrigé plus tard pour utiliser
+`<AuthorizeRouteView>`), mais le guard côté code C# fournit la
+protection effective immédiate. Solution **défense en profondeur**.
+
+---
+
+## [Étape 7.3] 2026-05-03 0330 — Export PDF (QuestPDF) + lisibilité boutons header
+
+**Objet** : finalisation des exports avec génération PDF native (QuestPDF)
+pour les 6 tableaux + amélioration du contraste des boutons icônes du
+header (Refresh / PDF / Excel / Aide) qui étaient peu lisibles sur le fond
+navy ELTON.
+
+### Décisions techniques
+
+- **Stack PDF** : QuestPDF 2024.7.3 (fluent C# API). Licence Community
+  gratuite pour CA < 1 M$ ou usage open-source ; Professional ≈ 699 $/an
+  pour ELTON en prod (à arbitrer juridiquement avant déploiement).
+  `Settings.License = LicenseType.Community` au démarrage du service.
+- **Format** : A4 paysage, en-tête navy ELTON avec titre + sous-titre +
+  date génération, pied de page avec « Page x/y » + horodatage.
+- **Layout** : KPI en cartes 1 ligne × N colonnes, sections data en
+  tableaux à en-têtes navy avec lignes alternées.
+- **Téléchargement** : réutilise `window.AdiPAIE.downloadFile`
+  (mime `application/pdf`).
+
+### Lisibilité boutons (correctif visuel)
+
+CSS `.ed-btn` modifié dans `dashboards-elton.css` :
+- Fond passé de `rgba(255,255,255,0.08)` à `rgba(255,255,255,0.18)`
+- Bordure passée de `0.18` à `0.45` opacité
+- Hover : orange ELTON (au lieu de rouge) avec lift `translateY(-1px)` +
+  ombre `0 2px 8px rgba(241,138,28,0.35)`
+- Icône `font-size` 1rem → 1.15rem
+- Surface cliquable mini 2.4 × 2.4 rem (carrée, plus accessible)
+- Support `<a class="ed-btn">` aligné via `display: inline-flex`
+
+### Fichiers créés (2)
+
+- `AdiPAIE_V02.Module/Services/Dashboards/IDashboardPdfExportService.cs`
+- `AdiPAIE_V02.Module/Services/Dashboards/DashboardPdfExportService.cs`
+  (~330 lignes — 6 méthodes Export*, helpers `BuildDocument`, `Kpi`,
+  `SectionTitle`, `Th/Td/TdTotal`, `BarTable`, `EgaliteTable`,
+  format `Fcfa/Pct/Ans`)
+
+### Fichiers modifiés (9)
+
+| Fichier | Nature |
+|---|---|
+| `AdiPAIE_V02.Module/AdiPAIE_V02.Module.csproj` | + PackageReference QuestPDF 2024.7.3 |
+| `wwwroot/css/dashboards-elton.css` | contraste boutons header |
+| `Startup.cs` | DI `IDashboardPdfExportService` |
+| `Pages/Dashboards/Effectif/EffectifDetailleDashboard.razor` | inject Pdf + handler câblé |
+| `Pages/Dashboards/Effectif/AnalyseEffectifDashboard.razor` | idem |
+| `Pages/Dashboards/Mouvements/MouvementsDashboard.razor` | idem |
+| `Pages/Dashboards/Remuneration/RemunerationDashboard.razor` | idem |
+| `Pages/Dashboards/Absences/SuiviAbsencesDashboard.razor` | idem |
+| `Pages/Dashboards/BilanSocial/BilanSocialDashboard.razor` | idem |
+
+### Limitations / TODO
+
+- **Licence QuestPDF** : à passer en Professional pour prod ELTON
+  (CA > 1 M$). Code à modifier : `Settings.License = LicenseType.Professional`
+  + ajouter la clé via `Settings.LicenseKey = "..."`.
+- **Charts en image** : le PDF affiche les bar charts sous forme de
+  tableaux et non d'images SVG. Pour intégrer les graphiques visuels,
+  prochaine étape = générer des SVG inline avec `Svg()` de QuestPDF
+  ou utiliser SkiaSharp.
+- **Mémoire** : les PDF sont sérialisés en base64 dans la connexion
+  SignalR — taille raisonnable pour < 5 MB. Pour très gros bilans,
+  basculer sur un endpoint MVC `FileResult`.
+
+### Branche Git / Commit
+
+- **Branche** : `feature/dashboards-rh`
+- **Hash Étape 7.3** : _à renseigner_
+- **Message attendu** :
+  `feat(dashboards): etape 7.3 export PDF QuestPDF 6 tableaux + fix lisibilite boutons header`
+
+---
+
+## [Étape 7 hot-fix] 2026-05-03 0230 — Tableaux de bord ouvrent dans un nouvel onglet
+
+**Constat utilisateur** : depuis le menu XAF principal, le clic sur
+« Ouvrir les Tableaux de Bord » naviguait dans la même fenêtre
+(`location.assign`), ce qui masquait l'application XAF. L'utilisateur
+devait utiliser le bouton « Précédent » du navigateur pour retourner
+à l'application.
+
+**Correctif** : `DashboardsRHNavigationController.cs` modifié pour
+utiliser `window.open(url, '_blank')` à la place de `location.assign`.
+Pattern aligné sur le help SunuPaie (qui ouvre toujours dans un nouvel
+onglet via `target="_blank"`).
+
+**Effet** :
+- L'utilisateur reste dans son onglet XAF d'origine.
+- Les tableaux de bord s'ouvrent dans un nouvel onglet indépendant.
+- Plus besoin du bouton « Précédent » : on ferme simplement l'onglet
+  pour revenir à l'application.
+- Cohérent avec le pattern Help du projet.
+
+### Fichier modifié
+
+| Fichier | Nature |
+|---|---|
+| `AdiPAIE_V02.Module/Controllers/RH/DashboardsRHNavigationController.cs` | `js.InvokeVoidAsync("open", "/dashboards/", "_blank")` au lieu de `location.assign` |
+
+### Note technique
+
+Si un bloqueur de popup empêche l'ouverture (rare car déclenchée par
+clic utilisateur), une amélioration future consistera à ajouter une
+fonction JS `window.AdiPAIE.openInNewTab(url)` avec fallback sur
+`location.href` en cas d'échec.
+
+---
+
+## [Étape 7.1 + 7.2 + 7.4] 2026-05-03 0200 — Aide en ligne + Export Excel + Bilan Social option B
+
+**Objet** : trio d'améliorations transversales sur les 6 tableaux :
+- **7.1** : 7 pages d'aide HTML statiques sous `/wwwroot/help/dashboards/` +
+  CSS partagé + bouton « ? » dans le header de chaque dashboard (ouvre dans
+  nouvel onglet).
+- **7.2** : service partagé `IDashboardExcelExportService` (ClosedXML) qui
+  produit un `.xlsx` propre par tableau (1 worksheet par section : KPI,
+  bar charts, tableaux, évolution, etc.) avec en-tête navy, format FCFA,
+  format pourcentage, ligne TOTAL stylée.
+- **7.4** : ligne complémentaire « dont Intérimaires » sur le Bilan Social
+  Mensuel (option B validée par utilisateur — info managériale hors DTSS officiel).
+
+### Fichiers créés (10)
+
+- `wwwroot/help/dashboards/dashboards-help.css` (charte ELTON partagée)
+- `wwwroot/help/dashboards/index.html` (hub avec 6 cartes)
+- `wwwroot/help/dashboards/effectif-detaille.html`
+- `wwwroot/help/dashboards/analyse-effectif.html`
+- `wwwroot/help/dashboards/mouvements.html`
+- `wwwroot/help/dashboards/remuneration.html`
+- `wwwroot/help/dashboards/suivi-absences.html`
+- `wwwroot/help/dashboards/bilan-social.html`
+- `AdiPAIE_V02.Module/Services/Dashboards/IDashboardExcelExportService.cs`
+- `AdiPAIE_V02.Module/Services/Dashboards/DashboardExcelExportService.cs`
+  (ClosedXML, ~330 lignes, 6 méthodes Export*)
+
+### Fichiers modifiés (10)
+
+| Fichier | Nature |
+|---|---|
+| `Startup.cs` | DI export Excel |
+| `Pages/Dashboards/Effectif/EffectifDetailleDashboard.razor` | bouton ? + Export Excel câblé |
+| `Pages/Dashboards/Effectif/AnalyseEffectifDashboard.razor` | idem |
+| `Pages/Dashboards/Mouvements/MouvementsDashboard.razor` | idem |
+| `Pages/Dashboards/Remuneration/RemunerationDashboard.razor` | idem |
+| `Pages/Dashboards/Absences/SuiviAbsencesDashboard.razor` | idem |
+| `Pages/Dashboards/BilanSocial/BilanSocialDashboard.razor` | idem + section « dont Intérimaires » |
+| `Module/Models/Dashboards/BilanSocialDto.cs` | + classe `IntemRowDto` |
+| `Module/Services/Dashboards/BilanSocialDashboardService.cs` | + méthode `ComputeDontInterimaires` |
+| `docs/dashboards/CHANGELOG.md` | cette entrée |
+
+### Décisions techniques
+
+- **Téléchargement Excel** : utilise la fonction JS existante
+  `window.AdiPAIE.downloadFile(fileName, mimeType, base64)` déjà présente
+  dans `wwwroot/js/adipaie.js` — pas de nouveau JS à ajouter.
+- **Pages d'aide** : indépendantes de Blazor (HTML statique) → ouvrent
+  instantanément dans un nouvel onglet, ne sollicitent pas le serveur.
+- **Charte help** : navy ELTON pour cohérence visuelle (l'aide générale
+  SunuPaie reste verte ; la nav cross-link les deux univers).
+- **Bilan Social option B** : ne touche pas au calcul DTSS officiel ; la
+  ligne intérimaires n'apparaît que si `NbContrats > 0`.
+
+### Étape suivante : 7.3 Export PDF
+
+Reste à implémenter via QuestPDF ou DevExpress XtraReport (choix utilisateur).
+
+---
+
 ## [Étape 4.6] 2026-05-03 0030 — Tableau N°6 « Bilan Social Mensuel »
 
 **Objet** : implémentation du dernier dashboard — synthèse mensuelle DTSS-style
