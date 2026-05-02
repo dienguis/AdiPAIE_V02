@@ -25,6 +25,83 @@ Chaque entrée précise :
 
 ---
 
+## [Étape 4.6] 2026-05-03 0030 — Tableau N°6 « Bilan Social Mensuel »
+
+**Objet** : implémentation du dernier dashboard — synthèse mensuelle DTSS-style
+sur le périmètre INTERNE. Tableau 12 mois × 8 indicateurs principaux + ligne
+TOTAL en queue, le tout consolidant les sources Salarie / Bulletin /
+BulletinLigne / CongeDemande déjà cartographiées dans les Tab 1-5.
+
+### Décisions validées (avant codage)
+
+- **Périmètre INTERNE uniquement** : le Bilan Social DTSS est légalement
+  pour les salariés permanents.
+- **Indicateurs codés (8)** : Effectif fin mois, Embauches, Départs,
+  Masse Salariale, Charges Patronales, Coût Employeur (calc), Employés
+  Absents, Jours d'Absence.
+- **Indicateurs N/A** (renvoyés `null` côté DTO, affichés « — » côté UI) :
+  Mouvements emplois, Mesures disciplinaires, Accidents (travail/trajet),
+  Maladies professionnelles, Budget Formation, Heures Formation, Employés
+  Formés. Section « TODO méthodologique » dans la page documente quelles
+  entités créer pour les activer.
+- **Ligne TOTAL** : fond navy ELTON + bordure orange dorée + texte clair —
+  visuellement distincte des 12 lignes mensuelles.
+- **KPI complétude** : ratio cellules non vides sur les 12 mois × 5
+  indicateurs principaux (indicateur qualité données pour le RH).
+- **Pas de filtre Genre/Famille/Catégorie** : la vue se veut transversale
+  (ces granularités sont disponibles dans les Tab 1-5).
+
+### Fichiers créés (5)
+
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/BilanSocialFilterModel.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/BilanSocialDto.cs`
+  (incl. `KpiBilanSocialDto`, `MoisBilanSocialDto` avec `CoutEmployeur`
+  calculé en propriété get-only)
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/IBilanSocialDashboardService.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/BilanSocialDashboardService.cs`
+  (incl. helpers `Compute`, `ProrataJoursDansMois`, `IsActif` soft-delete)
+- `sql/dashboards/06_bilan_social.sql` (3 requêtes : récap mensuel + total
+  annuel + taux d'absentéisme)
+
+### Fichiers modifiés (3)
+
+| Fichier | Sauvegarde `.bak` | Nature |
+|---|---|---|
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/BilanSocial/BilanSocialDashboard.razor` | `docs/dashboards/backup/2026-05-03_0030/.../BilanSocialDashboard.razor.bak` | Réécriture complète : remplacement du placeholder par UI ELTON (5 KPI, tableau 12 mois × 8 colonnes + ligne TOTAL stylée navy/orange, section TODO méthodologique). |
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Startup.cs` | `docs/dashboards/backup/2026-05-03_0030/.../Startup.cs.bak` | DI : `services.AddScoped<IBilanSocialDashboardService, BilanSocialDashboardService>()`. |
+| `docs/dashboards/CHANGELOG.md` | (suivi git) | Cette entrée. |
+
+### Limitations connues / TODO
+
+- **Indicateurs absents du modèle** : Formations, Accidents, Disciplinaire.
+  Documenté dans le footer de la page + cette entrée. À traiter en Étape 8.
+- **Boutons Export PDF/Excel** : toast « à venir » (Étape 7). À noter que
+  pour ce tableau, l'export Excel sera particulièrement utile (tableau
+  prêt à coller dans le formulaire DTSS .docx).
+- **Optimisation** : si Bulletin > 50 000 lignes, basculer le calcul des
+  charges côté SQL via vue (actuellement aggrégation en mémoire).
+
+### Branche Git / Commit
+
+- **Branche** : `feature/dashboards-rh`
+- **Hash Étape 4.6** : _à renseigner après le `git commit` côté Windows_
+- **Message attendu** :
+  `feat(dashboards): tableau N6 bilan social mensuel (recap 12 mois x 8 indicateurs INTERNE, ligne TOTAL stylee, section TODO entites manquantes)`
+
+### Commandes de rollback
+
+```
+git revert <hash_du_commit_etape_4_6>
+# ou (en local non poussé) :
+git reset --hard 686fb3b8
+```
+
+### Validé par
+
+_À renseigner — validation en cours côté utilisateur après build + test._
+
+---
+
 ## [Étape 4.5] 2026-05-02 2330 — Tableau N°5 « Suivi des Absences »
 
 **Objet** : implémentation complète du Tableau N°5 sur le périmètre INTERNE

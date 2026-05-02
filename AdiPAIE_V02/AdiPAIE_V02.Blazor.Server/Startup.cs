@@ -65,6 +65,11 @@ namespace AdiPAIE_V02.Blazor.Server
                 AdiPAIE_V02.Module.Services.Dashboards.ISuiviAbsencesDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.SuiviAbsencesDashboardService>();
 
+            // Tableau N°6 — Bilan Social Mensuel (Étape 4.6)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IBilanSocialDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.BilanSocialDashboardService>();
+
             services.AddHostedService<AttestationRappelService>();
            // services.AddHostedService<AttestationRappelService>();
             services.AddHostedService<DossierExpirationRappelService>();

@@ -1,58 +1,361 @@
 @* =====================================================================
     BilanSocialDashboard.razor — Tableau N°6
     URL : /dashboards/bilan-social
-    Périmètre : Personnel INTERNE et EXTERNE (3 modes : Interne / Externe / Global)
+    Périmètre : Personnel INTERNE — synthèse mensuelle DTSS-style
 
-    Placeholder (Étape 3). Implémentation complète à l'Étape 4.6 :
-      - Onglets haut : Effectif, Parcours Pro, Compétences, Formation,
-                       Rémunération, Santé Sécurité, Absentéisme
-      - Filtres : Année, Site
-      - KPI cartes haut : %Top Managers Femmes, %Masse salariale formation,
-                          Nb employés s'absentant en moyenne / jour
-      - DxGrid mensuel (12 mois + ligne Total) avec 17 colonnes :
-          Mois, Effectif Total, Embauches, Départs, Mouvements Emplois,
-          Mesures Disciplinaires, Budget Formation, Heures Formations,
-          Employés Formés, Masse Salariale, Charges Patronales,
-          Accidents du Travail, Accidents de Trajet, Maladie Prof.,
-          Jours Arrêt Travail, Employés Absents, Jours Absences
-      - Mise en forme conditionnelle (cellules zéro en rouge)
-      - S'appuie sur `Services/BilanSocialService.cs` existant pour
-        les pré-calculs (effectif, recrutements, départs, masse salariale,
-        charges, congés, formations).
+    UI complète (Étape 4.6) :
+      - Filtres : Année (slicer), Site
+      - 5 KPI cartes : EffectifMoyen, TotalEmbauches, TotalDeparts,
+                       MasseAnnuelle, TauxAbsenteisme
+      - Tableau 12 mois × 8 colonnes principales (+ ligne Total)
+        Colonnes : Mois, Effectif, Embauches, Départs, Masse, Charges,
+                   Coût Employeur, Employés Absents, Jours Absence
+      - Mise en forme : ligne TOTAL grise + colonnes cellules vides en gris
+
+    NB : les colonnes liées à des entités absentes du modèle actuel
+    (formations, accidents, mesures disciplinaires) sont marquées « — »
+    avec une note explicative en footer.
    ===================================================================== *@
 
 @page "/dashboards/bilan-social"
 @attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+
+@inject IBilanSocialDashboardService Service
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
 @inject NavigationManager Nav
 
 <PageTitle>Bilan Social Mensuel — Tableaux de Bord RH</PageTitle>
 
-<DashboardLayout Title="Bilan Social Mensuel"
-                 PerimetreLabel="Interne / Externe / Global">
-    <ChildContent>
-        <div class="alert alert-info" role="alert">
-            <h5 class="alert-heading">
-                <i class="bi bi-clipboard-data" aria-hidden="true"></i>
-                Tableau N°6 — placeholder
-            </h5>
-            <p class="mb-2">
-                Cette page sera complétée à l'<strong>Étape 4.6</strong> avec :
-            </p>
-            <ul class="mb-0">
-                <li>Toggle 3 modes : Interne / Externe / Global</li>
-                <li>Onglets : Effectif, Parcours Pro, Compétences, Formation, Rémunération, Santé Sécurité, Absentéisme</li>
-                <li>KPI haut : %Top Managers Femmes, %Masse salariale formation, Nb absents moyens/jour</li>
-                <li>DxGrid mensuel 12 mois + Total avec 17 colonnes (Effectif → Jours Absences)</li>
-                <li>Mise en forme conditionnelle (zéros en rouge)</li>
-                <li>S'appuie sur le <code>BilanSocialService</code> existant</li>
-                <li>Filtres Année / Site</li>
-            </ul>
+@if (_data == null && _errorMessage == null)
+{
+    <div class="ed-loading">
+        <DxLoadingPanel Text="Chargement…" Visible="true" />
+    </div>
+}
+else
+{
+    <header class="ed-header">
+
+        @* ── Ligne 1 : titre + KPI annuels ─────────────────────────── *@
+        <div class="ed-header__row">
+            <div class="ed-header__title">
+                <button class="ed-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+                <div>
+                    <div class="ed-header__perimetre">
+                        Tableau N°6 · Personnel Interne · Synthèse DTSS
+                    </div>
+                    <h1 class="ed-header__h1">Bilan Social Mensuel <span class="ed-h1-sub">— vue annuelle</span></h1>
+                </div>
+            </div>
+            <div class="ed-kpi-effectif" title="Effectif au 31/12">
+                <div class="ed-kpi-effectif__label">Effectif fin @_filter.Annee</div>
+                <div class="ed-kpi-effectif__value">@(_data?.Kpis.EffectifFinAnnee ?? 0)</div>
+                <div class="ed-kpi-effectif__date">moyen annuel : @(_data?.Kpis.EffectifMoyenAnnuel ?? 0)</div>
+            </div>
         </div>
 
-        <div class="mt-3">
-            <DxButton Text="Retour aux tableaux de bord"
-                      IconCssClass="bi bi-arrow-left"
-                      Click="@(() => Nav.NavigateTo("/dashboards"))" />
+        @* ── Ligne 2 : filtres + actions ───────────────────────────── *@
+        <div class="ed-header__row ed-header__row--filters">
+            <div class="ed-filter">
+                <label>Année</label>
+                <DxComboBox TData="int" TValue="int"
+                            Data="@_anneesDispo"
+                            Value="@_filter.Annee"
+                            ValueChanged="@((int v) => OnAnneeChanged(v))"
+                            CssClass="ed-input" />
+            </div>
+            <div class="ed-filter">
+                <label>Site</label>
+                <DxComboBox TData="Site" TValue="Site"
+                            Data="@_sitesDispo"
+                            TextFieldName="@nameof(Site.Nom)"
+                            Value="@_selectedSite"
+                            ValueChanged="@((Site? s) => OnSiteChanged(s))"
+                            NullText="Tous"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            CssClass="ed-input" />
+            </div>
+            <div class="ed-actions">
+                <button class="ed-btn ed-btn--icon" title="Actualiser" @onclick="OnRefreshClick" disabled="@_loading">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+                <button class="ed-btn ed-btn--icon" title="Export PDF (Étape 7)" @onclick="OnExportPdfClick" disabled="@_loading">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                </button>
+                <button class="ed-btn ed-btn--icon" title="Export Excel (Étape 7)" @onclick="OnExportExcelClick" disabled="@_loading">
+                    <i class="bi bi-file-earmark-excel"></i>
+                </button>
+            </div>
         </div>
-    </ChildContent>
-</DashboardLayout>
+    </header>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="ed-error"><i class="bi bi-exclamation-triangle-fill"></i><strong>Erreur :</strong> @_errorMessage</div>
+    }
+
+    @if (_data != null)
+    {
+        <main class="ed-main">
+
+            @* ── 5 KPI cartes ──────────────────────────────────────────── *@
+            <section class="ed-section">
+                <h3 class="ed-section__title">Synthèse annuelle — @_filter.Annee</h3>
+                <div class="ed-kpiinline">
+                    <div class="ed-kpiinline__card">
+                        <div class="ed-kpiinline__label">Effectif moyen</div>
+                        <div class="ed-kpiinline__value">@_data.Kpis.EffectifMoyenAnnuel.ToString("N0", FrCulture)</div>
+                        <div class="ed-kpiinline__sub">moyenne 12 mois</div>
+                    </div>
+                    <div class="ed-kpiinline__card ed-kpiinline__card--blue">
+                        <div class="ed-kpiinline__label">Embauches</div>
+                        <div class="ed-kpiinline__value">@_data.Kpis.TotalEmbauches.ToString("N0", FrCulture)</div>
+                        <div class="ed-kpiinline__sub">total année</div>
+                    </div>
+                    <div class="ed-kpiinline__card ed-kpiinline__card--down">
+                        <div class="ed-kpiinline__label">Départs</div>
+                        <div class="ed-kpiinline__value">@_data.Kpis.TotalDeparts.ToString("N0", FrCulture)</div>
+                        <div class="ed-kpiinline__sub">total année</div>
+                    </div>
+                    <div class="ed-kpiinline__card">
+                        <div class="ed-kpiinline__label">Coût Employeur</div>
+                        <div class="ed-kpiinline__value">@FormatFcfa(_data.Kpis.CoutEmployeurAnnuel)</div>
+                        <div class="ed-kpiinline__sub">masse + charges</div>
+                    </div>
+                    <div class="ed-kpiinline__card ed-kpiinline__card--down">
+                        <div class="ed-kpiinline__label">% Absentéisme</div>
+                        <div class="ed-kpiinline__value">@_data.Kpis.TauxAbsenteisme.ToString("0.00", FrCulture) %</div>
+                        <div class="ed-kpiinline__sub">@_data.Kpis.TotalJoursAbsence j / @_data.Kpis.EffectifMoyenAnnuel × 264</div>
+                    </div>
+                </div>
+            </section>
+
+            @* ── Tableau mensuel (le cœur du Bilan Social) ─────────────── *@
+            <section class="ed-section">
+                <h3 class="ed-section__title">Récapitulatif mensuel — 12 mois</h3>
+                <div class="bs-tablewrap">
+                    <table class="bs-table">
+                        <thead>
+                            <tr>
+                                <th class="bs-th-left">Mois</th>
+                                <th class="bs-th-num">Effectif fin</th>
+                                <th class="bs-th-num bs-th-blue">Embauches</th>
+                                <th class="bs-th-num bs-th-red">Départs</th>
+                                <th class="bs-th-num">Masse Salariale</th>
+                                <th class="bs-th-num">Charges Patronales</th>
+                                <th class="bs-th-num bs-th-orange">Coût Employeur</th>
+                                <th class="bs-th-num">Employés Absents</th>
+                                <th class="bs-th-num">Jours Absence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in _data.Mois)
+                            {
+                                <tr class="@(m.EstTotal ? "bs-row-total" : "")">
+                                    <td class="bs-td-left"><strong>@m.Libelle</strong></td>
+                                    <td class="bs-td-num">@m.EffectifFinMois.ToString("N0", FrCulture)</td>
+                                    <td class="bs-td-num bs-td-blue">@(m.Embauches > 0 ? m.Embauches.ToString("N0", FrCulture) : "—")</td>
+                                    <td class="bs-td-num bs-td-red">@(m.Departs > 0 ? m.Departs.ToString("N0", FrCulture) : "—")</td>
+                                    <td class="bs-td-num">@(m.MasseSalariale > 0 ? FormatFcfa(m.MasseSalariale) : "—")</td>
+                                    <td class="bs-td-num">@(m.ChargesPatronales > 0 ? FormatFcfa(m.ChargesPatronales) : "—")</td>
+                                    <td class="bs-td-num bs-td-orange">@(m.CoutEmployeur > 0 ? FormatFcfa(m.CoutEmployeur) : "—")</td>
+                                    <td class="bs-td-num">@(m.EmployesAbsents > 0 ? m.EmployesAbsents.ToString("N0", FrCulture) : "—")</td>
+                                    <td class="bs-td-num">@(m.JoursAbsence > 0 ? m.JoursAbsence.ToString("N0", FrCulture) : "—")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            @* ── Indicateurs non disponibles (note méthodologique) ────── *@
+            <section class="ed-section bs-info">
+                <h3 class="ed-section__title">
+                    <i class="bi bi-info-circle"></i> Indicateurs complémentaires (à venir)
+                </h3>
+                <p class="bs-note">
+                    Le Bilan Social DTSS demande également les indicateurs suivants. Ils seront
+                    intégrés lorsque les entités correspondantes seront ajoutées au modèle :
+                </p>
+                <ul class="bs-todo">
+                    <li><strong>Mouvements emplois</strong> (mutations internes) — entité <code>HistoriquePoste</code> ou similaire</li>
+                    <li><strong>Mesures disciplinaires</strong> — entité <code>DossierDisciplinaire</code></li>
+                    <li><strong>Accidents du travail / trajet</strong> et <strong>Maladies professionnelles</strong> — entité <code>Accident</code> à créer</li>
+                    <li><strong>Budget formation</strong>, <strong>Heures formation</strong>, <strong>Employés formés</strong> — entité <code>Formation</code> à créer</li>
+                </ul>
+                <p class="bs-note bs-note--right">
+                    <strong>Complétude données actuelle : @_data.Kpis.CompletudeData.ToString("0.0", FrCulture) %</strong>
+                    <span class="bs-help" title="Ratio de cellules non vides sur les 12 mois pour les 5 indicateurs principaux (Effectif/Embauches/Départs/Masse/Charges).">
+                        <i class="bi bi-question-circle"></i>
+                    </span>
+                </p>
+            </section>
+
+            <footer class="ed-footer">
+                <span><i class="bi bi-clock-history"></i> Calculé le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
+                <span class="sep">·</span>
+                <span>Source Salarie + Bulletin + BulletinLigne + CongeDemande</span>
+                <span class="sep">·</span>
+                <span>Format FCFA · base 264 j ouvrables/an</span>
+            </footer>
+        </main>
+    }
+}
+
+@* ── Styles propres au Tableau N°6 ───────────────────────────────── *@
+<style>
+    .ed-h1-sub { font-weight: 400; opacity: 0.75; font-size: 0.85em; }
+
+    /* ───── Tableau Bilan Social ───── */
+    .bs-tablewrap { overflow-x: auto; }
+    .bs-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+    .bs-table thead th {
+        background: var(--ed-bg-dark-2, #142E4D);
+        color: #fff;
+        font-weight: 600;
+        padding: 0.65rem 0.85rem;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+        border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .bs-table thead .bs-th-left   { text-align: left; }
+    .bs-table thead .bs-th-num    { text-align: right; }
+    .bs-table thead .bs-th-blue   { background: linear-gradient(180deg, var(--ed-bg-dark-2, #142E4D) 0%, #1F4376 100%); }
+    .bs-table thead .bs-th-red    { background: linear-gradient(180deg, var(--ed-bg-dark-2, #142E4D) 0%, #6B1F26 100%); }
+    .bs-table thead .bs-th-orange { background: linear-gradient(180deg, var(--ed-bg-dark-2, #142E4D) 0%, var(--ed-orange, #F18A1C) 100%); }
+
+    .bs-table tbody tr {
+        border-bottom: 1px solid var(--ed-border, #E5E7EB);
+    }
+    .bs-table tbody tr:nth-child(even) { background: rgba(20, 46, 77, 0.025); }
+    .bs-table tbody tr:hover           { background: var(--ed-orange-soft, rgba(241,138,28,.08)); }
+    .bs-table td {
+        padding: 0.55rem 0.85rem;
+        font-variant-numeric: tabular-nums;
+    }
+    .bs-td-left   { text-align: left; }
+    .bs-td-num    { text-align: right; }
+    .bs-td-blue   { color: var(--ed-bg-dark-2, #142E4D); font-weight: 600; }
+    .bs-td-red    { color: var(--ed-down, #E63946); font-weight: 600; }
+    .bs-td-orange { color: var(--ed-orange, #F18A1C); font-weight: 700; }
+
+    /* Ligne TOTAL en bas */
+    .bs-row-total {
+        background: var(--ed-bg-dark-2, #142E4D) !important;
+        color: #fff !important;
+        font-weight: 700;
+        border-top: 3px double var(--ed-orange, #F18A1C);
+    }
+    .bs-row-total td        { color: #fff !important; font-size: 0.95rem; }
+    .bs-row-total .bs-td-blue   { color: #4DA3FF !important; }
+    .bs-row-total .bs-td-red    { color: #FF8A95 !important; }
+    .bs-row-total .bs-td-orange { color: #FFB347 !important; }
+
+    /* Section info / TODO méthodologique */
+    .bs-info { border-left: 4px solid var(--ed-orange, #F18A1C); }
+    .bs-note {
+        font-size: 0.85rem;
+        color: var(--ed-text-soft, #5C6679);
+        margin: 0.35rem 0;
+    }
+    .bs-note--right { text-align: right; font-weight: 600; color: var(--ed-text, #142E4D); }
+    .bs-todo {
+        font-size: 0.85rem;
+        color: var(--ed-text-soft, #5C6679);
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+    .bs-todo li { margin: 0.25rem 0; }
+    .bs-todo code { background: var(--ed-bg-light, #F6F7F9); padding: 0.05rem 0.35rem; border-radius: 3px; }
+    .bs-help { color: var(--ed-text-soft, #5C6679); cursor: help; margin-left: 0.35rem; }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture  = CultureInfo.GetCultureInfo("fr-FR");
+    private static readonly NumberFormatInfo FcfaFmt = new()
+    {
+        NumberGroupSeparator = " ",
+        NumberDecimalSeparator = ",",
+        NumberDecimalDigits = 0
+    };
+
+    private bool _loading = false;
+    private string? _errorMessage = null;
+    private BilanSocialDto? _data;
+
+    private BilanSocialFilterModel _filter = new();
+    private List<int> _anneesDispo = new();
+    private List<Site> _sitesDispo = new();
+    private Site? _selectedSite;
+
+    protected override void OnInitialized()
+    {
+        LoadLookups();
+        LoadData();
+    }
+
+    private IObjectSpace CreateOs() =>
+        ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Salarie));
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = CreateOs();
+            _anneesDispo = Service.GetAnneesDisponibles(os);
+            _sitesDispo  = Service.GetSitesActifs(os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Chargement des filtres : {ex.Message}";
+        }
+    }
+
+    private void LoadData()
+    {
+        _loading = true;
+        _errorMessage = null;
+        try
+        {
+            using var os = CreateOs();
+            _data = Service.GetData(_filter, os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Calcul du tableau : {ex.Message}";
+            _data = null;
+        }
+        finally { _loading = false; }
+    }
+
+    private Task OnAnneeChanged(int a)    { _filter.Annee = a; LoadData(); return Task.CompletedTask; }
+    private Task OnSiteChanged(Site? s)   { _selectedSite = s; _filter.SiteOid = s?.Oid; LoadData(); return Task.CompletedTask; }
+
+    private Task OnRefreshClick()
+    {
+        Service.InvalidateCache(_filter);
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private Task OnExportPdfClick()   { _errorMessage = "Export PDF — Étape 7."; return Task.CompletedTask; }
+    private Task OnExportExcelClick() { _errorMessage = "Export Excel — Étape 7."; return Task.CompletedTask; }
+
+    private static string FormatFcfa(decimal v) =>
+        Math.Round(v, 0).ToString("#,##0", FcfaFmt);
+}
