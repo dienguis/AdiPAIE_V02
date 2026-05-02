@@ -55,6 +55,16 @@ namespace AdiPAIE_V02.Blazor.Server
                 AdiPAIE_V02.Module.Services.Dashboards.IMouvementsDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.MouvementsDashboardService>();
 
+            // Tableau N°4 — Rémunération (Égalité des salaires) (Étape 4.4)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IRemunerationDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.RemunerationDashboardService>();
+
+            // Tableau N°5 — Suivi des Absences (Étape 4.5)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.ISuiviAbsencesDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.SuiviAbsencesDashboardService>();
+
             services.AddHostedService<AttestationRappelService>();
            // services.AddHostedService<AttestationRappelService>();
             services.AddHostedService<DossierExpirationRappelService>();

@@ -28,9 +28,9 @@
 | 3 | Page d'accueil DashboardHome | ✅ done | `5d57771e` | 2026-05-02 |
 | 4.1 | Tableau N°1 — Effectif détaillé | ✅ done | (cf. CHANGELOG) | 2026-05-02 |
 | 4.2 | Tableau N°2 — Analyse de l'Effectif | ✅ done | `504cb1ee` | 2026-05-02 |
-| 4.3 | Tableau N°3 — Mouvements | 🟡 code prêt, **commit à faire** | _pending_ | 2026-05-02 |
-| 4.4 | Tableau N°4 — Rémunération | ⏳ next | — | — |
-| 4.5 | Tableau N°5 — Suivi Absences | 🕒 pending | — | — |
+| 4.3 | Tableau N°3 — Mouvements | ✅ done | `2e1347bd` | 2026-05-02 |
+| 4.4 | Tableau N°4 — Rémunération | ✅ done (build OK, valeurs validées user) | _hash à fournir_ | 2026-05-02 |
+| 4.5 | Tableau N°5 — Suivi Absences | 🟡 code prêt, **commit à faire** | _pending_ | 2026-05-02 |
 | 4.6 | Tableau N°6 — Bilan Social Mensuel | 🕒 pending | — | — |
 | 5-7 | Couche données / UI / Qualité | 🕒 pending | — | — |
 | Final | Livrables (README, scripts SQL) | 🕒 pending | — | — |

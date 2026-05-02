@@ -25,6 +25,167 @@ Chaque entrée précise :
 
 ---
 
+## [Étape 4.5] 2026-05-02 2330 — Tableau N°5 « Suivi des Absences »
+
+**Objet** : implémentation complète du Tableau N°5 sur le périmètre INTERNE
+uniquement (les intérimaires n'ont pas de système de demande de congé).
+Source = `CongeDemande` filtrée par défaut sur `CongeStatut.Accordee` (20).
+Famille de congé issue de `CongeType.Famille` (enum 6 valeurs).
+
+### Décisions validées (avant codage)
+
+- **Périmètre statut** : par défaut `Accordee` uniquement (vue « absences
+  réellement prises »). Toggle pour inclure `EnAttenteN1/N2 + Soumise +
+  Accordee` (vue large).
+- **8 KPI** : NbAbsences, TotalJours, TauxAbsenteisme, DureeMoyenne,
+  %Justifiees, TopAbsent (nom + jours), MoisPic, CoutEstimeImpaye.
+- **Familles** : Annuel / Maladie / Maternité / Événement familial /
+  Sans solde / Récupération / Autres.
+- **Filtres** : Année, Site, Genre, Segment (Département), Catégorie pro,
+  Famille (filtre spécifique tab 5).
+- **Charts** : bar vertical mensuel 12 mois + 3 bar horizontaux (Famille /
+  Catégorie Top 10 / Département) + tableau Top 10 absents.
+- **Heatmap** : volontairement omis pour limiter la complexité visuelle.
+- **Taux d'absentéisme** : `Σ DureeJours / (Effectif × 264 jours ouvrables)
+  × 100`. Le 264 = 22 j × 12 mois (constante métier).
+- **Coût impayé estimé** : pour les familles `SansSolde` uniquement,
+  `DureeJours × salaire_jour_moyen` où le salaire_jour est dérivé du
+  `Bulletin.BrutFiscal` annuel divisé par 22 jours/mois.
+
+### Fichiers créés (5)
+
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/SuiviAbsencesFilterModel.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/SuiviAbsencesDto.cs`
+  (incl. `KpiAbsencesDto`, `MoisAbsenceDto`, `TopAbsentRowDto`)
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/ISuiviAbsencesDashboardService.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/SuiviAbsencesDashboardService.cs`
+  (incl. helpers `Compute`, `MonthOfMid`, `CountSalariesActifs`,
+  `LabelFamille`, `SafeDepartementNom`)
+- `sql/dashboards/05_suivi_absences.sql` (8 requêtes alignées spec)
+
+### Fichiers modifiés (3)
+
+| Fichier | Sauvegarde `.bak` | Nature |
+|---|---|---|
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/Absences/SuiviAbsencesDashboard.razor` | `docs/dashboards/backup/2026-05-02_2330/.../SuiviAbsencesDashboard.razor.bak` | Réécriture complète : remplacement du placeholder par UI ELTON (toggle statut, 6 filtres dont Famille, 8 KPI inline, évolution 12 mois, 3 bar charts horizontaux, Top 10 absents). |
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Startup.cs` | `docs/dashboards/backup/2026-05-02_2330/.../Startup.cs.bak` | DI : `services.AddScoped<ISuiviAbsencesDashboardService, SuiviAbsencesDashboardService>()`. |
+| `docs/dashboards/CHANGELOG.md` | (suivi git) | Cette entrée. |
+
+### Limitations connues / TODO
+
+- **Heatmap (jour de la semaine × mois)** : non implémenté. À ajouter en
+  Étape 7 (Qualité) si besoin métier confirmé.
+- **Coût impayé** : approximation simple. Pour des chiffres de paie
+  exacts, il faudrait croiser avec `BulletinLigne` ayant un type retenue
+  liée à l'absence (rubrique « retenue absence »).
+- **Famille « Autres »** : si l'enum `FamilleConge` est étendu ultérieurement,
+  les nouvelles valeurs tomberont automatiquement dans le bucket
+  `(Autres)` du Razor.
+- Boutons Export PDF / Excel : toast « à venir » (Étape 7).
+
+### Branche Git / Commit
+
+- **Branche** : `feature/dashboards-rh`
+- **Hash Étape 4.5** : _à renseigner après le `git commit` côté Windows_
+- **Message attendu** :
+  `feat(dashboards): tableau N5 suivi absences (CongeDemande Accordee, 8 KPI, evolution 12 mois, par famille/categorie/segment, Top 10)`
+
+### Commandes de rollback
+
+```
+git revert <hash_du_commit_etape_4_5>
+# ou (en local non poussé) :
+git reset --hard <hash_etape_4_4>
+```
+
+### Validé par
+
+_À renseigner — validation en cours côté utilisateur après build + test._
+
+---
+
+## [Étape 4.4] 2026-05-02 2200 — Tableau N°4 « Rémunération (Égalité des salaires) »
+
+**Objet** : implémentation complète du Tableau N°4 sur les périmètres
+INTERNE (Bulletin / BulletinLigne) et EXTERNE (ContratInterim) — avec
+toggles Personnel et Mode (Coût Employeur / Rémunération Nette). UI
+alignée sur la maquette PowerBI utilisateur (5 KPI cartes circulaires,
+2 tableaux Égalité des salaires par Segment et Catégorie avec barres de
+progression colorées orange ELTON, évolution mensuelle 12 mois,
+décomposition par 7 familles macro de rubrique).
+
+### Décisions validées (avant codage)
+
+- **Salaire INTERNE** : `Bulletin.BrutFiscal` (Annee + Mois + GCRecord IS NULL).
+- **Charges patronales** : `SUM(BulletinLigne.MontantEmployeur)` (jointure
+  Bulletin via `Bulletin.Oid`).
+- **Rémunération nette** : `Bulletin.NetAPayer` (Mode RemunerationNette).
+- **Coût employeur** : `BrutFiscal + ChargesPatronales` (Mode CoutEmployeur).
+- **Salaire EXTERNE** : `TauxJournalier × 22 jours × NbMois` où NbMois est la
+  durée du recouvrement contrat/année (DateDebut..min(DateFin, finAnnee)).
+- **Périodicité** : année calendaire avec slicer Année.
+- **Décomposition rubriques** : 7 familles macro (BRUTE, INDEM_IMPOSA,
+  INDEM_NON_IMPOSA, AV_NATURE, COTSOC, COTFISC, RETENUE) — INTERNE seulement.
+- **Format FCFA** : NumberGroupSeparator = espace ` `, 0 décimales.
+- **Source** : SPEC_PowerBI_DAX_to_SQL.sql + TestData/PowerBI/SPEC_Custom_Dashboard_SQL.sql (utilisateur).
+
+### Fichiers créés (5)
+
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/RemunerationFilterModel.cs`
+  (incl. enum `RemunerationMode` CoutEmployeur / RemunerationNette)
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/RemunerationDto.cs`
+  (incl. `KpiRemunerationDto`, `EgaliteSalaireRowDto`, `MasseMensuelleDto`,
+  `DecompositionRubriqueDto`)
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/IRemunerationDashboardService.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/RemunerationDashboardService.cs`
+  (incl. helpers `ComputeForInterne`, `ComputeForExterne`, `BuildEgaliteRow`,
+  `BuildEgaliteRowExterne`, `ComputeDecompositionRubriques`,
+  `GetFamilleMacro`, `IsActif` pour soft-delete XPO,
+  `SafeDepartementNom` réflexion)
+- `sql/dashboards/04_remuneration.sql` (10 requêtes : 7 INTERNE + 3 EXTERNE)
+
+### Fichiers modifiés (3)
+
+| Fichier | Sauvegarde `.bak` | Nature |
+|---|---|---|
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/Remuneration/RemunerationDashboard.razor` | `docs/dashboards/backup/2026-05-02_2200/.../RemunerationDashboard.razor.bak` | Réécriture complète : remplacement du placeholder par UI ELTON (header, toggles Personnel + Mode, 5 KPI circulaires, 2 tableaux Égalité avec barres, évolution 12 mois, décomposition rubriques INTERNE). |
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Startup.cs` | `docs/dashboards/backup/2026-05-02_2200/.../Startup.cs.bak` | DI : `services.AddScoped<IRemunerationDashboardService, RemunerationDashboardService>()`. |
+| `docs/dashboards/CHANGELOG.md` | (suivi git) | Cette entrée. |
+
+### Limitations connues / TODO
+
+- **Mode Rémunération Nette en EXTERNE** : pas de notion de Net pour intérim
+  (pas de Bulletin associé). Le toggle est désactivé en EXTERNE.
+- **Égalité H/F en EXTERNE** : colonnes Moy. ♂ / ♀ vides (Interimaire n'a pas
+  de Sexe). Si métier le demande : ajouter le champ via migration XPO.
+- **Filtre Ancienneté** : volontairement omis pour ce tableau (peu pertinent
+  côté rémunération annuelle ; restera disponible en Tab 5/6).
+- **Décomposition rubriques** : agrégation côté mémoire (pas SQL) — un peu
+  coûteuse pour des bulletins très volumineux. Si > 50 000 lignes, basculer
+  côté SQL via vue.
+- Boutons Export PDF / Excel : toast « à venir » (Étape 7).
+
+### Branche Git / Commit
+
+- **Branche** : `feature/dashboards-rh`
+- **Hash Étape 4.4** : _à renseigner après le `git commit` côté Windows_
+- **Message attendu** :
+  `feat(dashboards): tableau N4 - remuneration egalite salaires (toggle Interne/Externe + CoutEmployeur/Net, 5 KPI, 2 tableaux egalite, evolution 12 mois, decomposition rubriques)`
+
+### Commandes de rollback
+
+```
+git revert <hash_du_commit_etape_4_4>
+# ou (en local non poussé) :
+git reset --hard 2e1347bd
+```
+
+### Validé par
+
+_À renseigner — validation en cours côté utilisateur après build + test._
+
+---
+
 ## [Étape 4.3] 2026-05-02 1930 — Tableau N°3 « Mouvements (Arrivées / Départs) »
 
 **Objet** : implémentation complète du Tableau N°3 sur les périmètres
@@ -110,7 +271,7 @@ salariés (population stable).
 ### Branche Git / Commit
 
 - **Branche** : `feature/dashboards-rh`
-- **Hash Étape 4.3** : _à renseigner après le `git commit` (commit pas encore réalisé — l'Étape 4.2 occupe HEAD `504cb1ee`)_
+- **Hash Étape 4.3** : `2e1347bd5bbf7ce91a4c83221a787fa936b30d8c`
 - **Message attendu** :
   `feat(dashboards): tableau N3 - mouvements arrivees/departs + dénominateur EXTERNE pondéré + MISSION_STATE`
 
