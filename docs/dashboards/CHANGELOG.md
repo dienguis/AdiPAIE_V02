@@ -19,6 +19,184 @@ Chaque entrée précise :
 
 ---
 
+## [Étape 3] 2026-05-02 1500 — Page d'accueil DashboardHome (6 cartes)
+
+**Objet** : remplacement du placeholder par la grille responsive des
+6 cartes cliquables, et création de 6 pages-placeholders correspondantes
+(les implémentations finales arriveront à l'Étape 4, une par tableau).
+
+### Fichiers créés
+
+- `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/Effectif/EffectifDetailleDashboard.razor` (Tableau N°1)
+- `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/Effectif/AnalyseEffectifDashboard.razor` (Tableau N°2)
+- `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/Mouvements/MouvementsDashboard.razor` (Tableau N°3)
+- `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/Remuneration/RemunerationDashboard.razor` (Tableau N°4)
+- `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/Absences/SuiviAbsencesDashboard.razor` (Tableau N°5)
+- `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/BilanSocial/BilanSocialDashboard.razor` (Tableau N°6)
+
+### Fichiers modifiés
+
+| Fichier | Sauvegarde `.bak` | Nature |
+|---|---|---|
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/DashboardHome.razor` | `docs/dashboards/backup/2026-05-02_1500/.../DashboardHome.razor.bak` | Réécriture complète : grille responsive 6 cartes (titre, badge périmètre, description, icône, route). |
+| `docs/dashboards/CHANGELOG.md` | (suivi git) | Hashes Étape 2 / WIP / Hotfix renseignés + entrée Étape 3. |
+
+### Routes nouvelles ajoutées
+
+| Route | Page | Périmètre |
+|---|---|---|
+| `/dashboards/effectif-detaille` | Tableau N°1 | Interne |
+| `/dashboards/analyse-effectif` | Tableau N°2 | Interne / Externe |
+| `/dashboards/mouvements` | Tableau N°3 | Interne / Externe |
+| `/dashboards/remuneration` | Tableau N°4 | Externe |
+| `/dashboards/suivi-absences` | Tableau N°5 | Interne |
+| `/dashboards/bilan-social` | Tableau N°6 | Interne / Externe / Global |
+
+### Branche Git / Commit
+
+- **Branche** : `feature/dashboards-rh`
+- **Hash** : _à renseigner après le `git commit` côté Windows_
+- **Message attendu** :
+  `feat(dashboards): page d'accueil 6 cartes + placeholders dashboards 1-6`
+
+### Commandes de rollback
+
+```
+git revert <hash_du_commit_etape_3>
+# ou (en local non poussé) :
+git reset --hard a9b010eabc6ada2ded41473ff5f129c0bf4b34e0
+```
+
+### Validé par
+
+_À renseigner — validation en cours côté utilisateur._
+
+---
+
+## [Hotfix] 2026-05-02 1430 — Doublon de route @page
+
+**Objet** : suppression d'une directive `@page "/dashboards/"` redondante
+dans `DashboardHome.razor` qui causait `System.InvalidOperationException:
+The following routes are ambiguous: 'dashboards'` au démarrage de l'app
+(découvert lors de la première compilation post-Étape 2).
+
+### Fichiers modifiés
+
+- `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/DashboardHome.razor` (-1 ligne)
+
+### Branche Git / Commit
+
+- **Hash** : `a9b010eabc6ada2ded41473ff5f129c0bf4b34e0`
+- **Message** :
+  `fix(dashboards): remove duplicate @page route on DashboardHome (Etape 2 hotfix)`
+
+### Commandes de rollback
+
+```
+git revert a9b010eabc6ada2ded41473ff5f129c0bf4b34e0
+```
+
+### Validé par
+
+Abdoulaye Dieng &lt;dienguis@hotmail.com&gt; (build vert + page Login OK).
+
+---
+
+## [WIP integration] 2026-05-02 1330 — Réintégration des fichiers untracked du stash
+
+**Objet** : à la première tentative de build post-Étape 2, on a découvert
+que la branche `dev` (au commit `83ef23c`) contenait des modifications
+référençant des classes (`Site`, `CentreImports`, `BilanSocialFormulaire`,
+…) jamais commitées. Ces classes existaient en untracked dans un stash WIP
+hérité, ainsi qu'un module Dashboards parallèle non terminé (PowerBI,
+RapportCEO, DashboardEffectif/Interimaire, etc.).
+
+Décision validée avec l'utilisateur : `git stash pop` + commit en bloc
+de tous les fichiers untracked sur `feature/dashboards-rh`. Les fichiers
+Dashboards parallèles seront **remplacés** progressivement par notre
+nouveau module (Tableaux 1 → 6 de la mission).
+
+### Fichiers créés (50)
+
+- 3 entités critiques pour la compilation :
+  `BusinessObjects/Site.cs`, `BusinessObjects/CentreImports.cs`,
+  `NonPersistent/BilanSocialFormulaire.cs`
+- Module Dashboards parallèle (à remplacer) :
+  `Controllers/DashboardEffectifController.cs`,
+  `Controllers/DashboardInterimaireController.cs`,
+  `Services/DashboardEffectifService.cs`,
+  `Services/DashboardInterimaireService.cs`,
+  `Services/DashboardExportExcelService.cs`,
+  `Services/DashboardExportInterimaireService.cs`,
+  `BusinessObjects/TableauBordEffectif.cs`,
+  `BusinessObjects/TableauBordInterimaire.cs`,
+  `Controllers/TableauBordNonPersistentController.cs`,
+  `Dashboards/Dash_RH_Effectifs.xml`,
+  `Dashboards/Dash_RH_Mouvements.xml`,
+  `Dashboards/Dash_RH_SyntheseMensuelle.xml`,
+  `Blazor.Server/Controllers/DashboardExportController.cs`
+- Module PowerBI (statut à définir) :
+  `Blazor.Server/Components/PowerBIReportView.razor`,
+  `Blazor.Server/Controllers/PowerBIEmbeddedController.cs`,
+  `Blazor.Server/Controllers/RapportPowerBIViewController.cs`,
+  `Blazor.Server/Editors/PowerBIIFrameComponent.razor`,
+  `Blazor.Server/Editors/PowerBIReportViewItem.cs`,
+  `BusinessObjects/PowerBIReportView.cs`,
+  `BusinessObjects/RapportPowerBI.cs`,
+  `Controllers/PowerBIController.cs`,
+  `Services/PowerBIConfigService.cs`
+- Module RapportCEO :
+  `BusinessObjects/ParamRapportCEO.cs`,
+  `Controllers/RapportCEOController.cs`,
+  `Services/RapportCEOData.cs`,
+  `Services/RapportCEODataService.cs`,
+  `Services/RapportCEOEmailService.cs`,
+  `Services/RapportCEOExcelGenerator.cs`,
+  `Services/RapportCEOPdfGenerator.cs`
+- Imports & misc :
+  `Controllers/ImportCompteBancaireController.cs`,
+  `Controllers/ImportConjointController.cs`,
+  `Controllers/CreerModelesEnMasseController.cs`,
+  `Controllers/BulletinListViewCleanupController.cs`,
+  `Controllers/PeriodePaieEtatsController.cs`,
+  `Controllers/SalarieListCountController.cs`,
+  `Services/ImportCompteBancaireService.cs`,
+  `Services/ImportConjointService.cs`,
+  `Services/BulletinModeleService.cs`,
+  `Services/DbConfigHelper.cs`,
+  `Services/ExcelChartInjector.cs`,
+  `NonPersistent/BilanSocialAnneeSelection.cs`,
+  `Blazor.Server/wwwroot/help/import-comptes-bancaires.html`,
+  `Blazor.Server/wwwroot/help/import-conjoints.html`,
+  `Blazor.Server/dbconfig.json`,
+  `Module/UnusableNodes44.xml`
+
+### Fichiers modifiés
+
+- `AdiPAIE_V02/AdiPAIE_V02.Module/NonPersistent/DashboardsRHMenu.cs` (+1 using)
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Controllers/RH/DashboardsRHNavigationController.cs` (+1 using)
+
+### Branche Git / Commit
+
+- **Hash** : `ca8c3355985243e92c0607ab9497c344831e4520`
+- **Message** :
+  `chore(wip): integrate untracked entity classes and parallel dashboards module (to be refactored later)`
+
+### Commandes de rollback
+
+```
+git revert ca8c3355985243e92c0607ab9497c344831e4520
+# Note : ce revert provoquera une re-cassure du build (Site, CentreImports,
+# BilanSocialFormulaire à nouveau introuvables). À n'utiliser que si on
+# accepte un retour à l'état non-buildable du commit 83ef23c.
+```
+
+### Validé par
+
+Abdoulaye Dieng &lt;dienguis@hotmail.com&gt;.
+
+---
+
 ## [Étape 2] 2026-05-02 1300 — Architecture cible (squelette)
 
 **Objet** : poser l'arborescence Pages/Shared/Models, l'entrée de menu XAF
@@ -74,21 +252,21 @@ _Aucun._
 ### Branche Git / Commit
 
 - **Branche** : `feature/dashboards-rh`
-- **Hash** : _à renseigner après le `git commit` côté Windows_
-- **Message attendu** :
-  `feat(dashboards): architecture cible — composants partagés, rôle RH_Manager, entrée menu XAF`
+- **Hash** : `9cce1dd34bb407e97da0491650d93546a3b75f59`
+- **Message** :
+  `feat(dashboards): architecture cible - composants partages, role RH_Manager, entree menu XAF`
 
 ### Commandes de rollback
 
 ```
-git revert <hash_du_commit_etape_2>
+git revert 9cce1dd34bb407e97da0491650d93546a3b75f59
 # ou (en local non poussé) :
 git reset --hard cb0e1c7c9836dc1c3a6bff386121086a4f77b807
 ```
 
 ### Validé par
 
-_À renseigner — validation en cours côté utilisateur._
+Abdoulaye Dieng &lt;dienguis@hotmail.com&gt;
 
 ---
 

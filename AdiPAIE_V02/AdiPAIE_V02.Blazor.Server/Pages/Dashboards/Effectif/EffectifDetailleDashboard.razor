@@ -1,0 +1,49 @@
+@* =====================================================================
+    EffectifDetailleDashboard.razor — Tableau N°1
+    URL : /dashboards/effectif-detaille
+    Périmètre : Personnel INTERNE (Salarie — CDI / CDD / Stage)
+
+    Placeholder (Étape 3). L'implémentation complète sera livrée
+    à l'Étape 4.1 dans un commit dédié :
+      - KPI cartes : âge moyen global / hommes / femmes,
+                     ancienneté moyenne global / hommes / femmes
+      - Évolution effectif sur 3 ans (timeline avec variations ▲/▼)
+      - Tableaux par tranche d'âge (25-34, 35-44, 45-54, 55+)
+        × catégorie professionnelle (Agent de Maîtrise, Cadre, Top Manager…)
+      - Bar chart horizontal empilé F / H par tranche × catégorie (% 0-100)
+      - Filtres : Année (multi), Site, Genre, Type contrat
+   ===================================================================== *@
+
+@page "/dashboards/effectif-detaille"
+@attribute [Authorize]
+@inject NavigationManager Nav
+
+<PageTitle>Effectif détaillé — Tableaux de Bord RH</PageTitle>
+
+<DashboardLayout Title="Effectif détaillé"
+                 PerimetreLabel="Personnel Interne (CDI / CDD / Stage)">
+    <ChildContent>
+        <div class="alert alert-info" role="alert">
+            <h5 class="alert-heading">
+                <i class="bi bi-people" aria-hidden="true"></i>
+                Tableau N°1 — placeholder
+            </h5>
+            <p class="mb-2">
+                Cette page sera complétée à l'<strong>Étape 4.1</strong> avec :
+            </p>
+            <ul class="mb-0">
+                <li>KPI cartes : âge moyen / ancienneté moyenne (global, hommes, femmes)</li>
+                <li>Évolution de l'effectif sur 3 ans avec variations ▲/▼ en %</li>
+                <li>Répartition par tranche d'âge × catégorie professionnelle</li>
+                <li>Bar chart horizontal empilé Femmes / Hommes</li>
+                <li>Filtres Année / Site / Genre / Type contrat</li>
+            </ul>
+        </div>
+
+        <div class="mt-3">
+            <DxButton Text="Retour aux tableaux de bord"
+                      IconCssClass="bi bi-arrow-left"
+                      Click="@(() => Nav.NavigateTo("/dashboards"))" />
+        </div>
+    </ChildContent>
+</DashboardLayout>

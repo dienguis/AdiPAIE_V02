@@ -1,0 +1,49 @@
+@* =====================================================================
+    MouvementsDashboard.razor — Tableau N°3
+    URL : /dashboards/mouvements
+    Périmètre : Personnel INTERNE et EXTERNE (toggle)
+
+    Placeholder (Étape 3). Implémentation complète à l'Étape 4.3 :
+      Section Arrivées :
+        - Bar horizontal Facteur déclencheur (Vacance / Création de poste)
+        - Bar vertical Raison de création de poste (Croissance, ...)
+        - Bar horizontal Cause de vacance (Démission, Licenciement, Mutation)
+      Section Départs :
+        - Bar horizontal Facteur déclencheur (Démission, Licenciement, Fin CDD)
+        - Bar Raison de démission
+        - Bar horizontal Motif de licenciement (Faute grave, Comportement…)
+      Filtres : Site, Année, Genre, Segment, Catégorie, Ancienneté
+   ===================================================================== *@
+
+@page "/dashboards/mouvements"
+@attribute [Authorize]
+@inject NavigationManager Nav
+
+<PageTitle>Mouvements — Tableaux de Bord RH</PageTitle>
+
+<DashboardLayout Title="Mouvements (Arrivées / Départs)"
+                 PerimetreLabel="Interne / Externe (toggle)">
+    <ChildContent>
+        <div class="alert alert-info" role="alert">
+            <h5 class="alert-heading">
+                <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
+                Tableau N°3 — placeholder
+            </h5>
+            <p class="mb-2">
+                Cette page sera complétée à l'<strong>Étape 4.3</strong> avec :
+            </p>
+            <ul class="mb-0">
+                <li>Section <strong>Arrivées</strong> : facteur déclencheur, raison de création, cause de vacance</li>
+                <li>Section <strong>Départs</strong> : facteur déclencheur, raison de démission, motif de licenciement</li>
+                <li>Sources : <code>HistoriquePoste</code>, <code>DossierOffboarding</code>, <code>DossierDisciplinaire</code></li>
+                <li>Filtres Site / Année / Genre / Segment / Catégorie / Ancienneté</li>
+            </ul>
+        </div>
+
+        <div class="mt-3">
+            <DxButton Text="Retour aux tableaux de bord"
+                      IconCssClass="bi bi-arrow-left"
+                      Click="@(() => Nav.NavigateTo("/dashboards"))" />
+        </div>
+    </ChildContent>
+</DashboardLayout>
