@@ -19,6 +19,87 @@ Chaque entrée précise :
 
 ---
 
+## [Étape 4.2] 2026-05-02 1800 — Tableau N°2 « Analyse de l'Effectif »
+
+**Objet** : implémentation complète du Tableau N°2 sur les périmètres
+INTERNE (Salarie) et EXTERNE (Interimaire) — avec toggle. Mode Global /
+Moyen, 7 KPI cartes, courbe d'évolution 8 ans, 5 bar charts (tranche d'âge,
+ancienneté, segment, catégorie Top 5, type contrat). Charte ELTON Oil.
+
+### Fichiers créés (7)
+
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/AncienneteBucket.cs` (incl. `AgeBucketAnalyse` pour 4 tranches <30/30-39/40-49/≥50/vide)
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/AnalyseEffectifFilterModel.cs` (incl. enum `EffectifMode` Global / Moyen)
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/AnalyseEffectifDto.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/IAnalyseEffectifDashboardService.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/AnalyseEffectifDashboardService.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/wwwroot/css/dashboards-elton.css` (charte ELTON partagée — sera utilisée par les 6 tableaux)
+- `sql/dashboards/02_analyse_effectif.sql`
+
+### Fichiers modifiés (4)
+
+| Fichier | Sauvegarde `.bak` | Nature |
+|---|---|---|
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/Effectif/AnalyseEffectifDashboard.razor` | `docs/dashboards/backup/2026-05-02_1800/.../AnalyseEffectifDashboard.razor.bak` | Réécriture complète : UI Power BI ELTON + 7 KPI + courbe 8 ans + 5 bar charts. |
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/_Host.cshtml` | `docs/dashboards/backup/2026-05-02_1800/.../_Host.cshtml.bak` | Ajout `<link href="css/dashboards-elton.css" />`. |
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Startup.cs` | `docs/dashboards/backup/2026-05-02_1800/.../Startup.cs.bak` | DI : `services.AddScoped<IAnalyseEffectifDashboardService, AnalyseEffectifDashboardService>()`. |
+| `docs/dashboards/CHANGELOG.md` | (suivi git) | Cette entrée. |
+| `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/EffectifDetailleDashboardService.cs` | (modifs antérieures déjà sauvegardées) | Filtre DateSortie aligné sur SPEC PowerBI : `< 1900-01-01` au lieu de `== DateTime.MinValue`. |
+
+### Décisions validées (avant codage)
+
+- **Segment** : Département (`Salarie.Departement.Nom`) pour INTERNE ;
+  `BusinessUnitStation.Libelle` pour EXTERNE.
+- **Catégorie pro** : `Categories.Intitule` (cohérent Tableau N°1).
+- **Effectif Moyen** : formule `(effectif 1/1 + effectif 31/12) / 2` (alignée SPEC PowerBI mesure 5).
+- **CSS partagé** : extrait dans `wwwroot/css/dashboards-elton.css` —
+  réutilisable par Tableaux N°3 → N°6 (réduit la dette technique de design).
+
+### Périmètre EXTERNE — implémentation complète
+
+Mappings métier confirmés et codés :
+
+| Concept INTERNE | Concept EXTERNE équivalent |
+|---|---|
+| Salarie | Interimaire |
+| Site (`Salarie.Site`) | StationService (`ContratInterim.Station`) |
+| Département | (peut servir à un futur regroupement BU) |
+| Categories.Intitule | PosteInterimaire.Libelle |
+| TypeContrat (CDI/CDD/Stage) | ContratInterimType (PremiereMission, Renouvellement…) |
+| DateEmbauche / DateSortie | ContratInterim.DateDebut / DateFin |
+| Sortie = Salarie.MotifDepart != null | ContratInterim.Statut ∈ { Resilie, Termine } |
+
+**Filtres EXTERNE** : Année / Station service / Genre (no-op faute de Sexe) / Société Intérim / Poste / Ancienneté contrat. Les filtres INTERNE (Département / Catégorie) sont automatiquement masqués en mode EXTERNE.
+
+**Charts EXTERNE** : tous calculés (KPI, évolution 8 ans sur intérimaires actifs au 31/12, tranche d'âge depuis `Interimaire.DateNaissance`, ancienneté depuis `ContratInterim.DateDebut`, station, poste, type contrat).
+
+### Limitations connues / TODO
+
+- KPI **%Femmes / %Hommes** restent à `0` côté EXTERNE : `Interimaire` n'a pas de champ `Sexe` dans le projet. Si métier le demande, ajouter une propriété `Sexe` à `Interimaire` (migration XPO) ou dériver via `Civilite` si présent.
+- Champ `Departement` de `Salarie` : accédé en réflexion (`SafeDepartementNom`) pour gérer l'absence éventuelle de la propriété directe.
+- Le bouton Export PDF/Excel reste un toast « à venir » (Étape 7).
+
+### Branche Git / Commit
+
+- **Branche** : `feature/dashboards-rh`
+- **Hash** : _à renseigner après le `git commit` côté Windows_
+- **Message attendu** :
+  `feat(dashboards): tableau N2 - analyse effectif (toggle Interne/Externe, mode Global/Moyen, 7 KPI, evolution 8 ans, 5 bar charts) + charte ELTON partagee`
+
+### Commandes de rollback
+
+```
+git revert <hash_du_commit_etape_4_2>
+# ou (en local non poussé) :
+git reset --hard <hash_etape_4_1>
+```
+
+### Validé par
+
+_À renseigner — validation en cours côté utilisateur après build + test._
+
+---
+
 ## [Étape 4.1] 2026-05-02 1530 — Tableau N°1 « Effectif détaillé »
 
 **Objet** : implémentation complète du Tableau N°1 sur le périmètre INTERNE.

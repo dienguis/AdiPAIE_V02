@@ -45,6 +45,11 @@ namespace AdiPAIE_V02.Blazor.Server
                 AdiPAIE_V02.Module.Services.Dashboards.IEffectifDetailleDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.EffectifDetailleDashboardService>();
 
+            // Tableau N°2 — Analyse de l'Effectif (Étape 4.2)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IAnalyseEffectifDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.AnalyseEffectifDashboardService>();
+
             services.AddHostedService<AttestationRappelService>();
            // services.AddHostedService<AttestationRappelService>();
             services.AddHostedService<DossierExpirationRappelService>();

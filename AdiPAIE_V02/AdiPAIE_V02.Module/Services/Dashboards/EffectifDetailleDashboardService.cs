@@ -103,9 +103,12 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             var materialized = qSql.ToList();
 
             // ── Étape 2 : filtre DateSortie en mémoire (évite SqlDateTime
-            //              overflow sur le sentinelle DateTime.MinValue) ──
+            //              overflow sur les sentinelles, et couvre toute valeur
+            //              < 1900-01-01 — épôque Excel et DateTime.MinValue) ──
+            //              Convention alignée sur SPEC_PowerBI_DAX_to_SQL.sql.
+            var sentinelleSortie = new DateTime(1900, 1, 1);
             IEnumerable<Salarie> q = materialized.Where(s =>
-                s.DateSortie == DateTime.MinValue || s.DateSortie > dateRef);
+                s.DateSortie < sentinelleSortie || s.DateSortie > dateRef);
 
             // ── Étape 3 : filtre TypeContrat en mémoire (via Salarie.Contrats) ──
             if (filter.TypeContrat.HasValue)
