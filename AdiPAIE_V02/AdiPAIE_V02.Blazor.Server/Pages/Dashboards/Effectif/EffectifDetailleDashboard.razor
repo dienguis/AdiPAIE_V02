@@ -1,49 +1,502 @@
 @* =====================================================================
     EffectifDetailleDashboard.razor — Tableau N°1
     URL : /dashboards/effectif-detaille
-    Périmètre : Personnel INTERNE (Salarie — CDI / CDD / Stage)
+    Périmètre : Personnel INTERNE (Salarie)
 
-    Placeholder (Étape 3). L'implémentation complète sera livrée
-    à l'Étape 4.1 dans un commit dédié :
-      - KPI cartes : âge moyen global / hommes / femmes,
-                     ancienneté moyenne global / hommes / femmes
-      - Évolution effectif sur 3 ans (timeline avec variations ▲/▼)
-      - Tableaux par tranche d'âge (25-34, 35-44, 45-54, 55+)
-        × catégorie professionnelle (Agent de Maîtrise, Cadre, Top Manager…)
-      - Bar chart horizontal empilé F / H par tranche × catégorie (% 0-100)
-      - Filtres : Année (multi), Site, Genre, Type contrat
+    UI complète (Étape 4.1) :
+      - Filtres : Année (multi), Site, Genre, TypeContrat
+      - 6 KPI cartes (âge & ancienneté moyens, global / hommes / femmes)
+      - Évolution effectif sur 3 ans (cartes mini-timeline)
+      - 5 tableaux par tranche d'âge × catégorie pro (incl. <25)
+      - Bar horizontal empilé F/H par tranche × catégorie (HTML/CSS)
+
+    Pas de logique métier dans ce fichier — uniquement appels au service.
+    L'IObjectSpace est créé via INonSecuredObjectSpaceFactory (XAF Blazor).
    ===================================================================== *@
 
 @page "/dashboards/effectif-detaille"
 @attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+@using static AdiPAIE_V02.Module.Domain.DomainEnums
+
+@inject IEffectifDetailleDashboardService Service
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
 @inject NavigationManager Nav
 
 <PageTitle>Effectif détaillé — Tableaux de Bord RH</PageTitle>
 
 <DashboardLayout Title="Effectif détaillé"
-                 PerimetreLabel="Personnel Interne (CDI / CDD / Stage)">
-    <ChildContent>
-        <div class="alert alert-info" role="alert">
-            <h5 class="alert-heading">
-                <i class="bi bi-people" aria-hidden="true"></i>
-                Tableau N°1 — placeholder
-            </h5>
-            <p class="mb-2">
-                Cette page sera complétée à l'<strong>Étape 4.1</strong> avec :
-            </p>
-            <ul class="mb-0">
-                <li>KPI cartes : âge moyen / ancienneté moyenne (global, hommes, femmes)</li>
-                <li>Évolution de l'effectif sur 3 ans avec variations ▲/▼ en %</li>
-                <li>Répartition par tranche d'âge × catégorie professionnelle</li>
-                <li>Bar chart horizontal empilé Femmes / Hommes</li>
-                <li>Filtres Année / Site / Genre / Type contrat</li>
-            </ul>
-        </div>
+                 PerimetreLabel="Personnel Interne (CDI / CDD / Stage)"
+                 Loading="_loading"
+                 ErrorMessage="@_errorMessage">
 
-        <div class="mt-3">
-            <DxButton Text="Retour aux tableaux de bord"
-                      IconCssClass="bi bi-arrow-left"
-                      Click="@(() => Nav.NavigateTo("/dashboards"))" />
-        </div>
+    @* ── Filtres ─────────────────────────────────────────────────── *@
+    <FiltersFragment>
+        <DashboardFiltersBar>
+            <div>
+                <label class="form-label small">Années</label>
+                <DxTagBox TData="int" TValue="int"
+                          Data="@_anneesDispo"
+                          Values="@_filter.Annees"
+                          ValuesChanged="@((IEnumerable<int> v) => OnAnneesChanged(v))"
+                          NullText="Année courante par défaut"
+                          CssClass="filter-control" />
+            </div>
+
+            <div>
+                <label class="form-label small">Site</label>
+                <DxComboBox TData="Site" TValue="Site"
+                            Data="@_sitesDispo"
+                            TextFieldName="@nameof(Site.Nom)"
+                            Value="@_selectedSite"
+                            ValueChanged="@((Site? s) => OnSiteChanged(s))"
+                            NullText="Tous"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            CssClass="filter-control" />
+            </div>
+
+            <div>
+                <label class="form-label small">Genre</label>
+                <DxComboBox TData="Sexe?" TValue="Sexe?"
+                            Data="@_genresDispo"
+                            Value="@_filter.Genre"
+                            ValueChanged="@((Sexe? s) => OnGenreChanged(s))"
+                            NullText="Tous"
+                            CssClass="filter-control">
+                    <ItemTemplate>
+                        @(context is null ? "Tous" : ((Sexe)context) == Sexe.Masculin ? "Masculin" : "Féminin")
+                    </ItemTemplate>
+                </DxComboBox>
+            </div>
+
+            <div>
+                <label class="form-label small">Type contrat</label>
+                <DxComboBox TData="TypeContrat?" TValue="TypeContrat?"
+                            Data="@_typesContratDispo"
+                            Value="@_filter.TypeContrat"
+                            ValueChanged="@((TypeContrat? t) => OnTypeContratChanged(t))"
+                            NullText="Tous"
+                            CssClass="filter-control">
+                    <ItemTemplate>
+                        @(context is null ? "Tous" : ((TypeContrat)context).ToString())
+                    </ItemTemplate>
+                </DxComboBox>
+            </div>
+        </DashboardFiltersBar>
+    </FiltersFragment>
+
+    @* ── Actions ─────────────────────────────────────────────────── *@
+    <ActionsFragment>
+        <DashboardActions Busy="_loading"
+                          OnRefresh="OnRefreshClick"
+                          OnExportPdf="OnExportPdfClick"
+                          OnExportExcel="OnExportExcelClick" />
+    </ActionsFragment>
+
+    @* ── Corps ───────────────────────────────────────────────────── *@
+    <ChildContent>
+
+        @if (_data == null)
+        {
+            <p class="text-muted">Chargement…</p>
+        }
+        else
+        {
+            @* — KPI cartes (6) — *@
+            <div class="kpi-row">
+                <KpiCard Title="Âge moyen — global"  Value="@FormatAns(_data.Kpis.AgeMoyenGlobal)" />
+                <KpiCard Title="Âge moyen — hommes"  Value="@FormatAns(_data.Kpis.AgeMoyenHommes)" />
+                <KpiCard Title="Âge moyen — femmes"  Value="@FormatAns(_data.Kpis.AgeMoyenFemmes)" />
+                <KpiCard Title="Ancienneté moyenne — globale" Value="@FormatAns(_data.Kpis.AncienneteMoyenneGlobal)" />
+                <KpiCard Title="Ancienneté moyenne — hommes"  Value="@FormatAns(_data.Kpis.AncienneteMoyenneHommes)" />
+                <KpiCard Title="Ancienneté moyenne — femmes"  Value="@FormatAns(_data.Kpis.AncienneteMoyenneFemmes)" />
+            </div>
+
+            @* — Évolution effectif sur 3 ans — *@
+            <section class="dash-section">
+                <h3 class="dash-section__title">Évolution effectif sur 3 ans</h3>
+                <div class="evolution-row">
+                    @foreach (var pt in _data.EvolutionTroisAns)
+                    {
+                        <KpiCard Title="@($"Effectif {pt.Annee}")"
+                                 Value="@pt.Effectif.ToString("N0", FrCulture)"
+                                 Subtitle="@(IsCurrentYearOrLater(pt.Annee) ? $"au {_data.DateReference:dd/MM/yyyy}" : $"au 31/12/{pt.Annee}")"
+                                 Variation="@pt.VariationPourcent" />
+                    }
+                </div>
+            </section>
+
+            @* — Tableaux par tranche d'âge × catégorie — *@
+            <section class="dash-section">
+                <h3 class="dash-section__title">Effectif par tranche d'âge × catégorie professionnelle</h3>
+                <div class="tranches-grid">
+                    @foreach (var bucket in AgeBucketHelper.All)
+                    {
+                        var rows = _data.TrancheCategorie.GetValueOrDefault(bucket) ?? new();
+                        var total = rows.Sum(r => r.Effectif);
+                        <div class="tranche-card">
+                            <div class="tranche-card__header">
+                                <span class="tranche-card__title">@AgeBucketHelper.GetLibelle(bucket)</span>
+                                <span class="tranche-card__total">@total salarié@(total > 1 ? "s" : "")</span>
+                            </div>
+                            @if (rows.Count == 0)
+                            {
+                                <div class="tranche-card__empty text-muted">Aucun salarié dans cette tranche.</div>
+                            }
+                            else
+                            {
+                                <DxGrid Data="@rows"
+                                        ShowFilterRow="false"
+                                        ShowGroupPanel="false"
+                                        PageSize="20"
+                                        KeyFieldName="@nameof(TrancheCategorieRowDto.Categorie)"
+                                        CssClass="tranche-grid">
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="@nameof(TrancheCategorieRowDto.Categorie)"
+                                                          Caption="Catégorie professionnelle" />
+                                        <DxGridDataColumn FieldName="@nameof(TrancheCategorieRowDto.Effectif)"
+                                                          Caption="Effectif"
+                                                          Width="90px"
+                                                          TextAlignment="GridTextAlignment.Right" />
+                                        <DxGridDataColumn FieldName="@nameof(TrancheCategorieRowDto.PourcentageFormatted)"
+                                                          Caption="%"
+                                                          Width="80px"
+                                                          TextAlignment="GridTextAlignment.Right"
+                                                          AllowSort="false" />
+                                    </Columns>
+                                </DxGrid>
+                            }
+                        </div>
+                    }
+                </div>
+            </section>
+
+            @* — Bar chart horizontal empilé F/H (HTML/CSS, robuste) — *@
+            <section class="dash-section">
+                <h3 class="dash-section__title">Répartition Femmes / Hommes — % par tranche × catégorie</h3>
+                @if (_data.BarStackHommesFemmes.Count == 0)
+                {
+                    <p class="text-muted">Pas de données.</p>
+                }
+                else
+                {
+                    <div class="fh-bars">
+                        <div class="fh-bars__legend">
+                            <span class="fh-legend-item"><span class="fh-legend-h"></span> Hommes</span>
+                            <span class="fh-legend-item"><span class="fh-legend-f"></span> Femmes</span>
+                        </div>
+                        @foreach (var p in _data.BarStackHommesFemmes)
+                        {
+                            <div class="fh-bar-row">
+                                <div class="fh-bar-label" title="@p.Label">@p.Label</div>
+                                <div class="fh-bar-track">
+                                    @if (p.PourcentageHommes > 0)
+                                    {
+                                        <div class="fh-bar fh-bar--h"
+                                             style="@($"width:{p.PourcentageHommes.ToString("0.00", InvCulture)}%")">
+                                            <span class="fh-bar-pct">@p.PourcentageHommes.ToString("0", FrCulture)%</span>
+                                        </div>
+                                    }
+                                    @if (p.PourcentageFemmes > 0)
+                                    {
+                                        <div class="fh-bar fh-bar--f"
+                                             style="@($"width:{p.PourcentageFemmes.ToString("0.00", InvCulture)}%")">
+                                            <span class="fh-bar-pct">@p.PourcentageFemmes.ToString("0", FrCulture)%</span>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="fh-bar-total">@p.Total</div>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+
+            <div class="dash-footer text-muted small">
+                Données calculées le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)
+                — Effectif total : <strong>@_data.EffectifTotal.ToString("N0", FrCulture)</strong>
+                à la date du @_data.DateReference.ToString("dd/MM/yyyy", FrCulture).
+            </div>
+
+            <div class="mt-3">
+                <DxButton Text="Retour aux tableaux de bord"
+                          IconCssClass="bi bi-arrow-left"
+                          Click="@(() => Nav.NavigateTo("/dashboards"))" />
+            </div>
+        }
+
     </ChildContent>
 </DashboardLayout>
+
+<style>
+    .kpi-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .evolution-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+
+    .dash-section { margin-top: 1.75rem; }
+    .dash-section__title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #0F6E56;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 0.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .tranches-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 1rem;
+    }
+
+    .tranche-card {
+        background: #fff;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .tranche-card__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0.5rem;
+    }
+
+    .tranche-card__title {
+        font-weight: 600;
+        font-size: 1rem;
+        color: #212529;
+    }
+
+    .tranche-card__total {
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    .tranche-card__empty {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .filter-control {
+        min-width: 180px;
+    }
+
+    .dash-footer {
+        margin-top: 1.5rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    /* ── Bar chart horizontal empilé F/H (HTML/CSS) ───────────────── */
+    .fh-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .fh-bars__legend {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.85rem;
+        color: #495057;
+    }
+
+    .fh-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .fh-legend-h, .fh-legend-f {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 2px;
+    }
+
+    .fh-legend-h { background: #0d6efd; }
+    .fh-legend-f { background: #d94690; }
+
+    .fh-bar-row {
+        display: grid;
+        grid-template-columns: 280px 1fr 60px;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .fh-bar-label {
+        font-size: 0.85rem;
+        color: #495057;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .fh-bar-track {
+        display: flex;
+        height: 22px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .fh-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        color: #fff;
+        font-weight: 500;
+        transition: width 0.2s ease;
+    }
+
+    .fh-bar--h { background: #0d6efd; }
+    .fh-bar--f { background: #d94690; }
+
+    .fh-bar-pct {
+        padding: 0 0.4rem;
+    }
+
+    .fh-bar-total {
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-align: right;
+    }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture  = CultureInfo.GetCultureInfo("fr-FR");
+    private static readonly CultureInfo InvCulture = CultureInfo.InvariantCulture;
+
+    private bool _loading = false;
+    private string? _errorMessage = null;
+    private EffectifDetailleDto? _data;
+
+    private EffectifDetailleFilterModel _filter = new();
+    private List<int> _anneesDispo = new();
+    private List<Site> _sitesDispo = new();
+    private Site? _selectedSite;
+
+    private readonly List<Sexe?> _genresDispo = new() { null, Sexe.Masculin, Sexe.Feminin };
+    private readonly List<TypeContrat?> _typesContratDispo = new()
+    {
+        null, TypeContrat.CDI, TypeContrat.CDD, TypeContrat.Stage
+    };
+
+    protected override void OnInitialized()
+    {
+        LoadLookups();
+        LoadData();
+    }
+
+    /// <summary>
+    /// Crée un IObjectSpace non sécurisé via la fabrique XAF Blazor injectée.
+    /// L'appelant est responsable du dispose (using).
+    /// </summary>
+    private IObjectSpace CreateOs() =>
+        ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Salarie));
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = CreateOs();
+            _anneesDispo = Service.GetAnneesDisponibles(os);
+            _sitesDispo  = Service.GetSitesActifs(os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erreur de chargement des filtres : {ex.Message}";
+        }
+    }
+
+    private void LoadData()
+    {
+        _loading = true;
+        _errorMessage = null;
+        try
+        {
+            using var os = CreateOs();
+            _data = Service.GetData(_filter, os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erreur de calcul du tableau : {ex.Message}";
+            _data = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private Task OnAnneesChanged(IEnumerable<int> annees)
+    {
+        _filter.Annees = annees?.ToList() ?? new();
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private Task OnSiteChanged(Site? site)
+    {
+        _selectedSite = site;
+        _filter.SiteOid = site?.Oid;
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private Task OnGenreChanged(Sexe? genre)
+    {
+        _filter.Genre = genre;
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private Task OnTypeContratChanged(TypeContrat? type)
+    {
+        _filter.TypeContrat = type;
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private Task OnRefreshClick()
+    {
+        Service.InvalidateCache(_filter);
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private Task OnExportPdfClick()
+    {
+        _errorMessage = "Export PDF — à implémenter à l'Étape 7 (UI commune).";
+        return Task.CompletedTask;
+    }
+
+    private Task OnExportExcelClick()
+    {
+        _errorMessage = "Export Excel — à implémenter à l'Étape 7 (UI commune).";
+        return Task.CompletedTask;
+    }
+
+    private static string FormatAns(decimal ans) => $"{ans.ToString("0.0", FrCulture)} ans";
+
+    private static bool IsCurrentYearOrLater(int annee) => annee >= DateTime.Today.Year;
+}

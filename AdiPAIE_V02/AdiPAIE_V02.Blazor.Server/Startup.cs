@@ -33,12 +33,17 @@ namespace AdiPAIE_V02.Blazor.Server
             services.AddHttpContextAccessor();
             services.AddScoped<CircuitHandler, CircuitHandlerProxy>();
 
-            // ── Module « Tableaux de Bord RH » (Étape 2) ─────────────────
+            // ── Module « Tableaux de Bord RH » (Étape 2 + 4.x) ───────────
             // Cache mémoire utilisé par les services Dashboards pour
             // mémoriser les KPI lourds (TTL configuré côté service, 5 min
-            // par défaut). Les services concrets seront enregistrés au fur
+            // par défaut). Les services concrets sont ajoutés au fur
             // et à mesure des Tableaux 1 → 6 (Étape 4).
             services.AddMemoryCache();
+
+            // Tableau N°1 — Effectif détaillé (Étape 4.1)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IEffectifDetailleDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.EffectifDetailleDashboardService>();
 
             services.AddHostedService<AttestationRappelService>();
            // services.AddHostedService<AttestationRappelService>();

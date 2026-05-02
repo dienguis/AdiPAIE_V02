@@ -19,6 +19,76 @@ Chaque entrée précise :
 
 ---
 
+## [Étape 4.1] 2026-05-02 1530 — Tableau N°1 « Effectif détaillé »
+
+**Objet** : implémentation complète du Tableau N°1 sur le périmètre INTERNE.
+KPI âge & ancienneté (global / hommes / femmes), évolution effectif sur
+3 ans, 5 tableaux par tranche d'âge × catégorie professionnelle, bar chart
+horizontal empilé Femmes / Hommes.
+
+### Fichiers créés (6)
+
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/AgeBucket.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/EffectifDetailleFilterModel.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/EffectifDetailleDto.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/IEffectifDetailleDashboardService.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/EffectifDetailleDashboardService.cs`
+- `sql/dashboards/01_effectif_detaille.sql`
+
+### Fichiers modifiés (3)
+
+| Fichier | Sauvegarde `.bak` | Nature |
+|---|---|---|
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/Effectif/EffectifDetailleDashboard.razor` | `docs/dashboards/backup/2026-05-02_1530/.../EffectifDetailleDashboard.razor.bak` | Réécriture : UI complète (filtres + 6 KPI + évolution + 5 tableaux + bar chart). |
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Startup.cs` | `docs/dashboards/backup/2026-05-02_1530/.../Startup.cs.bak` | DI : `services.AddScoped<IEffectifDetailleDashboardService, EffectifDetailleDashboardService>()`. |
+| `AdiPAIE_V02/AdiPAIE_V02.Module/AdiPAIE_V02.Module.csproj` | `docs/dashboards/backup/2026-05-02_1530/.../AdiPAIE_V02.Module.csproj.bak` | Ajout `<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />` (nécessaire pour `IMemoryCache` côté service). |
+| `AdiPAIE_V02/AdiPAIE_V02.Module/Controllers/EspaceSalarieHelper.cs` | `docs/dashboards/backup/2026-05-02_1530/.../EspaceSalarieHelper.cs.bak` | Bug-fix défensif : `FindUserByName` ET `FindSalarieByCriteria` enveloppent leurs `FindObject<T>` dans un try/catch retournant null sur `ArgumentException`, conformément au commentaire de la méthode. Exposé par l'ouverture des ListView/DetailView des classes non persistantes (`DashboardsRHMenu`) qui utilisent `NonPersistentObjectSpace` ne contenant pas `ApplicationUser` ni `Salarie`. |
+| `docs/dashboards/CHANGELOG.md` | (suivi git) | Hash Étape 3 renseigné + cette entrée. |
+
+### Décisions validées (avant codage)
+
+- **Tranche `<25 ans`** ajoutée (5 tranches au total : `<25`, `25-34`, `35-44`, `45-54`, `55+`).
+- **Date de référence** : aujourd'hui pour l'année en cours, 31/12 pour les années passées.
+- **Mensualisation** : KPIs en années entières (calcul jour-précis via `Birthday.AddYears(age)`).
+- **Cache** : `IMemoryCache`, TTL 5 min, clé = filtres sérialisés.
+- **Source** : `XafApplication.CreateObjectSpace(typeof(Salarie))` (aligné sur `BulkBulletinSenderService`, `AuditService`).
+
+### Limitations connues / TODO
+
+- Boutons **Export PDF** et **Export Excel** : non câblés (toast « à venir »). Implémentation à l'Étape 7 (UI commune).
+- Filtre **TypeContrat** ET filtre **DateSortie** : appliqués en post-filtrage en mémoire (LINQ-to-Objects après `.ToList()`). Raison pour DateSortie : `DateTime.MinValue` (sentinelle des salariés actifs) est en dehors de la plage `SqlDateTime` (1753–9999) — l'envoyer comme paramètre déclenche `SqlDateTime overflow`. À optimiser via SQL natif si la volumétrie l'exige (>10k salariés).
+- Le bar chart F/H est rendu en HTML/CSS pur (pas de `DxChart`) — robustesse vs. évolutions DevExpress Blazor.
+
+### Décisions techniques imposées par l'environnement
+
+- **IObjectSpace** : la page Razor injecte `INonSecuredObjectSpaceFactory` (DevExpress.ExpressApp.Blazor.Services) et passe l'`IObjectSpace` en paramètre des méthodes du service. Le service est ainsi agnostique XAF Blazor (testable hors XAF) et la résolution de scope `XafApplication` (qui n'est pas injectable directement dans un service scoped) est évitée.
+- **Filtres défensifs** : `GetAnneesDisponibles` retourne toujours au minimum les 6 dernières années (current-5..current), même si la table Salarie est vide ou si la requête min() échoue. `GetSitesActifs` fait un fallback sur l'intégralité des sites si aucun n'est marqué Actif=true.
+
+### Design
+
+Le rendu visuel actuel est **fonctionnel mais minimaliste**. La référence Power BI fournie par l'utilisateur (KPI tiles groupées G/H/F, toggles Effectif Moyen/Total et Temps plein, layout 2 colonnes Power BI-style, sparklines par tranche, couleurs orange/gris pour F/H) sera implémentée dans une **passe design globale à l'Étape 6 (UI commune)** — après que les 6 tableaux soient fonctionnellement validés.
+
+### Branche Git / Commit
+
+- **Branche** : `feature/dashboards-rh`
+- **Hash** : _à renseigner après le `git commit` côté Windows_
+- **Message attendu** :
+  `feat(dashboards): tableau N°1 - effectif detaille (KPI age/anciennete, evolution 3 ans, tranches x categorie, bar F/H)`
+
+### Commandes de rollback
+
+```
+git revert <hash_du_commit_etape_4_1>
+# ou (en local non poussé) :
+git reset --hard 5d57771ea16fb84a1fbc5d80aa9d17c1108053d6
+```
+
+### Validé par
+
+_À renseigner — validation en cours côté utilisateur après build + test._
+
+---
+
 ## [Étape 3] 2026-05-02 1500 — Page d'accueil DashboardHome (6 cartes)
 
 **Objet** : remplacement du placeholder par la grille responsive des
@@ -55,21 +125,21 @@ Chaque entrée précise :
 ### Branche Git / Commit
 
 - **Branche** : `feature/dashboards-rh`
-- **Hash** : _à renseigner après le `git commit` côté Windows_
-- **Message attendu** :
+- **Hash** : `5d57771ea16fb84a1fbc5d80aa9d17c1108053d6`
+- **Message** :
   `feat(dashboards): page d'accueil 6 cartes + placeholders dashboards 1-6`
 
 ### Commandes de rollback
 
 ```
-git revert <hash_du_commit_etape_3>
+git revert 5d57771ea16fb84a1fbc5d80aa9d17c1108053d6
 # ou (en local non poussé) :
 git reset --hard a9b010eabc6ada2ded41473ff5f129c0bf4b34e0
 ```
 
 ### Validé par
 
-_À renseigner — validation en cours côté utilisateur._
+Abdoulaye Dieng &lt;dienguis@hotmail.com&gt; (capture d'écran transmise — 6 cartes affichées correctement).
 
 ---
 
