@@ -1,0 +1,47 @@
+@* =====================================================================
+    PersonnelTypeToggle.razor
+    Toggle Interne / Externe / (Global) réutilisé par les tableaux qui
+    proposent une vue par périmètre du personnel (Tableaux 2, 3, 6).
+
+    Usage minimal :
+        <PersonnelTypeToggle @bind-Value="filter.Personnel" />
+
+    Avec Global activé :
+        <PersonnelTypeToggle @bind-Value="filter.Personnel" ShowGlobal="true" />
+   ===================================================================== *@
+
+@using AdiPAIE_V02.Module.Models.Dashboards
+
+<div class="dashboard-personnel-toggle btn-group" role="group" aria-label="Périmètre personnel">
+    <DxButton RenderStyle="@(Value == PersonnelType.Interne ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)"
+              Text="Interne"
+              Click="@(() => Set(PersonnelType.Interne))" />
+    <DxButton RenderStyle="@(Value == PersonnelType.Externe ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)"
+              Text="Externe"
+              Click="@(() => Set(PersonnelType.Externe))" />
+    @if (ShowGlobal)
+    {
+        <DxButton RenderStyle="@(Value == PersonnelType.Global ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)"
+                  Text="Global"
+                  Click="@(() => Set(PersonnelType.Global))" />
+    }
+</div>
+
+@code {
+    /// <summary>Valeur courante du toggle.</summary>
+    [Parameter] public PersonnelType Value { get; set; } = PersonnelType.Interne;
+
+    /// <summary>Callback de changement (binding two-way avec @bind-Value).</summary>
+    [Parameter] public EventCallback<PersonnelType> ValueChanged { get; set; }
+
+    /// <summary>Affiche le bouton « Global » en plus de Interne / Externe.</summary>
+    [Parameter] public bool ShowGlobal { get; set; }
+
+    private async Task Set(PersonnelType pt)
+    {
+        if (pt == Value) return;
+        Value = pt;
+        if (ValueChanged.HasDelegate)
+            await ValueChanged.InvokeAsync(pt);
+    }
+}

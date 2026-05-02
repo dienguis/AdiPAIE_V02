@@ -1,0 +1,45 @@
+@* =====================================================================
+    DashboardActions.razor
+    Barre d'actions standard d'un tableau de bord :
+    Actualiser + Export PDF + Export Excel.
+
+    Les exports sont câblés à des EventCallback fournis par la page parente,
+    typiquement via le service du tableau (cf. mission Étape 6 — UI commune).
+
+    Étape 2 — squelette ; les exports concrets seront implémentés au fur
+    et à mesure des Tableaux 1 → 6 (Étape 4).
+   ===================================================================== *@
+
+<div class="dashboard-actions d-flex gap-2">
+    <DxButton IconCssClass="bi bi-arrow-clockwise"
+              Text="Actualiser"
+              Click="OnRefresh"
+              Enabled="@(!Busy)" />
+
+    <DxButton IconCssClass="bi bi-file-earmark-pdf"
+              Text="Export PDF"
+              Click="OnExportPdf"
+              Enabled="@(CanExport && !Busy)" />
+
+    <DxButton IconCssClass="bi bi-file-earmark-excel"
+              Text="Export Excel"
+              Click="OnExportExcel"
+              Enabled="@(CanExport && !Busy)" />
+</div>
+
+@code {
+    /// <summary>Désactive temporairement les boutons (pendant un chargement).</summary>
+    [Parameter] public bool Busy { get; set; }
+
+    /// <summary>Permet de masquer/désactiver les exports si non applicables.</summary>
+    [Parameter] public bool CanExport { get; set; } = true;
+
+    /// <summary>Callback "Actualiser".</summary>
+    [Parameter] public EventCallback OnRefresh { get; set; }
+
+    /// <summary>Callback "Export PDF".</summary>
+    [Parameter] public EventCallback OnExportPdf { get; set; }
+
+    /// <summary>Callback "Export Excel".</summary>
+    [Parameter] public EventCallback OnExportExcel { get; set; }
+}

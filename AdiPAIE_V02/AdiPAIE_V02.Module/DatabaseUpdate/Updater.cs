@@ -1,6 +1,7 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
 using AdiPAIE_V02.Module.Domain;
+using AdiPAIE_V02.Module.NonPersistent;
 using AdiPAIE_V02.Module.Properties;
 using AdiPAIE_V02.Module.Reports;
 using AdiPAIE_V02.Module.Services;
@@ -304,6 +305,89 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                         userRH.Roles.Remove(roleDefault);
                 }
             }
+
+            ObjectSpace.CommitChanges();
+
+            // ═══════════════════════════════════════════════════════
+            // Rôle RH_Manager — Accès lecture aux Tableaux de Bord RH
+            // (Module Dashboards — Étape 2 / squelette).
+            // Permissions étendues progressivement aux Tableaux 1 → 6
+            // (Étape 4). Idempotent : crée ou met à jour, fusionne les
+            // doublons éventuels.
+            // ═══════════════════════════════════════════════════════
+            var allRolesRHM = ObjectSpace.GetObjectsQuery<PermissionPolicyRole>()
+                .Where(r => r.Name == "RH_Manager")
+                .ToList();
+
+            PermissionPolicyRole roleRHM;
+            if (allRolesRHM.Count == 0)
+            {
+                roleRHM = ObjectSpace.CreateObject<PermissionPolicyRole>();
+                roleRHM.Name = "RH_Manager";
+            }
+            else
+            {
+                roleRHM = allRolesRHM[0];
+                for (int i = 1; i < allRolesRHM.Count; i++)
+                {
+                    var duplicate = allRolesRHM[i];
+                    var usersOnDup = ObjectSpace.GetObjectsQuery<ApplicationUser>()
+                        .Where(u => u.Roles.Any(r => r.Oid == duplicate.Oid))
+                        .ToList();
+                    foreach (var u in usersOnDup)
+                    {
+                        if (!u.Roles.Contains(roleRHM))
+                            u.Roles.Add(roleRHM);
+                        u.Roles.Remove(duplicate);
+                    }
+                    ObjectSpace.Delete(duplicate);
+                }
+            }
+            roleRHM.IsAdministrative = false;
+            roleRHM.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
+
+            // Reset idempotent des permissions pour éviter les doublons à
+            // chaque démarrage de l'application.
+            while (roleRHM.TypePermissions.Count > 0)
+                roleRHM.TypePermissions.Remove(roleRHM.TypePermissions[0]);
+            while (roleRHM.NavigationPermissions.Count > 0)
+                roleRHM.NavigationPermissions.Remove(roleRHM.NavigationPermissions[0]);
+
+            const string NavRead_RHM =
+                SecurityOperations.Navigate + ";" + SecurityOperations.Read;
+
+            // ── Entrée de menu « Tableaux de Bord RH » (DashboardsRHMenu) ──
+            roleRHM.AddTypePermissionsRecursively<DashboardsRHMenu>(
+                NavRead_RHM, SecurityPermissionState.Allow);
+
+            // ── Entités sources des dashboards (lecture seule) ──
+            //    Les permissions seront étendues étape 4.1 → 4.6 selon les
+            //    besoins précis de chaque tableau (filtres sur sites,
+            //    départements, périodes, etc.).
+            roleRHM.AddTypePermissionsRecursively<Salarie>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<ContratSalarie>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Interimaire>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<ContratInterim>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<MouvementInterimaire>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Departement>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Categories>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Fonction>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Echelons>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Site>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<StationService>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Bulletin>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<BulletinLigne>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<PeriodePaie>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<CongeDemande>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<CongeType>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<SoldeConge>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<DossierOffboarding>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<HistoriquePoste>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<DossierDisciplinaire>(NavRead_RHM, SecurityPermissionState.Allow);
+
+            // ── ApplicationUser (lecture pour la jointure salarié ↔ user) ──
+            roleRHM.AddTypePermissionsRecursively<ApplicationUser>(
+                SecurityOperations.Read, SecurityPermissionState.Allow);
 
             ObjectSpace.CommitChanges();
 

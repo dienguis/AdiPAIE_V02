@@ -1,0 +1,41 @@
+@* =====================================================================
+    DashboardHome.razor — placeholder (Étape 2)
+
+    URL :  /dashboards   ou   /dashboards/
+
+    L'implémentation finale (grille de 6 cartes vers les tableaux dédiés)
+    sera livrée à l'Étape 3 dans un commit dédié.
+
+    Sécurité :
+    - [Authorize] empêche l'accès anonyme. Les contrôles fins de rôle
+      (RH_Manager / Administrators) seront ajoutés à l'Étape 3 sous forme
+      d'une AuthorizeView ou d'une vérification programmatique XAF.
+   ===================================================================== *@
+
+@page "/dashboards"
+@page "/dashboards/"
+@attribute [Authorize]
+
+<PageTitle>Tableaux de Bord RH</PageTitle>
+
+<DashboardLayout Title="Tableaux de Bord RH"
+                 PerimetreLabel="Module en cours de mise en place">
+
+    <ChildContent>
+        <div class="alert alert-info" role="alert">
+            <h5 class="alert-heading">Module Dashboards RH — Étape 2 (architecture cible)</h5>
+            <p class="m-0">
+                Cette page sera complétée à l'Étape 3 par une grille de
+                <strong>6 cartes cliquables</strong> ouvrant chacune un tableau dédié :
+            </p>
+            <ul class="mt-2 mb-0">
+                <li><strong>Tableau N°1</strong> — Effectif détaillé par tranche d'âge × Catégorie pro <em>(Interne)</em></li>
+                <li><strong>Tableau N°2</strong> — Analyse de l'Effectif (Global / Moyen) <em>(Interne / Externe)</em></li>
+                <li><strong>Tableau N°3</strong> — Mouvements (Arrivées / Départs) <em>(Interne / Externe)</em></li>
+                <li><strong>Tableau N°4</strong> — Rémunération <em>(Externe)</em></li>
+                <li><strong>Tableau N°5</strong> — Suivi Absences <em>(Interne)</em></li>
+                <li><strong>Tableau N°6</strong> — Bilan Social Mensuel <em>(Interne / Externe / Global)</em></li>
+            </ul>
+        </div>
+    </ChildContent>
+</DashboardLayout>

@@ -1,0 +1,22 @@
+@* =====================================================================
+    DashboardFiltersBar.razor
+    Conteneur générique pour la barre de filtres en haut d'un dashboard.
+    Chaque tableau y glisse les filtres qui lui sont propres
+    (DxDateRangePicker, DxComboBox, DxTagBox, …).
+
+    Exemple :
+        <DashboardFiltersBar>
+            <DxDateRangePicker @bind-StartDate="..." @bind-EndDate="..." />
+            <DxComboBox Data="@sites" ... />
+            <DxTagBox Data="@categories" ... />
+        </DashboardFiltersBar>
+   ===================================================================== *@
+
+<div class="dashboard-filters-bar d-flex flex-wrap gap-3 align-items-end p-2">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>Filtres custom à insérer dans la barre.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

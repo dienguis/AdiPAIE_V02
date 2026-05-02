@@ -1,0 +1,93 @@
+@* =====================================================================
+    DashboardLayout.razor
+    Coquille commune à toutes les pages de tableau de bord (Étape 4).
+    Composé de quatre slots :
+      - Header (titre + libellé périmètre)
+      - FiltersFragment (slot pour DashboardFiltersBar + filtres spécifiques)
+      - ChildContent (le corps : KPI cards, charts, grids…)
+      - ActionsFragment (slot pour DashboardActions)
+
+    Exemple d'usage côté page (à venir Étape 4) :
+        <DashboardLayout Title="Effectif détaillé" PerimetreLabel="Personnel Interne">
+            <FiltersFragment>
+                <DashboardFiltersBar> ... </DashboardFiltersBar>
+            </FiltersFragment>
+            <ChildContent>
+                <!-- KpiCards, charts, grids -->
+            </ChildContent>
+            <ActionsFragment>
+                <DashboardActions OnRefresh="..." />
+            </ActionsFragment>
+        </DashboardLayout>
+   ===================================================================== *@
+
+<div class="dashboard-shell d-flex flex-column gap-3 p-3">
+
+    @* ── Header ─────────────────────────────────────────────────────── *@
+    <header class="dashboard-shell__header d-flex align-items-center justify-content-between">
+        <div>
+            <h2 class="dashboard-shell__title m-0">@Title</h2>
+            @if (!string.IsNullOrEmpty(PerimetreLabel))
+            {
+                <span class="dashboard-shell__scope text-muted">@PerimetreLabel</span>
+            }
+        </div>
+
+        @if (ActionsFragment != null)
+        {
+            <div class="dashboard-shell__actions">
+                @ActionsFragment
+            </div>
+        }
+    </header>
+
+    @* ── Barre de filtres ─────────────────────────────────────────── *@
+    @if (FiltersFragment != null)
+    {
+        <section class="dashboard-shell__filters">
+            @FiltersFragment
+        </section>
+    }
+
+    @* ── Loader (Étape 6 — UI commune) ────────────────────────────── *@
+    @if (Loading)
+    {
+        <DxLoadingPanel Text="Chargement…" Visible="true" />
+    }
+
+    @* ── Erreur éventuelle (Étape 6 — gestion d'erreur) ───────────── *@
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Erreur : </strong>@ErrorMessage
+        </div>
+    }
+
+    @* ── Corps de la page ──────────────────────────────────────────── *@
+    <section class="dashboard-shell__content">
+        @ChildContent
+    </section>
+</div>
+
+@code {
+    /// <summary>Titre principal du tableau.</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+
+    /// <summary>Libellé du périmètre (ex. "Personnel Interne", "Externe seul", "Global").</summary>
+    [Parameter] public string? PerimetreLabel { get; set; }
+
+    /// <summary>Slot de filtres (rendu sous le header, au-dessus du corps).</summary>
+    [Parameter] public RenderFragment? FiltersFragment { get; set; }
+
+    /// <summary>Slot d'actions (rendu dans le header, à droite).</summary>
+    [Parameter] public RenderFragment? ActionsFragment { get; set; }
+
+    /// <summary>Corps de la page (KPI cards, charts, grids).</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Indique si un chargement est en cours (overlay DxLoadingPanel).</summary>
+    [Parameter] public bool Loading { get; set; }
+
+    /// <summary>Message d'erreur à afficher (si non vide, bandeau rouge).</summary>
+    [Parameter] public string? ErrorMessage { get; set; }
+}
