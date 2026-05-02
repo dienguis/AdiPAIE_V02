@@ -1,5 +1,11 @@
 # CHANGELOG — Module « Tableaux de Bord RH »
 
+> **🤖 NOTE pour Claude (futur-moi) :** lire **EN PREMIER** le fichier
+> [`MISSION_STATE.md`](./MISSION_STATE.md) — il contient l'état complet,
+> les décisions verrouillées, les pièges connus et l'étape suivante. Ce
+> CHANGELOG est l'audit log historique ; le STATE est la mémoire de
+> travail.
+
 Journal des modifications apportées dans le cadre de la mission de génération
 du module **Tableaux de Bord RH** sur la branche `feature/dashboards-rh`.
 
@@ -16,6 +22,109 @@ Chaque entrée précise :
 > **Format de date :** `YYYY-MM-DD HHmm` (heure locale de l'opérateur).
 > **Convention de message de commit :** `feat(dashboards): ...`,
 > `chore(dashboards): ...`, `docs(dashboards): ...`, `fix(dashboards): ...`.
+
+---
+
+## [Étape 4.3] 2026-05-02 1930 — Tableau N°3 « Mouvements (Arrivées / Départs) »
+
+**Objet** : implémentation complète du Tableau N°3 sur les périmètres
+INTERNE (Salarie) et EXTERNE (Interimaire / ContratInterim) — avec toggle.
+7 KPI cartes (Arrivées, Départs, Solde net, %Arrivées, %Départs, Effectif
+Début, Effectif Fin), section Arrivées (12 mois + Site + Catégorie), section
+Départs (12 mois + Motif + Site + Catégorie). Charte ELTON Oil héritée du
+CSS partagé.
+
+### Décisions validées (avant codage)
+
+- **INTERNE Arrivées** : `Salarie.DateEmbauche` dans l'année (filtre simple,
+  pas de jointure HistoriquePoste).
+- **INTERNE Départs** : `Salarie.DateSortie` dans l'année (avec sentinelle
+  `>= 1900-01-01`) + **Motif** issu de l'enum `MotifDepart`
+  (Démission / Licenciement / Fin de CDD / Retraite / Décès / Rupture
+  conventionnelle).
+- **EXTERNE Arrivées** : `ContratInterim.DateDebut` dans l'année (recommandé
+  vs entité `MouvementInterimaire` qui reste utilisable pour évolutions).
+- **EXTERNE Départs** : `ContratInterim` clôturés (Statut ∈
+  {Resilie, Termine}) dont `DateFinReelle ?? DateFin` tombe dans l'année.
+- **Effectif Début / Fin** : utilisés pour les taux %Arrivées et %Départs ;
+  diviseur = effectif moyen `(début+fin)/2`.
+- **CSS** : pas de nouveau fichier — utilisation directe du
+  `dashboards-elton.css` partagé + petites variantes locales (`--blue` =
+  Arrivées, `--red` = Départs).
+
+### Fichiers créés (5)
+
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/MouvementsFilterModel.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/MouvementsDto.cs`
+  (incl. `KpiMouvementsDto` avec `Solde` calculé)
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/IMouvementsDashboardService.cs`
+- `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/MouvementsDashboardService.cs`
+  (incl. helpers `ComputeParMois<T>`, `ComputeBar<T>`, `GetMotifDepartLibelle`,
+  `CountInterimsActifs`)
+- `sql/dashboards/03_mouvements.sql` (17 requêtes : 10 INTERNE + 7 EXTERNE,
+  alignées SPEC PowerBI mesures 3 et 4)
+
+### Fichiers modifiés (3)
+
+| Fichier | Sauvegarde `.bak` | Nature |
+|---|---|---|
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Pages/Dashboards/Mouvements/MouvementsDashboard.razor` | `docs/dashboards/backup/2026-05-02_1930/.../MouvementsDashboard.razor.bak` | Réécriture complète : remplacement du placeholder par l'UI ELTON (header sombre, toggle Interne/Externe, 7 KPI inline, 2 sections Arrivées/Départs avec 7 charts au total). |
+| `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Startup.cs` | `docs/dashboards/backup/2026-05-02_1930/.../Startup.cs.bak` | DI : `services.AddScoped<IMouvementsDashboardService, MouvementsDashboardService>()`. |
+| `docs/dashboards/CHANGELOG.md` | (suivi git) | Cette entrée. |
+
+### Patch post-validation EXTERNE — Dénominateur anti-aberration
+
+Constat utilisateur après build :
+1. Première version : `% Arrivées = 228,6 %` (formule `(0 + 35) / 2 = 17,5`).
+2. Après ETP pondéré 13 points : `% Arrivées = 162 %` — encore visuellement
+   choquant car ramp-up complet (équipe entièrement créée en 2024).
+
+**Correctif final** :
+- Ajout de la méthode `ComputeEffectifMoyenPondere(...)` (moyenne sur
+  13 dates : 1ᵉʳ de chaque mois + 31/12 = approx. ETP intérimaire annuel).
+- Ajout de la méthode `CountInterimsAyantContratDansAnnee(...)` (nb distinct
+  d'intérimaires ayant eu au moins un contrat actif sur l'année).
+- **Dénominateur EXTERNE** = `MAX(ETP pondéré, nb distinct annuel)` :
+  - année stable → l'ETP gagne (KPI rotation classique) ;
+  - année de ramp-up → le nb distinct gagne, plafonne le taux à ≈ 100 %
+    de manière honnête (« renouvellement total de l'équipe »).
+
+INTERNE inchangé : la formule `(debut+fin)/2` reste pertinente pour les
+salariés (population stable).
+
+### Limitations connues / TODO
+
+- **EXTERNE — Motifs de départ** : à défaut d'un champ libre sur
+  `ContratInterim`, on regroupe par `Statut` (Termine / Resilie). Pour un
+  détail plus fin, il faudrait croiser `MouvementInterimaire.TypeMouvement`
+  + le champ `Motif` (texte libre) déjà présent sur `MouvementInterimaire`.
+- **Filtre Genre** : appliqué uniquement côté INTERNE (`Salarie.Sexe`).
+  Masqué automatiquement en mode EXTERNE (Interimaire n'a pas de Sexe).
+- Si **tous** les contrats EXTERNE démarrent en cours d'année (cas seed
+  actuel : 40 contrats 2024, 0 antérieurs), même la moyenne pondérée
+  donnera un % Arrivées > 100 %. C'est mathématiquement correct (turn-over
+  > 100 %) mais signale plutôt un problème de seed historique qu'un KPI
+  pathologique.
+- Boutons Export PDF / Excel : toast « à venir » (Étape 7).
+
+### Branche Git / Commit
+
+- **Branche** : `feature/dashboards-rh`
+- **Hash Étape 4.3** : _à renseigner après le `git commit` (commit pas encore réalisé — l'Étape 4.2 occupe HEAD `504cb1ee`)_
+- **Message attendu** :
+  `feat(dashboards): tableau N3 - mouvements arrivees/departs + dénominateur EXTERNE pondéré + MISSION_STATE`
+
+### Commandes de rollback
+
+```
+git revert <hash_du_commit_etape_4_3>
+# ou (en local non poussé) :
+git reset --hard <hash_etape_4_2>
+```
+
+### Validé par
+
+_À renseigner — validation en cours côté utilisateur après build + test._
 
 ---
 
