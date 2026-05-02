@@ -352,6 +352,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             TauxHS_DimancheFerie = 60m;
             TauxHS_NuitDimancheFerie = 100m;
 
+            // Power BI : valeurs par défaut depuis la connection string de l'app
+            PowerBIActif = false;
+            PowerBI_IntegratedSecurity = true;
+            // Les valeurs serveur/base seront renseignées par l'admin
+
             if (SmtpPort == 0) SmtpPort = 587;
             if (string.IsNullOrWhiteSpace(SmtpHost)) SmtpHost = "smtp.office365.com";
             if (!SmtpUseSsl) SmtpUseSsl = true;
@@ -738,6 +743,17 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         FileData templateEntretienAnnuel;
 
+        [Category("GRH - Templates")]
+        [XafDisplayName("Template bilan social (.docx)")]
+        [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [FileTypeFilter("Documents Word", "*.docx")]
+        public FileData TemplateBilanSocial
+        {
+            get => templateBilanSocial;
+            set => SetPropertyValue(nameof(TemplateBilanSocial), ref templateBilanSocial, value);
+        }
+        FileData templateBilanSocial;
+
 
         /// <summary>Email du DAF pour les notifications d'ordre de mission approuvé.</summary>
         [Category("GRH - Alertes")]
@@ -937,6 +953,233 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(GeoNamesUsername), ref geoNamesUsername, value?.Trim());
         }
         string geoNamesUsername;
+
+        // ── RAPPORT CEO ──────────────────────────────────────────
+
+        [Category("GRH - Rapport CEO")]
+        [XafDisplayName("Email CEO")]
+        [Size(300)]
+        [ToolTip("Adresse email du CEO / Directeur Général pour l'envoi du rapport exécutif.")]
+        public string EmailCEO
+        {
+            get => emailCEO;
+            set => SetPropertyValue(nameof(EmailCEO), ref emailCEO, value?.Trim());
+        }
+        string emailCEO;
+
+        [Category("GRH - Rapport CEO")]
+        [XafDisplayName("Seuil turnover (%)")]
+        [ToolTip("Seuil d'alerte du taux de turnover mensuel (défaut : 15%).")]
+        public decimal? SeuilTurnoverPct
+        {
+            get => seuilTurnoverPct;
+            set => SetPropertyValue(nameof(SeuilTurnoverPct), ref seuilTurnoverPct, value);
+        }
+        decimal? seuilTurnoverPct;
+
+        [Category("GRH - Rapport CEO")]
+        [XafDisplayName("Seuil absentéisme (%)")]
+        [ToolTip("Seuil d'alerte du taux d'absentéisme (défaut : 5%).")]
+        public decimal? SeuilAbsenteismePct
+        {
+            get => seuilAbsenteismePct;
+            set => SetPropertyValue(nameof(SeuilAbsenteismePct), ref seuilAbsenteismePct, value);
+        }
+        decimal? seuilAbsenteismePct;
+
+        [Category("GRH - Rapport CEO")]
+        [XafDisplayName("Seuil masse salariale (FCFA)")]
+        [ToolTip("Seuil budgétaire de la masse salariale brute mensuelle. Alerte si dépassé.")]
+        public decimal? SeuilMasseSalariale
+        {
+            get => seuilMasseSalariale;
+            set => SetPropertyValue(nameof(SeuilMasseSalariale), ref seuilMasseSalariale, value);
+        }
+        decimal? seuilMasseSalariale;
+
+        // ── CONNEXION BDD (lecture/écriture dbconfig.json) ───────
+
+        [Category("Connexion BDD")]
+        [Size(300)]
+        [XafDisplayName("Serveur SQL")]
+        [ToolTip("Nom du serveur SQL Server. Ex: (localdb)\\mssqllocaldb, MONSERVEUR\\SQLEXPRESS, 192.168.1.10")]
+        [NonPersistent]
+        public string App_SqlServer
+        {
+            get => DbConfigHelper.GetValue("DataSource");
+            set { DbConfigHelper.SetValue("DataSource", value); OnChanged(nameof(App_SqlServer)); }
+        }
+
+        [Category("Connexion BDD")]
+        [Size(200)]
+        [XafDisplayName("Base de données")]
+        [ToolTip("Nom de la base de données. Ex: AdiPAIE_V02_company1")]
+        [NonPersistent]
+        public string App_SqlDatabase
+        {
+            get => DbConfigHelper.GetValue("InitialCatalog");
+            set { DbConfigHelper.SetValue("InitialCatalog", value); OnChanged(nameof(App_SqlDatabase)); }
+        }
+
+        [Category("Connexion BDD")]
+        [XafDisplayName("Authentification Windows (SSPI)")]
+        [ToolTip("Si activé, utilise l'authentification Windows. Sinon, renseignez login/mot de passe SQL.")]
+        [NonPersistent]
+        public bool App_IntegratedSecurity
+        {
+            get => DbConfigHelper.GetValue("IntegratedSecurity")?.ToUpperInvariant() is "TRUE" or "SSPI";
+            set { DbConfigHelper.SetValue("IntegratedSecurity", value ? "SSPI" : "false"); OnChanged(nameof(App_IntegratedSecurity)); }
+        }
+
+        [Category("Connexion BDD")]
+        [Size(200)]
+        [XafDisplayName("Login SQL")]
+        [ToolTip("Utilisateur SQL Server (si pas SSPI).")]
+        [NonPersistent]
+        public string App_SqlLogin
+        {
+            get => DbConfigHelper.GetValue("UserID");
+            set { DbConfigHelper.SetValue("UserID", value); OnChanged(nameof(App_SqlLogin)); }
+        }
+
+        [Category("Connexion BDD")]
+        [Size(200)]
+        [XafDisplayName("Mot de passe SQL")]
+        [ModelDefault("IsPassword", "True")]
+        [ToolTip("Mot de passe SQL Server (si pas SSPI).")]
+        [NonPersistent]
+        public string App_SqlPassword
+        {
+            get => DbConfigHelper.GetValue("Password");
+            set { DbConfigHelper.SetValue("Password", value); OnChanged(nameof(App_SqlPassword)); }
+        }
+
+        [Category("Connexion BDD")]
+        [XafDisplayName("Accepter certificat SSL")]
+        [ToolTip("Active TrustServerCertificate=True pour les connexions SQL Server avec certificat auto-signé.")]
+        [NonPersistent]
+        public bool App_TrustServerCertificate
+        {
+            get
+            {
+                var val = DbConfigHelper.GetValue("TrustServerCertificate");
+                return string.Equals(val, "True", StringComparison.OrdinalIgnoreCase);
+            }
+            set
+            {
+                DbConfigHelper.SetValue("TrustServerCertificate", value ? "True" : "False");
+                OnChanged(nameof(App_TrustServerCertificate));
+            }
+        }
+
+        [Category("Connexion BDD")]
+        [Size(1000)]
+        [XafDisplayName("Chaîne de connexion complète (lecture seule)")]
+        [ToolTip("Chaîne construite automatiquement. Redémarrez l'application après toute modification.")]
+        [NonPersistent]
+        [ModelDefault("AllowEdit", "False")]
+        public string App_ConnectionStringPreview
+        {
+            get => DbConfigHelper.BuildConnectionString();
+        }
+
+        // ── POWER BI ─────────────────────────────────────────────
+
+        [Category("Power BI")]
+        [XafDisplayName("Power BI activé")]
+        [ToolTip("Active l'accès aux rapports Power BI depuis l'application.")]
+        public bool PowerBIActif
+        {
+            get => powerBIActif;
+            set => SetPropertyValue(nameof(PowerBIActif), ref powerBIActif, value);
+        }
+        bool powerBIActif;
+
+        [Category("Power BI")]
+        [Size(300)]
+        [XafDisplayName("Serveur SQL (Data Source)")]
+        [ToolTip("Nom du serveur SQL Server pour la connexion Power BI. Ex: monserveur\\SQLEXPRESS, localhost, (localdb)\\mssqllocaldb")]
+        public string PowerBI_SqlServer
+        {
+            get => pbiSqlServer;
+            set => SetPropertyValue(nameof(PowerBI_SqlServer), ref pbiSqlServer, value?.Trim());
+        }
+        string pbiSqlServer;
+
+        [Category("Power BI")]
+        [Size(200)]
+        [XafDisplayName("Base de données (Initial Catalog)")]
+        [ToolTip("Nom de la base de données SQL Server. Ex: AdiPAIE_V02_company1")]
+        public string PowerBI_SqlDatabase
+        {
+            get => pbiSqlDatabase;
+            set => SetPropertyValue(nameof(PowerBI_SqlDatabase), ref pbiSqlDatabase, value?.Trim());
+        }
+        string pbiSqlDatabase;
+
+        [Category("Power BI")]
+        [XafDisplayName("Authentification Windows (SSPI)")]
+        [ToolTip("Si activé, utilise l'authentification Windows intégrée. Sinon, utilisez login/mot de passe SQL.")]
+        public bool PowerBI_IntegratedSecurity
+        {
+            get => pbiIntegrated;
+            set => SetPropertyValue(nameof(PowerBI_IntegratedSecurity), ref pbiIntegrated, value);
+        }
+        bool pbiIntegrated;
+
+        [Category("Power BI")]
+        [Size(200)]
+        [XafDisplayName("Login SQL (si pas SSPI)")]
+        [ToolTip("Utilisateur SQL Server si l'authentification Windows n'est pas utilisée.")]
+        public string PowerBI_SqlLogin
+        {
+            get => pbiSqlLogin;
+            set => SetPropertyValue(nameof(PowerBI_SqlLogin), ref pbiSqlLogin, value?.Trim());
+        }
+        string pbiSqlLogin;
+
+        [Category("Power BI")]
+        [Size(200)]
+        [XafDisplayName("Mot de passe SQL (si pas SSPI)")]
+        [ModelDefault("IsPassword", "True")]
+        [ToolTip("Mot de passe SQL Server si l'authentification Windows n'est pas utilisée.")]
+        public string PowerBI_SqlPassword
+        {
+            get => pbiSqlPassword;
+            set => SetPropertyValue(nameof(PowerBI_SqlPassword), ref pbiSqlPassword, value);
+        }
+        string pbiSqlPassword;
+
+        [Category("Power BI")]
+        [Size(1000)]
+        [XafDisplayName("URL du rapport Power BI")]
+        [ToolTip("Collez l'URL d'incorporation depuis Power BI Service : Fichier → Incorporer → Site web ou portail. Ex: https://app.powerbi.com/reportEmbed?reportId=...")]
+        public string PowerBI_ReportUrl
+        {
+            get => pbiReportUrl;
+            set => SetPropertyValue(nameof(PowerBI_ReportUrl), ref pbiReportUrl, value?.Trim());
+        }
+        string pbiReportUrl;
+
+        /// <summary>
+        /// Construit la chaîne de connexion SQL Server à partir des paramètres Power BI.
+        /// </summary>
+        [VisibleInDetailView(false), VisibleInListView(false)]
+        [NonPersistent]
+        public string PowerBI_ConnectionString
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(PowerBI_SqlServer) || string.IsNullOrWhiteSpace(PowerBI_SqlDatabase))
+                    return null;
+
+                if (PowerBI_IntegratedSecurity)
+                    return $"Data Source={PowerBI_SqlServer};Initial Catalog={PowerBI_SqlDatabase};Integrated Security=SSPI;";
+
+                return $"Data Source={PowerBI_SqlServer};Initial Catalog={PowerBI_SqlDatabase};"
+                     + $"User ID={PowerBI_SqlLogin};Password={PowerBI_SqlPassword};";
+            }
+        }
     }
 
 }

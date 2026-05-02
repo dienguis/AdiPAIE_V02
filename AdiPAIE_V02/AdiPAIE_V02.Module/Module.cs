@@ -70,10 +70,8 @@ namespace AdiPAIE_V02.Module
         {
             base.Setup(application);
 
-            // ========== AJOUTER ==========
+            // Enregistrer le NonPersistentObjectSpaceProvider (nécessaire pour Blazor)
             application.SetupComplete += Application_SetupComplete;
-            // =============================
-
         }
 
         // ========== AJOUTER CETTE MÉTHODE ==========

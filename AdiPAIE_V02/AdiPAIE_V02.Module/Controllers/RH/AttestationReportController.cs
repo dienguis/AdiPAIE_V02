@@ -22,7 +22,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             _genererAction = new SimpleAction(this, "Attestation_Generer", PredefinedCategory.View)
             {
-                Caption = "Générer attestation",
+                Caption = "Attestation",
                 ImageName = "Action_Export",
                 ToolTip = "Génère depuis le template Word et joint à la demande.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,

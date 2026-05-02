@@ -33,7 +33,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             soumettreAction = new SimpleAction(this,
                 "PlanFormation_Soumettre", PredefinedCategory.Edit)
             {
-                Caption = "Soumettre pour approbation",
+                Caption = "Soumettre",
                 ImageName = "Action_Forward",
                 ConfirmationMessage = "Soumettre ce plan à la direction pour approbation ?",
                 TargetObjectsCriteria =
@@ -273,7 +273,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             confirmerAction = new SimpleAction(this,
                 "SessionFormation_Confirmer", PredefinedCategory.Edit)
             {
-                Caption = "Confirmer la session",
+                Caption = "Confirmer session",
                 ImageName = "Action_Approve",
                 ConfirmationMessage = "Confirmer cette session ? Les inscrits seront notifiés.",
                 TargetObjectsCriteria =
@@ -345,7 +345,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             demarrerAction = new SimpleAction(this,
                 "SessionFormation_Demarrer", PredefinedCategory.Edit)
             {
-                Caption = "Démarrer la session",
+                Caption = "Démarrer",
                 ImageName = "Action_RunDiagram",
                 ConfirmationMessage = "Démarrer la session maintenant ?",
                 TargetObjectsCriteria =
@@ -372,7 +372,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             terminerAction = new SimpleAction(this,
                 "SessionFormation_Terminer", PredefinedCategory.Edit)
             {
-                Caption = "Terminer la session",
+                Caption = "Terminer",
                 ImageName = "Action_Close",
                 ConfirmationMessage =
                     "Terminer la session ? Les suivis post-formation seront créés pour les participants présents.",
@@ -432,7 +432,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             annulerAction = new SimpleAction(this,
                 "SessionFormation_Annuler", PredefinedCategory.Edit)
             {
-                Caption = "Annuler la session",
+                Caption = "Annuler session",
                 ImageName = "Action_Delete",
                 ConfirmationMessage = "Annuler cette session ? Les inscrits seront notifiés.",
                 TargetObjectsCriteria =
@@ -540,7 +540,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             annulerAction = new SimpleAction(this,
                 "Inscription_Annuler", PredefinedCategory.Edit)
             {
-                Caption = "Annuler l'inscription",
+                Caption = "Annuler inscr.",
                 ImageName = "Action_Cancel",
                 ConfirmationMessage = "Annuler cette inscription ?",
                 TargetObjectsCriteria =
@@ -588,7 +588,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             genererAttestationAction = new SimpleAction(this,
                 "Inscription_GenererAttestation", PredefinedCategory.Edit)
             {
-                Caption = "Générer l'attestation",
+                Caption = "Attestation",
                 ImageName = "Action_Export",
                 ToolTip = "Génère l'attestation PDF et l'archive dans le dossier salarié.",
                 TargetObjectsCriteria =

@@ -18,7 +18,7 @@ namespace AdiPAIE_V02.Module.Win.Controllers
         {
             previewAction = new SimpleAction(this, "PreviewBulletin", PredefinedCategory.Print)
             {
-                Caption = "Aperçu bulletin",
+                Caption = "Aperçu",
                 ImageName = "Preview", // ou un autre glyph
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject
             };
@@ -26,7 +26,7 @@ namespace AdiPAIE_V02.Module.Win.Controllers
 
             exportLayoutAction = new SimpleAction(this, "ExportBulletinLayout", PredefinedCategory.View)
             {
-                Caption = "Exporter layout (repx)",
+                Caption = "Export layout",
                 ImageName = "Export",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject
             };

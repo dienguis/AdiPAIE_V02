@@ -5,6 +5,7 @@ using AdiPAIE_V02.Module.Properties;
 using AdiPAIE_V02.Module.Reports;
 using AdiPAIE_V02.Module.Services;
 using AdiPAIE_V02.Module.Utils;
+// using DevExpress.DashboardCommon; // retiré — plus de dashboards programmatiques
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Dashboards;
@@ -334,6 +335,20 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 os.CommitChanges();                    // pour le rendre visible tout de suite dans l'UI
             }
 
+            // 1b) Auto-remplir les paramètres Power BI depuis la connection string de l'app
+            //     (uniquement si les champs sont encore vides — ne jamais écraser)
+            try
+            {
+                var appConnStr = session.ConnectionString
+                    ?? session.Connection?.ConnectionString;
+                if (!string.IsNullOrWhiteSpace(appConnStr))
+                {
+                    PowerBIConfigService.AutoFillFromAppConnectionString(os, appConnStr);
+                    if (os.IsModified) os.CommitChanges();
+                }
+            }
+            catch { /* Ne pas bloquer le démarrage si l'auto-fill échoue */ }
+
             // 2) Seed conditionnel : seulement si l’option UI est cochée
             if (p.ActiverSeedDemo)
             {
@@ -473,11 +488,8 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 os.CommitChanges();
             }
 
-            // 3) Dashboards (même ObjectSpace, un seul commit)
-            CreateOrUpdateDashboard(os, "Paie — Suivi mensuel", Resources.Dash_Paie_SuiviMensuelXml);
-            CreateOrUpdateDashboard(os, "Paie — IR & TRIMF", Resources.Dash_Paie_FiscaliteXml);
-
-            os.CommitChanges();
+            // Dashboards RH — supprimés (approche DashboardObjectDataSource incompatible Blazor)
+            // Les tableaux de bord seront recréés via des pages Blazor manuelles.
 
             // Normaliser tous les libellés existants (one-shot)
             var rubs = ObjectSpace.GetObjectsQuery<Rubrique>().ToList();
@@ -491,7 +503,52 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             }
             if (ObjectSpace.IsModified) ObjectSpace.CommitChanges();
 
-            //ADIENG TEST DATAT 28/08/2025 END 
+            // ═══════════════════════════════════════════════════════
+            // Centre d'imports — assure qu'un singleton existe
+            // (utilisé comme conteneur pour les actions d'import en masse)
+            // ═══════════════════════════════════════════════════════
+            if (ObjectSpace.GetObjectsCount(typeof(CentreImports), null) == 0)
+            {
+                var ci = ObjectSpace.CreateObject<CentreImports>();
+                ci.Note = "Centre regroupant les actions d'import en masse "
+                        + "(salariés, conjoints, comptes bancaires, ...).";
+                ObjectSpace.CommitChanges();
+            }
+
+            // ═══════════════════════════════════════════════════════
+            // Centre des constantes paie — assure qu'un singleton existe
+            // ═══════════════════════════════════════════════════════
+            if (ObjectSpace.GetObjectsCount(typeof(CentreConstantesPaie), null) == 0)
+            {
+                ObjectSpace.CreateObject<CentreConstantesPaie>();
+                ObjectSpace.CommitChanges();
+            }
+
+            // ═══════════════════════════════════════════════════════
+            // Sites — référentiel paramétrable (personnel interne)
+            // Idempotent : crée uniquement les sites manquants
+            // ═══════════════════════════════════════════════════════
+            (string code, string nom, string ville)[] sitesParDefaut =
+            {
+                ("SIEGE",     "Siège",      "Dakar"),
+                ("DEPOT_CDB", "Dépôt CDB",  "Dakar"),
+                ("DEPOT_HANN","Dépôt Hann", "Dakar"),
+            };
+            foreach (var (code, nom, ville) in sitesParDefaut)
+            {
+                var existing = ObjectSpace.FirstOrDefault<Site>(s => s.Code == code);
+                if (existing == null)
+                {
+                    var site = ObjectSpace.CreateObject<Site>();
+                    site.Code = code;
+                    site.Nom = nom;
+                    site.Ville = ville;
+                    site.Actif = true;
+                }
+            }
+            if (ObjectSpace.IsModified) ObjectSpace.CommitChanges();
+
+            //ADIENG TEST DATAT 28/08/2025 END
 
             if (!ObjectSpace.CanInstantiate(typeof(ApplicationUser)))
             {
@@ -1138,27 +1195,7 @@ END";
             }
         }
 
-        private static DashboardData CreateOrUpdateDashboard(IObjectSpace os, string title, string xml)
-        {
-            if (os == null) throw new ArgumentNullException(nameof(os));
-            if (string.IsNullOrWhiteSpace(title)) throw new ArgumentException("title obligatoire.", nameof(title));
-
-            var dash = os.FindObject<DashboardData>(
-                CriteriaOperator.FromLambda<DashboardData>(d => d.Title == title));
-
-            if (dash == null)
-            {
-                dash = os.CreateObject<DashboardData>();
-                dash.Title = title.Trim();
-                dash.Content = xml ?? string.Empty;
-            }
-            else
-            {
-                if (!string.Equals(dash.Content, xml ?? string.Empty, StringComparison.Ordinal))
-                    dash.Content = xml ?? string.Empty;
-            }
-            return dash; // pas de Commit ici
-        }
+        // LoadDashboardXml et CreateOrUpdateDashboard supprimés (ancien code dashboard)
 
         /// <summary>
         /// Supprime le nœud DemandeAvancement_DetailView des ModelDifferences

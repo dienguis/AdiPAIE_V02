@@ -32,7 +32,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         {
             ouvrirAction = new SimpleAction(this, "Campagne_Ouvrir", PredefinedCategory.Edit)
             {
-                Caption = "Ouvrir la campagne",
+                Caption = "Ouvrir",
                 ImageName = "Action_Open",
                 ToolTip = "Passe la campagne en état Ouverte.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
@@ -42,7 +42,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             genererAction = new SimpleAction(this, "Campagne_GenererEntretiens", PredefinedCategory.Edit)
             {
-                Caption = "Générer les entretiens",
+                Caption = "Générer entretiens",
                 ImageName = "BO_List",
                 ToolTip = "Crée un entretien annuel pour chaque salarié actif de l'entreprise.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
@@ -53,7 +53,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             cloturerAction = new SimpleAction(this, "Campagne_Cloturer", PredefinedCategory.Edit)
             {
-                Caption = "Clôturer la campagne",
+                Caption = "Clôturer",
                 ImageName = "Action_Approve",
                 ToolTip = "Archive définitivement la campagne.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,

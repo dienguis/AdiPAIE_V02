@@ -34,7 +34,7 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
                 "Bulletin_Telecharger",
                 PredefinedCategory.View)
             {
-                Caption = "Télécharger mon bulletin",
+                Caption = "Mon bulletin",
                 ImageName = "Action_Export",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ToolTip = "Télécharger ce bulletin en PDF.",

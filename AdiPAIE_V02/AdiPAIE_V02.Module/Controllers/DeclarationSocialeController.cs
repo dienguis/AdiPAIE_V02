@@ -15,17 +15,20 @@ namespace AdiPAIE_V02.Module.Controllers
     /// Boutons "Générer bordereau IPRES" et "Générer bordereau CSS"
     /// sur la ListView des périodes de paie.
     /// </summary>
+    /// <remarks>DÉSACTIVÉ — remplacé par PeriodePaieEtatsController (bouton unique "États / Exports").</remarks>
     public class DeclarationSocialeController : ObjectViewController<ListView, PeriodePaie>
     {
-        private readonly PopupWindowShowAction _ipresAction;
-        private readonly PopupWindowShowAction _cssAction;
+        private PopupWindowShowAction _ipresAction;
+        private PopupWindowShowAction _cssAction;
 
         public DeclarationSocialeController()
         {
+            Active["Consolidated"] = false; // Remplacé par PeriodePaieEtatsController
+            return; // ← ne plus créer les actions
             _ipresAction = new PopupWindowShowAction(
                 this, "ExporterBordereauIPRES", PredefinedCategory.Edit)
             {
-                Caption = "Générer bordereau IPRES",
+                Caption = "Bordereau IPRES",
                 ImageName = "BO_Report",
                 ToolTip = "Génère le bordereau mensuel IPRES (Régime Général + Cadre).",
             };
@@ -35,7 +38,7 @@ namespace AdiPAIE_V02.Module.Controllers
             _cssAction = new PopupWindowShowAction(
                 this, "ExporterBordereauCSS", PredefinedCategory.Edit)
             {
-                Caption = "Générer bordereau CSS",
+                Caption = "Bordereau CSS",
                 ImageName = "BO_Report",
                 ToolTip = "Génère le bordereau mensuel CSS (Accident Travail + Allocation Familiale).",
             };

@@ -15,7 +15,7 @@ namespace AdiPAIE_V02.Module.Controllers
             action = new SimpleAction(this, "EnvoyerBulletinEmail",
                 PredefinedCategory.ObjectsCreation)
             {
-                Caption = "Envoyer par email",
+                Caption = "Email",
                 ImageName = "BO_Mail"
             };
             action.Execute += OnExecute;

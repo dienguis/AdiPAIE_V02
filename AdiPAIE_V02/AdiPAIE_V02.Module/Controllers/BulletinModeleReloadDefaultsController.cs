@@ -16,7 +16,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         {
             var act = new SimpleAction(this, "ReloadModeleDefaults", PredefinedCategory.Edit)
             {
-                Caption = "Recharger lignes standard",
+                Caption = "Recharger standard",
                 ImageName = "Action_Refresh",
                 ToolTip = "Met à jour les lignes SB/LOGT/SUR/TRSP/AVNV selon la fiche salarié, sans supprimer vos lignes perso.",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage

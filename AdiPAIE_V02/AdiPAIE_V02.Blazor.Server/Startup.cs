@@ -1,4 +1,5 @@
 ﻿using AdiPAIE_V02.Blazor.Server.Services;
+using AdiPAIE_V02.Module.BusinessObjects;
 using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.Services;
@@ -86,10 +87,18 @@ namespace AdiPAIE_V02.Blazor.Server
                 builder.ObjectSpaceProviders
                     .AddSecuredXpo((serviceProvider, options) =>
                     {
-                        //   string connectionString = serviceProvider.GetRequiredService<IConnectionStringProvider>().GetConnectionString();
                         string connectionString = serviceProvider
        .GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>()
        .GetConnectionString("ConnectionString");
+
+                        // Ajouter TrustServerCertificate=True si absent
+                        // (évite l'erreur SSL avec SQL Server Express / certificat auto-signé)
+                        if (!string.IsNullOrWhiteSpace(connectionString)
+                            && !connectionString.Contains("TrustServerCertificate", StringComparison.OrdinalIgnoreCase))
+                        {
+                            connectionString = connectionString.TrimEnd(';') + ";TrustServerCertificate=True";
+                        }
+
                         options.ConnectionString = connectionString;
                         options.ThreadSafe = true;
                         options.UseSharedDataStoreProvider = true;

@@ -37,7 +37,7 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
             preRemplirAction = new SimpleAction(this,
                 "Contrat_PreRemplir", PredefinedCategory.Edit)
             {
-                Caption = "Charger données salarié",
+                Caption = "Charger salarié",
                 ImageName = "Action_Refresh",
                 ToolTip = "Charge automatiquement les informations du salarié."
             };
@@ -46,7 +46,7 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
             activerAction = new SimpleAction(this,
                 "Contrat_Activer", PredefinedCategory.Edit)
             {
-                Caption = "Activer le contrat",
+                Caption = "Activer",
                 ImageName = "Action_Approve",
                 ConfirmationMessage = "Activer ce contrat ? Il sera marqué comme contrat en cours."
             };
@@ -63,7 +63,7 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
             genererPdfAction = new SimpleAction(this,
                 "Contrat_GenererPdf", PredefinedCategory.Edit)
             {
-                Caption = "Générer le PDF",
+                Caption = "Générer PDF",
                 ImageName = "Action_Export",
                 ToolTip = "Fusionne le template Word et génère le PDF du contrat."
             };
@@ -72,7 +72,7 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
             telechargerAction = new SimpleAction(this,
                 "Contrat_Telecharger", PredefinedCategory.View)
             {
-                Caption = "Télécharger le PDF",
+                Caption = "Télécharger",
                 ImageName = "Action_Export",
                 ToolTip = "Télécharge le PDF du contrat."
             };

@@ -19,7 +19,7 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             _sendKey = new SimpleAction(this, "EnvoyerClePDF", PredefinedCategory.RecordEdit)
             {
-                Caption = "Envoyer la clé PDF (séparé)",
+                Caption = "Envoyer clé PDF",
                 ImageName = "BO_Security_Permission",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage
             };

@@ -25,7 +25,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             copyAction = new SimpleAction(this, "CopyRubrique", PredefinedCategory.Edit)
             {
-                Caption = "Copier la rubrique",
+                Caption = "Copier",
                 ImageName = "Copy",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage

@@ -77,6 +77,16 @@ namespace AdiPAIE_V02.Module.Services
                 .ToDictionary(f => f.Intitule?.Trim() ?? "", f => f, StringComparer.OrdinalIgnoreCase);
             var echelons = os.GetObjectsQuery<Echelons>()
                 .ToDictionary(e => e.Code?.Trim() ?? "", e => e, StringComparer.OrdinalIgnoreCase);
+            // Sites : indexés par Code ET par Nom pour souplesse à l'import
+            // .AsEnumerable() requis : XPO IQueryable ne sait pas traduire ?. en SQL
+            var sitesAll = os.GetObjectsQuery<Site>().AsEnumerable().ToList();
+            var sitesParCode = sitesAll
+                .Where(s => !string.IsNullOrWhiteSpace(s.Code))
+                .ToDictionary(s => s.Code.Trim(), s => s, StringComparer.OrdinalIgnoreCase);
+            var sitesParNom = sitesAll
+                .Where(s => !string.IsNullOrWhiteSpace(s.Nom))
+                .GroupBy(s => s.Nom.Trim(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
             int lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
 
@@ -224,6 +234,16 @@ namespace AdiPAIE_V02.Module.Services
                     if (!string.IsNullOrWhiteSpace(foncStr) && fonctions.TryGetValue(foncStr, out var fonc))
                         sal.Fonction = fonc;
 
+                    // ── Site (lookup par Code OU par Nom) ──────────────
+                    var siteStr = GetCell(ws, r, headers, "Site")?.Trim();
+                    if (!string.IsNullOrWhiteSpace(siteStr))
+                    {
+                        if (sitesParCode.TryGetValue(siteStr, out var siteByCode))
+                            sal.Site = siteByCode;
+                        else if (sitesParNom.TryGetValue(siteStr, out var siteByNom))
+                            sal.Site = siteByNom;
+                    }
+
                     matriculesExistants.Add(matricule);
                     result.Crees++;
                 }
@@ -255,7 +275,7 @@ namespace AdiPAIE_V02.Module.Services
                 "Echelon", "SalaireBase", "IndemniteLogement",
                 "Sursalaire", "PrimeTransport",
                 "PossedeVehicule", "AvantageVehicule",
-                "Departement", "Fonction",
+                "Departement", "Fonction", "Site",
                 "Email", "Telephone"
             };
 
@@ -275,7 +295,7 @@ namespace AdiPAIE_V02.Module.Services
                 "E1-A", "300000", "60000",
                 "25000", "26000",
                 "Non", "0",
-                "Comptabilité", "Comptable",
+                "Comptabilité", "Comptable", "Siège",
                 "moussa.diop@exemple.sn", "771234567"
             };
             for (int c = 0; c < exemple.Length; c++)

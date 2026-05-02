@@ -26,7 +26,7 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
                 "SessionFormation_Emargement",
                 PredefinedCategory.View)
             {
-                Caption = "Feuille d'émargement",
+                Caption = "Émargement",
                 ImageName = "Action_Print",
                 ToolTip = "Génère la feuille de présence PDF à imprimer."
             };

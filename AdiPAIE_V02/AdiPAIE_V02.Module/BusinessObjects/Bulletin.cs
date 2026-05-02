@@ -80,7 +80,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         DateTime? dateFin;
 
         [PersistentAlias("Concat(Iif(Mois < 10, Concat('0', ToStr(Mois)), ToStr(Mois)),'/',ToStr(Annee))")]
-        public string Periode => (string)EvaluateAlias(nameof(Periode));
+        public string Periode
+        {
+            get
+            {
+                try { return (string)EvaluateAlias(nameof(Periode)); }
+                catch (ObjectDisposedException) { return $"{Mois:00}/{Annee}"; }
+            }
+        }
 
         // (On évite l'attribut [Indexed] ici pour compatibilité large)
         public string PeriodeKey => $"{Salarie?.Oid}|{Annee}|{Mois}";

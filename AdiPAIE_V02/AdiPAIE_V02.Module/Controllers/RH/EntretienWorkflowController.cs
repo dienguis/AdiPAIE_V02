@@ -86,7 +86,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             lancerEvaluationAction = new SimpleAction(this,
                 "Entretien_LancerEvaluation", PredefinedCategory.Edit)
             {
-                Caption = "Lancer l'évaluation",
+                Caption = "Évaluer",
                 ImageName = "Action_Send",
                 ToolTip = "Envoie le formulaire au N+1 pour évaluation.",
                 ConfirmationMessage = "Lancer l'évaluation ? Le N+1 sera notifié."
@@ -97,7 +97,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             soumettreAuSalarieAction = new SimpleAction(this,
                 "Entretien_SoumettreAuSalarie", PredefinedCategory.Edit)
             {
-                Caption = "Soumettre au salarié",
+                Caption = "Soumettre",
                 ImageName = "Action_Forward",
                 ToolTip = "Transmet l'évaluation au salarié pour observations.",
                 ConfirmationMessage = "Soumettre au salarié pour observations ?"
@@ -108,7 +108,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             soumettreObservationsAction = new SimpleAction(this,
                 "Entretien_SoumettreObservations", PredefinedCategory.Edit)
             {
-                Caption = "Soumettre mes observations",
+                Caption = "Observations",
                 ImageName = "Action_Forward",
                 ToolTip = "Soumet vos observations. Le N+1 sera notifié.",
                 ConfirmationMessage = "Soumettre vos observations ? Elles ne pourront plus être modifiées."
@@ -119,7 +119,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             validerObservationsAction = new SimpleAction(this,
                 "Entretien_ValiderObservations", PredefinedCategory.Edit)
             {
-                Caption = "Valider les observations",
+                Caption = "Valider obs.",
                 ImageName = "Action_Approve",
                 ToolTip = "Valide les observations du salarié et transmet au N+2 ou au RH.",
                 ConfirmationMessage = "Valider les observations du salarié ?"
@@ -163,7 +163,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             recalculerScoreAction = new SimpleAction(this,
                 "Entretien_RecalculerScore", PredefinedCategory.View)
             {
-                Caption = "Recalculer le score",
+                Caption = "Recalc. score",
                 ImageName = "Action_Refresh",
                 ToolTip = "Recalcule le score pondéré à partir des notes.",
             };

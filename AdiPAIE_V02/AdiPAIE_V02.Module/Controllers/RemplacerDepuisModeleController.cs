@@ -16,7 +16,7 @@ namespace AdiPAIE_V02.Module.Controllers
             // Pas d'InitializeComponent() — fichier Designer supprimé
             var a = new SimpleAction(this, "RemplacerDepuisModele", PredefinedCategory.Edit)
             {
-                Caption = "Remplacer depuis le modèle",
+                Caption = "Remplacer modèle",
                 ImageName = "Action_Reset",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ToolTip = "Supprime les lignes existantes et réapplique le modèle.",

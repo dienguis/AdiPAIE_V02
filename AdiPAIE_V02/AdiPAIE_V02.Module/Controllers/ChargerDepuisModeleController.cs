@@ -30,7 +30,7 @@ namespace AdiPAIE_V02.Module.Controllers
             // Target required Views (via the TargetXXX properties) and create their Actions.
             var a = new SimpleAction(this, "ChargerDepuisModele", PredefinedCategory.Edit)
             {
-                Caption = "Charger depuis le modèle",
+                Caption = "Charger modèle",
                 ImageName = "btn_charger"
             };
             a.Execute += OnExecute;

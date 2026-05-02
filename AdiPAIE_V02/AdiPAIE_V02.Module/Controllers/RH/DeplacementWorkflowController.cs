@@ -179,7 +179,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             initialiserFraisAction = new SimpleAction(this,
                 "Deplacement_InitialiserFrais", PredefinedCategory.Edit)
             {
-                Caption = "Initialiser les frais",
+                Caption = "Init. frais",
                 ImageName = "Action_Refresh",
                 ConfirmationMessage = "Initialiser les lignes de frais depuis le référentiel ?"
             };
@@ -310,7 +310,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             genererOrdreAction = new SimpleAction(this,
                 "Deplacement_GenererOrdre", PredefinedCategory.Edit)
             {
-                Caption = "Générer l'ordre de mission",
+                Caption = "Ordre de mission",
                 ImageName = "Action_Export"
             };
             genererOrdreAction.Execute += GenererOrdreAction_Execute;
@@ -319,7 +319,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             genererEtatFraisAction = new SimpleAction(this,
                 "Deplacement_GenererEtatFrais", PredefinedCategory.Edit)
             {
-                Caption = "Générer l'état de frais",
+                Caption = "État de frais",
                 ImageName = "Action_Export"
             };
             genererEtatFraisAction.Execute += GenererEtatFraisAction_Execute;
@@ -328,7 +328,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             validerDAFAction = new SimpleAction(this,
                 "Deplacement_ValiderDAF", PredefinedCategory.Edit)
             {
-                Caption = "Valider le décaissement",
+                Caption = "Décaissement",
                 ImageName = "Action_Approve",
                 ConfirmationMessage = "Valider le décaissement ?"
             };
@@ -369,7 +369,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             confirmerComptableAction = new SimpleAction(this,
                 "Deplacement_ConfirmerComptable", PredefinedCategory.Edit)
             {
-                Caption = "Confirmer l'opération",
+                Caption = "Confirmer",
                 ImageName = "Action_Close",
                 ConfirmationMessage = "Confirmer l'opération comptable ?"
             };
@@ -377,7 +377,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             calculerDistancesAction = new SimpleAction(this,
                 "Deplacement_CalculerDistances", PredefinedCategory.Edit)
             {
-                Caption = "Calculer les distances",
+                Caption = "Calc. distances",
                 ImageName = "Action_Refresh",
                 ToolTip = "Calcule automatiquement les distances du circuit via Google Maps.",
                 SelectionDependencyType = SelectionDependencyType.Independent

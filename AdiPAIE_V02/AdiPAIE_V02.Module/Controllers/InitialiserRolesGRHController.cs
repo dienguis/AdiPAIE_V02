@@ -27,7 +27,7 @@ namespace AdiPAIE_V02.Module.Controllers
             initialiserRolesAction = new SimpleAction(this,
                 "Admin_InitialiserRolesGRH", PredefinedCategory.Edit)
             {
-                Caption = "Initialiser les rôles GRH",
+                Caption = "Init. rôles GRH",
                 ImageName = "ModelEditor_Security",
                 ToolTip = "Crée automatiquement les 6 rôles GRH "
                            + "(Employe, Responsable, AssistantRH, RH, DAF, Comptable) "

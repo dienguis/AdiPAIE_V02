@@ -27,7 +27,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             toggleScopeAction = new SimpleAction(this, "ToggleBulletinScope", PredefinedCategory.View)
             {
-                Caption = "Voir mes bulletins",
+                Caption = "Mes bulletins",
                 ImageName = "Action_Filter" // change si tu préfères une autre icône
             };
             toggleScopeAction.Execute += ToggleScopeAction_Execute; // Abonnement unique (pas d'unsubscribe)
@@ -55,7 +55,7 @@ namespace AdiPAIE_V02.Module.Controllers
             }
             else
             {
-                toggleScopeAction.Caption = "Voir mes bulletins";
+                toggleScopeAction.Caption = "Mes bulletins";
             }
         }
 
@@ -69,7 +69,7 @@ namespace AdiPAIE_V02.Module.Controllers
             {
                 // Enlève le filtre => Voir tout
                 lv.CollectionSource.Criteria.Remove(FilterKey);
-                toggleScopeAction.Caption = "Voir mes bulletins";
+                toggleScopeAction.Caption = "Mes bulletins";
             }
             else
             {

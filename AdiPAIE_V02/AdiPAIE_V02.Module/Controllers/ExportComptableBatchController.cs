@@ -31,7 +31,7 @@ namespace AdiPAIE_V02.Module.Controllers
             _exportMoisAction = new SimpleAction(
                 this, "ExporterBulletinsMoisCourant", PredefinedCategory.Edit)
             {
-                Caption = "Exporter en comptabilité (mois courant)",
+                Caption = "Export mois",
                 ImageName = "BO_Invoice",
                 ToolTip = "Génère les écritures comptables pour tous les bulletins "
                         + "Validés du mois en cours et les passe au statut Exporté.",
@@ -45,7 +45,7 @@ namespace AdiPAIE_V02.Module.Controllers
             _exportSelectionAction = new SimpleAction(
                 this, "ExporterBulletinsSelection", PredefinedCategory.Edit)
             {
-                Caption = "Exporter sélection en comptabilité",
+                Caption = "Export sélection",
                 ImageName = "BO_Invoice",
                 ToolTip = "Génère les écritures comptables pour les bulletins sélectionnés.",
                 SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects,

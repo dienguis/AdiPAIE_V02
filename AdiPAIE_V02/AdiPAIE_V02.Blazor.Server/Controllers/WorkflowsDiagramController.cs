@@ -22,7 +22,7 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
                 "Workflows_OuvrirDiagrammes",
                 PredefinedCategory.View)
             {
-                Caption = "Diagrammes de workflow",
+                Caption = "Workflows",
                 ImageName = "Action_Debug",
                 ToolTip = "Affiche les diagrammes de tous les workflows AdiPAIE."
             };

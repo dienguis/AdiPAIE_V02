@@ -35,7 +35,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             notifierAction = new SimpleAction(this,
                 "Discip_Notifier", PredefinedCategory.Edit)
             {
-                Caption = "Notifier le salarié",
+                Caption = "Notifier",
                 ImageName = "BO_Mail",
                 ToolTip = "Enregistre la notification de la procédure au salarié.",
                 ConfirmationMessage = "Confirmer la notification au salarié ?"
@@ -100,7 +100,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             programmerAuditionAction = new SimpleAction(this,
                 "Discip_ProgrammerAudition", PredefinedCategory.Edit)
             {
-                Caption = "Programmer audition",
+                Caption = "Programmer",
                 ImageName = "BO_Scheduler",
                 ToolTip = "Programme l'audition du salarié (obligatoire avant toute sanction)."
             };
@@ -127,7 +127,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             enregistrerAuditionAction = new SimpleAction(this,
                 "Discip_EnregistrerAudition", PredefinedCategory.Edit)
             {
-                Caption = "Enregistrer audition",
+                Caption = "Audition",
                 ImageName = "Action_Approve",
                 ToolTip = "Confirme que l'audition a eu lieu et que le PV est rempli."
             };
@@ -153,7 +153,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             prononcerSanctionAction = new SimpleAction(this,
                 "Discip_PrononcerSanction", PredefinedCategory.Edit)
             {
-                Caption = "Prononcer la sanction",
+                Caption = "Sanction",
                 ImageName = "Action_RunDiagram",
                 ConfirmationMessage = "Confirmer le prononcé de la sanction ?",
                 ToolTip = "Enregistre officiellement la sanction disciplinaire."
@@ -189,7 +189,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             cloturerAction = new SimpleAction(this,
                 "Discip_Cloturer", PredefinedCategory.Edit)
             {
-                Caption = "Clôturer le dossier",
+                Caption = "Clôturer",
                 ImageName = "Action_Close",
                 ConfirmationMessage = "Clôturer définitivement ce dossier disciplinaire ?"
             };

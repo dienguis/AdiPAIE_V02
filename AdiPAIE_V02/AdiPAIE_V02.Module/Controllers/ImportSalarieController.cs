@@ -5,6 +5,7 @@ using AdiPAIE_V02.Module.Services;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Templates;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Xpo;
@@ -16,16 +17,16 @@ using System.IO;
 namespace AdiPAIE_V02.Module.Controllers
 {
     /// <summary>
-    /// Controller placé sur la ListView des Salariés.
+    /// Controller placé sur le DetailView du Centre d'imports.
+    /// (était initialement sur la ListView Salariés — déplacé pour regrouper
+    ///  tous les imports en un seul endroit et désencombrer la liste salariés)
     ///
-    /// Deux actions :
-    ///   1. « Importer depuis Excel » — ouvre un popup avec FileData,
-    ///      lit le fichier et appelle ImportSalarieService.Importer()
-    ///   2. « Télécharger modèle » — génère le fichier modèle vide
-    ///      et le télécharge via JSInterop
+    /// Deux actions (catégorie "ImportsHub") :
+    ///   1. « Importer Salariés » — popup avec FileData + ImportSalarieService.Importer()
+    ///   2. « Modèle Salariés »   — télécharge le modèle Excel
     /// </summary>
     public class ImportSalarieController
-        : ObjectViewController<ListView, Salarie>
+        : ObjectViewController<DetailView, CentreImports>
     {
         private readonly PopupWindowShowAction importerAction;
         private readonly SimpleAction modeleAction;
@@ -36,8 +37,8 @@ namespace AdiPAIE_V02.Module.Controllers
             importerAction = new PopupWindowShowAction(this,
                 "Salarie_ImporterExcel", PredefinedCategory.Edit)
             {
-                Caption = "Importer depuis Excel",
-                ImageName = "Action_Export",
+                Caption = "Importer Salariés",
+                ImageName = "BO_Employee",
                 ToolTip = "Importe des salariés en masse depuis un fichier Excel (.xlsx).",
                 SelectionDependencyType = SelectionDependencyType.Independent
             };
@@ -48,9 +49,9 @@ namespace AdiPAIE_V02.Module.Controllers
             modeleAction = new SimpleAction(this,
                 "Salarie_TelechargerModele", PredefinedCategory.Edit)
             {
-                Caption = "Télécharger modèle import",
+                Caption = "Modèle Salariés",
                 ImageName = "Action_Download",
-                ToolTip = "Télécharge un fichier Excel modèle avec les colonnes attendues et un exemple.",
+                ToolTip = "Télécharge un fichier Excel modèle pour l'import des salariés.",
                 SelectionDependencyType = SelectionDependencyType.Independent
             };
             modeleAction.Execute += OnTelechargerModele;
@@ -66,7 +67,7 @@ namespace AdiPAIE_V02.Module.Controllers
             var param = new ImportSalarieParam(xpOs.Session);
 
             e.View = Application.CreateDetailView(os, param);
-            e.View.Caption = "Importer des salariés depuis Excel";
+            e.View.Caption = "Importer salariés";
             e.DialogController.SaveOnAccept = false;
             e.DialogController.AcceptAction.Caption = "Importer";
             e.DialogController.CancelAction.Caption = "Annuler";

@@ -18,7 +18,7 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             action = new SimpleAction(this, "GenerateEcritureFromBulletin", PredefinedCategory.Edit)
             {
-                Caption = "Générer écriture comptable",
+                Caption = "Écriture comptable",
                 ImageName = "BO_Invoice",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject
             };

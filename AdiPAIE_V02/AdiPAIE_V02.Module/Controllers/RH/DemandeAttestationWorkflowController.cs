@@ -27,7 +27,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         {
             prendreEnChargeAction = new SimpleAction(this, "Demande_PrendreEnCharge", PredefinedCategory.Edit)
             {
-                Caption = "Prendre en charge",
+                Caption = "Prendre en chg.",
                 ImageName = "Action_Open",
                 ToolTip = "Marque la demande En traitement.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
@@ -50,7 +50,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             traiterAction = new SimpleAction(this, "Demande_Traiter", PredefinedCategory.Edit)
             {
-                Caption = "Marquer Traitée",
+                Caption = "Traitée",
                 ImageName = "Action_Approve",
                 ToolTip = "Indique que le document a été généré et remis.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,

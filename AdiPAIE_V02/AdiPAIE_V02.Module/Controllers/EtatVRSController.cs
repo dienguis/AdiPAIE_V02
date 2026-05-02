@@ -16,16 +16,19 @@ namespace AdiPAIE_V02.Module.Controllers
     /// Visible sur Paie → Périodes de paie (ListView PeriodePaie).
     /// Bouton "Générer état VRS" dans la toolbar.
     /// </summary>
+    /// <remarks>DÉSACTIVÉ — remplacé par PeriodePaieEtatsController (bouton unique "États / Exports").</remarks>
     public class EtatVRSController : ObjectViewController<ListView, PeriodePaie>
     {
-        private readonly PopupWindowShowAction _exportAction;
+        private PopupWindowShowAction _exportAction;
 
         public EtatVRSController()
         {
+            Active["Consolidated"] = false; // Remplacé par PeriodePaieEtatsController
+            return;
             _exportAction = new PopupWindowShowAction(
                 this, "ExporterEtatVRS", PredefinedCategory.Edit)
             {
-                Caption = "Générer état VRS",
+                Caption = "État VRS",
                 ImageName = "BO_Report",
                 ToolTip = "Génère l'état mensuel VRS (Versement Retenue à la Source).",
             };

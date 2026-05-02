@@ -38,11 +38,11 @@ namespace AdiPAIE_V02.Module.Controllers
             openIRReductionFamille.Execute += (_, __) => OpenListView(typeof(IRReductionFamille));
 
             openTypeRubrique = new SimpleAction(this, "openTypeRubrique", "HubRubrique")
-            { Caption = "Parmétrage des Types de Rubriques", ImageName = "BO_Unknown", PaintStyle = ActionItemPaintStyle.CaptionAndImage };
+            { Caption = "Types rubriques", ImageName = "BO_Unknown", PaintStyle = ActionItemPaintStyle.CaptionAndImage };
             openTypeRubrique.Execute += (_, __) => OpenListView(typeof(RubriqueTypeRef));
 
             openRubrique = new SimpleAction(this, "openRubrique", "HubRubrique")
-            { Caption = "Paramétrage des Rubriques de paie", ImageName = "BO_Unknown", PaintStyle = ActionItemPaintStyle.CaptionAndImage };
+            { Caption = "Rubriques paie", ImageName = "BO_Unknown", PaintStyle = ActionItemPaintStyle.CaptionAndImage };
             openRubrique.Execute += (_, __) => OpenListView(typeof(Rubrique));
             //  openParametresPaie = new SimpleAction(this, "OpenParametresPaie", "ParamsHub")
             // { Caption = "Paramètres Paie", ImageName = "BO_Properties", PaintStyle = ActionItemPaintStyle.CaptionAndImage };

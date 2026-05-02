@@ -40,7 +40,7 @@ namespace AdiPAIE_V02.Module.Controllers
             acquirirMoisAction = new SimpleAction(this,
                 "SoldeConge_AcquerirMois", PredefinedCategory.Edit)
             {
-                Caption = "Acquérir mois courant",
+                Caption = "Acquérir mois",
                 ImageName = "Action_Forward",
                 ToolTip = "Crédite les jours acquis pour le mois en cours.",
                 ConfirmationMessage = "Créditer les jours acquis pour ce mois ?"
@@ -148,7 +148,7 @@ namespace AdiPAIE_V02.Module.Controllers
             lancerBatchAction = new SimpleAction(this,
                 "Batch_AcquisitionMensuelle", PredefinedCategory.Edit)
             {
-                Caption = "Lancer acquisition mensuelle",
+                Caption = "Acquis. mensuelle",
                 ImageName = "Action_RunDiagram",
                 ConfirmationMessage =
                     "Créditer les jours acquis du mois en cours pour TOUS les salariés actifs ?"
@@ -170,7 +170,7 @@ namespace AdiPAIE_V02.Module.Controllers
             reporterExerciceAction = new SimpleAction(this,
                 "Batch_ReporterExercice", PredefinedCategory.Edit)
             {
-                Caption = "Reporter exercice N → N+1",
+                Caption = "Report N→N+1",
                 ImageName = "Action_Close",
                 ConfirmationMessage =
                     "Reporter les soldes de l'année précédente vers cette année (dans la limite des plafonds) ?"

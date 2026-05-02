@@ -24,7 +24,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 "BulkBulletin_OuvrirParams",
                 PredefinedCategory.RecordEdit)
             {
-                Caption = "Envoyer les bulletins…",
+                Caption = "Envoyer bulletins",
                 ImageName = "MailMerge",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ToolTip = "Envoyer les bulletins du mois par e-mail."

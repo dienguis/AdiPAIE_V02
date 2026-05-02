@@ -25,7 +25,7 @@ namespace AdiPAIE_V02.Module.Controllers
             // Action 1 : Calculer
             _calculer = new SimpleAction(this, "SimCalcSursalaire", PredefinedCategory.Edit)
             {
-                Caption = "Calculer le Sursalaire",
+                Caption = "Calc. sursalaire",
                 ImageName = "Business_Calculator",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ToolTip = "Calcule le sursalaire pour atteindre le net cible"
@@ -35,7 +35,7 @@ namespace AdiPAIE_V02.Module.Controllers
             // Action 2 : Appliquer au salarié (commit)
             _appliquer = new SimpleAction(this, "SimApplyToEmployee", PredefinedCategory.RecordEdit)
             {
-                Caption = "Appliquer au salarié",
+                Caption = "Appliquer",
                 ImageName = "BO_Person",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ToolTip = "Copie le sursalaire calculé dans la fiche du salarié et enregistre"

@@ -31,7 +31,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 "SessionFormation_DemanderInscription",
                 PredefinedCategory.Edit)
             {
-                Caption = "Demander mon inscription",
+                Caption = "S'inscrire",
                 ImageName = "Action_SendMessage",
                 ToolTip = "Soumettre une demande d'inscription à cette session.",
                 ConfirmationMessage =

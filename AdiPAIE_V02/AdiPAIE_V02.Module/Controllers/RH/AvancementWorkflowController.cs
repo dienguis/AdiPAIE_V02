@@ -39,7 +39,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             preRemplirAction = new SimpleAction(this,
                 "Avancement_PreRemplir", PredefinedCategory.Edit)
             {
-                Caption = "Charger situation actuelle",
+                Caption = "Charger situation",
                 ImageName = "Action_Refresh",
                 ToolTip = "Recharge la situation actuelle depuis la fiche salarié.",
                 TargetObjectsCriteria =
@@ -62,7 +62,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             soumettreAction = new SimpleAction(this,
                 "Avancement_Soumettre", PredefinedCategory.Edit)
             {
-                Caption = "Soumettre pour approbation",
+                Caption = "Soumettre",
                 ImageName = "Action_Forward",
                 ConfirmationMessage = "Soumettre cette demande d'avancement à la direction ?",
                 TargetObjectsCriteria =
@@ -202,7 +202,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             appliquerAction = new SimpleAction(this,
                 "Avancement_Appliquer", PredefinedCategory.Edit)
             {
-                Caption = "Appliquer sur la fiche salarié",
+                Caption = "Appliquer",
                 ImageName = "Action_Grant",
                 ConfirmationMessage =
                     "Appliquer l'avancement ? La fiche salarié sera mise à jour immédiatement.",

@@ -20,6 +20,7 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
+    [DefaultClassOptions]
     [DefaultProperty(nameof(Person.FullName))]
     [RuleCriteria(
         "Salarie_MustBeMarried_IfAnyCurrentSpouse",
@@ -62,6 +63,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         TargetItems = nameof(AvantageVehicule),
         Criteria = nameof(PossedeVehicule) + " = False",
         Enabled = false)]
+    [Appearance(
+        "HideMotifDepart_SiPasDeDepart",
+        AppearanceItemType = "ViewItem",
+        TargetItems = "MotifDepart",
+        Criteria = "GetYear(DateSortie) < 2",
+        Visibility = ViewItemVisibility.Hide)]
     [RuleCriteria("Salarie_Manager_NotSelf",
         DefaultContexts.Save,
         "IsNull(Manager) OR Manager.Oid != Oid",
@@ -78,6 +85,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         DefaultContexts.Save,
         "IndemniteLogement >= 0 AND Sursalaire >= 0 AND PrimeTransport >= 0 AND AvantageVehicule >= 0",
         CustomMessageTemplate = "Les montants de rémunération ne peuvent pas être négatifs.")]
+    [DeferredDeletion(false)]
     public class Salarie : Person
     {
         public Salarie(Session session) : base(session) { }
@@ -103,6 +111,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         Convention convention;
         Categories categories;
         bool isActif;
+        MotifDepart? motifDepart;
         DateTime dateSortie;
         DateTime dateEmbauche;
         int nombreEnfant;
@@ -184,10 +193,18 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(DateEmbauche), ref dateEmbauche, value);
         }
 
+        [ImmediatePostData]
         public DateTime DateSortie
         {
             get => dateSortie;
             set => SetPropertyValue(nameof(DateSortie), ref dateSortie, value);
+        }
+
+        [XafDisplayName("Motif de départ")]
+        public MotifDepart? MotifDepart
+        {
+            get => motifDepart;
+            set => SetPropertyValue(nameof(MotifDepart), ref motifDepart, value);
         }
 
         [XafDisplayName("Salarié Actif")]
@@ -487,6 +504,18 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         private Fonction fonction;
 
+        // ── Site (lieu de travail : Siège, Dépôt CDB, Dépôt Hann...) ─
+        [XafDisplayName("Site")]
+        [Association("Site-Salaries")]
+        [DataSourceCriteria("Actif = True")]
+        [ToolTip("Lieu de travail (Siège, Dépôt, etc.). Pour les intérimaires : voir Station de service.")]
+        public Site Site
+        {
+            get => site;
+            set => SetPropertyValue(nameof(Site), ref site, value);
+        }
+        private Site site;
+
         // ── Manager hiérarchique (N+1) ────────────────────────
         [XafDisplayName("Responsable hiérarchique (N+1)")]
         [DataSourceCriteria("IsActif = true")]
@@ -610,30 +639,47 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // ── Compteurs ─────────────────────────────────────────
         [NonPersistent, XafDisplayName("Conjoints actuels")]
-        public int NbConjointsActuels => Conjoints.Count(c => c.DateFinUnion == null);
+        public int NbConjointsActuels
+        {
+            get
+            {
+                try { return Session == null ? 0 : Conjoints.Count(c => c.DateFinUnion == null); }
+                catch (ObjectDisposedException) { return 0; }
+            }
+        }
 
         [NonPersistent, XafDisplayName("Conjoints inactifs à charge")]
         public int NbConjointsInactifsACharge
         {
             get
             {
-                if (Session?.IsObjectsLoading == true || IsLoading)
+                if (Session?.IsObjectsLoading == true || IsLoading || Session == null)
                     return _nbConjointsCache;
-                var crit = CriteriaOperator.Parse(
-                    "Salarie = ? AND IsNull(DateFinUnion) AND Statut = ? AND ACharge = true",
-                    this, Domain.DomainEnums.StatutConjoint.Inactif);
-                var res = Session.Evaluate(typeof(Conjoint),
-                    CriteriaOperator.Parse("Count()"), crit);
-                var n = (res is int i) ? i : (res is long l ? (int)l : 0);
-                _nbConjointsCache = n;
-                return n;
+                try
+                {
+                    var crit = CriteriaOperator.Parse(
+                        "Salarie = ? AND IsNull(DateFinUnion) AND Statut = ? AND ACharge = true",
+                        this, Domain.DomainEnums.StatutConjoint.Inactif);
+                    var res = Session.Evaluate(typeof(Conjoint),
+                        CriteriaOperator.Parse("Count()"), crit);
+                    var n = (res is int i) ? i : (res is long l ? (int)l : 0);
+                    _nbConjointsCache = n;
+                    return n;
+                }
+                catch (ObjectDisposedException) { return _nbConjointsCache; }
             }
         }
         private int _nbConjointsCache = 0;
 
         [NonPersistent, XafDisplayName("Notifications non lues")]
-        public int NbNotificationsNonLues =>
-            Notifications.Count(n => n.Statut == Domain.DomainEnums.NotificationStatut.NonLue);
+        public int NbNotificationsNonLues
+        {
+            get
+            {
+                try { return Session == null ? 0 : Notifications.Count(n => n.Statut == Domain.DomainEnums.NotificationStatut.NonLue); }
+                catch (ObjectDisposedException) { return 0; }
+            }
+        }
 
         // ── Calculs fiscaux ───────────────────────────────────
         [NonPersistent, XafDisplayName("Nombre de parts fiscales")]
@@ -783,6 +829,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                     $"Impossible de supprimer {FullName} : "
                     + $"{Avancements.Count} avancement(s) / promotion(s) existent.");
 
+            // ── Désactivation avant suppression physique ─────────────────
+            // Même si le salarié sera supprimé physiquement (DeferredDeletion=false),
+            // on trace la désactivation au cas où un audit ou log l'intercepte.
+            IsActif = false;
+            if (DateSortie == DateTime.MinValue || DateSortie.Year < 2)
+                DateSortie = DateTime.Today;
+
             base.OnDeleting();
         }
 
@@ -902,7 +955,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // ── Modèle bulletin ───────────────────────────────────
         [Action(
-            Caption = "Re-générer le modèle",
+            Caption = "Regénérer",
             ImageName = "BO_Resume",
             AutoCommit = true,
             ConfirmationMessage = "Recréer/compléter le modèle de bulletin pour ce salarié ?")]

@@ -31,7 +31,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         {
             validerAction = new SimpleAction(this, "Hierarchie_Valider", PredefinedCategory.Edit)
             {
-                Caption = "Valider (hiérarchie)",
+                Caption = "Valider",
                 ImageName = "Action_Approve",
                 ToolTip = "Approuve la demande et la transmet au niveau suivant ou au RH.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
@@ -41,7 +41,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             rejeterAction = new SimpleAction(this, "Hierarchie_Rejeter", PredefinedCategory.Edit)
             {
-                Caption = "Rejeter (hiérarchie)",
+                Caption = "Rejeter",
                 ImageName = "Action_Cancel",
                 ToolTip = "Rejette la demande. Le salarié sera notifié.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,

@@ -89,7 +89,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [PersistentAlias("Concat(Code, ' - ', Libelle)")]
         [VisibleInLookupListView(true)]
-        public string DisplayName => Convert.ToString(EvaluateAlias(nameof(DisplayName)));
+        public string DisplayName
+        {
+            get
+            {
+                try { return Convert.ToString(EvaluateAlias(nameof(DisplayName))); }
+                catch (ObjectDisposedException) { return string.Empty; }
+            }
+        }
 
         [Association("Categories-Echelons")]
         public Categories Categories

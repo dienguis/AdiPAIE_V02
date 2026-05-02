@@ -167,7 +167,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             transmettreRFEAction = new SimpleAction(this,
                 "DRI_TransmettreRFE", PredefinedCategory.Edit)
             {
-                Caption = "Transmettre au RFE",
+                Caption = "Transmettre RFE",
                 ImageName = "Action_Forward",
                 ConfirmationMessage = "Transmettre cette demande au Responsable Formation / Emploi ?"
             };
@@ -188,7 +188,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             affecterAction = new SimpleAction(this,
                 "DRI_Affecter", PredefinedCategory.Edit)
             {
-                Caption = "Affecter un intérimaire",
+                Caption = "Affecter intérim.",
                 ImageName = "BO_Person",
                 ConfirmationMessage = "Confirmer l'affectation de l'intérimaire sélectionné ?"
             };
@@ -242,7 +242,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             annulerAction = new SimpleAction(this,
                 "DRI_Annuler", PredefinedCategory.Edit)
             {
-                Caption = "Annuler la demande",
+                Caption = "Annuler",
                 ImageName = "Action_Cancel",
                 ConfirmationMessage = "Annuler définitivement cette demande ?"
             };

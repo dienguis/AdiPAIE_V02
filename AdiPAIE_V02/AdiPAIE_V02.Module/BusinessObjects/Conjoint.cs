@@ -49,7 +49,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // Indicateur “en cours” (lecture seule)
         [PersistentAlias("Iif(IsNull(DateFinUnion), 1, 0)")]
         [XafDisplayName("Union en cours")]
-        public bool EstActuel => Convert.ToInt32(EvaluateAlias(nameof(EstActuel)) ?? 0) == 1;
+        public bool EstActuel
+        {
+            get
+            {
+                try { return Convert.ToInt32(EvaluateAlias(nameof(EstActuel)) ?? 0) == 1; }
+                catch (ObjectDisposedException) { return false; }
+            }
+        }
 
         // Variante blocage : AUCUNE auto-correction ici.
         // (Pas de OnSaving qui force SatutMarital = Marié)

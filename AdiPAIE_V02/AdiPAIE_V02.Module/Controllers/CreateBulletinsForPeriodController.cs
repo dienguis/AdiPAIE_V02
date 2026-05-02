@@ -29,7 +29,7 @@ namespace AdiPAIE_V02.Module.Controllers
             // 1) Créer bulletins (période) — déjà existant
             createAction = new PopupWindowShowAction(this, "CreateBulletinsForPeriod", PredefinedCategory.Edit)
             {
-                Caption = "Créer bulletins (période)",
+                Caption = "Créer bulletins",
                 ImageName = "BO_Resume",
                 SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects,
                 TargetObjectsCriteria = "IsActif = True",
@@ -41,7 +41,7 @@ namespace AdiPAIE_V02.Module.Controllers
             // 2) Voir bulletins du salarié — NOUVEAU
             openBulletinsAction = new SimpleAction(this, "OpenEmployeeBulletins", PredefinedCategory.View)
             {
-                Caption = "Voir bulletins du salarié",
+                Caption = "Voir bulletins",
                 ImageName = "BO_Invoice",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject // besoin d'1 salarié
             };

@@ -29,7 +29,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             validerRHAction = new SimpleAction(this,
                 "Mvt_ValiderRH", PredefinedCategory.Edit)
             {
-                Caption = "Valider le mouvement",
+                Caption = "Valider",
                 ImageName = "Action_Approve",
                 ConfirmationMessage = "Valider ce mouvement ? Il sera effectif immédiatement."
             };

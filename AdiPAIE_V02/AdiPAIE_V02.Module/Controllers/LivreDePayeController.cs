@@ -19,16 +19,19 @@ namespace AdiPAIE_V02.Module.Controllers
     /// Ouvre un popup année/mois, génère l'Excel via LivreDePayeService
     /// et le télécharge via JSInterop.
     /// </summary>
+    /// <remarks>DÉSACTIVÉ — remplacé par PeriodePaieEtatsController (bouton unique "États / Exports").</remarks>
     public class LivreDePayeController : ObjectViewController<ListView, PeriodePaie>
     {
-        private readonly PopupWindowShowAction _livreAction;
+        private PopupWindowShowAction _livreAction;
 
         public LivreDePayeController()
         {
+            Active["Consolidated"] = false; // Remplacé par PeriodePaieEtatsController
+            return;
             _livreAction = new PopupWindowShowAction(
                 this, "GenererLivreDePaye", PredefinedCategory.Reports)
             {
-                Caption = "Livre de Paie",
+                Caption = "Livre de paie",
                 ImageName = "BO_Report",
                 ToolTip = "Génère le livre de paie mensuel (journal de paie) au format Excel.",
                 SelectionDependencyType = SelectionDependencyType.Independent

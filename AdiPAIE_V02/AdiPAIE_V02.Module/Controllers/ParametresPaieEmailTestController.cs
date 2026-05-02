@@ -8,7 +8,7 @@ namespace AdiPAIE_V02.Module.Controllers {
     public class ParametresPaieEmailTestController : ObjectViewController<DetailView, ParametresPaie> {
         public ParametresPaieEmailTestController() {
             var action = new SimpleAction(this, "EnvoyerEmailTest", PredefinedCategory.RecordEdit) {
-                Caption = "Envoyer email de test",
+                Caption = "Email test",
                 ConfirmationMessage = "Un email de test va être envoyé avec la configuration SMTP courante.",
                 ImageName = "BO_Mail"
             };

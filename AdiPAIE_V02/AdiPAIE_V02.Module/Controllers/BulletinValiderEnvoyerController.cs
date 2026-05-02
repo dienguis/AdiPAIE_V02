@@ -40,7 +40,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             _validerEtEnvoyer = new SimpleAction(this, "ValiderEtEnvoyer", PredefinedCategory.Edit)
             {
-                Caption = "Valider et envoyer",
+                Caption = "Valider + envoyer",
                 ImageName = "BO_Mail",
                 PaintStyle = ActionItemPaintStyle.Caption,
                 ToolTip = "Valide le bulletin et envoie le PDF au salarié par e-mail.",
@@ -51,7 +51,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             _renvoyer = new SimpleAction(this, "RenvoyerBulletin", PredefinedCategory.Edit)
             {
-                Caption = "Renvoyer (PDF archivé)",
+                Caption = "Renvoyer PDF",
                 ImageName = "btn_renvoyer",
                 PaintStyle = ActionItemPaintStyle.Caption,
                 ToolTip = "Renvoie le PDF archivé au salarié.",

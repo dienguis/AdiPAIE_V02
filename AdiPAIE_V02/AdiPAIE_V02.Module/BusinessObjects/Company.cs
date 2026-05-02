@@ -113,6 +113,96 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(RC), ref _RC, value);
         }
 
+        // ── Champs Bilan Social / DTSS ──────────────────────────────────
+        private string _Region;
+        [Size(100)]
+        [XafDisplayName("Région")]
+        public string Region
+        {
+            get => _Region;
+            set => SetPropertyValue(nameof(Region), ref _Region, value);
+        }
+
+        private string _Commune;
+        [Size(100)]
+        [XafDisplayName("Commune / Arrondissement")]
+        public string Commune
+        {
+            get => _Commune;
+            set => SetPropertyValue(nameof(Commune), ref _Commune, value);
+        }
+
+        private string _Telefax;
+        [Size(20)]
+        [XafDisplayName("Téléfax")]
+        public string Telefax
+        {
+            get => _Telefax;
+            set => SetPropertyValue(nameof(Telefax), ref _Telefax, value);
+        }
+
+        private string _BoitePostale;
+        [Size(50)]
+        [XafDisplayName("Boîte postale")]
+        public string BoitePostale
+        {
+            get => _BoitePostale;
+            set => SetPropertyValue(nameof(BoitePostale), ref _BoitePostale, value);
+        }
+
+        private string _SiteInternet;
+        [Size(200)]
+        [XafDisplayName("Site Internet")]
+        public string SiteInternet
+        {
+            get => _SiteInternet;
+            set => SetPropertyValue(nameof(SiteInternet), ref _SiteInternet, value);
+        }
+
+        private string _FormeJuridique;
+        [Size(100)]
+        [XafDisplayName("Forme juridique")]
+        public string FormeJuridique
+        {
+            get => _FormeJuridique;
+            set => SetPropertyValue(nameof(FormeJuridique), ref _FormeJuridique, value);
+        }
+
+        private string _ActivitePrincipale;
+        [Size(200)]
+        [XafDisplayName("Activité principale")]
+        public string ActivitePrincipale
+        {
+            get => _ActivitePrincipale;
+            set => SetPropertyValue(nameof(ActivitePrincipale), ref _ActivitePrincipale, value);
+        }
+
+        private string _AutresActivites;
+        [Size(500)]
+        [XafDisplayName("Autres activités")]
+        public string AutresActivites
+        {
+            get => _AutresActivites;
+            set => SetPropertyValue(nameof(AutresActivites), ref _AutresActivites, value);
+        }
+
+        private int _NombreEtablissements;
+        [XafDisplayName("Nombre d'établissements")]
+        public int NombreEtablissements
+        {
+            get => _NombreEtablissements;
+            set => SetPropertyValue(nameof(NombreEtablissements), ref _NombreEtablissements, value);
+        }
+
+        private string _SiegeHorsSenegal;
+        [Size(200)]
+        [XafDisplayName("Siège hors Sénégal")]
+        public string SiegeHorsSenegal
+        {
+            get => _SiegeHorsSenegal;
+            set => SetPropertyValue(nameof(SiegeHorsSenegal), ref _SiegeHorsSenegal, value);
+        }
+
         
 // Logo de la société (image)
 [ImageEditor(ListViewImageEditorCustomHeight = 40, DetailViewImageEditorFixedHeight = 120)]

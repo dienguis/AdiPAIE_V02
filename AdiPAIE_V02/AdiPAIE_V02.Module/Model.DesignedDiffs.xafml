@@ -2,29 +2,30 @@
 <Application xmlns="http://schemas.devexpress.com/eXpressApp/2005/01/Model.xafml" Title="SunuPaie" DateTimeFormat="dd/MM/yyyy" DateEditMask="dd/MM/yyyy">
   <ActionDesign>
     <Actions>
-    <Action Id="Save" PaintStyle="Default" />
-      <Action Id="SaveAndClose" PaintStyle="Default" />
+      <Action Id="Bulletin_RecalculerMaintenant" PaintStyle="Caption" ImageName="btn_recalculer" Caption="Recalculer" />
       <Action Id="Cancel" PaintStyle="Default" />
-      <Action Id="Delete" PaintStyle="Default" />
-      <Action Id="EditObject" PaintStyle="Default" />
+      <Action Id="ChargerDepuisModele" PaintStyle="Caption" ImageName="btn_charger" Caption="Charger modèle" />
       <Action Id="CloneObject" PaintStyle="Default" />
-      <Action Id="Bulletin_RecalculerMaintenant" PaintStyle="CaptionAndImage" ImageName="btn_recalculer" />
-      <Action Id="BulletinRecalcul" PaintStyle="Caption" ImageName="btn_recalculer" IsVisible="False" />
-      <Action Id="RemplacerDepuisModele" PaintStyle="Caption" ImageName="Action_Reset" IsVisible="False" />
-      <Action Id="ChargerDepuisModele" PaintStyle="CaptionAndImage" ImageName="btn_charger" />
-      <Action Id="NormalizeBulletinLines" PaintStyle="CaptionAndImage" ImageName="btn_reordonner" />
-      <Action Id="RemplacerLignesModeleSeulement" PaintStyle="Caption" ImageName="Action_Reset" IsVisible="False" />
-      <Action Id="ReloadModeleDefaults" PaintStyle="Caption" ImageName="Action_Refresh" IsVisible="False" />
-      <Action Id="Bulletin.ActionRecalculerDepuisParametrageSalarie" PaintStyle="Caption" ImageName="btn_recalculer" IsVisible="False" />
-      <Action Id="Bulletin.ActionRecalculerGrille" PaintStyle="Caption" ImageName="btn_recalculer" IsVisible="False" />
-      <Action Id="RenvoyerBulletin" PaintStyle="CaptionAndImage" ImageName="btn_renvoyer" />
-      <Action Id="ValiderBulletin" PaintStyle="CaptionAndImage" ImageName="btn_valider" />
-      <Action Id="EnvoyerClePDF" PaintStyle="Caption" ImageName="BO_Security_Permission" />
-      <Action Id="ApercuEnvoiBulletinsMois" PaintStyle="Caption" ImageName="MailMerge" />
-      <Action Id="ExporterBulletinsMoisCourant" PaintStyle="Caption" ImageName="BO_Invoice" />
-      <Action Id="ExporterBulletinsSelection" PaintStyle="Caption" ImageName="BO_Invoice" />
-      <Action Id="ToggleBulletinScope" PaintStyle="Caption" ImageName="Action_Filter" />
+      <Action Id="Delete" PaintStyle="Default" />
+      <Action Id="EnvoyerClePDF" PaintStyle="Caption" ImageName="BO_Security_Permission" Caption="Envoyer clé PDF" />
+      <Action Id="ExporterBulletinsMoisCourant" PaintStyle="Caption" ImageName="BO_Invoice" Caption="Export mois" />
+      <Action Id="ExporterBulletinsSelection" PaintStyle="Caption" ImageName="BO_Invoice" Caption="Export sélection" />
+      <Action Id="NormalizeBulletinLines" PaintStyle="Caption" ImageName="btn_reordonner" Caption="Réordonner" />
       <Action Id="OpenHelp" PaintStyle="CaptionAndImage" ImageName="Help" ToolTip="Ouvre le guide d'utilisation du module courant." />
+      <Action Id="ReloadModeleDefaults" PaintStyle="Caption" ImageName="Action_Refresh" IsVisible="False" />
+      <Action Id="RemplacerDepuisModele" PaintStyle="Caption" ImageName="Action_Reset" IsVisible="False" />
+      <Action Id="RemplacerLignesModeleSeulement" PaintStyle="Caption" ImageName="Action_Reset" IsVisible="False" />
+      <Action Id="RenvoyerBulletin" PaintStyle="Caption" ImageName="btn_renvoyer" Caption="Renvoyer" />
+      <Action Id="Save" PaintStyle="Default" />
+      <Action Id="SaveAndClose" PaintStyle="Default" />
+      <Action Id="ToggleBulletinScope" PaintStyle="Caption" ImageName="Action_Filter" />
+      <Action Id="ValiderBulletin" PaintStyle="Caption" ImageName="btn_valider" Caption="Valider" />
+      <Action Id="ValiderEtEnvoyer" PaintStyle="Caption" Caption="Valider+Envoi" />
+      <Action Id="CloturerBulletin" PaintStyle="Caption" Caption="Clôturer" />
+      <Action Id="ReouvrirBulletin" PaintStyle="Caption" Caption="Réouvrir" />
+      <Action Id="ImprimerBulletin" PaintStyle="Caption" Caption="Imprimer" />
+      <Action Id="Bulletin_AjouterHS" PaintStyle="Caption" Caption="Ajouter HS" />
+      <Action Id="EnvoyerBulletinEmail" PaintStyle="Caption" IsVisible="False" />
     </Actions>
   </ActionDesign>
   <BOModel>
@@ -111,10 +112,18 @@
           <Item Id="Cpta_Plan" Caption="Plan comptable" ViewId="PlanComptable_ListView" Index="2" IsNewNode="True" />
         </Items>
       </Item>
+      <Item Id="GRH_Dashboards" Caption="Tableaux de bord" Index="36" ImageName="Action_Report" IsNewNode="True">
+        <Items IsNewNode="True">
+          <Item Id="Dash_DashboardData" Caption="Tableaux de bord RH" ViewId="DashboardData_ListView" Index="0" ImageName="Action_Report" IsNewNode="True" />
+          <Item Id="Dash_Effectifs" Caption="Effectifs RH" ViewId="TableauBordEffectif_DetailView" Index="1" ImageName="BO_Organization" IsNewNode="True" />
+          <Item Id="Dash_PowerBI" Caption="Rapports Power BI" ViewId="RapportPowerBI_ListView" Index="2" ImageName="BO_Chart" IsNewNode="True" />
+        </Items>
+      </Item>
       <Item Id="GRH - Administration" Caption="Paramétrage" Index="40" ImageName="ModelEditor_Settings" IsNewNode="True">
         <Items IsNewNode="True">
           <Item Id="Departement_ListView" Caption="Départements" ViewId="Departement_ListView" Index="0" IsNewNode="True" />
           <Item Id="Fonction_ListView" Caption="Fonctions" ViewId="Fonction_ListView" Index="1" IsNewNode="True" />
+          <Item Id="Site_ListView" Caption="Sites" ViewId="Site_ListView" Index="14" ImageName="BO_Organization" IsNewNode="True" />
           <Item Id="Echelons_ListView" Caption="Échelons" ViewId="Echelons_ListView" Index="2" IsNewNode="True" />
           <Item Id="Param_Categories" Caption="Catégories salariales" ViewId="Categories_ListView" Index="3" ImageName="BO_Category" IsNewNode="True" />
           <Item Id="Param_Conventions" Caption="Conventions" ViewId="Convention_ListView" Index="4" IsNewNode="True" />
@@ -122,6 +131,7 @@
           <Item Id="Param_RubriqueTypes" Caption="Types de rubrique" ViewId="RubriqueTypeRef_ListView" Index="6" IsNewNode="True" />
           <Item Id="Param_GroupesImpression" Caption="Groupes d'impression" ViewId="GroupeImpressionRef_ListView" Index="7" IsNewNode="True" />
           <Item Id="CentreConstantesPaie_ListView" Caption="Centre constantes" ViewId="CentreConstantesPaie_DetailView" Index="8" IsNewNode="True" />
+          <Item Id="CentreImports_Nav" Caption="Centre d'imports" ViewId="CentreImports_DetailView" Index="13" ImageName="Action_Export" IsNewNode="True" />
           <Item Id="Constante Paie" Caption="Barèmes et taux" ImageName="Paid" Index="9" IsNewNode="True">
             <Items IsNewNode="True">
               <Item Id="BaremeTRIMF_ListView" ViewId="BaremeTRIMF_ListView" Index="0" IsNewNode="True" />
@@ -144,6 +154,7 @@
         <Items>
           <Item Id="BaremeTRIMF_ListView" Removed="True" />
           <Item Id="Bulletin_ListView" Removed="True" />
+          <Item Id="CentreImports_ListView" Removed="True" />
           <Item Id="Company_ListView" Removed="True" />
           <Item Id="ContratSalarie_ListView" Removed="True" />
           <Item Id="Departement_ListView" Removed="True" />
@@ -159,7 +170,6 @@
           <Item Id="SimulationSursalaire_ListView" Removed="True" />
         </Items>
       </Item>
-      <Item Id="KPI" Removed="True" />
       <Item Id="Reports" Removed="True" />
       <Item Id="State Machine" Removed="True" />
     </Items>
@@ -169,8 +179,8 @@
   </Options>
   <SchemaModules>
     <SchemaModule Name="CloneObjectModule" Version="25.1.9.0" IsNewNode="True" />
-    <SchemaModule Name="SchedulerModuleBase" Version="25.1.9.0" IsNewNode="True" />
-    <SchemaModule Name="SystemModule" Version="25.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerModuleBase" Version="25.1.10.0" IsNewNode="True" />
+    <SchemaModule Name="SystemModule" Version="25.1.10.0" IsNewNode="True" />
   </SchemaModules>
   <Validation>
     <Rules>
@@ -301,10 +311,11 @@
     </ListView>
     <ListView Id="Bulletin_ListView">
       <Columns>
+        <!-- Colonnes cachées (Index=-1) -->
         <ColumnInfo Id="BrutFiscal_CumulAnnee" Index="-1" />
         <ColumnInfo Id="BrutSocial_CumulAnnee" Index="-1" />
         <ColumnInfo Id="BulletinModeleSource" Index="-1" />
-        <ColumnInfo Id="DateDebut" Index="-1" Width="141" />
+        <ColumnInfo Id="DateDebut" Index="-1" />
         <ColumnInfo Id="DateFin" Index="-1" />
         <ColumnInfo Id="HeaderCompact" Index="-1" />
         <ColumnInfo Id="IPRES_RC_CumulAnnee" Index="-1" />
@@ -314,26 +325,30 @@
         <ColumnInfo Id="IR_CumulAnnee" Index="-1" />
         <ColumnInfo Id="IR_Mois" Index="-1" />
         <ColumnInfo Id="MoisEnd" Index="-1" />
-        <ColumnInfo Id="MoisStart" Width="145" Index="-1" />
+        <ColumnInfo Id="MoisStart" Index="-1" />
         <ColumnInfo Id="NetAPayer_CumulAnnee" Index="-1" />
         <ColumnInfo Id="PdfArchive" Index="-1" />
-        <ColumnInfo Id="Periode" Index="-1" Width="140" />
-        <ColumnInfo Id="PeriodeKey" Index="-1" Width="119" />
-        <ColumnInfo Id="Salarie" Index="-1" Width="165" />
-        <ColumnInfo Id="TotalAutresRetenues" Index="-1" Width="119" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="TotalCotisationsSociales" Index="-1" Width="110" DisplayFormat="{0:N0}" EditMask="N0" SortIndex="0" SortOrder="Ascending" />
-        <ColumnInfo Id="TotalGains" Index="-1" Width="135" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="TotalRetenuesFiscales" Index="-1" Width="144" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="Periode" Index="-1" />
+        <ColumnInfo Id="PeriodeKey" Index="-1" />
+        <ColumnInfo Id="Salarie" Index="-1" />
+        <ColumnInfo Id="TotalAutresRetenues" Index="-1" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="TotalCotisationsSociales" Index="-1" SortIndex="-1" SortOrder="None" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="TotalGains" Index="-1" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="TotalRetenuesFiscales" Index="-1" DisplayFormat="{0:N0}" EditMask="N0" />
         <ColumnInfo Id="TRIMF_CumulAnnee" Index="-1" />
-        <ColumnInfo Id="DisplayName" SortIndex="-1" SortOrder="None" />
-        <ColumnInfo Id="Annee" Index="1" />
-        <ColumnInfo Id="Mois" Index="2" Width="104" />
-        <ColumnInfo Id="Statut" Index="3" />
-        <ColumnInfo Id="NetAPayer" Index="4" Width="134" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="BrutFiscal" Index="5" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="BrutSocial" Index="6" Width="106" DisplayFormat="{0:N0}" EditMask="N0" />
-        <ColumnInfo Id="NombrePartsFiscales" Index="7" />
-        <ColumnInfo Id="TRIMF_Mois" Index="8" />
+        <ColumnInfo Id="DisplayName" Index="-1" SortIndex="-1" SortOrder="None" />
+        <ColumnInfo Id="JoursTravailles" Index="-1" />
+        <ColumnInfo Id="NombrePartsFiscales" Index="-1" />
+        <!-- Colonnes visibles avec tri Matricule (0) → Annee (1) → Mois (2) -->
+        <ColumnInfo Id="Salarie.Matricule" PropertyName="Salarie.Matricule" Caption="Matricule" Index="0" Width="100" SortIndex="0" SortOrder="Ascending" IsNewNode="True" />
+        <ColumnInfo Id="Salarie.FullName" PropertyName="Salarie.FullName" Caption="Nom Complet" Index="1" Width="200" IsNewNode="True" />
+        <ColumnInfo Id="Annee" Index="2" Width="80" SortIndex="1" SortOrder="Ascending" />
+        <ColumnInfo Id="Mois" Index="3" Width="60" SortIndex="2" SortOrder="Ascending" />
+        <ColumnInfo Id="Statut" Index="4" Width="100" />
+        <ColumnInfo Id="BrutFiscal" Index="5" Width="120" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="BrutSocial" Index="6" Width="120" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="NetAPayer" Index="7" Width="130" DisplayFormat="{0:N0}" EditMask="N0" />
+        <ColumnInfo Id="TRIMF_Mois" Index="8" Width="100" DisplayFormat="{0:N0}" />
       </Columns>
     </ListView>
     <DetailView Id="BulletinLigne_DetailView">
@@ -447,6 +462,8 @@
         </LayoutGroup>
       </Layout>
     </DetailView>
+    <DetailView Id="CentreImports_DetailView" ImageName="Action_Export" AllowDelete="False" AllowNew="False" />
+
     <DetailView Id="ContratSalarie_DetailView">
       <Items>
         <PropertyEditor Id="Salarie" PropertyName="Salarie" IsNewNode="True" />
@@ -643,138 +660,188 @@
     <DetailView Id="ParametresPaie_DetailView" Caption="Paramètres de paie">
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100">
-          <LayoutGroup Id="SimpleEditors" Removed="True" />
-          <LayoutGroup Id="SizeableEditors" Removed="True" />
-          <TabbedGroup Id="Tabs" CaptionLocation="Top" RelativeSize="100" IsNewNode="True">
-            <LayoutGroup Id="Tab_Alertes" ShowCaption="True" Caption="Alertes GRH" RelativeSize="100" IsNewNode="True">
-              <LayoutGroup Id="Alert_Emails" ShowCaption="True" Caption="Destinataires" Direction="Vertical" RelativeSize="50" IsNewNode="True">
-                <LayoutItem Id="EmailDAF" ViewItem="EmailDAF" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="EmailsComptable" ViewItem="EmailsComptable" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="EmailsRHAlertes" ViewItem="EmailsRHAlertes" RelativeSize="34" IsNewNode="True" />
+          <TabbedGroup Id="Tabs" CaptionLocation="Top" RelativeSize="100" Index="0" IsNewNode="True">
+            <LayoutGroup Id="Tab_ConnexionBDD" ShowCaption="True" Caption="Connexion BDD" RelativeSize="100" Index="0" IsNewNode="True">
+              <LayoutGroup Id="BDD_Serveur" ShowCaption="True" Caption="Serveur SQL" Direction="Horizontal" RelativeSize="30" Index="0" IsNewNode="True">
+                <LayoutGroup Id="BDD_Srv_col1" ShowCaption="False" RelativeSize="50" Index="0" IsNewNode="True">
+                  <LayoutItem Id="App_SqlServer" ViewItem="App_SqlServer" RelativeSize="50" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="App_SqlDatabase" ViewItem="App_SqlDatabase" RelativeSize="50" Index="1" IsNewNode="True" />
+                </LayoutGroup>
+                <LayoutGroup Id="BDD_Srv_col2" ShowCaption="False" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutItem Id="App_IntegratedSecurity" ViewItem="App_IntegratedSecurity" RelativeSize="50" Index="0" IsNewNode="True" />
+                </LayoutGroup>
               </LayoutGroup>
-              <LayoutGroup Id="Alert_Timing" ShowCaption="True" Caption="Calendrier" Direction="Horizontal" RelativeSize="20" IsNewNode="True">
-                <LayoutItem Id="DelaiAlertAttestationJours" ViewItem="DelaiAlertAttestationJours" RelativeSize="50" IsNewNode="True" />
-                <LayoutItem Id="HeureEnvoiAlertes" ViewItem="HeureEnvoiAlertes" RelativeSize="50" IsNewNode="True" />
+              <LayoutGroup Id="BDD_Auth" ShowCaption="True" Caption="Authentification SQL (si pas SSPI)" Direction="Horizontal" RelativeSize="25" Index="1" IsNewNode="True">
+                <LayoutItem Id="App_SqlLogin" ViewItem="App_SqlLogin" RelativeSize="50" Index="0" IsNewNode="True" />
+                <LayoutItem Id="App_SqlPassword" ViewItem="App_SqlPassword" RelativeSize="50" Index="1" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="BDD_SSL" ShowCaption="False" Direction="Horizontal" RelativeSize="10" Index="2" IsNewNode="True">
+                <LayoutItem Id="App_TrustServerCertificate" ViewItem="App_TrustServerCertificate" RelativeSize="100" Index="0" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="BDD_Preview" ShowCaption="True" Caption="Aperçu (redémarrage requis après modification)" Direction="Vertical" RelativeSize="35" Index="3" IsNewNode="True">
+                <LayoutItem Id="App_ConnectionStringPreview" ViewItem="App_ConnectionStringPreview" RelativeSize="100" Index="0" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_Fiscalite" ShowCaption="True" Caption="Fiscalité" RelativeSize="100" IsNewNode="True">
-              <LayoutGroup Id="Fisc_Abat" ShowCaption="True" Caption="Abattement IR" Direction="Horizontal" RelativeSize="25" IsNewNode="True">
-                <LayoutItem Id="R_IR_Abattement_PlafondAnnuel" ViewItem="R_IR_Abattement_PlafondAnnuel" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="R_IR_Abattement_PlafondMensuel" ViewItem="R_IR_Abattement_PlafondMensuel" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="R_IR_Abattement_TauxPercent" ViewItem="R_IR_Abattement_TauxPercent" RelativeSize="34" IsNewNode="True" />
+            <LayoutGroup Id="Tab_Alertes" ShowCaption="True" Caption="Alertes GRH" RelativeSize="100" Index="1" IsNewNode="True">
+              <LayoutGroup Id="Alert_Emails" ShowCaption="True" Caption="Destinataires" Direction="Vertical" RelativeSize="83.8957055214724" Index="0" IsNewNode="True">
+                <LayoutItem Id="EmailDAF" ViewItem="EmailDAF" RelativeSize="32.93172690763052" Index="0" IsNewNode="True" />
+                <LayoutItem Id="EmailsComptable" ViewItem="EmailsComptable" RelativeSize="32.93172690763052" Index="1" IsNewNode="True" />
+                <LayoutItem Id="EmailsRHAlertes" ViewItem="EmailsRHAlertes" RelativeSize="34.136546184738954" Index="2" IsNewNode="True" />
               </LayoutGroup>
-              <LayoutGroup Id="Fisc_Bareme" ShowCaption="True" Caption="Barèmes" Direction="Horizontal" RelativeSize="30" IsNewNode="True">
-                <LayoutGroup Id="Fisc_Bar_col1" ShowCaption="False" RelativeSize="50" IsNewNode="True">
-                  <LayoutItem Id="CodeBaremeIR_Annuel" ViewItem="CodeBaremeIR_Annuel" RelativeSize="33" IsNewNode="True" />
-                  <LayoutItem Id="CodeBaremeTRIMF_Annuel" ViewItem="CodeBaremeTRIMF_Annuel" RelativeSize="33" IsNewNode="True" />
-                  <LayoutItem Id="CodeBaremeTRIMF_Mensuel" ViewItem="CodeBaremeTRIMF_Mensuel" RelativeSize="34" IsNewNode="True" />
-                </LayoutGroup>
-                <LayoutGroup Id="Fisc_Bar_col2" ShowCaption="False" RelativeSize="50" IsNewNode="True">
-                  <LayoutItem Id="IR_Regularisation_FinAnnee" ViewItem="IR_Regularisation_FinAnnee" RelativeSize="50" IsNewNode="True" />
-                  <LayoutItem Id="IR_Regularisation_MoisDepart" ViewItem="IR_Regularisation_MoisDepart" RelativeSize="50" IsNewNode="True" />
-                </LayoutGroup>
-              </LayoutGroup>
-              <LayoutGroup Id="Fisc_Divers" ShowCaption="True" Caption="Options" Direction="Horizontal" RelativeSize="20" IsNewNode="True">
-                <LayoutItem Id="R_IR_TronquerBaseAuxMille" ViewItem="R_IR_TronquerBaseAuxMille" RelativeSize="50" IsNewNode="True" />
-              </LayoutGroup>
-              <LayoutGroup Id="Fisc_Red" ShowCaption="True" Caption="Réduction familiale" Direction="Horizontal" RelativeSize="25" IsNewNode="True">
-                <LayoutItem Id="R_IR_ReductionFamille_MaxParPart_Annuel" ViewItem="R_IR_ReductionFamille_MaxParPart_Annuel" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="R_IR_ReductionFamille_MinParPart_Annuel" ViewItem="R_IR_ReductionFamille_MinParPart_Annuel" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="R_IR_ReductionFamille_Pourcentage" ViewItem="R_IR_ReductionFamille_Pourcentage" RelativeSize="34" IsNewNode="True" />
+              <LayoutGroup Id="Alert_Timing" ShowCaption="True" Caption="Calendrier" Direction="Horizontal" RelativeSize="16.104294478527606" Index="1" IsNewNode="True">
+                <LayoutItem Id="DelaiAlertAttestationJours" ViewItem="DelaiAlertAttestationJours" RelativeSize="50" Index="0" IsNewNode="True" />
+                <LayoutItem Id="HeureEnvoiAlertes" ViewItem="HeureEnvoiAlertes" RelativeSize="50" Index="1" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_General" ShowCaption="True" Caption="Général" RelativeSize="100" IsNewNode="True">
-              <LayoutGroup Id="Gen_Images" ShowCaption="True" Caption="Images" Direction="Horizontal" RelativeSize="60" IsNewNode="True">
-                <LayoutItem Id="CachetImage" ViewItem="CachetImage" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="LogoImage" ViewItem="LogoImage" RelativeSize="34" IsNewNode="True" />
-                <LayoutItem Id="SignatureImage" ViewItem="SignatureImage" RelativeSize="33" IsNewNode="True" />
+            <LayoutGroup Id="Tab_Fiscalite" ShowCaption="True" Caption="Fiscalité" RelativeSize="100" Index="2" IsNewNode="True">
+              <LayoutGroup Id="Fisc_Abat" ShowCaption="True" Caption="Abattement IR" Direction="Horizontal" RelativeSize="16.104294478527606" Index="0" IsNewNode="True">
+                <LayoutItem Id="R_IR_Abattement_PlafondAnnuel" ViewItem="R_IR_Abattement_PlafondAnnuel" RelativeSize="33.55481727574751" Index="0" IsNewNode="True" />
+                <LayoutItem Id="R_IR_Abattement_PlafondMensuel" ViewItem="R_IR_Abattement_PlafondMensuel" RelativeSize="32.89036544850498" Index="1" IsNewNode="True" />
+                <LayoutItem Id="R_IR_Abattement_TauxPercent" ViewItem="R_IR_Abattement_TauxPercent" RelativeSize="33.55481727574751" Index="2" IsNewNode="True" />
               </LayoutGroup>
-              <LayoutGroup Id="Gen_Signatures" ShowCaption="True" Caption="Signataire" Direction="Horizontal" RelativeSize="40" IsNewNode="True">
-                <LayoutGroup Id="Gen_Sig_col1" ShowCaption="False" RelativeSize="50" IsNewNode="True">
-                  <LayoutItem Id="SignatoryName" ViewItem="SignatoryName" RelativeSize="25" IsNewNode="True" />
-                  <LayoutItem Id="SignatoryTitle" ViewItem="SignatoryTitle" RelativeSize="25" IsNewNode="True" />
-                  <LayoutItem Id="SignatureName" ViewItem="SignatureName" RelativeSize="25" IsNewNode="True" />
-                  <LayoutItem Id="SignatureTitle" ViewItem="SignatureTitle" RelativeSize="25" IsNewNode="True" />
+              <LayoutGroup Id="Fisc_Bareme" ShowCaption="True" Caption="Barèmes" Direction="Horizontal" RelativeSize="24.079754601226995" Index="1" IsNewNode="True">
+                <LayoutGroup Id="Fisc_Bar_col1" ShowCaption="False" RelativeSize="50" Index="0" IsNewNode="True">
+                  <LayoutItem Id="CodeBaremeIR_Annuel" ViewItem="CodeBaremeIR_Annuel" RelativeSize="36.666666666666664" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="CodeBaremeTRIMF_Annuel" ViewItem="CodeBaremeTRIMF_Annuel" RelativeSize="26.666666666666668" Index="1" IsNewNode="True" />
+                  <LayoutItem Id="CodeBaremeTRIMF_Mensuel" ViewItem="CodeBaremeTRIMF_Mensuel" RelativeSize="36.666666666666664" Index="2" IsNewNode="True" />
                 </LayoutGroup>
-                <LayoutGroup Id="Gen_Sig_col2" ShowCaption="False" RelativeSize="50" IsNewNode="True">
-                  <LayoutItem Id="VilleFait" ViewItem="VilleFait" RelativeSize="50" IsNewNode="True" />
+                <LayoutGroup Id="Fisc_Bar_col2" ShowCaption="False" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutItem Id="IR_Regularisation_FinAnnee" ViewItem="IR_Regularisation_FinAnnee" RelativeSize="36.666666666666664" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="IR_Regularisation_MoisDepart" ViewItem="IR_Regularisation_MoisDepart" RelativeSize="63.333333333333336" Index="1" IsNewNode="True" />
                 </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Fisc_Divers" ShowCaption="True" Caption="Options" Direction="Vertical" RelativeSize="14.263803680981596" Index="2" IsNewNode="True">
+                <LayoutItem Id="R_IR_TronquerBaseAuxMille" ViewItem="R_IR_TronquerBaseAuxMille" RelativeSize="100" Index="0" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="Fisc_Red" ShowCaption="True" Caption="Réduction familiale" Direction="Horizontal" RelativeSize="45.5521472392638" Index="3" IsNewNode="True">
+                <LayoutItem Id="R_IR_ReductionFamille_MaxParPart_Annuel" ViewItem="R_IR_ReductionFamille_MaxParPart_Annuel" RelativeSize="33.55481727574751" Index="0" IsNewNode="True" />
+                <LayoutItem Id="R_IR_ReductionFamille_MinParPart_Annuel" ViewItem="R_IR_ReductionFamille_MinParPart_Annuel" RelativeSize="32.89036544850498" Index="1" IsNewNode="True" />
+                <LayoutItem Id="R_IR_ReductionFamille_Pourcentage" ViewItem="R_IR_ReductionFamille_Pourcentage" RelativeSize="33.55481727574751" Index="2" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_Integrations" ShowCaption="True" Caption="Intégrations API" RelativeSize="100" IsNewNode="True">
-              <LayoutGroup Id="Int_GeoNames" ShowCaption="True" Caption="GeoNames (Import villes)" Direction="Vertical" RelativeSize="30" IsNewNode="True">
-                <LayoutItem Id="GeoNamesUsername" ViewItem="GeoNamesUsername" RelativeSize="100" IsNewNode="True" />
+            <LayoutGroup Id="Tab_General" ShowCaption="True" Caption="Général" RelativeSize="100" Index="3" IsNewNode="True">
+              <LayoutGroup Id="Gen_Images" ShowCaption="True" Caption="Images" Direction="Horizontal" RelativeSize="16.104294478527606" Index="0" IsNewNode="True">
+                <LayoutItem Id="CachetImage" ViewItem="CachetImage" RelativeSize="33.55481727574751" Index="0" IsNewNode="True" />
+                <LayoutItem Id="LogoImage" ViewItem="LogoImage" RelativeSize="32.89036544850498" Index="1" IsNewNode="True" />
+                <LayoutItem Id="SignatureImage" ViewItem="SignatureImage" RelativeSize="33.55481727574751" Index="2" IsNewNode="True" />
               </LayoutGroup>
-              <LayoutGroup Id="Int_GoogleMaps" ShowCaption="True" Caption="Google Maps (Distance Matrix)" Direction="Vertical" RelativeSize="30" IsNewNode="True">
-                <LayoutItem Id="GoogleMapsApiKey" ViewItem="GoogleMapsApiKey" RelativeSize="100" IsNewNode="True" />
-              </LayoutGroup>
-            </LayoutGroup>
-            <LayoutGroup Id="Tab_Messagerie" ShowCaption="True" Caption="Messagerie" RelativeSize="100" IsNewNode="True">
-              <LayoutGroup Id="Mail_Actif" ShowCaption="False" Direction="Horizontal" RelativeSize="10" IsNewNode="True">
-                <LayoutItem Id="EmailActif" ViewItem="EmailActif" RelativeSize="50" IsNewNode="True" />
-                <LayoutItem Id="EmailProviderKind" ViewItem="EmailProviderKind" RelativeSize="50" IsNewNode="True" />
-              </LayoutGroup>
-              <LayoutGroup Id="Mail_Graph" ShowCaption="True" Caption="Microsoft Graph (Office 365)" Direction="Horizontal" RelativeSize="30" IsNewNode="True">
-                <LayoutGroup Id="Mail_Graph_col1" ShowCaption="False" RelativeSize="50" IsNewNode="True">
-                  <LayoutItem Id="GraphClientId" ViewItem="GraphClientId" RelativeSize="33" IsNewNode="True" />
-                  <LayoutItem Id="GraphClientSecret" ViewItem="GraphClientSecret" RelativeSize="33" IsNewNode="True" />
-                  <LayoutItem Id="GraphTenantId" ViewItem="GraphTenantId" RelativeSize="34" IsNewNode="True" />
+              <LayoutGroup Id="Gen_Signatures" ShowCaption="True" Caption="Signataire" Direction="Horizontal" RelativeSize="83.8957055214724" Index="1" IsNewNode="True">
+                <LayoutGroup Id="Gen_Sig_col1" ShowCaption="False" RelativeSize="50" Index="0" IsNewNode="True">
+                  <LayoutItem Id="SignatoryName" ViewItem="SignatoryName" RelativeSize="8.835341365461847" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="SignatoryTitle" ViewItem="SignatoryTitle" RelativeSize="6.42570281124498" Index="1" IsNewNode="True" />
+                  <LayoutItem Id="SignatureName" ViewItem="SignatureName" RelativeSize="6.42570281124498" Index="2" IsNewNode="True" />
+                  <LayoutItem Id="SignatureTitle" ViewItem="SignatureTitle" RelativeSize="78.3132530120482" Index="3" IsNewNode="True" />
                 </LayoutGroup>
-                <LayoutGroup Id="Mail_Graph_col2" ShowCaption="False" RelativeSize="50" IsNewNode="True">
-                  <LayoutItem Id="GraphFromUserUpn" ViewItem="GraphFromUserUpn" RelativeSize="100" IsNewNode="True" />
-                </LayoutGroup>
-              </LayoutGroup>
-              <LayoutGroup Id="Mail_SMTP" ShowCaption="True" Caption="Configuration SMTP" Direction="Horizontal" RelativeSize="35" IsNewNode="True">
-                <LayoutGroup Id="Mail_SMTP_col1" ShowCaption="False" RelativeSize="50" IsNewNode="True">
-                  <LayoutItem Id="SmtpHost" ViewItem="SmtpHost" RelativeSize="25" IsNewNode="True" />
-                  <LayoutItem Id="SmtpPort" ViewItem="SmtpPort" RelativeSize="25" IsNewNode="True" />
-                  <LayoutItem Id="SmtpUserName" ViewItem="SmtpUserName" RelativeSize="25" IsNewNode="True" />
-                  <LayoutItem Id="SmtpUseSsl" ViewItem="SmtpUseSsl" RelativeSize="25" IsNewNode="True" />
-                </LayoutGroup>
-                <LayoutGroup Id="Mail_SMTP_col2" ShowCaption="False" RelativeSize="50" IsNewNode="True">
-                  <LayoutItem Id="MailFromAddress" ViewItem="MailFromAddress" RelativeSize="25" IsNewNode="True" />
-                  <LayoutItem Id="MailFromDisplayName" ViewItem="MailFromDisplayName" RelativeSize="25" IsNewNode="True" />
-                  <LayoutItem Id="MailReplyTo" ViewItem="MailReplyTo" RelativeSize="25" IsNewNode="True" />
-                  <LayoutItem Id="SmtpPassword" ViewItem="SmtpPassword" RelativeSize="25" IsNewNode="True" />
+                <LayoutGroup Id="Gen_Sig_col2" ShowCaption="False" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutItem Id="VilleFait" ViewItem="VilleFait" RelativeSize="100" Index="0" IsNewNode="True" />
                 </LayoutGroup>
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_Modele" ShowCaption="True" Caption="Modèle bulletin" RelativeSize="100" IsNewNode="True">
-              <LayoutGroup Id="Modele_Auto" ShowCaption="True" Caption="Création automatique" Direction="Horizontal" RelativeSize="30" IsNewNode="True">
-                <LayoutItem Id="ModeleAuto_CreerAuSave" ViewItem="ModeleAuto_CreerAuSave" RelativeSize="100" IsNewNode="True" />
+            <LayoutGroup Id="Tab_Integrations" ShowCaption="True" Caption="Intégrations API" RelativeSize="100" Index="4" IsNewNode="True">
+              <LayoutGroup Id="Int_GeoNames" ShowCaption="True" Caption="GeoNames (Import villes)" Direction="Vertical" RelativeSize="16.104294478527606" Index="0" IsNewNode="True">
+                <LayoutItem Id="GeoNamesUsername" ViewItem="GeoNamesUsername" RelativeSize="100" Index="0" IsNewNode="True" />
               </LayoutGroup>
-              <LayoutGroup Id="Modele_Defauts" ShowCaption="True" Caption="Valeurs par défaut" Direction="Horizontal" RelativeSize="30" IsNewNode="True">
-                <LayoutItem Id="ModeleAuto_Defaut_AvantageVehicule" ViewItem="ModeleAuto_Defaut_AvantageVehicule" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="ModeleAuto_Defaut_PrimeTransport" ViewItem="ModeleAuto_Defaut_PrimeTransport" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="ModeleAuto_Defaut_Sursalaire" ViewItem="ModeleAuto_Defaut_Sursalaire" RelativeSize="34" IsNewNode="True" />
-              </LayoutGroup>
-              <LayoutGroup Id="Modele_Rubriques" ShowCaption="True" Caption="Rubriques retenues" Direction="Horizontal" RelativeSize="25" IsNewNode="True">
-                <LayoutItem Id="RubriqueRetenueAvanceDefaut" ViewItem="RubriqueRetenueAvanceDefaut" RelativeSize="50" IsNewNode="True" />
-                <LayoutItem Id="RubriqueRetenuePretDefaut" ViewItem="RubriqueRetenuePretDefaut" RelativeSize="50" IsNewNode="True" />
+              <LayoutGroup Id="Int_GoogleMaps" ShowCaption="True" Caption="Google Maps (Distance Matrix)" Direction="Vertical" RelativeSize="83.8957055214724" Index="1" IsNewNode="True">
+                <LayoutItem Id="GoogleMapsApiKey" ViewItem="GoogleMapsApiKey" RelativeSize="100" Index="0" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_Templates" ShowCaption="True" Caption="Templates documents" RelativeSize="100" IsNewNode="True">
-              <LayoutGroup Id="Tmpl_Attestations" ShowCaption="True" Caption="Attestations" Direction="Vertical" RelativeSize="40" IsNewNode="True">
-                <LayoutItem Id="TemplateAttestation" ViewItem="TemplateAttestation" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="TemplateAttestationDeConges" ViewItem="TemplateAttestationDeConges" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="TemplateCertificatEmploi" ViewItem="TemplateCertificatEmploi" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="TemplateCessationPaiement" ViewItem="TemplateCessationPaiement" RelativeSize="25" IsNewNode="True" />
+            <LayoutGroup Id="Tab_Messagerie" ShowCaption="True" Caption="Messagerie" RelativeSize="100" Index="5" IsNewNode="True">
+              <LayoutGroup Id="Mail_Actif" ShowCaption="False" Direction="Horizontal" RelativeSize="8.128834355828221" Index="0" IsNewNode="True">
+                <LayoutItem Id="EmailActif" ViewItem="EmailActif" RelativeSize="50" Index="0" IsNewNode="True" />
+                <LayoutItem Id="EmailProviderKind" ViewItem="EmailProviderKind" RelativeSize="50" Index="1" IsNewNode="True" />
               </LayoutGroup>
-              <LayoutGroup Id="Tmpl_Contrats" ShowCaption="True" Caption="Contrats de travail" Direction="Vertical" RelativeSize="25" IsNewNode="True">
-                <LayoutItem Id="TemplateContratCDI" ViewItem="TemplateContratCDI" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="TemplateContratCDD" ViewItem="TemplateContratCDD" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="TemplateContratStage" ViewItem="TemplateContratStage" RelativeSize="34" IsNewNode="True" />
+              <LayoutGroup Id="Mail_Graph" ShowCaption="True" Caption="Microsoft Graph (Office 365)" Direction="Horizontal" RelativeSize="32.36196319018405" Index="1" IsNewNode="True">
+                <LayoutGroup Id="Mail_Graph_col1" ShowCaption="False" RelativeSize="50" Index="0" IsNewNode="True">
+                  <LayoutItem Id="GraphClientId" ViewItem="GraphClientId" RelativeSize="25.28735632183908" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="GraphClientSecret" ViewItem="GraphClientSecret" RelativeSize="49.42528735632184" Index="1" IsNewNode="True" />
+                  <LayoutItem Id="GraphTenantId" ViewItem="GraphTenantId" RelativeSize="25.28735632183908" Index="2" IsNewNode="True" />
+                </LayoutGroup>
+                <LayoutGroup Id="Mail_Graph_col2" ShowCaption="False" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutItem Id="GraphFromUserUpn" ViewItem="GraphFromUserUpn" RelativeSize="100" Index="0" IsNewNode="True" />
+                </LayoutGroup>
               </LayoutGroup>
-              <LayoutGroup Id="Tmpl_Mission" ShowCaption="True" Caption="Missions" Direction="Vertical" RelativeSize="25" IsNewNode="True">
-                <LayoutItem Id="TemplateEtatFrais" ViewItem="TemplateEtatFrais" RelativeSize="50" IsNewNode="True" />
-                <LayoutItem Id="TemplateOrdreMission" ViewItem="TemplateOrdreMission" RelativeSize="50" IsNewNode="True" />
+              <LayoutGroup Id="Mail_SMTP" ShowCaption="True" Caption="Configuration SMTP" Direction="Horizontal" RelativeSize="59.50920245398773" Index="2" IsNewNode="True">
+                <LayoutGroup Id="Mail_SMTP_col1" ShowCaption="False" RelativeSize="50" Index="0" IsNewNode="True">
+                  <LayoutItem Id="SmtpHost" ViewItem="SmtpHost" RelativeSize="12.979351032448378" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="SmtpPort" ViewItem="SmtpPort" RelativeSize="9.43952802359882" Index="1" IsNewNode="True" />
+                  <LayoutItem Id="SmtpUserName" ViewItem="SmtpUserName" RelativeSize="9.43952802359882" Index="2" IsNewNode="True" />
+                  <LayoutItem Id="SmtpUseSsl" ViewItem="SmtpUseSsl" RelativeSize="68.14159292035399" Index="3" IsNewNode="True" />
+                </LayoutGroup>
+                <LayoutGroup Id="Mail_SMTP_col2" ShowCaption="False" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutItem Id="MailFromAddress" ViewItem="MailFromAddress" RelativeSize="12.979351032448378" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="MailFromDisplayName" ViewItem="MailFromDisplayName" RelativeSize="9.43952802359882" Index="1" IsNewNode="True" />
+                  <LayoutItem Id="MailReplyTo" ViewItem="MailReplyTo" RelativeSize="9.43952802359882" Index="2" IsNewNode="True" />
+                  <LayoutItem Id="SmtpPassword" ViewItem="SmtpPassword" RelativeSize="68.14159292035399" Index="3" IsNewNode="True" />
+                </LayoutGroup>
               </LayoutGroup>
-              <LayoutGroup Id="Tmpl_RH" ShowCaption="True" Caption="GRH" Direction="Vertical" RelativeSize="35" IsNewNode="True">
-                <LayoutItem Id="TemplateAttestationFormation" ViewItem="TemplateAttestationFormation" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="TemplateEntretienAnnuel" ViewItem="TemplateEntretienAnnuel" RelativeSize="34" IsNewNode="True" />
+            </LayoutGroup>
+            <LayoutGroup Id="Tab_Modele" ShowCaption="True" Caption="Modèle bulletin" RelativeSize="100" Index="6" IsNewNode="True">
+              <LayoutGroup Id="Modele_Auto" ShowCaption="True" Caption="Création automatique" Direction="Vertical" RelativeSize="16.104294478527606" Index="0" IsNewNode="True">
+                <LayoutItem Id="ModeleAuto_CreerAuSave" ViewItem="ModeleAuto_CreerAuSave" RelativeSize="100" Index="0" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="Modele_Defauts" ShowCaption="True" Caption="Valeurs par défaut" Direction="Horizontal" RelativeSize="14.263803680981596" Index="1" IsNewNode="True">
+                <LayoutItem Id="ModeleAuto_Defaut_AvantageVehicule" ViewItem="ModeleAuto_Defaut_AvantageVehicule" RelativeSize="33.55481727574751" Index="0" IsNewNode="True" />
+                <LayoutItem Id="ModeleAuto_Defaut_PrimeTransport" ViewItem="ModeleAuto_Defaut_PrimeTransport" RelativeSize="32.89036544850498" Index="1" IsNewNode="True" />
+                <LayoutItem Id="ModeleAuto_Defaut_Sursalaire" ViewItem="ModeleAuto_Defaut_Sursalaire" RelativeSize="33.55481727574751" Index="2" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="Modele_Rubriques" ShowCaption="True" Caption="Rubriques retenues" Direction="Horizontal" RelativeSize="69.6319018404908" Index="2" IsNewNode="True">
+                <LayoutItem Id="RubriqueRetenueAvanceDefaut" ViewItem="RubriqueRetenueAvanceDefaut" RelativeSize="50" Index="0" IsNewNode="True" />
+                <LayoutItem Id="RubriqueRetenuePretDefaut" ViewItem="RubriqueRetenuePretDefaut" RelativeSize="50" Index="1" IsNewNode="True" />
+              </LayoutGroup>
+            </LayoutGroup>
+            <LayoutGroup Id="Tab_RapportCEO" ShowCaption="True" Caption="Rapport CEO" RelativeSize="100" Index="7" IsNewNode="True">
+              <LayoutGroup Id="CEO_Config" ShowCaption="True" Caption="Configuration" Direction="Horizontal" RelativeSize="50" Index="0" IsNewNode="True">
+                <LayoutItem Id="EmailCEO" ViewItem="EmailCEO" RelativeSize="100" Index="0" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="CEO_Seuils" ShowCaption="True" Caption="Seuils d'alerte" Direction="Horizontal" RelativeSize="50" Index="1" IsNewNode="True">
+                <LayoutItem Id="SeuilTurnoverPct" ViewItem="SeuilTurnoverPct" RelativeSize="33" Index="0" IsNewNode="True" />
+                <LayoutItem Id="SeuilAbsenteismePct" ViewItem="SeuilAbsenteismePct" RelativeSize="34" Index="1" IsNewNode="True" />
+                <LayoutItem Id="SeuilMasseSalariale" ViewItem="SeuilMasseSalariale" RelativeSize="33" Index="2" IsNewNode="True" />
+              </LayoutGroup>
+            </LayoutGroup>
+            <LayoutGroup Id="Tab_HeuresSupp" ShowCaption="True" Caption="Heures supplémentaires" RelativeSize="100" Index="8" IsNewNode="True">
+              <LayoutGroup Id="HS_Activer" ShowCaption="False" Direction="Vertical" RelativeSize="15" Index="0" IsNewNode="True">
+                <LayoutItem Id="ActiverHeuresSupplementaires" ViewItem="ActiverHeuresSupplementaires" RelativeSize="100" Index="0" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="HS_Taux" ShowCaption="True" Caption="Taux de majoration" Direction="Horizontal" RelativeSize="85" Index="1" IsNewNode="True">
+                <LayoutGroup Id="HS_Taux_col1" ShowCaption="False" RelativeSize="50" Index="0" IsNewNode="True">
+                  <LayoutItem Id="TauxHS_JourOuvrable" ViewItem="TauxHS_JourOuvrable" RelativeSize="50" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="TauxHS_Nuit" ViewItem="TauxHS_Nuit" RelativeSize="50" Index="1" IsNewNode="True" />
+                </LayoutGroup>
+                <LayoutGroup Id="HS_Taux_col2" ShowCaption="False" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutItem Id="TauxHS_DimancheFerie" ViewItem="TauxHS_DimancheFerie" RelativeSize="50" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="TauxHS_NuitDimancheFerie" ViewItem="TauxHS_NuitDimancheFerie" RelativeSize="50" Index="1" IsNewNode="True" />
+                </LayoutGroup>
+              </LayoutGroup>
+            </LayoutGroup>
+            <LayoutGroup Id="Tab_Seed" ShowCaption="True" Caption="Données démo" RelativeSize="100" Index="9" IsNewNode="True">
+              <LayoutItem Id="ActiverSeedDemo" ViewItem="ActiverSeedDemo" RelativeSize="100" Index="0" IsNewNode="True" />
+            </LayoutGroup>
+            <LayoutGroup Id="Tab_Templates" ShowCaption="True" Caption="Templates documents" RelativeSize="100" Index="10" IsNewNode="True">
+              <LayoutGroup Id="Tmpl_Attestations" ShowCaption="True" Caption="Attestations" Direction="Vertical" RelativeSize="30.828220858895705" Index="0" IsNewNode="True">
+                <LayoutItem Id="TemplateAttestation" ViewItem="TemplateAttestation" RelativeSize="28.94736842105263" Index="0" IsNewNode="True" />
+                <LayoutItem Id="TemplateAttestationDeConges" ViewItem="TemplateAttestationDeConges" RelativeSize="21.05263157894737" Index="1" IsNewNode="True" />
+                <LayoutItem Id="TemplateCertificatEmploi" ViewItem="TemplateCertificatEmploi" RelativeSize="21.05263157894737" Index="2" IsNewNode="True" />
+                <LayoutItem Id="TemplateCessationPaiement" ViewItem="TemplateCessationPaiement" RelativeSize="28.94736842105263" Index="3" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="Tmpl_Contrats" ShowCaption="True" Caption="Contrats de travail" Direction="Vertical" RelativeSize="24.079754601226995" Index="1" IsNewNode="True">
+                <LayoutItem Id="TemplateContratCDD" ViewItem="TemplateContratCDD" RelativeSize="36.666666666666664" Index="0" IsNewNode="True" />
+                <LayoutItem Id="TemplateContratCDI" ViewItem="TemplateContratCDI" RelativeSize="26.666666666666668" Index="1" IsNewNode="True" />
+                <LayoutItem Id="TemplateContratStage" ViewItem="TemplateContratStage" RelativeSize="36.666666666666664" Index="2" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="Tmpl_Mission" ShowCaption="True" Caption="Missions" Direction="Vertical" RelativeSize="19.171779141104295" Index="2" IsNewNode="True">
+                <LayoutItem Id="TemplateEtatFrais" ViewItem="TemplateEtatFrais" RelativeSize="50" Index="0" IsNewNode="True" />
+                <LayoutItem Id="TemplateOrdreMission" ViewItem="TemplateOrdreMission" RelativeSize="50" Index="1" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutGroup Id="Tmpl_RH" ShowCaption="True" Caption="GRH" Direction="Vertical" RelativeSize="25.920245398773005" Index="3" IsNewNode="True">
+                <LayoutItem Id="TemplateAttestationFormation" ViewItem="TemplateAttestationFormation" RelativeSize="36.666666666666664" Index="0" IsNewNode="True" />
+                <LayoutItem Id="TemplateEntretienAnnuel" ViewItem="TemplateEntretienAnnuel" RelativeSize="26.666666666666668" Index="1" IsNewNode="True" />
+                <LayoutItem Id="TemplateBilanSocial" ViewItem="TemplateBilanSocial" Index="2" RelativeSize="36.666666666666664" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
           </TabbedGroup>
+          <LayoutGroup Id="SimpleEditors" Removed="True" />
+          <LayoutGroup Id="SizeableEditors" Removed="True" />
         </LayoutGroup>
       </Layout>
     </DetailView>
@@ -1031,15 +1098,17 @@
             </LayoutGroup>
             <LayoutGroup Id="Tab_Contrat" ShowCaption="True" Caption="Contrat &amp; Poste" Index="1" RelativeSize="100" IsNewNode="True">
               <LayoutGroup Id="Ctr_Dates" ShowCaption="True" Caption="Dates contractuelles" Direction="Horizontal" Index="0" RelativeSize="20" IsNewNode="True">
-                <LayoutItem Id="DateEmbauche" ViewItem="DateEmbauche" Index="0" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="DateConfirmation" ViewItem="DateConfirmation" Index="1" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="DateSortie" ViewItem="DateSortie" Index="2" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="Anciennete" ViewItem="Anciennete" Index="3" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="DateEmbauche" ViewItem="DateEmbauche" CaptionLocation="Top" Index="0" RelativeSize="20" IsNewNode="True" />
+                <LayoutItem Id="DateConfirmation" ViewItem="DateConfirmation" CaptionLocation="Top" Index="1" RelativeSize="20" IsNewNode="True" />
+                <LayoutItem Id="DateSortie" ViewItem="DateSortie" CaptionLocation="Top" Index="2" RelativeSize="20" IsNewNode="True" />
+                <LayoutItem Id="MotifDepart" ViewItem="MotifDepart" CaptionLocation="Top" Index="3" RelativeSize="20" IsNewNode="True" />
+                <LayoutItem Id="Anciennete" ViewItem="Anciennete" CaptionLocation="Top" Index="4" RelativeSize="20" IsNewNode="True" />
               </LayoutGroup>
               <LayoutGroup Id="Ctr_Poste" ShowCaption="True" Caption="Poste occupé" Direction="Horizontal" Index="1" RelativeSize="20" IsNewNode="True">
-                <LayoutItem Id="Fonction" ViewItem="Fonction" Index="0" RelativeSize="34" IsNewNode="True" />
-                <LayoutItem Id="Departement" ViewItem="Departement" Index="1" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="Manager" ViewItem="Manager" Index="2" RelativeSize="33" IsNewNode="True" />
+                <LayoutItem Id="Fonction" ViewItem="Fonction" Index="0" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="Departement" ViewItem="Departement" Index="1" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="Site" ViewItem="Site" Index="2" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="Manager" ViewItem="Manager" Index="3" RelativeSize="25" IsNewNode="True" />
               </LayoutGroup>
               <LayoutGroup Id="Ctr_Contrats" ShowCaption="True" Caption="Contrats de travail" Direction="Vertical" Index="2" RelativeSize="60" IsNewNode="True">
                 <LayoutItem Id="Contrats" ViewItem="Contrats" Index="0" RelativeSize="100" IsNewNode="True" />
@@ -1133,9 +1202,12 @@
     </ListView>
     <ListView Id="Salarie_ListView" IsRoot="True" AllowEdit="True" AllowDelete="False" AllowNew="True" AllowLink="True" EnableMasterDetailMode="False" DataAccessMode="Client" ClassName="AdiPAIE_V02.Module.BusinessObjects.Salarie" DetailViewID="Salarie_DetailView">
       <Columns>
+        <!-- Colonnes cachées (Index=-1) — détails consultables sur la fiche du salarié -->
         <ColumnInfo Id="AvantageVehicule" Index="-1" />
-        <ColumnInfo Id="Base30Jour" Index="-1" SortIndex="0" SortOrder="Ascending" Width="131" />
+        <ColumnInfo Id="Base30Jour" Index="-1" />
         <ColumnInfo Id="CaisseSecurite" Index="-1" />
+        <ColumnInfo Id="Categories" Index="-1" />
+        <ColumnInfo Id="Civilite" Index="-1" />
         <ColumnInfo Id="ContactUrgenceLien" Index="-1" />
         <ColumnInfo Id="ContactUrgenceNom" Index="-1" />
         <ColumnInfo Id="ContactUrgenceTel" Index="-1" />
@@ -1145,40 +1217,51 @@
         <ColumnInfo Id="DateCreation" Index="-1" />
         <ColumnInfo Id="DateExpirationCNI" Index="-1" />
         <ColumnInfo Id="DateExpirationPasseport" Index="-1" />
+        <ColumnInfo Id="DateSortie" Index="-1" />
         <ColumnInfo Id="GroupeSanguin" Index="-1" />
-        <ColumnInfo Id="IndemniteLogement" Index="-1" Width="105" />
+        <ColumnInfo Id="IndemniteLogement" Index="-1" />
         <ColumnInfo Id="IsNoTransportWhenVehicle" Index="-1" />
+        <ColumnInfo Id="Manager" Index="-1" />
         <ColumnInfo Id="Nationalite" Index="-1" />
-        <ColumnInfo Id="NbConjointsActuels" Index="-1" Width="77" />
+        <ColumnInfo Id="NbConjointsActuels" Index="-1" />
         <ColumnInfo Id="NbConjointsInactifsACharge" Index="-1" />
         <ColumnInfo Id="NbNotificationsNonLues" Index="-1" />
-        <ColumnInfo Id="NombreEnfant" Width="111" Index="-1" />
+        <ColumnInfo Id="NombreEnfant" Index="-1" />
         <ColumnInfo Id="NombrePartsFiscales" Index="-1" />
-        <ColumnInfo Id="NumeroCNI" Index="-1" Width="107" />
+        <ColumnInfo Id="NumeroCNI" Index="-1" />
         <ColumnInfo Id="NumeroIPRESS" Index="-1" />
         <ColumnInfo Id="NumeroPasseport" Index="-1" />
         <ColumnInfo Id="PayslipKeyAssignedOn" Index="-1" />
+        <ColumnInfo Id="PaysNaissance" Index="-1" />
         <ColumnInfo Id="PermisConduire" Index="-1" />
         <ColumnInfo Id="PossedeVehicule" Index="-1" />
         <ColumnInfo Id="PrimeTransport" Index="-1" />
         <ColumnInfo Id="SalaireBase" Index="-1" />
+        <ColumnInfo Id="SatutMarital" Index="-1" />
         <ColumnInfo Id="Sursalaire" Index="-1" />
         <ColumnInfo Id="TrimfParts" Index="-1" />
-        <ColumnInfo Id="Matricule" SortIndex="-1" SortOrder="None" Index="0" Width="122" />
-        <ColumnInfo Id="Civilite" Index="1" />
-        <ColumnInfo Id="FullName" SortIndex="-1" SortOrder="None" Index="2" Caption="Nom Complet" />
-        <ColumnInfo Id="SatutMarital" Index="3" />
-        <ColumnInfo Id="DateEmbauche" Width="98" Index="4" />
-        <ColumnInfo Id="DateSortie" Index="5" Width="92" />
-        <ColumnInfo Id="IsActif" Index="6" />
-        <ColumnInfo Id="Categories" Index="7" />
-        <ColumnInfo Id="Anciennete" Index="8" Width="69" />
-        <ColumnInfo Id="PaysNaissance" Index="10" />
-        <ColumnInfo Id="Sexe" Index="11" />
-        <ColumnInfo Id="Echelon" Index="12" />
-        <ColumnInfo Id="Departement" Index="13" />
-        <ColumnInfo Id="Fonction" Index="14" />
-        <ColumnInfo Id="Manager" Index="15" />
+        <ColumnInfo Id="FilsDe" Index="-1" />
+        <ColumnInfo Id="LieuNaissance" Index="-1" />
+        <ColumnInfo Id="Notes" Index="-1" />
+        <ColumnInfo Id="Birthday" Index="-1" />
+        <ColumnInfo Id="Email" Index="-1" />
+        <ColumnInfo Id="Address1" Index="-1" />
+        <ColumnInfo Id="Address2" Index="-1" />
+        <ColumnInfo Id="ZipCode" Index="-1" />
+        <ColumnInfo Id="City" Index="-1" />
+        <ColumnInfo Id="State" Index="-1" />
+        <ColumnInfo Id="Country" Index="-1" />
+        <ColumnInfo Id="WebPageAddress" Index="-1" />
+        <!-- Colonnes visibles, ordre de gauche à droite -->
+        <ColumnInfo Id="Matricule" SortIndex="0" SortOrder="Ascending" Index="0" Width="100" />
+        <ColumnInfo Id="FullName" Index="1" Caption="Nom Complet" Width="200" />
+        <ColumnInfo Id="Sexe" Index="2" Width="60" />
+        <ColumnInfo Id="DateEmbauche" Index="3" Width="100" />
+        <ColumnInfo Id="Anciennete" Index="4" Width="70" />
+        <ColumnInfo Id="Echelon" Index="5" Width="100" />
+        <ColumnInfo Id="Departement" Index="6" Width="170" />
+        <ColumnInfo Id="Fonction" Index="7" Width="200" />
+        <ColumnInfo Id="IsActif" Index="8" Width="70" />
       </Columns>
     </ListView>
     <ListView Id="Salarie_Paie_ListView" ClassName="AdiPAIE_V02.Module.BusinessObjects.Salarie" AllowNew="False" AllowDelete="False" Caption="Liste des Salariés actifs" Filter="[IsActif] = True" ImageName="Employees" IsNewNode="True">
@@ -1315,5 +1398,294 @@
         <ColumnInfo Id="Inscription" Width="127" />
       </Columns>
     </ListView>
+    <DetailView Id="BilanSocialFormulaire_DetailView" Caption="Bilan Social {0} — Vérifier et compléter">
+      <Layout>
+        <LayoutGroup Id="Main" RelativeSize="100" ShowCaption="False" Caption="">
+          <!-- Cache le groupe auto-XAF des champs non placés -->
+          <LayoutGroup Id="SimpleEditors" Removed="True" />
+          <TabbedGroup Id="BilanTabs" CaptionLocation="Top" RelativeSize="100" Index="0" IsNewNode="True">
+              <LayoutGroup Id="Tab_General" ShowCaption="True" Caption="I. Renseignements généraux" Direction="Vertical" RelativeSize="100" Index="0" IsNewNode="True">
+                <LayoutGroup Id="Grp_Identite" ShowCaption="True" Caption="Identification" Direction="Horizontal" RelativeSize="50" Index="0" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Identite_L" ShowCaption="False" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Annee" ViewItem="Annee" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="RaisonSociale" ViewItem="RaisonSociale" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="FormeJuridique" ViewItem="FormeJuridique" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="NINEA" ViewItem="NINEA" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="NombreEtablissements" ViewItem="NombreEtablissements" Index="4" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Identite_R" ShowCaption="False" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="ActivitePrincipale" ViewItem="ActivitePrincipale" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="AutresActivites" ViewItem="AutresActivites" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="HoraireType" ViewItem="HoraireType" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="SiegeHorsSenegal" ViewItem="SiegeHorsSenegal" Index="3" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Adresse" ShowCaption="True" Caption="Coordonnées" Direction="Horizontal" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Adresse_L" ShowCaption="False" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Region" ViewItem="Region" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Departement" ViewItem="Departement" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Commune" ViewItem="Commune" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="VilleLocalite" ViewItem="VilleLocalite" Index="3" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Adresse_R" ShowCaption="False" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="Telephone" ViewItem="Telephone" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Telefax" ViewItem="Telefax" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="EmailEntreprise" ViewItem="EmailEntreprise" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="BoitePostale" ViewItem="BoitePostale" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="SiteInternet" ViewItem="SiteInternet" Index="4" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Tab_Effectif" ShowCaption="True" Caption="II. Effectifs" Direction="Vertical" RelativeSize="100" Index="1" IsNewNode="True">
+                <LayoutGroup Id="Grp_Permanent" ShowCaption="True" Caption="21. Effectif permanent" Direction="Horizontal" RelativeSize="50" Index="0" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Perm_N" ShowCaption="True" Caption="Année N" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="EffPerm_CDI_N" ViewItem="EffPerm_CDI_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="EffPerm_CDD_N" ViewItem="EffPerm_CDD_N" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="EffPerm_Apprentis_N" ViewItem="EffPerm_Apprentis_N" Index="2" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Perm_P" ShowCaption="True" Caption="Année N-1" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="EffPerm_CDI_P" ViewItem="EffPerm_CDI_P" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="EffPerm_CDD_P" ViewItem="EffPerm_CDD_P" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="EffPerm_Apprentis_P" ViewItem="EffPerm_Apprentis_P" Index="2" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Autres" ShowCaption="True" Caption="22-23. Saisonniers / Journaliers" Direction="Horizontal" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Autres_N" ShowCaption="True" Caption="Année N" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="EffSaisonnier_N" ViewItem="EffSaisonnier_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="EffJournalier_N" ViewItem="EffJournalier_N" Index="1" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Autres_P" ShowCaption="True" Caption="Année N-1" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="EffSaisonnier_P" ViewItem="EffSaisonnier_P" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="EffJournalier_P" ViewItem="EffJournalier_P" Index="1" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Tab_Repartition" ShowCaption="True" Caption="III. Répartition" Direction="Vertical" RelativeSize="100" Index="2" IsNewNode="True">
+                <LayoutGroup Id="Grp_Statut" ShowCaption="True" Caption="32. Par statut au 31 décembre" Direction="Horizontal" RelativeSize="50" Index="0" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Statut_N" ShowCaption="True" Caption="Année N" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Stat_Ouvriers_H_N" ViewItem="Stat_Ouvriers_H_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Ouvriers_F_N" ViewItem="Stat_Ouvriers_F_N" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Employes_H_N" ViewItem="Stat_Employes_H_N" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Employes_F_N" ViewItem="Stat_Employes_F_N" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Maitrise_H_N" ViewItem="Stat_Maitrise_H_N" Index="4" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Maitrise_F_N" ViewItem="Stat_Maitrise_F_N" Index="5" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Cadres_H_N" ViewItem="Stat_Cadres_H_N" Index="6" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Cadres_F_N" ViewItem="Stat_Cadres_F_N" Index="7" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Statut_P" ShowCaption="True" Caption="Année N-1" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="Stat_Ouvriers_H_P" ViewItem="Stat_Ouvriers_H_P" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Ouvriers_F_P" ViewItem="Stat_Ouvriers_F_P" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Employes_H_P" ViewItem="Stat_Employes_H_P" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Employes_F_P" ViewItem="Stat_Employes_F_P" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Maitrise_H_P" ViewItem="Stat_Maitrise_H_P" Index="4" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Maitrise_F_P" ViewItem="Stat_Maitrise_F_P" Index="5" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Cadres_H_P" ViewItem="Stat_Cadres_H_P" Index="6" IsNewNode="True" />
+                    <LayoutItem Id="Stat_Cadres_F_P" ViewItem="Stat_Cadres_F_P" Index="7" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Age" ShowCaption="True" Caption="33. Par tranche d'âge (Année N)" Direction="Horizontal" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Age_H" ShowCaption="True" Caption="Hommes" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Age_Inf20_H_N" ViewItem="Age_Inf20_H_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Age_20_24_H_N" ViewItem="Age_20_24_H_N" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Age_25_29_H_N" ViewItem="Age_25_29_H_N" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Age_30_34_H_N" ViewItem="Age_30_34_H_N" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="Age_35_39_H_N" ViewItem="Age_35_39_H_N" Index="4" IsNewNode="True" />
+                    <LayoutItem Id="Age_40_44_H_N" ViewItem="Age_40_44_H_N" Index="5" IsNewNode="True" />
+                    <LayoutItem Id="Age_45_49_H_N" ViewItem="Age_45_49_H_N" Index="6" IsNewNode="True" />
+                    <LayoutItem Id="Age_50_54_H_N" ViewItem="Age_50_54_H_N" Index="7" IsNewNode="True" />
+                    <LayoutItem Id="Age_55_59_H_N" ViewItem="Age_55_59_H_N" Index="8" IsNewNode="True" />
+                    <LayoutItem Id="Age_60Plus_H_N" ViewItem="Age_60Plus_H_N" Index="9" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Age_F" ShowCaption="True" Caption="Femmes" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="Age_Inf20_F_N" ViewItem="Age_Inf20_F_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Age_20_24_F_N" ViewItem="Age_20_24_F_N" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Age_25_29_F_N" ViewItem="Age_25_29_F_N" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Age_30_34_F_N" ViewItem="Age_30_34_F_N" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="Age_35_39_F_N" ViewItem="Age_35_39_F_N" Index="4" IsNewNode="True" />
+                    <LayoutItem Id="Age_40_44_F_N" ViewItem="Age_40_44_F_N" Index="5" IsNewNode="True" />
+                    <LayoutItem Id="Age_45_49_F_N" ViewItem="Age_45_49_F_N" Index="6" IsNewNode="True" />
+                    <LayoutItem Id="Age_50_54_F_N" ViewItem="Age_50_54_F_N" Index="7" IsNewNode="True" />
+                    <LayoutItem Id="Age_55_59_F_N" ViewItem="Age_55_59_F_N" Index="8" IsNewNode="True" />
+                    <LayoutItem Id="Age_60Plus_F_N" ViewItem="Age_60Plus_F_N" Index="9" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Tab_NatAnc" ShowCaption="True" Caption="Nationalité / Ancienneté" Direction="Vertical" RelativeSize="100" Index="3" IsNewNode="True">
+                <LayoutGroup Id="Grp_Nationalite" ShowCaption="True" Caption="34. Par nationalité (Année N)" Direction="Horizontal" RelativeSize="30" Index="0" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Nat_H" ShowCaption="True" Caption="Hommes" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Nat_Sen_H_N" ViewItem="Nat_Sen_H_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Nat_Etr_H_N" ViewItem="Nat_Etr_H_N" Index="1" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Nat_F" ShowCaption="True" Caption="Femmes" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="Nat_Sen_F_N" ViewItem="Nat_Sen_F_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Nat_Etr_F_N" ViewItem="Nat_Etr_F_N" Index="1" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Anciennete" ShowCaption="True" Caption="35. Par ancienneté (Année N)" Direction="Horizontal" RelativeSize="70" Index="1" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Anc_H" ShowCaption="True" Caption="Hommes" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Anc_Inf1_H_N" ViewItem="Anc_Inf1_H_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Anc_1_4_H_N" ViewItem="Anc_1_4_H_N" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Anc_5_9_H_N" ViewItem="Anc_5_9_H_N" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Anc_10_14_H_N" ViewItem="Anc_10_14_H_N" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="Anc_15_19_H_N" ViewItem="Anc_15_19_H_N" Index="4" IsNewNode="True" />
+                    <LayoutItem Id="Anc_20_24_H_N" ViewItem="Anc_20_24_H_N" Index="5" IsNewNode="True" />
+                    <LayoutItem Id="Anc_25Plus_H_N" ViewItem="Anc_25Plus_H_N" Index="6" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Anc_F" ShowCaption="True" Caption="Femmes" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="Anc_Inf1_F_N" ViewItem="Anc_Inf1_F_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Anc_1_4_F_N" ViewItem="Anc_1_4_F_N" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Anc_5_9_F_N" ViewItem="Anc_5_9_F_N" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Anc_10_14_F_N" ViewItem="Anc_10_14_F_N" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="Anc_15_19_F_N" ViewItem="Anc_15_19_F_N" Index="4" IsNewNode="True" />
+                    <LayoutItem Id="Anc_20_24_F_N" ViewItem="Anc_20_24_F_N" Index="5" IsNewNode="True" />
+                    <LayoutItem Id="Anc_25Plus_F_N" ViewItem="Anc_25Plus_F_N" Index="6" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Tab_Mouvements" ShowCaption="True" Caption="IV. Mouvements" Direction="Vertical" RelativeSize="100" Index="4" IsNewNode="True">
+                <LayoutGroup Id="Grp_Recrut" ShowCaption="True" Caption="37. Recrutements (Année N)" Direction="Horizontal" RelativeSize="50" Index="0" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Recrut_H" ShowCaption="True" Caption="Hommes" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Rec_Ouvriers_H" ViewItem="Rec_Ouvriers_H" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Rec_Employes_H" ViewItem="Rec_Employes_H" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Rec_Maitrise_H" ViewItem="Rec_Maitrise_H" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Rec_Cadres_H" ViewItem="Rec_Cadres_H" Index="3" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Recrut_F" ShowCaption="True" Caption="Femmes" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="Rec_Ouvriers_F" ViewItem="Rec_Ouvriers_F" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Rec_Employes_F" ViewItem="Rec_Employes_F" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Rec_Maitrise_F" ViewItem="Rec_Maitrise_F" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Rec_Cadres_F" ViewItem="Rec_Cadres_F" Index="3" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Depart" ShowCaption="True" Caption="38. Départs (Année N)" Direction="Horizontal" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Depart_H" ShowCaption="True" Caption="Hommes" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Dep_Ouvriers_H" ViewItem="Dep_Ouvriers_H" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Dep_Employes_H" ViewItem="Dep_Employes_H" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Dep_Maitrise_H" ViewItem="Dep_Maitrise_H" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Dep_Cadres_H" ViewItem="Dep_Cadres_H" Index="3" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Depart_F" ShowCaption="True" Caption="Femmes" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="Dep_Ouvriers_F" ViewItem="Dep_Ouvriers_F" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Dep_Employes_F" ViewItem="Dep_Employes_F" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Dep_Maitrise_F" ViewItem="Dep_Maitrise_F" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Dep_Cadres_F" ViewItem="Dep_Cadres_F" Index="3" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Tab_MasseSal" ShowCaption="True" Caption="V. Rémunérations" Direction="Vertical" RelativeSize="100" Index="5" IsNewNode="True">
+                <LayoutGroup Id="Grp_Masse" ShowCaption="True" Caption="51. Masses salariales brutes" Direction="Horizontal" RelativeSize="20" Index="0" IsNewNode="True">
+                  <LayoutItem Id="MasseSal_Total_N" ViewItem="MasseSal_Total_N" RelativeSize="50" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="MasseSal_Total_P" ViewItem="MasseSal_Total_P" RelativeSize="50" Index="1" IsNewNode="True" />
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Charges" ShowCaption="True" Caption="52. Charges salariales (coût employeur)" Direction="Horizontal" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Charges_N" ShowCaption="True" Caption="Année N" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Charges_CSS_N" ViewItem="Charges_CSS_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Charges_IPRES_N" ViewItem="Charges_IPRES_N" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Charges_CFCE_N" ViewItem="Charges_CFCE_N" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Impots_N" ViewItem="Impots_N" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="Charges_IPM_N" ViewItem="Charges_IPM_N" Index="4" IsNewNode="True" />
+                    <LayoutItem Id="Charges_AssurDeces_N" ViewItem="Charges_AssurDeces_N" Index="5" IsNewNode="True" />
+                    <LayoutItem Id="Charges_AssurRetraite_N" ViewItem="Charges_AssurRetraite_N" Index="6" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Charges_P" ShowCaption="True" Caption="Année N-1" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="Charges_CSS_P" ViewItem="Charges_CSS_P" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Charges_IPRES_P" ViewItem="Charges_IPRES_P" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Charges_CFCE_P" ViewItem="Charges_CFCE_P" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Impots_P" ViewItem="Impots_P" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="Charges_IPM_P" ViewItem="Charges_IPM_P" Index="4" IsNewNode="True" />
+                    <LayoutItem Id="Charges_AssurDeces_P" ViewItem="Charges_AssurDeces_P" Index="5" IsNewNode="True" />
+                    <LayoutItem Id="Charges_AssurRetraite_P" ViewItem="Charges_AssurRetraite_P" Index="6" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Frais" ShowCaption="True" Caption="53. Détail frais de personnel" Direction="Horizontal" RelativeSize="30" Index="2" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Frais_N" ShowCaption="True" Caption="Année N" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Frais_Eau_N" ViewItem="Frais_Eau_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Frais_Electricite_N" ViewItem="Frais_Electricite_N" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Frais_Habillement_N" ViewItem="Frais_Habillement_N" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Frais_Medicaments_N" ViewItem="Frais_Medicaments_N" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="Frais_Formation_N" ViewItem="Frais_Formation_N" Index="4" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Frais_P" ShowCaption="True" Caption="Année N-1" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="Frais_Eau_P" ViewItem="Frais_Eau_P" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Frais_Electricite_P" ViewItem="Frais_Electricite_P" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Frais_Habillement_P" ViewItem="Frais_Habillement_P" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Frais_Medicaments_P" ViewItem="Frais_Medicaments_P" Index="3" IsNewNode="True" />
+                    <LayoutItem Id="Frais_Formation_P" ViewItem="Frais_Formation_P" Index="4" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Tab_Hygiene" ShowCaption="True" Caption="VI. Hygiène / Sécurité" Direction="Vertical" RelativeSize="100" Index="6" IsNewNode="True">
+                <LayoutGroup Id="Grp_AT" ShowCaption="True" Caption="61. Accidents de travail" Direction="Horizontal" RelativeSize="60" Index="0" IsNewNode="True">
+                  <LayoutGroup Id="Grp_AT_N" ShowCaption="True" Caption="Année N" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Accidents_AvecArret_N" ViewItem="Accidents_AvecArret_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Accidents_SansArret_N" ViewItem="Accidents_SansArret_N" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Accidents_Deces_N" ViewItem="Accidents_Deces_N" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Accidents_JourneesPerdues_N" ViewItem="Accidents_JourneesPerdues_N" Index="3" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_AT_P" ShowCaption="True" Caption="Année N-1" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="Accidents_AvecArret_P" ViewItem="Accidents_AvecArret_P" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Accidents_SansArret_P" ViewItem="Accidents_SansArret_P" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Accidents_Deces_P" ViewItem="Accidents_Deces_P" Index="2" IsNewNode="True" />
+                    <LayoutItem Id="Accidents_JourneesPerdues_P" ViewItem="Accidents_JourneesPerdues_P" Index="3" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Sante" ShowCaption="True" Caption="65. Dépenses de santé (Année N)" Direction="Vertical" RelativeSize="40" Index="1" IsNewNode="True">
+                  <LayoutItem Id="Sante_SalaireMedical_N" ViewItem="Sante_SalaireMedical_N" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="Sante_Medicaments_N" ViewItem="Sante_Medicaments_N" Index="1" IsNewNode="True" />
+                  <LayoutItem Id="Sante_Total_N" ViewItem="Sante_Total_N" Index="2" IsNewNode="True" />
+                </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Tab_Relations" ShowCaption="True" Caption="VII-VIII. Relations" Direction="Vertical" RelativeSize="100" Index="7" IsNewNode="True">
+                <LayoutGroup Id="Grp_Syndicats" ShowCaption="True" Caption="VII. Relations professionnelles" Direction="Horizontal" RelativeSize="50" Index="0" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Synd_L" ShowCaption="False" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Syndicats" ViewItem="Syndicats" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="NombreDelegues" ViewItem="NombreDelegues" Index="1" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Synd_R" ShowCaption="False" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="DateDernieresElections" ViewItem="DateDernieresElections" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="OrganisationPatronale" ViewItem="OrganisationPatronale" Index="1" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Organes" ShowCaption="True" Caption="VIII. Fonctionnement des organes" Direction="Horizontal" RelativeSize="50" Index="1" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Org_L" ShowCaption="False" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="IPM_Nom" ViewItem="IPM_Nom" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="ComiteHygiene" ViewItem="ComiteHygiene" Index="1" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Org_R" ShowCaption="False" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="ServiceMedecine" ViewItem="ServiceMedecine" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="DateCreationMedecine" ViewItem="DateCreationMedecine" Index="1" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Tab_Divers" ShowCaption="True" Caption="X-XI. Autres" Direction="Vertical" RelativeSize="100" Index="8" IsNewNode="True">
+                <LayoutGroup Id="Grp_Evolution" ShowCaption="True" Caption="X. Évolution de l'emploi" Direction="Vertical" RelativeSize="15" Index="0" IsNewNode="True">
+                  <LayoutItem Id="PrevisionEmploi" ViewItem="PrevisionEmploi" Index="0" IsNewNode="True" />
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Horaire" ShowCaption="True" Caption="XI. Horaire de travail" Direction="Horizontal" RelativeSize="15" Index="1" IsNewNode="True">
+                  <LayoutItem Id="Horaire_Debut" ViewItem="Horaire_Debut" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="Horaire_Fin" ViewItem="Horaire_Fin" Index="1" IsNewNode="True" />
+                  <LayoutItem Id="Horaire_Pause" ViewItem="Horaire_Pause" Index="2" IsNewNode="True" />
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Conges" ShowCaption="True" Caption="113. État des absences (jours, Année N)" Direction="Horizontal" RelativeSize="50" Index="2" IsNewNode="True">
+                  <LayoutGroup Id="Grp_Conges_L" ShowCaption="False" Direction="Vertical" RelativeSize="50" Index="0" IsNewNode="True">
+                    <LayoutItem Id="Conges_Payes_N" ViewItem="Conges_Payes_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Conges_Maternite_N" ViewItem="Conges_Maternite_N" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Conges_Maladie_N" ViewItem="Conges_Maladie_N" Index="2" IsNewNode="True" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Grp_Conges_R" ShowCaption="False" Direction="Vertical" RelativeSize="50" Index="1" IsNewNode="True">
+                    <LayoutItem Id="Conges_Permission_N" ViewItem="Conges_Permission_N" Index="0" IsNewNode="True" />
+                    <LayoutItem Id="Conges_AbsNonAuto_N" ViewItem="Conges_AbsNonAuto_N" Index="1" IsNewNode="True" />
+                    <LayoutItem Id="Conges_MiseAPied_N" ViewItem="Conges_MiseAPied_N" Index="2" IsNewNode="True" />
+                  </LayoutGroup>
+                </LayoutGroup>
+                <LayoutGroup Id="Grp_Signature" ShowCaption="True" Caption="Signature" Direction="Horizontal" RelativeSize="20" Index="3" IsNewNode="True">
+                  <LayoutItem Id="FaitA" ViewItem="FaitA" RelativeSize="50" Index="0" IsNewNode="True" />
+                  <LayoutItem Id="DateSignature" ViewItem="DateSignature" RelativeSize="50" Index="1" IsNewNode="True" />
+                </LayoutGroup>
+              </LayoutGroup>
+          </TabbedGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
   </Views>
 </Application>

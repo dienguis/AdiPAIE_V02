@@ -29,7 +29,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             normalizeAction = new SimpleAction(this, "NormalizeBulletinLines", PredefinedCategory.Edit)
             {
-                Caption = "Réordonner lignes",
+                Caption = "Réordonner",
                 ImageName = "btn_reordonner",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject

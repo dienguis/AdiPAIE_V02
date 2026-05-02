@@ -33,6 +33,7 @@
     <EmbeddedResource Include="Images\btn_renvoyer.png" />
     <EmbeddedResource Include="Images\btn_charger.png" />
     <EmbeddedResource Include="Model.DesignedDiffs.xafml" />
+    <!-- Dashboards XML retirés — remplacés par pages Blazor manuelles -->
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
@@ -188,6 +189,9 @@
     <None Update="UnusableNodes42.xml">
       <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
     </None>
+    <None Update="UnusableNodes44.xml">
+      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
+    </None>
     <None Update="UnusableNodes5.xml">
       <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
     </None>
@@ -203,8 +207,5 @@
     <None Update="UnusableNodes9.xml">
       <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Reports\NewFolder\" />
   </ItemGroup>
 </Project>

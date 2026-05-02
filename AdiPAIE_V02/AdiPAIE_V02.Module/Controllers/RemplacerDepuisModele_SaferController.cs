@@ -29,7 +29,7 @@ namespace AdiPAIE_V02.Module.Controllers
             // Target required Views (via the TargetXXX properties) and create their Actions.
             var a = new SimpleAction(this, "RemplacerLignesModeleSeulement", PredefinedCategory.Edit)
             {
-                Caption = "Remplacer (lignes du modèle uniquement)",
+                Caption = "Remplacer modèle",
                 ImageName = "Action_Reset",
                 ConfirmationMessage = "Les lignes provenant du modèle seront remplacées; les lignes saisies manuellement seront conservées. Continuer ?"
             };

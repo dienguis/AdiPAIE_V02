@@ -40,7 +40,7 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
             _telechargerPdf = new SimpleAction(this,
                 "BulletinRH_TelechargerPdf", PredefinedCategory.View)
             {
-                Caption = "Télécharger PDF",
+                Caption = "PDF",
                 ImageName = "Action_Export",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ToolTip = "Télécharge le bulletin sélectionné en PDF.",
@@ -52,7 +52,7 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
             _envoyerEmail = new SimpleAction(this,
                 "BulletinRH_EnvoyerEmail", PredefinedCategory.View)
             {
-                Caption = "Envoyer au salarié",
+                Caption = "Envoyer",
                 ImageName = "BO_Mail",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ToolTip = "Envoie le bulletin PDF par email au salarié concerné.",

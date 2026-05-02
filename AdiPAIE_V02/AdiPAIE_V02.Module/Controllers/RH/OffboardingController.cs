@@ -33,7 +33,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             preRemplirAction = new SimpleAction(this,
                 "Offboarding_PreRemplir", PredefinedCategory.Edit)
             {
-                Caption = "Charger données salarié",
+                Caption = "Charger salarié",
                 ImageName = "Action_Refresh",
                 ToolTip = "Charge le salaire, l'ancienneté et les congés restants."
             };
@@ -53,7 +53,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             calculerAction = new SimpleAction(this,
                 "Offboarding_Calculer", PredefinedCategory.Edit)
             {
-                Caption = "Calculer le solde",
+                Caption = "Calculer solde",
                 ImageName = "Action_RunDiagram",
                 ConfirmationMessage = "Calculer le solde de tout compte ?",
                 ToolTip = "Calcule automatiquement tous les éléments du solde de tout compte."
@@ -175,7 +175,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             cloturerAction = new SimpleAction(this,
                 "Offboarding_Cloturer", PredefinedCategory.Edit)
             {
-                Caption = "Clôturer le dossier",
+                Caption = "Clôturer",
                 ImageName = "Action_Close",
                 ConfirmationMessage = "Clôturer définitivement ce dossier ?\n\n"
                                     + "Le salarié sera désactivé et sa date de sortie enregistrée."

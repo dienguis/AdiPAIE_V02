@@ -63,7 +63,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [PersistentAlias(
     "Concat(Company.RaisonSociale, ' - ', Iif(Mois < 10, '0', ''), ToStr(Mois), '/', ToStr(Annee))"
 )]
-        public string DisplayName => (string)EvaluateAlias(nameof(DisplayName));
+        public string DisplayName
+        {
+            get
+            {
+                try { return (string)EvaluateAlias(nameof(DisplayName)); }
+                catch (ObjectDisposedException) { return string.Empty; }
+            }
+        }
 
         [Size(16), Indexed(Name = "IX_PeriodePaie_Key")]
         public string Key { get => key; set => SetPropertyValue(nameof(Key), ref key, value?.Trim()); }

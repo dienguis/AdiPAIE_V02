@@ -28,7 +28,7 @@ namespace AdiPAIE_V02.Module.Controllers
             importerAction = new SimpleAction(this,
                 "VilleSenegal_Importer", PredefinedCategory.View)
             {
-                Caption = "🌍 Importer depuis GeoNames",
+                Caption = "🌍 Import GeoNames",
                 ImageName = "State_Confirmed",
                 ConfirmationMessage = "Importer toutes les villes du Sénégal depuis GeoNames ? "
                                     + "Les villes existantes ne seront pas écrasées.",

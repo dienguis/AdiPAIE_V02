@@ -74,7 +74,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             // ── RH : Modifier les dates ───────────────────────
             modifierDatesAction = new SimpleAction(this, "Conge_ModifierDates", PredefinedCategory.Edit)
             {
-                Caption = "Modifier les dates",
+                Caption = "Modifier dates",
                 ImageName = "Action_Edit",
                 ToolTip = "Repasse la demande en Brouillon pour modifier les dates.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
@@ -87,7 +87,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             // ── RH : Annuler ──────────────────────────────────
             annulerAction = new SimpleAction(this, "Conge_Annuler", PredefinedCategory.Edit)
             {
-                Caption = "Annuler le congé",
+                Caption = "Annuler congé",
                 ImageName = "Action_Close",
                 ToolTip = "Annule un congé déjà accordé.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Reflection;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Blazor.DesignTime;
 using DevExpress.ExpressApp.Blazor.Services;
@@ -49,6 +50,17 @@ namespace AdiPAIE_V02.Blazor.Server
         }
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((context, config) =>
+                {
+                    // dbconfig.json surcharge appsettings.json pour la connexion BDD
+                    // Ce fichier est modifiable depuis Paramètres de paie → Connexion BDD
+                    var dbConfigPath = Path.Combine(
+                        AppDomain.CurrentDomain.BaseDirectory, "dbconfig.json");
+                    if (File.Exists(dbConfigPath))
+                    {
+                        config.AddJsonFile(dbConfigPath, optional: true, reloadOnChange: false);
+                    }
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

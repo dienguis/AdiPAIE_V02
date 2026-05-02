@@ -4,6 +4,7 @@ using DevExpress.Drawing;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.ExpressApp.ReportsV2;
+using DevExpress.ExpressApp.Templates;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.Base.ReportsV2;
 using DevExpress.Persistent.BaseImpl;
@@ -24,8 +25,10 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             var act = new SimpleAction(this, "ImprimerBulletin", PredefinedCategory.Reports)
             {
-                Caption = "Imprimer bulletin",
-                ImageName = "Print"
+                Caption = "Imprimer",
+                ImageName = "Print",
+                PaintStyle = ActionItemPaintStyle.Caption,
+                ToolTip = "Imprime / télécharge le bulletin sélectionné en PDF."
             };
 
             act.Execute += (s, e) =>

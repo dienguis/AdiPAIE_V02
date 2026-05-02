@@ -17,7 +17,7 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             genAction = new SimpleAction(this, "GenererEcheancier", PredefinedCategory.Edit)
             {
-                Caption = "Générer l'échéancier",
+                Caption = "Échéancier",
                 ImageName = "Action_Refresh",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage

@@ -29,7 +29,7 @@ namespace AdiPAIE_V02.Module.Controllers
             // Target required Views (via the TargetXXX properties) and create their Actions.
             var a = new SimpleAction(this, "GenererEcritureComptable", PredefinedCategory.Save)
             {
-                Caption = "Générer écriture comptable",
+                Caption = "Écriture comptable",
                 ImageName = "BO_Invoice"
             };
             a.Execute += OnExecute;

@@ -36,7 +36,7 @@ namespace AdiPAIE_V02.Module.Controllers
             synchroniserAction = new SimpleAction(this,
                 "Planning_Synchroniser", PredefinedCategory.View)
             {
-                Caption = "Synchroniser le planning",
+                Caption = "Synchroniser",
                 ImageName = "Action_Refresh",
                 ToolTip = "Régénère tous les événements depuis les demandes de congé.",
                 ConfirmationMessage =
@@ -79,7 +79,7 @@ namespace AdiPAIE_V02.Module.Controllers
             filtrerDeptAction = new SingleChoiceAction(this,
                 "Planning_FiltrerDept", PredefinedCategory.View)
             {
-                Caption = "Filtrer par département",
+                Caption = "Filtrer dept.",
                 ImageName = "BO_Department",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ItemType = SingleChoiceActionItemType.ItemIsOperation,
