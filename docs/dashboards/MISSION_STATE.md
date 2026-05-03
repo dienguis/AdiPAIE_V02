@@ -101,9 +101,34 @@ Entités SUPPRIMÉES :
 | 1B | Seed démo COMPLET (~100 entrées) + Controller wipe + flag appsettings + RBAC | 4h | ✅ done | _consolidé_ |
 | 1B.2 | Hot-fix duplication grilles XAF | 15 min | ✅ done | `461c0b21` |
 | 1C | Refonte 4 services + razor EXTERNE (filtres Site→Unité) | 2 jours | ✅ done | `515b2531` (final) |
-| 1D | Masquage entités legacy (DefaultClassOptions retiré, [Legacy] sur FK) | 0.5 jour | ✅ done | _commit pending_ |
-| 1E | Refonte 6 SQL + install.sql + README + MISSION_STATE | 0.5 jour | 🟡 next | — |
+| 1D | Masquage entités legacy (DefaultClassOptions retiré, [Legacy] sur FK) | 0.5 jour | ✅ done | `082da74` |
+| 1D.3 | Finitions tardives : appsettings + Site + dashboards + KpiCard + CSS | 1h | ✅ done | `febfb1f` |
+| 1E | Refonte 6 SQL + install.sql + README + MISSION_STATE | 0.5 jour | ✅ done | _voir prochaine MAJ_ |
 | 1F (futur) | Nettoyage cosmétique : dead code Razor + suppression définitive | 1h | 🕒 plus tard | — |
+
+### Sprints associés (parallèles à V1.1)
+
+| Sprint | Objet | Statut | Hash |
+|---|---|---|---|
+| Help.A | Refonte interimaires.html + bulletins.html + salaries.html + conges.html + help-shared.css | ✅ done | _consolidé dans Help.B+C_ |
+| Help.B+C | Refonte 19 pages help (modules secondaires + admin/imports) au format step-by-step | ✅ done | `e2806c2` |
+| Rescue | Récupération 9 fichiers V1.1 perdus (Remuneration*, DemoDataSeeder, IDashboard*ExportService) depuis dangling stash `ea7826` | ✅ done | `8987dab` |
+| Infra+Sec | dbconfig.json en %ProgramData% (survit clean) + chiffrement DPAPI password | ✅ done | `2865ac3` |
+
+## ⭐ MISSION V1.1 TERMINÉE — HEAD `dev` = `2865ac3` (push origin/dev) ⭐
+
+Branche `feature/dashboards-rh` supprimée après merge `c3dcade` dans `dev`.
+Branche `feat` (orphan polluée) supprimée. État du repo final :
+
+```
+* dev          → c3dcade (merge V1.0+V1.1+Help) + febfb1f + e2806c2 + 8987dab + 2865ac3
+                 = HEAD `2865ac3` (synced origin/dev)
+* master       → dd67ea0 (init projet)
+* origin/dev   → 2865ac3
+* origin/master→ dd67ea0
+```
+
+Pour livrer en prod : merger `dev` → `master` (après validation utilisateur 1-2 jours).
 
 ### Convention seed démo
 
@@ -111,17 +136,6 @@ Entités SUPPRIMÉES :
 - Flag `appsettings.json` → `Dashboards:SeedDemoData` (true/false)
 - Controller XAF « Vider données démo » → supprime tout `Code LIKE 'DEMO_%'`
 - Pour passer en prod : `false` dans appsettings + clic sur le bouton wipe
-
-Tous les livrables sont produits. Pour merger `feature/dashboards-rh` →
-`main` : valider 1-2 jours en environnement réel, puis :
-
-```
-git checkout main
-git merge --no-ff feature/dashboards-rh -m "Merge: Module Tableaux de Bord RH (6 dashboards + exports + RBAC)"
-git tag v1.0-dashboards-rh
-git push origin main --tags
-```
-| Final | Livrables (README, scripts SQL) | 🕒 pending | — | — |
 
 ## 2. Architecture du module — fichiers clés
 
@@ -242,7 +256,9 @@ Source EXTERNE : `ContratInterim.TauxJournalier` × jours travaillés (`ContratI
 
 ---
 
-_Dernière MAJ : 2026-05-02 — Étape 4.2 commitée (hash 504cb1ee), Étape 4.3 prête à être commitée (code + SQL + state file en untracked / modifié)._
+_Dernière MAJ : 2026-05-03 — Mission V1.1 clôturée (Sprint 1E SQL/README/MISSION_STATE).
+HEAD `dev` = `2865ac3` synced origin/dev. Toutes les étapes V1.0 + V1.1 + Help.B+C
+sont commitées et poussées. Sprint 1F (cleanup dead code) reporté._
 
 ## 7. Annexes — sources data validées par utilisateur (Étape 4.4 & au-delà)
 

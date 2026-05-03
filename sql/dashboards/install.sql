@@ -13,9 +13,19 @@
 -- ║       - Documentation métier rapide                                      ║
 -- ║       - Tests d'intégration                                               ║
 -- ║                                                                          ║
--- ║   Version    : 1.0 (mai 2026)                                            ║
+-- ║   Version    : 1.1 (mai 2026)                                            ║
 -- ║   Auteur     : Mission « Tableaux de Bord RH »                           ║
 -- ║   Plateforme : Microsoft SQL Server 2019+                                ║
+-- ║                                                                          ║
+-- ║   ─── V1.1 — Refonte Module Intérimaire ────────────────────────────     ║
+-- ║   Le modèle EXTERNE a été refondu (mai 2026) :                           ║
+-- ║     - StationService (legacy)            → Site (TypeSite enum)          ║
+-- ║         Type 0=StationService 🏪 / 1=Siege 🏢 / 2=Depot 📦 / 3=Autre 📍  ║
+-- ║     - BusinessUnitStation (legacy)       → UniteOrganisationnelle        ║
+-- ║         (récursive Parent/Enfants, TypeUnite : BU/Departement/Segment)   ║
+-- ║     - ContratInterim.Station (legacy)    → ContratInterim.Site (V1.1)    ║
+-- ║     - ContratInterim.BU      (legacy)    → ContratInterim.Unites (N-N)   ║
+-- ║   Les colonnes legacy restent en base (compat) mais ne sont plus lues.   ║
 -- ║                                                                          ║
 -- ╚══════════════════════════════════════════════════════════════════════════╝
 --
@@ -36,18 +46,18 @@
 --          2.2  Turnover %                                                  KPI
 --          2.3  Bar charts (tranche, ancienneté, segment, cat, contrat) chart
 --
---   §3    TABLEAU N°3 — Mouvements (Arrivées / Départs)               ligne ~250
+--   §3    TABLEAU N°3 — Mouvements (Arrivées / Départs)               ligne ~270
 --          3.1  INTERNE : Salarié.DateEmbauche / DateSortie + Motif
 --          3.2  EXTERNE : ContratInterim DateDebut / DateFinReelle
+--          3.3  EXTERNE V1.1 : Arrivées par Site (TypeSite enum + emoji)
 --
---   §4    TABLEAU N°4 — Rémunération (Égalité H/F)                    ligne ~400
+--   §4    TABLEAU N°4 — Rémunération (Égalité H/F)                    ligne ~430
 --          4.1  Masse Brute, Coût Employeur, Net total
 --          4.2  KPI Min / Max / Moyen par bulletin
 --          4.3  Égalité par segment (Département)
---          4.4  Égalité par catégorie professionnelle
---          4.5  Évolution mensuelle 12 mois
---          4.6  Décomposition par 7 familles macro de rubrique
---          4.7  EXTERNE : ContratInterim TauxJournalier × 22j × NbMois
+--          4.4  EXTERNE : Coût total (TauxJournalier × 22j × NbMois)
+--          4.5  EXTERNE V1.1 : Coût total par Site (TypeSite enum + emoji)
+--          (cf. fichier détaillé : sql/dashboards/04_remuneration.sql — 11 requêtes)
 --
 --   §5    TABLEAU N°5 — Suivi des Absences (INTERNE)                  ligne ~570
 --          5.1  KPI globaux + Taux d'absentéisme
@@ -196,6 +206,25 @@ FROM [dbo].[ContratInterim]
 WHERE [Statut] IN (2, 3)
   AND COALESCE([DateFinReelle], [DateFin]) BETWEEN @debut AND @fin;
 
+-- 3.3 EXTERNE V1.1 : Arrivées par SITE (TypeSite enum + emoji)
+--     Remplace l'ancien GROUP BY [StationService] (legacy) par GROUP BY Site V1.1.
+SELECT
+    ISNULL(si.[Nom], '(Non renseigné)')              AS SiteNom,
+    CASE si.[Type]
+        WHEN 0 THEN N'🏪 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        WHEN 1 THEN N'🏢 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        WHEN 2 THEN N'📦 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        WHEN 3 THEN N'📍 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        ELSE        ISNULL(si.[Nom], '(Non renseigné)')
+    END                                              AS SiteNomAvecType,
+    si.[Type]                                        AS TypeSiteCode,
+    COUNT(*)                                         AS NbArrivees
+FROM [dbo].[ContratInterim] ci
+LEFT JOIN [dbo].[Site] si ON si.[Oid] = ci.[Site]
+WHERE ci.[DateDebut] >= @debut AND ci.[DateDebut] <= @fin
+GROUP BY si.[Nom], si.[Type]
+ORDER BY NbArrivees DESC;
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- §4  TABLEAU N°4 — Rémunération (cf. 04_remuneration.sql)
 -- ════════════════════════════════════════════════════════════════════════════
@@ -265,7 +294,7 @@ ORDER BY 1;
 -- 4.4 EXTERNE : Coût total (formule TauxJournalier × 22 × NbMois actifs)
 WITH ContratsAnnee AS (
     SELECT
-        ci.[TauxJournalier],
+        ci.[Site], ci.[Interimaire], ci.[TauxJournalier],
         CASE WHEN ci.[DateDebut] < @debut THEN @debut ELSE ci.[DateDebut] END AS DateDebutEff,
         CASE WHEN ci.[DateFin] IS NULL OR ci.[DateFin] < @sentinelle THEN
                 CASE WHEN GETDATE() > @fin THEN @fin ELSE CAST(GETDATE() AS date) END
@@ -282,6 +311,41 @@ SELECT SUM(
      + MONTH(ca.DateFinEff) - MONTH(ca.DateDebutEff) + 1)
 ) AS CoutTotalExterne
 FROM ContratsAnnee ca;
+
+-- 4.5 EXTERNE V1.1 : Coût total par SITE (TypeSite enum + emoji)
+--     Remplace l'ancien GROUP BY [StationService] (legacy) par GROUP BY Site V1.1.
+WITH ContratsAnnee AS (
+    SELECT
+        ci.[Site], ci.[Interimaire], ci.[TauxJournalier],
+        CASE WHEN ci.[DateDebut] < @debut THEN @debut ELSE ci.[DateDebut] END AS DateDebutEff,
+        CASE WHEN ci.[DateFin] IS NULL OR ci.[DateFin] < @sentinelle THEN
+                CASE WHEN GETDATE() > @fin THEN @fin ELSE CAST(GETDATE() AS date) END
+             WHEN ci.[DateFin] > @fin THEN @fin
+             ELSE ci.[DateFin]
+        END AS DateFinEff
+    FROM [dbo].[ContratInterim] ci
+    WHERE ci.[DateDebut] > @sentinelle AND ci.[DateDebut] <= @fin
+      AND (ci.[DateFin] < @sentinelle OR ci.[DateFin] >= @debut)
+)
+SELECT
+    ISNULL(si.[Nom], '(Non renseigné)') AS SiteNom,
+    CASE si.[Type]
+        WHEN 0 THEN N'🏪 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        WHEN 1 THEN N'🏢 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        WHEN 2 THEN N'📦 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        WHEN 3 THEN N'📍 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        ELSE        ISNULL(si.[Nom], '(Non renseigné)')
+    END                                 AS SiteNomAvecType,
+    si.[Type]                           AS TypeSiteCode,
+    SUM(ca.[TauxJournalier] * 22 *
+        ((YEAR(ca.DateFinEff) - YEAR(ca.DateDebutEff)) * 12
+         + MONTH(ca.DateFinEff) - MONTH(ca.DateDebutEff) + 1)
+    )                                   AS CoutTotal,
+    COUNT(DISTINCT ca.[Interimaire])    AS NbInterimaires
+FROM ContratsAnnee ca
+LEFT JOIN [dbo].[Site] si ON si.[Oid] = ca.[Site]
+GROUP BY si.[Nom], si.[Type]
+ORDER BY CoutTotal DESC;
 
 -- ════════════════════════════════════════════════════════════════════════════
 -- §5  TABLEAU N°5 — Suivi des Absences (cf. 05_suivi_absences.sql)

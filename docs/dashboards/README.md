@@ -4,8 +4,10 @@ Module Blazor Server (.NET 8 / DevExpress XAF 25.1) implémentant **6 tableaux
 de bord analytiques** pour le pilotage RH : effectif, mouvements, rémunération,
 absences, bilan social.
 
-> **Branche Git** : `feature/dashboards-rh`
-> **Mission** : achevée en 11 étapes (cf. `MISSION_STATE.md`)
+> **Branche Git** : intégré dans `dev` (commit `c3dcade`, mai 2026)
+> **Version** : **V1.1 (mai 2026)** — refonte module Intérim (Site enrichi + UniteOrganisationnelle)
+> **Mission V1.0** : 11 étapes (cf. `MISSION_STATE.md`)
+> **Mission V1.1** : Sprints 1A → 1E (modèle de données refondu, dashboards adaptés, SQL/docs alignés)
 > **Charte visuelle** : ELTON Oil — Navy `#142E4D`, Orange `#F18A1C`, Rouge `#E63946`
 
 ---
@@ -52,6 +54,33 @@ absences, bilan social.
 
 > **Demande d'accès** : un administrateur doit ajouter le rôle `RH_Manager`
 > (ou `RH`/`DAF`) à votre compte utilisateur via Admin → Users → Roles.
+
+### V1.1 — Modèle Intérimaire enrichi (mai 2026)
+
+Le module Intérim a été refondu pour modéliser la réalité ELTON :
+
+| Entité V1.0 (legacy) | Entité V1.1 (active) |
+|---|---|
+| `StationService` (15 stations) | `Site` enrichi avec `TypeSite` enum |
+| `BusinessUnitStation` (4 BU) | `UniteOrganisationnelle` (récursive Parent/Enfants) |
+| `ContratInterim.Station` (FK) | `ContratInterim.Site` (FK + multi-affectation `Unites` N-N) |
+
+**`TypeSite`** énumère les 4 catégories de lieux possibles :
+- `🏪 StationService` (~15 sites avec leurs ~4 BU)
+- `🏢 Siege` (Direction Générale avec départements DSI / Commerciale / Admin&Fin / RH + sous-segments)
+- `📦 Depot` (plusieurs sites)
+- `📍 Autre`
+
+**`UniteOrganisationnelle`** est une hiérarchie récursive (Parent self-FK) avec
+4 types : `BU / Departement / Segment / Autre`. Un intérimaire peut être affecté
+à plusieurs unités simultanément (multi-affectation N-N sans notion de % de temps).
+
+Un seed démo (préfixe `DEMO_`) charge automatiquement 6 sites + 19 unités +
+25 intérimaires + ~40 contrats + 10 mouvements quand
+`appsettings.json → Dashboards.SeedDemoData = true`. Pour basculer en prod,
+mettre à `false` puis cliquer sur **« Vider données démo »** (action XAF
+dans Mon profil utilisateur Admin) — supprime UNIQUEMENT les enregistrements
+préfixés `DEMO_`, jamais les vraies données métier.
 
 ### Les 6 tableaux en un coup d'œil
 
@@ -132,14 +161,20 @@ docs/dashboards/
 └── SPEC_PowerBI_DAX_to_SQL.sql  ← spec utilisateur initiale
 
 sql/dashboards/
-├── 01_effectif_detaille.sql    (10 requêtes)
+├── 01_effectif_detaille.sql    (10 requêtes — utilise déjà s.Site V1.1)
 ├── 02_analyse_effectif.sql     (12 requêtes)
-├── 03_mouvements.sql           (17 requêtes : 10 INT + 7 EXT)
-├── 04_remuneration.sql         (10 requêtes : 7 INT + 3 EXT)
+├── 03_mouvements.sql           (19 requêtes : 10 INT + 7 EXT V1.1 + 2 bonus Unités/Mvts)
+├── 04_remuneration.sql         (11 requêtes : 7 INT + 3 EXT V1.1 + 1 bonus Unités)
 ├── 05_suivi_absences.sql       (8 requêtes)
 ├── 06_bilan_social.sql         (3 blocs)
-└── install.sql                 ← script consolidé (ToC + 6 modules)
+└── install.sql                 ← script consolidé V1.1 (ToC + 6 modules + Site/Unités)
 ```
+
+> **Refonte V1.1 des SQL EXTERNE** : `03_mouvements.sql` et `04_remuneration.sql`
+> ont été mis à jour pour joindre `[Site]` (au lieu de `[StationService]` legacy)
+> et grouper par `TypeSite` enum avec emoji. Les requêtes bonus N-N
+> `[ContratInterimUniteOrganisationnelle]` sont commentées (le nom exact de la
+> table de jointure XPO doit être confirmé via `INFORMATION_SCHEMA`).
 
 ### Build & lancement
 
@@ -285,6 +320,8 @@ table des matières et paramètres globaux (`@annee`, `@dateRef`).
 | `BulletinLigne` (~22 991 lignes) chargé en mémoire pour la décomposition rubrique | Légère lenteur au 1er calcul | Au-delà de 50 000 lignes, basculer sur vue SQL |
 | Licence QuestPDF Community pour ELTON | Risque légal si CA > 1 M$ | Acheter Professional ≈ 699 $/an |
 | Bootstrap Icons via CDN public jsdelivr | Échec si serveur sans Internet | Hébergement local `wwwroot/lib/bootstrap-icons/` |
+| FK legacy `Station`/`BU`/`EstDG` toujours en base (V1.1) | Colonnes restent nullable, ignorées par les services | Suppression définitive prévue Sprint 1F (futur) |
+| Table N-N `Contrat-Unites` : nom XPO à confirmer | Requêtes bonus SQL #18, #11 commentées | Décommenter après `SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME IN ('ContratInterim','UniteOrganisationnelle') GROUP BY TABLE_NAME HAVING COUNT(*)=2` |
 
 ### Évolutions futures
 
@@ -300,11 +337,20 @@ table des matières et paramètres globaux (`@annee`, `@dateRef`).
 
 ## 📞 Contact / maintenance
 
-- **Branche Git** : `feature/dashboards-rh` (à merger sur `main` après validation prod)
+- **Branche Git** : intégré dans `dev` (commit `c3dcade` du merge V1.0+V1.1+Help refactor)
+- **Pour livrer en prod** : merger `dev` → `master` après validation 1-2 jours
+  ```
+  git checkout master
+  git merge --no-ff dev -m "Release V1.1 — Tableaux de Bord RH (6 dashboards + V1.1 Intérim refondu)"
+  git tag v1.1-dashboards-rh
+  git push origin master --tags
+  ```
 - **Documentation interne** :
   - `docs/dashboards/CHANGELOG.md` — audit log par étape avec hashes Git
   - `docs/dashboards/MISSION_STATE.md` — mémoire de travail (décisions verrouillées, pièges, étapes restantes)
   - `docs/dashboards/SPEC_PowerBI_DAX_to_SQL.sql` — spec initiale utilisateur
 - **Pages d'aide en ligne** : `https://[serveur]:44318/help/dashboards/`
+- **Pages d'aide modules** : `https://[serveur]:44318/help/` (19 modules refondus
+  Sprint Help.B+C en mai 2026, format step-by-step)
 
-_Mission terminée — ELTON Oil Company, mai 2026._
+_Mission V1.0 + V1.1 terminée — ELTON Oil Company, mai 2026._

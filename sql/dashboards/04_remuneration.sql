@@ -1,12 +1,18 @@
 -- ============================================================================
 -- 04_remuneration.sql
--- Tableau N°4 — Rémunération (Égalité des salaires)
+-- Tableau N°4 — Rémunération (Égalité des salaires) — INTERNE et EXTERNE
 --
 -- Équivalents SQL des KPI/charts implémentés en C#/XPO. Aligne avec :
 --   - SPEC_PowerBI_DAX_to_SQL.sql (mesures 6, 7, 8, 9, 10)
---   - TestData/PowerBI/SPEC_Custom_Dashboard_SQL.sql (référence détaillée
---     fournie par l'utilisateur)
+--   - TestData/PowerBI/SPEC_Custom_Dashboard_SQL.sql (référence détaillée)
 --
+-- ─── V1.1 (mai 2026) ─────────────────────────────────────────────────────
+-- Source EXTERNE refondue :
+--   - StationService (legacy)            → Site (enrichi avec TypeSite enum)
+--   - BusinessUnitStation (legacy)       → UniteOrganisationnelle
+--   - ContratInterim.Station (legacy FK) → ContratInterim.Site (FK V1.1)
+--   - ContratInterim.BU      (legacy FK) → ContratInterim.Unites (N-N XPO)
+-- Cf. service C# RemunerationDashboardService.ComputeForExterne.
 -- ============================================================================
 
 DECLARE @annee int = 2025;
@@ -139,14 +145,15 @@ ORDER BY 1;
 
 
 -- ╔══════════════════════════════════════════════════════════════════════════╗
--- ║  EXTERNE — ContratInterim                                                ║
--- ║  Coût = TauxJournalier × 22 jours × NbMois actifs dans l'année          ║
+-- ║  EXTERNE — ContratInterim — V1.1 (Site enrichi + Unités N-N)             ║
+-- ║  Coût = TauxJournalier × 22 jours × NbMois actifs dans l'année           ║
+-- ║  Source équivalente C# : RemunerationDashboardService.ComputeForExterne   ║
 -- ╚══════════════════════════════════════════════════════════════════════════╝
 
 -- 8. Coût total EXTERNE (recouvrement année)
 WITH ContratsAnnee AS (
     SELECT
-        ci.[Oid], ci.[Interimaire], ci.[Station], ci.[PosteOccupe], ci.[TauxJournalier],
+        ci.[Oid], ci.[Interimaire], ci.[Site], ci.[PosteOccupe], ci.[TauxJournalier],
         -- Période effective dans l'année [debut, fin]
         CASE WHEN ci.[DateDebut] < @debut THEN @debut ELSE ci.[DateDebut] END AS DateDebutEff,
         CASE WHEN ci.[DateFin] IS NULL OR ci.[DateFin] < '19000101' THEN
@@ -168,10 +175,10 @@ SELECT
     COUNT(*) AS NbContrats
 FROM ContratsAnnee ca;
 
--- 9. Coût EXTERNE par STATION
+-- 9. Coût EXTERNE par SITE (V1.1 — TypeSite enum + emoji)
 WITH ContratsAnnee AS (
     SELECT
-        ci.[Station], ci.[Interimaire], ci.[TauxJournalier],
+        ci.[Site], ci.[Interimaire], ci.[TauxJournalier],
         CASE WHEN ci.[DateDebut] < @debut THEN @debut ELSE ci.[DateDebut] END AS DateDebutEff,
         CASE WHEN ci.[DateFin] IS NULL OR ci.[DateFin] < '19000101' THEN
                 CASE WHEN GETDATE() > @fin THEN @fin ELSE CAST(GETDATE() AS date) END
@@ -183,15 +190,23 @@ WITH ContratsAnnee AS (
       AND (ci.[DateFin] < '19000101' OR ci.[DateFin] >= @debut)
 )
 SELECT
-    ISNULL(st.[Nom], '(Non renseigné)') AS Station,
+    ISNULL(si.[Nom], '(Non renseigné)') AS SiteNom,
+    CASE si.[Type]
+        WHEN 0 THEN N'🏪 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        WHEN 1 THEN N'🏢 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        WHEN 2 THEN N'📦 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        WHEN 3 THEN N'📍 ' + ISNULL(si.[Nom], '(Non renseigné)')
+        ELSE        ISNULL(si.[Nom], '(Non renseigné)')
+    END                                 AS SiteNomAvecType,
+    si.[Type]                           AS TypeSiteCode,
     SUM(ca.[TauxJournalier] * 22 *
         ((YEAR(ca.DateFinEff) - YEAR(ca.DateDebutEff)) * 12
          + MONTH(ca.DateFinEff) - MONTH(ca.DateDebutEff) + 1)
-    ) AS CoutTotal,
-    COUNT(DISTINCT ca.[Interimaire]) AS NbInterimaires
+    )                                   AS CoutTotal,
+    COUNT(DISTINCT ca.[Interimaire])    AS NbInterimaires
 FROM ContratsAnnee ca
-LEFT JOIN [dbo].[StationService] st ON st.[Oid] = ca.[Station]
-GROUP BY st.[Nom]
+LEFT JOIN [dbo].[Site] si ON si.[Oid] = ca.[Site]
+GROUP BY si.[Nom], si.[Type]
 ORDER BY CoutTotal DESC;
 
 -- 10. Coût EXTERNE par POSTE
@@ -219,3 +234,57 @@ FROM ContratsAnnee ca
 LEFT JOIN [dbo].[PosteInterimaire] p ON p.[Oid] = ca.[PosteOccupe]
 GROUP BY p.[Libelle]
 ORDER BY CoutTotal DESC;
+
+-- 11. (BONUS V1.1) Coût EXTERNE par UNITÉ ORGANISATIONNELLE (multi-affectation)
+--     ⚠️ Multi-affectation N-N : un contrat compte dans CHAQUE unité affectée.
+--     Le coût n'est PAS divisé entre unités (pas de notion de % de temps).
+--     Le service C# fait pareil (count distinct contrat × unite).
+--
+--     XPO génère automatiquement la table de jointure pour l'association
+--     "Contrat-Unites". Pour retrouver le nom exact :
+--
+--       SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS
+--       WHERE COLUMN_NAME IN ('ContratInterim', 'UniteOrganisationnelle')
+--       GROUP BY TABLE_NAME HAVING COUNT(*) = 2;
+--
+--     Convention XPO probable : [ContratInterimUniteOrganisationnelle]
+
+/* DÉCOMMENTER UNE FOIS LE NOM DE LA TABLE CONFIRMÉ :
+
+WITH ContratsAnnee AS (
+    SELECT
+        ci.[Oid], ci.[Interimaire], ci.[TauxJournalier],
+        CASE WHEN ci.[DateDebut] < @debut THEN @debut ELSE ci.[DateDebut] END AS DateDebutEff,
+        CASE WHEN ci.[DateFin] IS NULL OR ci.[DateFin] < '19000101' THEN
+                CASE WHEN GETDATE() > @fin THEN @fin ELSE CAST(GETDATE() AS date) END
+             WHEN ci.[DateFin] > @fin THEN @fin
+             ELSE ci.[DateFin]
+        END AS DateFinEff
+    FROM [dbo].[ContratInterim] ci
+    WHERE ci.[DateDebut] > '19000101' AND ci.[DateDebut] <= @fin
+      AND (ci.[DateFin] < '19000101' OR ci.[DateFin] >= @debut)
+)
+SELECT
+    ISNULL(u.[Nom], '(Sans unité)')      AS Unite,
+    CASE u.[TypeUnite]
+        WHEN 0 THEN N'🔵 BU'
+        WHEN 1 THEN N'🟢 Département'
+        WHEN 2 THEN N'🟡 Segment'
+        WHEN 3 THEN N'⚪ Autre'
+        ELSE        N'(Non typée)'
+    END                                  AS TypeUnite,
+    SUM(ca.[TauxJournalier] * 22 *
+        ((YEAR(ca.DateFinEff) - YEAR(ca.DateDebutEff)) * 12
+         + MONTH(ca.DateFinEff) - MONTH(ca.DateDebutEff) + 1)
+    )                                    AS CoutTotal,
+    COUNT(DISTINCT ca.[Oid])             AS NbContrats,
+    COUNT(DISTINCT ca.[Interimaire])     AS NbInterims
+FROM ContratsAnnee ca
+LEFT JOIN [dbo].[ContratInterimUniteOrganisationnelle] cu  -- ← ajuster nom de table
+    ON cu.[ContratInterim] = ca.[Oid]
+LEFT JOIN [dbo].[UniteOrganisationnelle] u
+    ON u.[Oid] = cu.[UniteOrganisationnelle]
+GROUP BY u.[Nom], u.[TypeUnite]
+ORDER BY CoutTotal DESC;
+
+*/

@@ -25,6 +25,57 @@ Chaque entrée précise :
 
 ---
 
+## [V1.1 — Sprint 1E] 2026-05-03 — Refonte SQL EXTERNE (Site V1.1) + README + MISSION_STATE clôture
+
+**Objet** : aligner les fichiers SQL d'audit, le README et le MISSION_STATE
+sur le modèle V1.1 (Site enrichi + UniteOrganisationnelle), suite à la refonte
+des services C# Sprint 1C/1D.
+
+### Fichiers SQL refondus (`sql/dashboards/`)
+
+| Fichier | Changement |
+|---|---|
+| `01_effectif_detaille.sql` | Déjà compatible V1.1 (`s.Site` utilisé) — pas de modif |
+| `02_analyse_effectif.sql` | Pas de référence Site — pas de modif |
+| `03_mouvements.sql` | **Refondu** : `[StationService]` legacy → `[Site]` + `TypeSite` enum + emoji simulé. Ajout requêtes #18 (BONUS Unités N-N, commentée) et #19 (Mouvements V1.1 SiteOrigineV1/SiteDestinationV1). Total : 19 requêtes (10 INTERNE + 7 EXTERNE V1.1 + 2 bonus). |
+| `04_remuneration.sql` | **Refondu** : `[StationService]` legacy → `[Site]` (3 occurrences : ContratsAnnee, GROUP BY, JOIN). Ajout requête #11 (BONUS Coût par Unité N-N, commentée). Total : 11 requêtes. |
+| `05_suivi_absences.sql` | Pas de référence Site — pas de modif |
+| `06_bilan_social.sql` | Pas de référence Site — pas de modif |
+| `install.sql` | **Refondu** : préambule v1.0 → v1.1 + bloc V1.1 (TypeSite enum + UniteOrganisationnelle). Ajout §3.3 (EXTERNE V1.1 par Site) et §4.5 (Coût EXTERNE V1.1 par Site). ToC mise à jour. |
+
+### Documentation refondue (`docs/dashboards/`)
+
+| Fichier | Changement |
+|---|---|
+| `README.md` | Bump V1.0 → V1.1. Branche `feature/dashboards-rh` → mergée dans `dev` (`c3dcade`). Ajout section « V1.1 — Modèle Intérimaire enrichi » avec tableau StationService→Site et explications TypeSite/Unités. Ajout flag `Dashboards.SeedDemoData` + bouton wipe. Limitations : ajout FK legacy + nom XPO N-N à confirmer. Procédure de release `dev → master` documentée. |
+| `MISSION_STATE.md` | Sprint 1D `082da74` + Sprint 1D.3 `febfb1f` + Sprint 1E `_voir prochaine MAJ_` ✅. Ajout section « Sprints associés » (Help.B+C `e2806c2`, Rescue `8987dab`, Infra+Sec `2865ac3`). État final repo (HEAD `dev` = `2865ac3` synced origin/dev). Mission V1.1 marquée TERMINÉE. |
+| `CHANGELOG.md` | Cette entrée. |
+
+### Conventions ajoutées
+
+- Mapping `TypeSite` enum → emoji documenté en haut des SQL :
+  - 0 = StationService 🏪
+  - 1 = Siege 🏢
+  - 2 = Depot 📦
+  - 3 = Autre 📍
+- Mapping `TypeUnite` enum → emoji pour les requêtes bonus :
+  - 0 = BU 🔵
+  - 1 = Departement 🟢
+  - 2 = Segment 🟡
+  - 3 = Autre ⚪
+- Note pour le DBA : retrouver le nom de la table N-N XPO via
+  `SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME IN ('ContratInterim','UniteOrganisationnelle') GROUP BY TABLE_NAME HAVING COUNT(*)=2;`
+
+### Hash Git
+À renseigner après commit côté Windows.
+
+### Rollback
+```
+git revert <hash>
+```
+
+---
+
 ## [V1.1 — Sprint Help.B+C] 2026-05-03 — Refonte step-by-step de toutes les pages help (modules secondaires + admin)
 
 **Demande utilisateur** : « il est bien la et bien fait. tu peux en
