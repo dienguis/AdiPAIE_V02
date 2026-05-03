@@ -42,7 +42,72 @@
 | 7.UX | Nettoyage 3 menus « Tableaux de bord » legacy en doublon | ✅ done | `ce1d7af` | 2026-05-03 |
 | Final | Livrables : README + install.sql | ✅ done | `8680d001` | 2026-05-03 |
 
-## ⭐ MISSION TERMINÉE — HEAD = `8680d001` ⭐
+## ⭐ MISSION V1.0 TERMINÉE — HEAD = `8680d001` ⭐
+
+---
+
+## 🆕 V1.1 — Refonte module Intérim (en cours)
+
+> **🚨 CHANGEMENT D'ORIENTATION (2026-05-03)** :
+> Après revue métier ELTON, le modèle simpliste « Station + BU » s'avère
+> insuffisant. Le module intérim doit modéliser :
+> - 🏪 Stations service (~15 sites avec leurs 4 BU)
+> - 🏢 Siège / Direction Générale (avec départements DSI / Commerciale /
+>     Admin&Fin / RH, et sous-segments comme Consommateurs / BTP / Mines
+>     pour la Commerciale)
+> - 📦 Dépôts (plusieurs sites)
+> - **Mouvements** entre tous ces types de lieux
+> - **Multi-affectation** d'un intérimaire (plusieurs segments simultanés)
+>
+> Le projet étant **en dev (rien livré en prod)**, on a la liberté de
+> tout casser/refaire sans contrainte de migration de données.
+>
+> **Phase 1 BusinessUnitType** (code prêt mais pas commité) → **abandonné**
+> au profit du modèle hiérarchique unifié ci-dessous.
+
+### Architecture cible V1.1
+
+```
+Site (existant, ENRICHI avec TypeSite)
+├── TypeSite enum : StationService / Siege / Depot / Autre
+└── XPCollection<UniteOrganisationnelle> Unites
+
+UniteOrganisationnelle (NOUVELLE, récursive)
+├── Site (FK obligatoire = racine)
+├── Parent (FK self, nullable = hiérarchie illimitée)
+├── TypeUnite enum : BU / Departement / Segment / Autre
+└── Palette (CouleurPalette, héritée de la Phase 1 abandonnée)
+
+ContratInterim (REFONDU)
+├── Site (FK obligatoire)
+└── Unites (collection N-N → UniteOrganisationnelle, multi-rattachement)
+
+MouvementInterimaire (REFONDU)
+├── SiteOrigine / SiteDestination
+└── UniteOrigine / UniteDestination
+
+Entités SUPPRIMÉES :
+  - StationService (devient Site Type=StationService)
+  - BusinessUnitStation (devient UniteOrganisationnelle Type=BU)
+  - BusinessUnitType (Phase 1) — palette migrée sur UniteOrganisationnelle
+```
+
+### Sprints V1.1
+
+| Sprint | Objet | Effort | Statut |
+|---|---|---|---|
+| 1 | Modèle de données refondu | 1 jour | 🟡 in progress |
+| 2 | Updater seed démo (préfixe DEMO_) + Controller wipe + RBAC | 0.5 jour | 🕒 pending |
+| 3 | Refonte 6 services + razor (filtres en cascade Site→Unité) | 2 jours | 🕒 pending |
+| 4 | Refonte 6 SQL + install.sql + README + MISSION_STATE | 0.5 jour | 🕒 pending |
+| **TOTAL V1.1** | | **~4 jours** | |
+
+### Convention seed démo
+
+- Tous les enregistrements seed ont **`Code` préfixé `DEMO_`** (ex: `DEMO_BANDIA`, `DEMO_BU_BOUTIQUE_BANDIA`, `DEMO_SIEGE`, `DEMO_DEPT_DSI`)
+- Flag `appsettings.json` → `Dashboards:SeedDemoData` (true/false)
+- Controller XAF « Vider données démo » → supprime tout `Code LIKE 'DEMO_%'`
+- Pour passer en prod : `false` dans appsettings + clic sur le bouton wipe
 
 Tous les livrables sont produits. Pour merger `feature/dashboards-rh` →
 `main` : valider 1-2 jours en environnement réel, puis :

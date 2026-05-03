@@ -25,6 +25,138 @@ Chaque entrée précise :
 
 ---
 
+## [V1.1 — Sprint 1A] 2026-05-03 0930 — Modèle Site + UniteOrganisationnelle (cohabitation)
+
+**Stratégie de migration** : pas de big-bang. Les nouvelles entités/champs
+**coexistent avec les anciennes** (Station, BU, EstDG) pour ne rien casser.
+La suppression définitive aura lieu en Sprint 1D quand les dashboards auront
+basculé sur le nouveau modèle.
+
+### Fichiers créés/modifiés (3)
+
+| Fichier | Type | Nature |
+|---|---|---|
+| `BusinessObjects/Site.cs` | modif | + enum `TypeSite` (StationService/Siege/Depot/Autre) + champ `Type` + collection `Unites` + collection `ContratsInterim` |
+| `BusinessObjects/RH/UniteOrganisationnelle.cs` | nouveau | Entité hiérarchique récursive (Site/Parent/Enfants) avec enum `TypeUnite` (BU/Departement/Segment/Autre) + Palette + helpers Niveau/Chemin |
+| `BusinessObjects/RH/Interimaire.cs` | modif | `ContratInterim` + `Site` (FK) + `Unites` (collection N-N) ; `MouvementInterimaire` + `SiteOrigineV1` + `UniteOrigineV1` + `SiteDestinationV1` + `UniteDestinationV1` |
+
+### Convention de nommage cohabitation
+
+Les nouveaux champs sont suffixés `V1` (ex: `SiteOrigineV1`) ou marqués
+`(V1.1)` dans le `XafDisplayName` pour les distinguer visuellement des
+anciens champs en attendant la suppression définitive.
+
+### Sprint 1B (à suivre)
+
+- Updater seed démo avec préfixe `DEMO_`
+- Controller XAF « Vider données démo »
+- Flag `appsettings.json` → `Dashboards:SeedDemoData`
+- Étendre RBAC pour `UniteOrganisationnelle`
+
+### Sprints 1C / 1D / 1E (cf. tâches V1.1)
+
+- 1C : Adapter les 6 dashboards
+- 1D : Supprimer StationService / BusinessUnitStation / BusinessUnitType
+- 1E : Adapter les 6 SQL + install.sql + README
+
+---
+
+## [V1.1 — Phase 1 abandonnée] 2026-05-03 0830 — Référentiel BusinessUnitType (regroupement transversal des BU)
+
+**⚠️ Cette Phase 1 est ABANDONNÉE** au profit du modèle Sprint 1A
+(Site + UniteOrganisationnelle) qui est plus complet et couvre les
+besoins ELTON révélés ensuite (Direction Générale + dépôts +
+multi-affectation segments). Le code BusinessUnitType existe mais
+sera supprimé au Sprint 1D.
+
+---
+
+## [V1.1 — Phase 1 originale] 2026-05-03 0830 — Référentiel BusinessUnitType (regroupement transversal des BU)
+
+**Constat utilisateur** : impossible de produire des KPI cross-stations
+(« Boutique = somme de toutes les Boutique de toutes les stations »)
+car chaque `BusinessUnitStation` est propre à une station et le seul
+lien transversal était le texte du `Libelle` (sensible casse, espaces,
+variantes orthographiques).
+
+### Décision (Option B validée)
+
+Création d'un **référentiel partagé `BusinessUnitType`** avec FK depuis
+`BusinessUnitStation` → permet le GROUP BY robuste sur l'OID du Type.
+
+### Implémentation Phase 1 (modèle + seed + migration)
+
+**Nouvelle entité `BusinessUnitType`** (`BusinessObjects/RH/BusinessUnitType.cs`) :
+- `Code` (unique, indexed) — clé technique normalisée (BOUTIQUE, PISTE…)
+- `Libelle` — affichage UX (Boutique, Piste, E-Service…)
+- `Palette` — **enum `CouleurPalette` rendue en combobox visuelle** avec
+  carrés colorés Unicode dans les libellés (🟧 Orange ELTON, 🟦 Navy ELTON,
+  🟥 Rouge ELTON, 🟦 Bleu clair, 🟩 Vert, 🟪 Violet, 🟨 Jaune, 🟫 Marron,
+  🌸 Rose, 🩶 Gris). 11 valeurs y compris « ⬛ Aucune » (défaut navy).
+- `CouleurHex` — propriété calculée `NonPersistent` qui retourne le hex
+  associé via `CouleurPaletteHelper.GetHex()` — utilisée par les services
+  dashboards pour styler les bar charts.
+- `Ordre` — tri d'affichage
+- `Actif` — désactivation sans suppression
+- Association inverse `BUType-BUs` → `XPCollection<BusinessUnitStation>`
+- Navigation : « GRH - Administration »
+
+**Avantage du choix enum + emoji vs champ texte hex** :
+- ✅ Combobox visuelle native (l'utilisateur voit le carré coloré)
+- ✅ Pas de risque de typo (pas de saisie « ##F18A1C » ou « rgb(241,138,28) »)
+- ✅ Robuste à l'évolution (ajouter une couleur = ajouter une valeur enum + une ligne dans le helper)
+- ✅ Auto-localisable via `[XafDisplayName]`
+
+**FK ajoutée sur `BusinessUnitStation`** :
+- `public BusinessUnitType Type { get; set; }`
+- Association `BUType-BUs`
+- **Pas de RuleRequiredField** pour le moment (transition douce — sera
+  activé en V1.2 une fois tous les BU historiques rattachés)
+
+**Updater.cs** — 3 nouvelles méthodes idempotentes :
+1. `EnsureBusinessUnitTypesSeed()` — crée les 4 types initiaux s'ils
+   n'existent pas (Boutique, Piste, E-Service, Espace Auto)
+2. `MigrateBUsToTypes()` — pour chaque BU sans Type, assigne le bon
+   Type en matchant le Libelle (case-insensitive, trim, variantes
+   « Espace Auto »/« EspaceAuto »)
+3. `GrantBusinessUnitTypeReadAccess()` — étend les permissions Read
+   sur `BusinessUnitType` aux rôles RH_Manager / RH / DAF
+
+### Fichiers créés / modifiés (3)
+
+| Fichier | Type | Nature |
+|---|---|---|
+| `BusinessObjects/RH/BusinessUnitType.cs` | nouveau | Entité référentiel |
+| `BusinessObjects/RH/StationService.cs` | modif | + FK `Type` sur `BusinessUnitStation` |
+| `DatabaseUpdate/Updater.cs` | modif | + 3 méthodes (seed, migration, RBAC) |
+
+### Test de migration au démarrage
+
+Après build & lancement de l'app :
+1. Vérifier dans XAF → GRH - Administration → "Type de Business Unit"
+   que les 4 types sont créés
+2. Vérifier dans XAF → GRH - Intérimaires → Stations → ouvrir une
+   station → liste BUs → chaque BU a maintenant un `Type` rattaché
+3. Si une BU n'a pas de Type, c'est que son Libelle ne matche aucun
+   type seed → corriger manuellement (assigner le bon Type, ou créer
+   un nouveau Type si besoin)
+
+### Phase 2 (à venir, ~2h)
+
+Adapter les dashboards pour exploiter le nouveau Type BU :
+- Tab 2 (Analyse Effectif EXTERNE) — + filtre « Type BU »
+- Tab 3 (Mouvements EXTERNE) — + bar chart « par Type BU »
+- Tab 4 (Rémunération EXTERNE) — + tableau Égalité par Type BU ⭐
+- Tab 6 (Bilan Social ligne intérimaires) — + ventilation par Type BU
+
+### Branche Git / Commit
+
+- **Hash V1.1 Phase 1** : _à renseigner après commit_
+- **Message attendu** :
+  `feat(rh): V1.1 Phase 1 - referentiel BusinessUnitType (Boutique/Piste/E-Service/Espace Auto) + migration auto + RBAC`
+
+---
+
 ## [Étape FINAL] 2026-05-03 0700 — Livrables : README + install.sql
 
 **Objet** : clôture de la mission Tableaux de Bord RH avec 2 livrables :

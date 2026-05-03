@@ -391,6 +391,36 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         BusinessUnitStation bu;
 
+        // ════════════════════════════════════════════════════════════════
+        //  V1.1 — Affectation unifiée (cohabitation avec Station/BU/EstDG)
+        // ════════════════════════════════════════════════════════════════
+        // À terme (V1.2) : suppression de Station/BU/EstDG → ne reste que
+        // Site + Unites. Pour l'instant on coexiste pour ne pas casser
+        // les vues XAF et services existants.
+
+        /// <summary>
+        /// Site d'affectation principal (Station / Siège / Dépôt).
+        /// Remplace progressivement la combinaison Station + EstDG.
+        /// </summary>
+        [Association("Site-ContratsInterim")]
+        [XafDisplayName("Site (V1.1)")]
+        [DataSourceCriteria("Actif = true")]
+        public Site Site
+        {
+            get => siteV2;
+            set => SetPropertyValue(nameof(Site), ref siteV2, value);
+        }
+        Site siteV2;
+
+        /// <summary>
+        /// Multi-affectation sur plusieurs unités organisationnelles
+        /// (BU / Département / Segment). N-N sans notion de % de temps.
+        /// </summary>
+        [Association("Contrat-Unites")]
+        [XafDisplayName("Unités (V1.1)")]
+        public XPCollection<UniteOrganisationnelle> Unites
+            => GetCollection<UniteOrganisationnelle>(nameof(Unites));
+
         [XafDisplayName("Poste occupé")]
         [DataSourceCriteria("Actif = true")]
         public PosteInterimaire PosteOccupe
@@ -616,6 +646,44 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(DestinationEstDG), ref destinationEstDG, value);
         }
         bool destinationEstDG;
+
+        // ════════════════════════════════════════════════════════════════
+        //  V1.1 — Mouvements via Site + Unité (cohabitation)
+        // ════════════════════════════════════════════════════════════════
+
+        [XafDisplayName("Site origine (V1.1)")]
+        public Site SiteOrigineV1
+        {
+            get => siteOrigineV1;
+            set => SetPropertyValue(nameof(SiteOrigineV1), ref siteOrigineV1, value);
+        }
+        Site siteOrigineV1;
+
+        [XafDisplayName("Unité origine (V1.1)")]
+        [DataSourceCriteria("Site.Oid = '@This.SiteOrigineV1.Oid'")]
+        public UniteOrganisationnelle UniteOrigineV1
+        {
+            get => uniteOrigineV1;
+            set => SetPropertyValue(nameof(UniteOrigineV1), ref uniteOrigineV1, value);
+        }
+        UniteOrganisationnelle uniteOrigineV1;
+
+        [XafDisplayName("Site destination (V1.1)")]
+        public Site SiteDestinationV1
+        {
+            get => siteDestinationV1;
+            set => SetPropertyValue(nameof(SiteDestinationV1), ref siteDestinationV1, value);
+        }
+        Site siteDestinationV1;
+
+        [XafDisplayName("Unité destination (V1.1)")]
+        [DataSourceCriteria("Site.Oid = '@This.SiteDestinationV1.Oid'")]
+        public UniteOrganisationnelle UniteDestinationV1
+        {
+            get => uniteDestinationV1;
+            set => SetPropertyValue(nameof(UniteDestinationV1), ref uniteDestinationV1, value);
+        }
+        UniteOrganisationnelle uniteDestinationV1;
 
         // ── Motif & validation RH ─────────────────────────────────────
         [Size(500)]
