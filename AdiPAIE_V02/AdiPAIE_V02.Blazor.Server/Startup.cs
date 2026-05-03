@@ -70,6 +70,16 @@ namespace AdiPAIE_V02.Blazor.Server
                 AdiPAIE_V02.Module.Services.Dashboards.IBilanSocialDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.BilanSocialDashboardService>();
 
+            // Export Excel partagé pour les 6 tableaux (Étape 7.2)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IDashboardExcelExportService,
+                AdiPAIE_V02.Module.Services.Dashboards.DashboardExcelExportService>();
+
+            // Export PDF partagé pour les 6 tableaux (Étape 7.3 — QuestPDF)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IDashboardPdfExportService,
+                AdiPAIE_V02.Module.Services.Dashboards.DashboardPdfExportService>();
+
             services.AddHostedService<AttestationRappelService>();
            // services.AddHostedService<AttestationRappelService>();
             services.AddHostedService<DossierExpirationRappelService>();

@@ -177,13 +177,32 @@
 
 .ed-actions { display: flex; gap: 0.4rem; align-items: end; margin-left: auto; }
 .ed-btn {
-    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
-    color: #fff; padding: 0.45rem 0.65rem; border-radius: 6px;
-    cursor: pointer; transition: background 0.12s ease, border-color 0.12s ease;
+    background: rgba(255,255,255,0.18);          /* contraste renforcé sur fond navy */
+    border: 1px solid rgba(255,255,255,0.45);
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease, transform 0.08s ease, box-shadow 0.12s ease;
+    display: inline-flex;                         /* aligne aussi les <a class="ed-btn"> */
+    align-items: center; justify-content: center;
+    text-decoration: none;
+    line-height: 1;
 }
-.ed-btn:hover:not(:disabled) { background: var(--ed-red); border-color: var(--ed-red); }
-.ed-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.ed-btn--icon { font-size: 1rem; }
+.ed-btn:hover:not(:disabled) {
+    background: var(--ed-orange);
+    border-color: var(--ed-orange);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(241,138,28,0.35);
+}
+.ed-btn:disabled, .ed-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.ed-btn--icon {
+    font-size: 1.15rem;
+    min-width: 2.4rem;
+    min-height: 2.4rem;
+}
+.ed-btn--icon i { line-height: 1; }
 
 /* ──────────────────────────────────── TOGGLES (mode/sous-mode) ────────── */
 .ed-toggle {

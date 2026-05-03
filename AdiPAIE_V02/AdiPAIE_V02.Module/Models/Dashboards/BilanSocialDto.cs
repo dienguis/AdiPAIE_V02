@@ -15,7 +15,20 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         /// <summary>12 lignes Jan→Déc + 1 ligne Total (en queue).</summary>
         public List<MoisBilanSocialDto> Mois { get; set; } = new();
 
+        /// <summary>Ligne complémentaire « dont Intérimaires » (pour info managériale).</summary>
+        public IntemRowDto? DontInterimaires { get; set; }
+
         public DateTime CalculatedAt { get; set; }
+    }
+
+    /// <summary>Ligne « dont Intérimaires » — info managériale, hors DTSS officiel.</summary>
+    public sealed class IntemRowDto
+    {
+        public int     EffectifMoyen   { get; set; }
+        public int     NbContrats      { get; set; }
+        public decimal CoutTotal       { get; set; }
+        public int     ArriveesContrats { get; set; }
+        public int     DepartsContrats  { get; set; }
     }
 
     public sealed class KpiBilanSocialDto

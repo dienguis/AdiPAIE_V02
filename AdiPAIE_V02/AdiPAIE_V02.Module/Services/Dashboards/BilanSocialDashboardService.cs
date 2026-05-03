@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.BusinessObjects.RH;
 using AdiPAIE_V02.Module.Models.Dashboards;
 using DevExpress.ExpressApp;
 using Microsoft.Extensions.Caching.Memory;
@@ -222,12 +223,91 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 CompletudeData             = completude
             };
 
+            // ── 5. Ligne complémentaire « dont Intérimaires » (option B) ──
+            //   Hors DTSS officiel — vue managériale globale.
+            var dontInterimaires = ComputeDontInterimaires(filter, os);
+
             return new BilanSocialDto
             {
-                Kpis         = kpis,
-                Mois         = mois,
-                CalculatedAt = DateTime.Now
+                Kpis             = kpis,
+                Mois             = mois,
+                DontInterimaires = dontInterimaires,
+                CalculatedAt     = DateTime.Now
             };
+        }
+
+        /// <summary>
+        /// Calcule la ligne « dont Intérimaires » (info managériale, hors DTSS).
+        /// Effectif moyen = moyenne mensuelle d'intérimaires actifs.
+        /// Coût total = TauxJournalier × 22 jours × NbMois actifs dans l'année.
+        /// </summary>
+        private static IntemRowDto ComputeDontInterimaires(BilanSocialFilterModel filter, IObjectSpace os)
+        {
+            try
+            {
+                var debutAnnee = new DateTime(filter.Annee, 1, 1);
+                var finAnnee   = new DateTime(filter.Annee, 12, 31);
+                var aujourdhui = DateTime.Today;
+
+                var contrats = os.GetObjectsQuery<ContratInterim>().ToList()
+                    .Where(c => c.DateDebut > SortieSentinelle
+                             && c.DateDebut <= finAnnee
+                             && (c.DateFin < SortieSentinelle || c.DateFin >= debutAnnee))
+                    .ToList();
+                if (filter.SiteOid.HasValue)
+                    contrats = contrats.Where(c => c.Site?.Oid == filter.SiteOid.Value).ToList();
+
+                int nouveaux = contrats.Count(c => c.DateDebut >= debutAnnee && c.DateDebut <= finAnnee);
+                int clotures = contrats.Count(c =>
+                    (c.Statut == ContratInterimStatut.Resilie || c.Statut == ContratInterimStatut.Termine)
+                    && (c.DateFinReelle ?? c.DateFin) >= debutAnnee
+                    && (c.DateFinReelle ?? c.DateFin) <= finAnnee);
+
+                // Effectif moyen sur 12 mois
+                var allInterims = os.GetObjectsQuery<Interimaire>().ToList();
+                int totalActifs = 0;
+                for (int m = 1; m <= 12; m++)
+                {
+                    var refDate = new DateTime(filter.Annee, m, DateTime.DaysInMonth(filter.Annee, m));
+                    totalActifs += allInterims.Count(i =>
+                    {
+                        try
+                        {
+                            return i.Contrats != null && i.Contrats.Any(c =>
+                                c.DateDebut > SortieSentinelle &&
+                                c.DateDebut <= refDate &&
+                                (c.DateFin < SortieSentinelle || c.DateFin > refDate) &&
+                                (!filter.SiteOid.HasValue || c.Site?.Oid == filter.SiteOid.Value));
+                        }
+                        catch { return false; }
+                    });
+                }
+                int effectifMoyen = (int)Math.Round((decimal)totalActifs / 12m);
+
+                // Coût total
+                decimal coutTotal = 0m;
+                foreach (var c in contrats)
+                {
+                    var dEnd = c.DateFin > SortieSentinelle ? c.DateFin : aujourdhui;
+                    if (dEnd > finAnnee) dEnd = finAnnee;
+                    var dStart = c.DateDebut < debutAnnee ? debutAnnee : c.DateDebut;
+                    int nbMois = Math.Max(0, ((dEnd.Year - dStart.Year) * 12) + dEnd.Month - dStart.Month + 1);
+                    coutTotal += c.TauxJournalier * 22 * nbMois;
+                }
+
+                return new IntemRowDto
+                {
+                    EffectifMoyen    = effectifMoyen,
+                    NbContrats       = contrats.Count,
+                    CoutTotal        = Math.Round(coutTotal, 0),
+                    ArriveesContrats = nouveaux,
+                    DepartsContrats  = clotures
+                };
+            }
+            catch
+            {
+                return new IntemRowDto();
+            }
         }
 
         // ═════════════════════════════════════════════════════════════════════

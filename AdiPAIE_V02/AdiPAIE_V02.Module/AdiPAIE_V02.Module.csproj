@@ -37,6 +37,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <!-- QuestPDF — Étape 7.3 export PDF.
+         Licence Community gratuite pour CA < 1 M$ ou open-source.
+         À valider légalement avant prod (Professional ≈ 699 $/an). -->
+    <PackageReference Include="QuestPDF" Version="2024.7.3" />
     <PackageReference Include="DevExpress.ExpressApp" Version="25.1.10" />
     <PackageReference Include="DevExpress.ExpressApp.AuditTrail.Xpo" Version="25.1.9" />
     <PackageReference Include="DevExpress.ExpressApp.Chart" Version="25.1.10" />

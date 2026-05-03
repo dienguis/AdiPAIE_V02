@@ -109,25 +109,29 @@ else
             </div>
             @if (_filter.Personnel == PersonnelType.Externe)
             {
+                @* V1.1 — Site (tous types : Stations + Siège + Dépôts)
+                   Utilise NomAvecType (avec emoji 🏪/🏢/📦) pour distinguer
+                   visuellement les types dans le dropdown. *@
                 <div class="ed-filter">
-                    <label>Station service</label>
-                    <DxComboBox TData="StationService" TValue="StationService"
-                                Data="@_stationsDispo"
-                                TextFieldName="@nameof(StationService.Nom)"
-                                Value="@_selectedStation"
-                                ValueChanged="@((StationService? s) => OnStationChanged(s))"
-                                NullText="Toutes"
+                    <label>Site</label>
+                    <DxComboBox TData="Site" TValue="Site"
+                                Data="@_sitesV1Dispo"
+                                TextFieldName="@nameof(Site.NomAvecType)"
+                                Value="@_selectedSiteV1"
+                                ValueChanged="@((Site? s) => OnSiteV1Changed(s))"
+                                NullText="Tous"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 CssClass="ed-input" />
                 </div>
+                @* V1.1 — Unité organisationnelle (filtrée par site sélectionné) *@
                 <div class="ed-filter">
-                    <label>Poste</label>
-                    <DxComboBox TData="PosteInterimaire" TValue="PosteInterimaire"
-                                Data="@_postesDispo"
-                                TextFieldName="@nameof(PosteInterimaire.Libelle)"
-                                Value="@_selectedPoste"
-                                ValueChanged="@((PosteInterimaire? p) => OnPosteChanged(p))"
-                                NullText="Tous"
+                    <label>Unité</label>
+                    <DxComboBox TData="UniteOrganisationnelle" TValue="UniteOrganisationnelle"
+                                Data="@_unitesDispo"
+                                TextFieldName="@nameof(UniteOrganisationnelle.Nom)"
+                                Value="@_selectedUnite"
+                                ValueChanged="@((UniteOrganisationnelle? u) => OnUniteChanged(u))"
+                                NullText="Toutes"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 CssClass="ed-input" />
                 </div>
@@ -252,7 +256,7 @@ else
             @* ── Tableau « Égalité par Segment » ───────────────────────── *@
             <section class="ed-section">
                 <h3 class="ed-section__title">
-                    Rémunération par @(_filter.Personnel == PersonnelType.Externe ? "Station" : "Segment") — Égalité des salaires
+                    Rémunération par @(_filter.Personnel == PersonnelType.Externe ? "Site" : "Segment") — Égalité des salaires
                 </h3>
                 @if (_data.ParSegment.Count == 0)
                 {
@@ -264,7 +268,7 @@ else
                     <table class="rm-table">
                         <thead>
                             <tr>
-                                <th class="rm-th-left">@(_filter.Personnel == PersonnelType.Externe ? "Station" : "Segment")</th>
+                                <th class="rm-th-left">@(_filter.Personnel == PersonnelType.Externe ? "Site" : "Segment")</th>
                                 <th>Rémun. totale</th>
                                 <th class="rm-th-num">Coût Moy. Salarié</th>
                                 <th class="rm-th-num">Min</th>
@@ -304,7 +308,7 @@ else
             @* ── Tableau « Égalité par Catégorie » ─────────────────────── *@
             <section class="ed-section">
                 <h3 class="ed-section__title">
-                    Rémunération par @(_filter.Personnel == PersonnelType.Externe ? "Poste" : "Catégorie professionnelle") — Égalité des salaires
+                    Rémunération par @(_filter.Personnel == PersonnelType.Externe ? "Unité (BU / Département / Segment)" : "Catégorie professionnelle") — Égalité des salaires
                 </h3>
                 @if (_data.ParCategorie.Count == 0)
                 {
@@ -316,7 +320,7 @@ else
                     <table class="rm-table">
                         <thead>
                             <tr>
-                                <th class="rm-th-left">@(_filter.Personnel == PersonnelType.Externe ? "Poste" : "Catégorie pro")</th>
+                                <th class="rm-th-left">@(_filter.Personnel == PersonnelType.Externe ? "Unité" : "Catégorie pro")</th>
                                 <th>Rémun. totale</th>
                                 <th class="rm-th-num">Coût Moy. Salarié</th>
                                 <th class="rm-th-num">Min</th>
@@ -539,7 +543,12 @@ else
     private RemunerationFilterModel _filter = new();
     private List<int> _anneesDispo = new();
     private List<Site> _sitesDispo = new();
-    private List<StationService> _stationsDispo = new();
+    private List<StationService> _stationsDispo = new();          // legacy, conservé pour compat
+    // V1.1 — Sites (tous types) + Unités filtrées par site
+    private List<Site> _sitesV1Dispo = new();
+    private List<UniteOrganisationnelle> _unitesDispo = new();
+    private Site? _selectedSiteV1;
+    private UniteOrganisationnelle? _selectedUnite;
     private List<Departement> _departementsDispo = new();
     private List<Categories> _categoriesDispo = new();
     private List<PosteInterimaire> _postesDispo = new();
@@ -573,6 +582,8 @@ else
             _anneesDispo       = Service.GetAnneesDisponibles(os);
             _sitesDispo        = Service.GetSitesActifs(os);
             _stationsDispo     = Service.GetStationsServiceActives(os);
+            _sitesV1Dispo      = Service.GetSitesActifs(os);
+            _unitesDispo       = Service.GetUnitesPourSite(os, null); // toutes au départ
             _departementsDispo = Service.GetDepartements(os);
             _categoriesDispo   = Service.GetCategories(os);
             _postesDispo       = Service.GetPostesInterimaire(os);
@@ -608,6 +619,7 @@ else
         _filter.Personnel = p;
         // Reset filtres divergents Interne/Externe
         _selectedSite = null; _selectedStation = null; _filter.SiteOid = null;
+        _selectedSiteV1 = null; _selectedUnite = null;
         _selectedDepartement = null; _filter.Segment = null;
         _selectedCategorie = null; _selectedPoste = null; _filter.CategorieOid = null;
         _filter.Genre = null;
@@ -624,6 +636,32 @@ else
     private Task OnSegmentChanged(Departement? d)         { _selectedDepartement = d; _filter.Segment = d?.Nom; LoadData(); return Task.CompletedTask; }
     private Task OnCategorieChanged(Categories? c)        { _selectedCategorie = c; _filter.CategorieOid = c?.Oid; LoadData(); return Task.CompletedTask; }
     private Task OnPosteChanged(PosteInterimaire? p)      { _selectedPoste = p; _filter.CategorieOid = p?.Oid; LoadData(); return Task.CompletedTask; }
+
+    // ── V1.1 — Filtres EXTERNE Site/Unité (remplace Station/Poste) ──
+    private Task OnSiteV1Changed(Site? s)
+    {
+        _selectedSiteV1 = s;
+        _filter.SiteOid = s?.Oid;
+        // Reset l'unité si elle ne correspond plus au site sélectionné
+        _selectedUnite = null;
+        // Recharger les unités filtrées
+        try
+        {
+            using var os = CreateOs();
+            _unitesDispo = Service.GetUnitesPourSite(os, s?.Oid);
+        }
+        catch { _unitesDispo = new(); }
+        _filter.CategorieOid = null;
+        LoadData();
+        return Task.CompletedTask;
+    }
+    private Task OnUniteChanged(UniteOrganisationnelle? u)
+    {
+        _selectedUnite = u;
+        _filter.CategorieOid = u?.Oid;   // CategorieOid réutilisé pour porter Unité.Oid
+        LoadData();
+        return Task.CompletedTask;
+    }
 
     private Task OnRefreshClick()
     {

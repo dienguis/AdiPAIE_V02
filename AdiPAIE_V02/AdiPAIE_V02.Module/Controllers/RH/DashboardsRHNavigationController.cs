@@ -59,10 +59,15 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     "Redirection indisponible dans ce contexte (IJSRuntime introuvable).");
             }
 
-            // Redirection plein-écran (sans nouvel onglet) vers la page Razor
-            // d'accueil des tableaux de bord. Le bouton « Précédent » du
-            // navigateur permet de revenir au shell XAF.
-            _ = js.InvokeVoidAsync("location.assign", "/dashboards/").AsTask();
+            // Ouvre les tableaux de bord dans un NOUVEL ONGLET (pattern aligné
+            // sur le help SunuPaie). Cela évite de masquer le shell XAF
+            // principal, l'utilisateur peut naviguer entre l'application et
+            // les tableaux de bord sans perdre son contexte.
+            //
+            // window.open(url, target, features). Le 3e paramètre vide ⇒
+            // onglet standard avec barres d'outils complètes (et non
+            // popup minimaliste).
+            _ = js.InvokeVoidAsync("open", "/dashboards/", "_blank").AsTask();
         }
     }
 }

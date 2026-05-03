@@ -133,6 +133,29 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public XPCollection<ContratInterim> ContratsInterim
             => GetCollection<ContratInterim>(nameof(ContratsInterim));
 
+        // ── ⭐ V1.1 Sprint 1C — Affichage typé pour les dropdowns dashboards ──
+        /// <summary>
+        /// Nom préfixé par un emoji typé (🏪/🏢/📦/🏭) — utilisé comme TextFieldName
+        /// dans les dropdowns Site des dashboards EXTERNE pour distinguer
+        /// instantanément un siège ou un dépôt parmi les stations.
+        /// </summary>
+        [NonPersistent]
+        [XafDisplayName("Site (avec type)")]
+        public string NomAvecType
+        {
+            get
+            {
+                string emoji = Type switch
+                {
+                    TypeSite.StationService => "🏪",
+                    TypeSite.Siege          => "🏢",
+                    TypeSite.Depot          => "📦",
+                    _                       => "🏭"
+                };
+                return $"{emoji} {Nom}";
+            }
+        }
+
         public override string ToString() =>
             string.IsNullOrWhiteSpace(Code) ? Nom : $"{Nom} ({Code})";
     }

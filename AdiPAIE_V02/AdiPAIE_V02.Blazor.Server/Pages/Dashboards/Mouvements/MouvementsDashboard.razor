@@ -100,14 +100,15 @@ else
             </div>
             @if (_filter.Personnel == PersonnelType.Externe)
             {
+                @* V1.1 Sprint 1C.2 — Site (V1.1) au lieu de StationService legacy *@
                 <div class="ed-filter">
-                    <label>Station service</label>
-                    <DxComboBox TData="StationService" TValue="StationService"
-                                Data="@_stationsDispo"
-                                TextFieldName="@nameof(StationService.Nom)"
-                                Value="@_selectedStation"
-                                ValueChanged="@((StationService? s) => OnStationChanged(s))"
-                                NullText="Toutes"
+                    <label>Site</label>
+                    <DxComboBox TData="Site" TValue="Site"
+                                Data="@_sitesDispo"
+                                TextFieldName="@nameof(Site.NomAvecType)"
+                                Value="@_selectedSiteV1"
+                                ValueChanged="@((Site? s) => OnSiteV1Changed(s))"
+                                NullText="Tous"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 CssClass="ed-input" />
                 </div>
@@ -206,15 +207,15 @@ else
                         <div class="ed-kpiinline__value">@_data.Kpis.Solde.ToString("+0;-0;0", FrCulture)</div>
                         <div class="ed-kpiinline__sub">arrivées − départs</div>
                     </div>
-                    <div class="ed-kpiinline__card">
-                        <div class="ed-kpiinline__label">% Arrivées</div>
+                    <div class="ed-kpiinline__card" title="Nouveaux contrats / Nb contrats moyens actifs sur l'année">
+                        <div class="ed-kpiinline__label">% Renouvellement</div>
                         <div class="ed-kpiinline__value">@FormatPct(_data.Kpis.TauxArrivees)</div>
-                        <div class="ed-kpiinline__sub">/ effectif moyen</div>
+                        <div class="ed-kpiinline__sub">arrivées / contrats moy.</div>
                     </div>
-                    <div class="ed-kpiinline__card ed-kpiinline__card--down">
-                        <div class="ed-kpiinline__label">% Départs</div>
+                    <div class="ed-kpiinline__card ed-kpiinline__card--down" title="Contrats clos / Nb contrats moyens actifs sur l'année">
+                        <div class="ed-kpiinline__label">% Sortie contrats</div>
                         <div class="ed-kpiinline__value">@FormatPct(_data.Kpis.TauxDeparts)</div>
-                        <div class="ed-kpiinline__sub">/ effectif moyen</div>
+                        <div class="ed-kpiinline__sub">départs / contrats moy.</div>
                     </div>
                     <div class="ed-kpiinline__card">
                         <div class="ed-kpiinline__label">Effectif Début</div>
@@ -489,7 +490,8 @@ else
     private MouvementsFilterModel _filter = new();
     private List<int> _anneesDispo = new();
     private List<Site> _sitesDispo = new();
-    private List<StationService> _stationsDispo = new();
+    private List<StationService> _stationsDispo = new();   // legacy
+    private Site? _selectedSiteV1;                          // V1.1 — pour EXTERNE
     private List<Departement> _departementsDispo = new();
     private List<Categories> _categoriesDispo = new();
     private Site? _selectedSite;
@@ -556,6 +558,7 @@ else
         // Reset les filtres dont les types diffèrent entre INTERNE et EXTERNE
         _selectedSite = null;
         _selectedStation = null;
+        _selectedSiteV1 = null;   // V1.1
         _filter.SiteOid = null;
         _selectedDepartement = null;
         _filter.Segment = null;
@@ -568,6 +571,8 @@ else
     private Task OnAnneeChanged(int a)              { _filter.Annee = a; LoadData(); return Task.CompletedTask; }
     private Task OnSiteChanged(Site? s)             { _selectedSite = s; _filter.SiteOid = s?.Oid; LoadData(); return Task.CompletedTask; }
     private Task OnStationChanged(StationService? s){ _selectedStation = s; _filter.SiteOid = s?.Oid; LoadData(); return Task.CompletedTask; }
+    // V1.1 — pour EXTERNE on utilise Site V1.1 (au lieu de StationService legacy)
+    private Task OnSiteV1Changed(Site? s) { _selectedSiteV1 = s; _filter.SiteOid = s?.Oid; LoadData(); return Task.CompletedTask; }
     private Task OnGenreChanged(Sexe? g)            { _filter.Genre = g; LoadData(); return Task.CompletedTask; }
     private Task OnSegmentChanged(Departement? d)   { _selectedDepartement = d; _filter.Segment = d?.Nom; LoadData(); return Task.CompletedTask; }
     private Task OnCategorieChanged(Categories? c)  { _selectedCategorie = c; _filter.CategorieOid = c?.Oid; LoadData(); return Task.CompletedTask; }
