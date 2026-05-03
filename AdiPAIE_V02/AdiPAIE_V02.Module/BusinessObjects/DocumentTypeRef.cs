@@ -15,6 +15,7 @@ using System.Text;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions]
+    [ImageName("BO_Type")]  // V1.1 — icône XAF native (type/référentiel)
     [DefaultProperty(nameof(Nom))]
     public class DocumentTypeRef : BaseObject
     { // Inherit from a different class to provide a custom primary key, concurrency and deletion behavior, etc. (https://docs.devexpress.com/eXpressAppFramework/113146/business-model-design-orm/business-model-design-with-xpo/base-persistent-classes).

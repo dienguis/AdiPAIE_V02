@@ -21,6 +21,7 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions]
+    [ImageName("BO_Employee")]  // V1.1 — icône XAF native pour cohérence visuelle
     [DefaultProperty(nameof(Person.FullName))]
     [RuleCriteria(
         "Salarie_MustBeMarried_IfAnyCurrentSpouse",

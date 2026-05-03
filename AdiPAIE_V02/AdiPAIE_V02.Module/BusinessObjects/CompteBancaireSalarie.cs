@@ -27,6 +27,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     /// Si Mode = Reliquat, Valeur est ignoré — le compte reçoit Net - déjà alloué.
     /// </summary>
     [DefaultClassOptions]
+    [ImageName("BO_Bank_Account")]  // V1.1 — icône XAF native (compte bancaire)
     [XafDisplayName("Compte bancaire")]
     [DefaultProperty(nameof(DisplayCompte))]
     [Appearance("Compte_Reliquat_DisableValeur",

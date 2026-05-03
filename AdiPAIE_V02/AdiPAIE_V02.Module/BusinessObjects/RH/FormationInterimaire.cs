@@ -126,6 +126,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     // ════════════════════════════════════════════════════════════════════
 
     [DefaultClassOptions]
+    [ImageName("BO_Activity")]  // V1.1 — icône XAF native (évaluation = activité)
     [XafDisplayName("Évaluation intérimaire")]
     [DefaultProperty(nameof(DisplayName))]
     //[NavigationItem("GRH - Interimaires")]

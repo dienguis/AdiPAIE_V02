@@ -17,6 +17,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 {
     //[NavigationItem("Traitement")]
     [DefaultClassOptions]
+    [ImageName("BO_Money_Bag")]  // V1.1 — icône XAF native (prêt = sac d'argent)
     [XafDisplayName("Prêt salarié")]
     [DefaultProperty(nameof(DisplayName))]
     public class Pret : BaseObject

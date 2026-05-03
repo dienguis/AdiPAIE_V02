@@ -13,6 +13,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions]
     [NavigationItem(false)]
+    [ImageName("BO_Salutation")]  // V1.1 — icône XAF native (membre famille)
     [DefaultProperty(nameof(NomComplet))]
 
     // 🔒 Interdit d’enregistrer un conjoint si le salarié n’est pas "Marié"

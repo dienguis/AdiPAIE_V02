@@ -15,6 +15,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
     // ========= Racine du barème =========
     [DefaultClassOptions]
+    [ImageName("BO_Scale")]  // V1.1 — icône XAF native (balance fiscale)
     [XafDisplayName("TRIMF - Barème")]
     [RuleCriteria("BaremeTRIMF_DateRangeOK", DefaultContexts.Save,
         "IsNull(DateFin) Or IsNull(DateDebut) Or DateDebut <= DateFin",

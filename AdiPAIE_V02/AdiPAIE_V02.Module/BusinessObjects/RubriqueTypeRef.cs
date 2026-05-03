@@ -11,6 +11,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions]
+    [ImageName("BO_Type")]  // V1.1 — icône XAF native (type/référentiel)
     [DefaultProperty(nameof(Libelle))]
     [XafDisplayName("Type de rubrique")]
     public class RubriqueTypeRef : BaseObject

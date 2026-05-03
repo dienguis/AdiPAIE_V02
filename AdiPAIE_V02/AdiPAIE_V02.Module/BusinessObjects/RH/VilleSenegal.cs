@@ -12,6 +12,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     /// Évite les erreurs de saisie (M'Bour vs Mbour, etc.)
     /// </summary>
     [DefaultClassOptions]
+    [ImageName("BO_City")]  // V1.1 — icône XAF native (ville)
     [XafDisplayName("Ville (Sénégal)")]
     [DefaultProperty(nameof(Nom))]
     //[NavigationItem("GRH - Administration")]

@@ -9,8 +9,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DomainComponent]
     [DefaultClassOptions]
+    [ImageName("BO_Chart")]  // V1.1 — icône XAF native (rapport BI/chart)
     [ModelDefault("Caption", "Rapport Power BI")]
-    [ModelDefault("ImageName", "BO_Chart")]
     public class PowerBIReportView : IXafEntityObject, IObjectSpaceLink
     {
         private IObjectSpace _objectSpace;

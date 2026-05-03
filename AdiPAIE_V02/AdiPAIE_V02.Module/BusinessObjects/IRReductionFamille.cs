@@ -9,6 +9,7 @@ using DevExpress.Xpo;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions]
+    [ImageName("BO_Family")]  // V1.1 — icône XAF native (réduction familiale fiscale)
     [XafDisplayName("IR - Réduction familiale")]
     [RuleCombinationOfPropertiesIsUnique("IR_Reduction_UniqueParts", DefaultContexts.Save, "NbrePart",
         CustomMessageTemplate = "Une ligne existe déjà pour ce nombre de parts.")]
