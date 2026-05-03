@@ -52,10 +52,12 @@ namespace AdiPAIE_V02.Blazor.Server
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, config) =>
                 {
-                    // dbconfig.json surcharge appsettings.json pour la connexion BDD
-                    // Ce fichier est modifiable depuis Paramètres de paie → Connexion BDD
-                    var dbConfigPath = Path.Combine(
-                        AppDomain.CurrentDomain.BaseDirectory, "dbconfig.json");
+                    // V1.1 — dbconfig.json est maintenant en %PROGRAMDATA%\AdiPAIE_V02\
+                    // pour SURVIVRE au clean+rebuild (cf. DbConfigHelper.cs).
+                    // Au premier démarrage, le helper copie automatiquement le
+                    // template présent dans le bin (s'il existe).
+                    AdiPAIE_V02.Module.Services.DbConfigHelper.EnsureBootstrapped();
+                    var dbConfigPath = AdiPAIE_V02.Module.Services.DbConfigHelper.ConfigPath;
                     if (File.Exists(dbConfigPath))
                     {
                         config.AddJsonFile(dbConfigPath, optional: true, reloadOnChange: false);

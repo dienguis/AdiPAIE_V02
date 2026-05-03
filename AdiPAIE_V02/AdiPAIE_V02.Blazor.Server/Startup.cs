@@ -138,6 +138,11 @@ namespace AdiPAIE_V02.Blazor.Server
        .GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>()
        .GetConnectionString("ConnectionString");
 
+                        // V1.1 — Si le password est chiffré (DPAPI:base64...), le déchiffrer
+                        // pour SqlClient. Transparent si pas de chiffrement (legacy).
+                        connectionString = AdiPAIE_V02.Module.Services.DbConfigHelper
+                            .DecryptConnectionString(connectionString);
+
                         // Ajouter TrustServerCertificate=True si absent
                         // (évite l'erreur SSL avec SQL Server Express / certificat auto-signé)
                         if (!string.IsNullOrWhiteSpace(connectionString)
