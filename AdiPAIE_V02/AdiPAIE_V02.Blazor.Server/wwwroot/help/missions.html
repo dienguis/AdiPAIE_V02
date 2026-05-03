@@ -3,75 +3,407 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Missions et deplacements — SunuPaie</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
-        h2 { color: #0F6E56; margin-top: 25px; }
-        h3 { color: #555; }
-        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
-        .bouton strong { color: #0F6E56; }
-        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
-        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
-        nav a:hover { text-decoration: underline; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
-        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-decoration: none; color: #333; transition: box-shadow 0.2s; }
-        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .card h3 { color: #0F6E56; margin-top: 0; }
-    </style>
+    <title>SunuPaie — Missions et déplacements (Guide complet)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/periodes.html">Periodes</a>
-        <a href="/help/prets.html">Prets</a>
-        <a href="/help/salaries.html">Salaries</a>
-        <a href="/help/conges.html">Conges</a>
-        <a href="/help/missions.html">Missions</a>
-        <a href="/help/formations.html">Formations</a>
-        <a href="/help/evaluations.html">Evaluations</a>
-        <a href="/help/parametrage.html">Parametrage</a>
-        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
-        <a href="/help/offboarding.html">Offboarding</a>
-        <a href="/help/disciplinaire.html">Disciplinaire</a>
-        <a href="/help/audit.html">Audit</a>
-        <a href="/help/import-salaries.html">Import</a>
-        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+        <a href="/help/periodes.html">Périodes</a>
+        <a href="/help/prets.html">Prêts</a>
+        <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/interimaires.html">Intérimaires</a>
+        <a href="/help/conges.html">Congés</a>
+        <a href="/help/missions.html" class="active">Missions</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>Missions et deplacements</h1>
+    <h1>✈️ Missions et déplacements — Guide complet</h1>
+    <p>Ce module pilote tout le cycle d'un déplacement professionnel :
+    demande, validation hiérarchique, comptabilisation des frais
+    prévisionnels et réels, génération de l'état de frais et
+    remboursement. Il s'appuie sur des <strong>circuits de validation
+    paramétrables</strong> (N+1 → Assistant RH → RH → DAF → Comptable).</p>
 
-    <h2>Flux</h2>
-    <div class="flux">
+    <div class="toc">
+        <strong>📑 Étapes du processus</strong>
         <ol>
-            <li>Mon espace → Mes deplacements → Nouveau</li>
-            <li>Renseigner : destination, dates, circuit, frais previsionnels</li>
-            <li>Soumettre → N+1 → Assistant RH → RH → DAF → Comptable</li>
-            <li>Chaque etape notifiee par email</li>
-            <li>A la fin : etat de frais genere automatiquement</li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du workflow</a></li>
+            <li><a href="#etape1">Étape 1 — Salarié : créer une demande de mission</a></li>
+            <li><a href="#etape2">Étape 2 — Salarié : renseigner les frais prévisionnels</a></li>
+            <li><a href="#etape3">Étape 3 — Soumettre la demande</a></li>
+            <li><a href="#etape4">Étape 4 — Validation hiérarchique (N+1 → DAF)</a></li>
+            <li><a href="#etape5">Étape 5 — Réalisation et saisie des frais réels</a></li>
+            <li><a href="#etape6">Étape 6 — Génération de l'état de frais (PDF)</a></li>
+            <li><a href="#etape7">Étape 7 — Remboursement comptable</a></li>
+            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
+            <li><a href="#regles">Règles métier</a></li>
+            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
         </ol>
     </div>
 
-    <h2>Frais</h2>
-    <div class="bouton">
-        <strong>Hebergement, restauration, transport :</strong> configures par categorie. Distance calculee automatiquement si Google Maps configure. Etat de frais : PDF genere avec les montants reels vs previsionnels.
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="vue-ensemble">📋 Vue d'ensemble du workflow</h2>
+
+    <div class="workflow">
+        <div class="box">📝 Brouillon</div>
+        <span class="arrow">→</span>
+        <div class="box">⏳ N+1</div>
+        <span class="arrow">→</span>
+        <div class="box">⏳ Assistant RH</div>
+        <span class="arrow">→</span>
+        <div class="box">⏳ RH</div>
+        <span class="arrow">→</span>
+        <div class="box">⏳ DAF</div>
+        <span class="arrow">→</span>
+        <div class="box">💰 Comptable</div>
+        <span class="arrow">→</span>
+        <div class="box">✅ Remboursée</div>
     </div>
 
-    <h2>Regles</h2>
-    <div class="alerte">
+    <p>Branches alternatives à chaque étape : <strong>Refuser</strong> →
+    notification au demandeur → retour en <strong>Brouillon</strong> pour correction.</p>
+
+    <h3>Statuts détaillés</h3>
+    <table>
+        <thead><tr><th>Statut</th><th>Qui agit</th><th>Action possible</th></tr></thead>
+        <tbody>
+            <tr><td>Brouillon</td><td><span class="badge badge-rh">Salarié</span></td><td>Modifier ou Soumettre</td></tr>
+            <tr><td>En attente N+1</td><td><span class="badge badge-rh">N+1</span></td><td>Valider ou Rejeter</td></tr>
+            <tr><td>En attente Assistant RH</td><td><span class="badge badge-rh">Asst. RH</span></td><td>Valider ou Rejeter</td></tr>
+            <tr><td>En attente RH</td><td><span class="badge badge-rh">RH</span></td><td>Valider ou Rejeter</td></tr>
+            <tr><td>En attente DAF</td><td><span class="badge badge-rh">DAF</span></td><td>Valider ou Rejeter</td></tr>
+            <tr><td>En attente Comptable</td><td><span class="badge badge-rh">Comptable</span></td><td>Saisir frais réels + Rembourser</td></tr>
+            <tr><td>Remboursée</td><td>—</td><td>Final</td></tr>
+            <tr><td>Refusée</td><td>—</td><td>Final (peut être resoumise après modif.)</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape1">📝 Étape 1 — Salarié : créer une demande de mission</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Naviguer vers Mes déplacements</h3>
+        <p>Dans le menu latéral : <strong>Mon espace → Mes déplacements</strong>
+        puis cliquer sur <strong>Nouveau</strong> en haut à droite.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Remplir l'en-tête de la mission</h3>
+        <dl class="field-list">
+            <dt>Objet de la mission</dt>
+            <dd>Décrire en une phrase (ex. <em>"Audit station ELTON THIES"</em>).</dd>
+            <dt>Destination</dt>
+            <dd>Ville ou site visité (ex. <em>Thiès</em>, <em>Saint-Louis</em>).</dd>
+            <dt>Date de départ / Date de retour</dt>
+            <dd>Bornes du déplacement. Le système calcule automatiquement le nombre de jours.</dd>
+            <dt>Mode de transport</dt>
+            <dd>Voiture de service / Personnelle / Avion / Bus.</dd>
+            <dt>Circuit de validation</dt>
+            <dd>Sélectionner le circuit applicable (ex. <em>Mission standard</em>,
+                <em>Mission internationale</em>). <strong>Obligatoire pour pouvoir soumettre.</strong></dd>
+        </dl>
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple :</strong> Mamadou (Auditeur Direction) doit faire un audit
+        à <em>ELTON THIES</em> du <em>15 au 17 mai 2026</em>. Il sélectionne le
+        circuit <em>Mission standard</em>. Le système calcule 3 jours de mission.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape2">💵 Étape 2 — Salarié : renseigner les frais prévisionnels</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Onglet Frais prévisionnels</h3>
+        <p>Dans la fiche de la mission, ouvrir l'onglet <strong>Frais</strong>
+        et ajouter une ligne par catégorie. Les catégories sont configurées
+        dans <strong>Paramétrage → Catégories de frais</strong>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Catégories standards</h3>
+        <table>
+            <thead><tr><th>Catégorie</th><th>Mode de calcul</th><th>Justificatif requis</th></tr></thead>
+            <tbody>
+                <tr><td>Hébergement</td><td>Forfait/nuit × nb de nuits</td><td>Facture hôtel</td></tr>
+                <tr><td>Restauration</td><td>Forfait/jour × nb de jours</td><td>Notes de restaurant</td></tr>
+                <tr><td>Transport</td><td>Distance × indemnité km (si voiture perso)</td><td>Billets, reçus carburant</td></tr>
+                <tr><td>Frais divers</td><td>Montant libre</td><td>Facture/reçu</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info">
+        💡 Si <strong>Google Maps</strong> est configuré dans
+        <em>Paramétrage → Intégrations</em>, la distance est calculée
+        automatiquement à partir de la ville d'origine et de la destination.
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple — frais prévisionnels Mamadou :</strong><br>
+        • Hébergement : 2 nuits × 35 000 FCFA = <strong>70 000 FCFA</strong><br>
+        • Restauration : 3 jours × 15 000 FCFA = <strong>45 000 FCFA</strong><br>
+        • Transport (voiture personnelle) : 140 km A/R × 350 FCFA = <strong>49 000 FCFA</strong><br>
+        <strong>Total prévisionnel = 164 000 FCFA</strong>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape3">📨 Étape 3 — Soumettre la demande</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer sur Soumettre</h3>
+        <p>Une fois la fiche complète, cliquer sur le bouton
+        <strong>📨 Soumettre</strong> en haut de la page.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Vérifications automatiques</h3>
         <ul>
-            <li>Impossible de soumettre sans circuit de deplacement</li>
-            <li>Le statut avance etape par etape (workflow strict)</li>
-            <li>Rejet possible a chaque etape → retour en Brouillon</li>
+            <li>Circuit de déplacement : <strong>obligatoire</strong></li>
+            <li>Au moins une ligne de frais prévisionnel</li>
+            <li>Date de retour ≥ Date de départ</li>
+            <li>Salarié actif (non sorti)</li>
         </ul>
     </div>
+
+    <div class="erreur">
+        <strong>⛔ "Impossible de soumettre sans circuit de déplacement"</strong><br>
+        → Sélectionner un circuit dans le champ <em>Circuit de validation</em>.
+        Si aucun n'est disponible, contacter le RH pour qu'il en configure un dans
+        <strong>Paramétrage → Circuits de déplacement</strong>.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape4">✅ Étape 4 — Validation hiérarchique (N+1 → DAF)</h2>
+
+    <p>Le workflow avance étape par étape selon le circuit choisi. À chaque
+    étape, le validateur reçoit un email avec un lien direct vers la mission.</p>
+
+    <div class="step">
+        <h3><span class="num">1</span>N+1 — Validation managériale</h3>
+        <p>Le N+1 vérifie le bien-fondé de la mission (objet, dates, coût total).
+        Il peut <strong>Valider</strong>, <strong>Refuser</strong> (avec motif) ou
+        <strong>Demander modification</strong>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Assistant RH — Cohérence administrative</h3>
+        <p>Vérifie que le salarié a bien droit à cette mission (pas en congé,
+        pas en arrêt maladie, contrat actif).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3</span>RH — Validation politique RH</h3>
+        <p>Contrôle conformité avec la politique interne (forfaits hébergement,
+        catégorie de salarié autorisée à voyager seul ou non, etc.).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4</span>DAF — Validation budgétaire</h3>
+        <p>Le DAF vérifie l'enveloppe budgétaire annuelle et donne le feu vert
+        financier. À cette étape, la mission peut être réalisée.</p>
+    </div>
+
+    <div class="alerte">
+        ⚠️ Un <strong>refus à n'importe quelle étape</strong> renvoie la mission
+        en <strong>Brouillon</strong> avec le motif visible. Le demandeur doit
+        corriger et resoumettre.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape5">🛣️ Étape 5 — Réalisation et saisie des frais réels</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Pendant la mission</h3>
+        <p>Le salarié conserve ses justificatifs (factures, reçus, notes).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Au retour : compléter le formulaire</h3>
+        <p>Dans la fiche mission, onglet <strong>Frais réels</strong>, saisir
+        pour chaque ligne :</p>
+        <dl class="field-list">
+            <dt>Montant réel</dt>
+            <dd>Le montant effectivement dépensé.</dd>
+            <dt>Justificatif</dt>
+            <dd>Glisser-déposer la facture (PDF, JPG, PNG, max 5 Mo/fichier).</dd>
+            <dt>Numéro de pièce</dt>
+            <dd>Numéro de la facture (utile pour la compta).</dd>
+        </dl>
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple — frais réels Mamadou (retour de Thiès) :</strong><br>
+        • Hébergement : 2 nuits × 32 000 FCFA = <strong>64 000 FCFA</strong>
+        (économie de 6 000 FCFA)<br>
+        • Restauration : <strong>52 000 FCFA</strong> (dépassement de 7 000 FCFA → justifié)<br>
+        • Transport : <strong>49 000 FCFA</strong> (conforme prévision)<br>
+        <strong>Total réel = 165 000 FCFA</strong> (vs 164 000 prévu)
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape6">📄 Étape 6 — Génération de l'état de frais (PDF)</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer sur Générer état de frais</h3>
+        <p>Dans la fiche de la mission validée, cliquer sur
+        <strong>📄 Générer état de frais</strong>. Le système produit un PDF
+        contenant :</p>
+        <ul>
+            <li>L'en-tête entreprise (logo + adresse)</li>
+            <li>Identité du salarié, fonction, service</li>
+            <li>Détail de la mission (objet, dates, destination)</li>
+            <li>Tableau comparatif <strong>Prévisionnel vs Réel</strong> par ligne</li>
+            <li>Total à rembourser et liste des justificatifs joints</li>
+            <li>Cadre signature : Demandeur / N+1 / RH / DAF</li>
+        </ul>
+    </div>
+
+    <div class="ok">
+        ✅ Le PDF généré est automatiquement attaché à la mission. Il reste
+        consultable dans l'historique pendant 10 ans (durée légale de conservation).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape7">💰 Étape 7 — Remboursement comptable</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Le Comptable saisit le mode de paiement</h3>
+        <dl class="field-list">
+            <dt>Mode de remboursement</dt>
+            <dd>Virement bancaire / Caisse / Inclusion bulletin de paie.</dd>
+            <dt>Date de paiement</dt>
+            <dd>Date effective du virement ou de la remise espèces.</dd>
+            <dt>Référence pièce comptable</dt>
+            <dd>N° d'OD ou de virement (pour rapprochement bancaire).</dd>
+        </dl>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Cliquer sur Marquer remboursée</h3>
+        <p>La mission passe en statut <strong>Remboursée</strong>. Le
+        salarié reçoit un email de confirmation avec la copie du PDF
+        état de frais.</p>
+    </div>
+
+    <div class="info">
+        💡 Si le mode est <strong>Inclusion bulletin de paie</strong>, le
+        montant est automatiquement injecté dans le bulletin du mois courant
+        sous la rubrique <code>REMB_FRAIS_MISSION</code> (configurable).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
+
+    <h3>Cas 1 — Mission nationale (jour-même, pas de nuit)</h3>
+    <div class="exemple">
+        <strong>Aïssa (RH)</strong> doit aller à un séminaire à Thiès le matin
+        et revenir le soir.<br>
+        <strong>Saisie :</strong> Date départ = Date retour = 12/05/2026.<br>
+        <strong>Frais :</strong> Restauration 1 jour (15 000) + Transport 140 km (49 000)
+        = <strong>64 000 FCFA</strong>. Pas d'hébergement.<br>
+        <strong>Circuit :</strong> Mission standard → N+1 → RH → DAF (saute Asst. RH si paramétré court).
+    </div>
+
+    <h3>Cas 2 — Mission internationale (avion + per diem)</h3>
+    <div class="exemple">
+        <strong>Modou (DSI)</strong> part à Paris pour une formation 5 jours.<br>
+        <strong>Frais prévus :</strong> Avion AR 750 000 + Hôtel 5 nuits × 80 000 (400 000)
+        + Per diem 5 jours × 50 000 (250 000) = <strong>1 400 000 FCFA</strong>.<br>
+        <strong>Circuit :</strong> Mission internationale (étape DAF + DG obligatoire).<br>
+        <strong>Particularité :</strong> avance de 70 % sur per diem possible avant
+        le départ (case <em>Avance demandée</em>).
+    </div>
+
+    <h3>Cas 3 — Refus d'une mission par le DAF (budget dépassé)</h3>
+    <div class="exemple">
+        <strong>Demande :</strong> Coumba demande un déplacement de 3 jours à Saint-Louis
+        (Total 280 000 FCFA).<br>
+        <strong>DAF refuse</strong> : "Budget Q2 déjà consommé à 95 %, reporter en juillet."<br>
+        <strong>Résultat :</strong> mission renvoyée en <em>Brouillon</em>.
+        Coumba reçoit un email avec le motif. Elle peut soit modifier les dates
+        (juillet) soit annuler la demande.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="regles">📜 Règles métier</h2>
+
+    <table>
+        <thead><tr><th>Règle</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td>Circuit obligatoire</td><td>Aucune soumission sans circuit de déplacement valide.</td></tr>
+            <tr><td>Workflow strict</td><td>Pas de saut d'étape : le statut avance dans l'ordre du circuit.</td></tr>
+            <tr><td>Refus = retour Brouillon</td><td>Toute étape peut refuser, le motif est obligatoire.</td></tr>
+            <tr><td>Justificatif > 50 000 FCFA</td><td>Tout poste de frais réel > 50 000 FCFA exige un justificatif scanné.</td></tr>
+            <tr><td>Plafond par catégorie</td><td>Configurable. Si dépassé, alerte au validateur N+1.</td></tr>
+            <tr><td>Devise</td><td>FCFA par défaut. Conversion automatique si missions internationales (EUR, USD).</td></tr>
+            <tr><td>Délai max de saisie frais réels</td><td>30 jours après date de retour, sinon alerte au manager.</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+
+    <div class="erreur">
+        <strong>"Aucun circuit de déplacement disponible"</strong><br>
+        → Le RH doit en créer un dans <em>Paramétrage → Circuits de déplacement</em>
+        et l'associer aux services concernés.
+    </div>
+
+    <div class="erreur">
+        <strong>"Date de retour antérieure à la date de départ"</strong><br>
+        → Vérifier les dates. Pour une mission jour-même, mettre la même date
+        des deux côtés (ne pas laisser un champ vide).
+    </div>
+
+    <div class="erreur">
+        <strong>"La distance Google Maps n'est pas calculée"</strong><br>
+        → Vérifier que la clé API Google Maps est renseignée dans
+        <em>Paramétrage → Intégrations</em>. Sinon saisir la distance manuellement.
+    </div>
+
+    <div class="erreur">
+        <strong>"Mission bloquée en attente DAF depuis plusieurs jours"</strong><br>
+        → Une relance automatique est envoyée tous les 3 jours.
+        Le RH peut <strong>réassigner manuellement</strong> la validation à un
+        suppléant via <em>Actions → Réassigner</em>.
+    </div>
+
+    <div class="info">
+        💡 <strong>Comment annuler une mission validée ?</strong> Tant que le
+        statut n'est pas <em>Remboursée</em>, le RH peut cliquer sur
+        <strong>Annuler la mission</strong> depuis la fiche. Une notification
+        est envoyée à toutes les parties prenantes.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+
+    <div class="bouton">
+        <strong>📨 Soumettre :</strong> envoie la demande au premier validateur du circuit.
+    </div>
+    <div class="bouton">
+        <strong>✅ Valider :</strong> approuve l'étape courante et avance au suivant.
+    </div>
+    <div class="bouton">
+        <strong>❌ Refuser :</strong> rejette avec motif obligatoire → retour en Brouillon.
+    </div>
+    <div class="bouton">
+        <strong>📄 Générer état de frais :</strong> produit le PDF récapitulatif comparatif Prévu/Réel.
+    </div>
+    <div class="bouton">
+        <strong>💰 Marquer remboursée :</strong> action Comptable, finalise la mission.
+    </div>
+    <div class="bouton">
+        <strong>🚫 Annuler la mission :</strong> action RH/Manager, possible avant remboursement.
+    </div>
+
+    <p class="footer-help">
+        SunuPaie v1.1 — Module Missions et Déplacements — Mise à jour mai 2026
+    </p>
 </body>
 </html>

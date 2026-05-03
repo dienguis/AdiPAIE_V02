@@ -4,148 +4,165 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SunuPaie — Guide utilisateur</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
-        h2 { color: #0F6E56; margin-top: 25px; }
-        h3 { color: #555; }
-        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
-        .bouton strong { color: #0F6E56; }
-        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
-        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
-        nav a:hover { text-decoration: underline; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
-        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-decoration: none; color: #333; transition: box-shadow 0.2s; }
-        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .card h3 { color: #0F6E56; margin-top: 0; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; margin: 20px 0; }
+        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 18px; text-decoration: none; color: #333; transition: box-shadow 0.2s, transform 0.1s; display: block; }
+        .card:hover { box-shadow: 0 4px 14px rgba(15,110,86,0.18); transform: translateY(-2px); }
+        .card h3 { color: #0F6E56; margin: 0 0 6px 0; font-size: 1.05em; }
+        .card p { margin: 0; color: #555; font-size: 0.9em; }
+        .section-title { color: #0F6E56; margin-top: 30px; padding: 8px 0 4px; border-bottom: 2px dashed #0F6E56; }
     </style>
 </head>
 <body>
     <nav>
-        <a href="/help/index.html">Accueil</a>
+        <a href="/help/index.html" class="active">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/periodes.html">Periodes</a>
-        <a href="/help/prets.html">Prets</a>
-        <a href="/help/salaries.html">Salaries</a>
-        <a href="/help/conges.html">Conges</a>
+        <a href="/help/periodes.html">Périodes</a>
+        <a href="/help/prets.html">Prêts</a>
+        <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/interimaires.html">Intérimaires</a>
+        <a href="/help/conges.html">Congés</a>
         <a href="/help/missions.html">Missions</a>
-        <a href="/help/formations.html">Formations</a>
-        <a href="/help/evaluations.html">Evaluations</a>
-        <a href="/help/parametrage.html">Parametrage</a>
-        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
-        <a href="/help/offboarding.html">Offboarding</a>
-        <a href="/help/disciplinaire.html">Disciplinaire</a>
-        <a href="/help/audit.html">Audit</a>
-        <a href="/help/import-salaries.html">Import</a>
-        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
-    <h1>SunuPaie — Guide utilisateur</h1>
-    <p>Bienvenue dans l'aide en ligne de SunuPaie. Cliquez sur un module pour acceder a son guide.</p>
 
+    <h1>📚 SunuPaie — Guide utilisateur</h1>
+    <p>Bienvenue dans l'aide en ligne de SunuPaie. Tous les modules sont
+    documentés au format <strong>step-by-step avec exemples concrets</strong>,
+    cas d'usage et FAQ. Cliquez sur un module pour ouvrir son guide.</p>
+
+    <h2 class="section-title">🧮 Cycle de paie mensuel</h2>
     <div class="grid">
-        <a href="/help/bulletins.html" class="card">
-            <h3>Bulletins de paie</h3>
-            <p>Creer, recalculer et valider les bulletins mensuels.</p>
-        </a>
         <a href="/help/periodes.html" class="card">
-            <h3>Periodes de paie</h3>
-            <p>Gerer les periodes mensuelles et la cloture.</p>
+            <h3>📅 Périodes de paie</h3>
+            <p>Cycle mensuel : ouverture, clôture, déclarations IPRES/CSS/VRS.</p>
         </a>
-        <a href="/help/prets.html" class="card">
-            <h3>Prets et avances</h3>
-            <p>Creer des prets, generer les echeanciers.</p>
-        </a>
-        <a href="/help/salaries.html" class="card">
-            <h3>Fiches salaries</h3>
-            <p>Gerer les informations des salaries.</p>
-        </a>
-        <a href="/help/conges.html" class="card">
-            <h3>Conges et absences</h3>
-            <p>Demandes, soldes et acquisition de conges.</p>
-        </a>
-        <a href="/help/missions.html" class="card">
-            <h3>Missions</h3>
-            <p>Deplacements professionnels et frais de mission.</p>
-        </a>
-        <a href="/help/formations.html" class="card">
-            <h3>Formations</h3>
-            <p>Plans de formation et sessions.</p>
-        </a>
-        <a href="/help/evaluations.html" class="card">
-            <h3>Evaluations</h3>
-            <p>Entretiens annuels et campagnes.</p>
-        </a>
-        <a href="/help/avancements.html" class="card">
-            <h3>Avancements</h3>
-            <p>Promotions et changements de poste.</p>
-        </a>
-        <a href="/help/parametrage.html" class="card">
-            <h3>Parametrage</h3>
-            <p>Rubriques, baremes, cotisations.</p>
-        </a>
-        <a href="/help/import-salaries.html" class="card">
-            <h3>Import en masse</h3>
-            <p>Importer des salaries depuis un fichier Excel.</p>
+        <a href="/help/bulletins.html" class="card">
+            <h3>📄 Bulletins de paie</h3>
+            <p>Création, recalcul, validation, envoi PDF, clôture.</p>
         </a>
         <a href="/help/livre-de-paye.html" class="card">
-            <h3>Livre de Paie</h3>
+            <h3>📚 Livre de Paie</h3>
             <p>Journal de paie mensuel obligatoire (art. L.120).</p>
+        </a>
+        <a href="/help/heures-supplementaires.html" class="card">
+            <h3>⏰ Heures supplémentaires</h3>
+            <p>Calcul automatique des HS (15 / 40 / 60 / 100 %).</p>
+        </a>
+        <a href="/help/prets.html" class="card">
+            <h3>💰 Prêts et avances</h3>
+            <p>Échéanciers, retenues, suspensions, clôture.</p>
         </a>
     </div>
 
-    <h2>Regles essentielles — Droit social senegalais</h2>
+    <h2 class="section-title">👥 Gestion des salariés</h2>
+    <div class="grid">
+        <a href="/help/salaries.html" class="card">
+            <h3>👤 Fiches salariés</h3>
+            <p>Identité, contrat, rémunération, famille, espace salarié.</p>
+        </a>
+        <a href="/help/interimaires.html" class="card">
+            <h3>👷 Intérimaires</h3>
+            <p>Cycle complet : fiches, demandes, contrats, multi-affectations.</p>
+        </a>
+        <a href="/help/conges.html" class="card">
+            <h3>🏖️ Congés et absences</h3>
+            <p>Demandes, soldes, validation N+1/N+2, accord RH.</p>
+        </a>
+        <a href="/help/missions.html" class="card">
+            <h3>✈️ Missions et déplacements</h3>
+            <p>Workflow complet : demande, validation, état de frais, remboursement.</p>
+        </a>
+        <a href="/help/avancements.html" class="card">
+            <h3>📈 Avancements</h3>
+            <p>Promotions, échelons, changements de catégorie.</p>
+        </a>
+    </div>
+
+    <h2 class="section-title">🎓 Développement RH</h2>
+    <div class="grid">
+        <a href="/help/formations.html" class="card">
+            <h3>🎓 Formations</h3>
+            <p>Plan annuel, sessions, présences, attestations, évaluation à froid.</p>
+        </a>
+        <a href="/help/evaluations.html" class="card">
+            <h3>📝 Évaluations annuelles</h3>
+            <p>Campagnes, entretiens, auto-évaluation, validation N+2.</p>
+        </a>
+    </div>
+
+    <h2 class="section-title">⚖️ Vie du contrat</h2>
+    <div class="grid">
+        <a href="/help/disciplinaire.html" class="card">
+            <h3>⚖️ Gestion disciplinaire</h3>
+            <p>Notification, audition, sanction, clôture.</p>
+        </a>
+        <a href="/help/offboarding.html" class="card">
+            <h3>👋 Offboarding & STC</h3>
+            <p>Solde de tout compte automatisé (congés, préavis, licenciement, prorata).</p>
+        </a>
+    </div>
+
+    <h2 class="section-title">📥 Import et migration</h2>
+    <div class="grid">
+        <a href="/help/import-salaries.html" class="card">
+            <h3>📥 Import Salariés</h3>
+            <p>Excel : matricule, identité, salaire, échelon.</p>
+        </a>
+        <a href="/help/import-conjoints.html" class="card">
+            <h3>👫 Import Conjoints</h3>
+            <p>Excel : impact direct sur parts fiscales.</p>
+        </a>
+        <a href="/help/import-comptes-bancaires.html" class="card">
+            <h3>🏦 Import RIB</h3>
+            <p>Excel : multi-comptes, modes Reliquat / Fixe / %.</p>
+        </a>
+    </div>
+
+    <h2 class="section-title">⚙️ Administration et audit</h2>
+    <div class="grid">
+        <a href="/help/parametrage.html" class="card">
+            <h3>⚙️ Paramétrage</h3>
+            <p>Rubriques, barèmes, cotisations, SMTP.</p>
+        </a>
+        <a href="/help/audit.html" class="card">
+            <h3>🔍 Journal d'audit</h3>
+            <p>Traçabilité de toutes les actions sensibles.</p>
+        </a>
+        <a href="/help/dashboards/index.html" class="card">
+            <h3>📊 Tableaux de bord RH</h3>
+            <p>6 dashboards : effectif, mouvements, rémunération, absences, bilan social.</p>
+        </a>
+    </div>
+
+    <h2 class="section-title">📜 Règles essentielles — Droit social sénégalais</h2>
     <table>
         <thead>
             <tr>
                 <th>Cotisation</th>
-                <th>Salarie</th>
+                <th>Salarié</th>
                 <th>Employeur</th>
                 <th>Plafond mensuel</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>IPRES RG</td>
-                <td>5,60%</td>
-                <td>8,40%</td>
-                <td>432 000 FCFA</td>
-            </tr>
-            <tr>
-                <td>IPRES RC (cadres)</td>
-                <td>2,40%</td>
-                <td>3,60%</td>
-                <td>1 296 000 FCFA</td>
-            </tr>
-            <tr>
-                <td>CSS AT</td>
-                <td>0%</td>
-                <td>Variable</td>
-                <td>Pas de plafond</td>
-            </tr>
-            <tr>
-                <td>CSS AF</td>
-                <td>0%</td>
-                <td>Variable</td>
-                <td>Pas de plafond</td>
-            </tr>
-            <tr>
-                <td>CFCE</td>
-                <td>0%</td>
-                <td>Variable</td>
-                <td>Base = brut fiscal</td>
-            </tr>
+            <tr><td>IPRES RG</td><td>5,60 %</td><td>8,40 %</td><td>432 000 FCFA</td></tr>
+            <tr><td>IPRES RC (cadres)</td><td>2,40 %</td><td>3,60 %</td><td>1 296 000 FCFA</td></tr>
+            <tr><td>CSS AT</td><td>0 %</td><td>Variable</td><td>Pas de plafond</td></tr>
+            <tr><td>CSS AF</td><td>0 %</td><td>Variable</td><td>Pas de plafond</td></tr>
+            <tr><td>CFCE</td><td>0 %</td><td>Variable</td><td>Base = brut fiscal</td></tr>
         </tbody>
     </table>
 
     <div class="alerte">
-        <strong>IR — Abattement :</strong> 30% du revenu brut fiscal. Minimum annuel : 0 FCFA. Maximum annuel : 900 000 FCFA (75 000 FCFA/mois).
+        <strong>IR — Abattement :</strong> 30 % du revenu brut fiscal.
+        Minimum annuel : 0 FCFA. Maximum annuel : 900 000 FCFA (75 000 FCFA/mois).
     </div>
+
+    <p class="footer-help">
+        SunuPaie v1.1 — Guide utilisateur global — Mise à jour mai 2026
+    </p>
 </body>
 </html>

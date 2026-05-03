@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SunuPaie — Module Intérimaires (Guide complet)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">Accueil</a>
+        <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/interimaires.html" class="active">Intérimaires</a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/conges.html">Congés</a>
+        <a href="/help/missions.html">Missions</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+    </nav>
+
+    <h1>👷 Module Intérimaires — Guide complet</h1>
+    <p>Ce module permet de gérer le personnel intérimaire d'ELTON Oil Company :
+    fiches, demandes de recrutement, contrats, affectations sur les sites
+    (stations, siège, dépôts), mouvements entre sites, et suivi via les
+    tableaux de bord RH.</p>
+
+    <div class="toc">
+        <strong>📑 Étapes du processus</strong>
+        <ol>
+            <li><a href="#vue-ensemble">Vue d'ensemble du processus</a></li>
+            <li><a href="#etape1">Étape 1 — Créer une fiche Intérimaire</a></li>
+            <li><a href="#etape2">Étape 2 — Faire une Demande de recrutement</a></li>
+            <li><a href="#etape3">Étape 3 — Validation de la demande</a></li>
+            <li><a href="#etape4">Étape 4 — Créer le Contrat avec affectation Site / Unités</a></li>
+            <li><a href="#etape5">Étape 5 — Gérer les Mouvements entre sites</a></li>
+            <li><a href="#etape6">Étape 6 — Suivi via les Tableaux de Bord</a></li>
+            <li><a href="#cas-usage">Cas d'usage concrets ELTON</a></li>
+            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+            <li><a href="#donnees-demo">Données démo pour tester</a></li>
+        </ol>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="vue-ensemble">📋 Vue d'ensemble du processus</h2>
+
+    <p>Le cycle de vie d'un intérimaire chez ELTON suit 5 grandes étapes :</p>
+
+    <div class="workflow">
+        <div class="box">👤 Fiche</div>
+        <span class="arrow">→</span>
+        <div class="box">📝 Demande</div>
+        <span class="arrow">→</span>
+        <div class="box">✅ Validation</div>
+        <span class="arrow">→</span>
+        <div class="box">📄 Contrat + Affectation</div>
+        <span class="arrow">→</span>
+        <div class="box">🔄 Mouvements</div>
+        <span class="arrow">→</span>
+        <div class="box">📊 Suivi</div>
+    </div>
+
+    <div class="info">
+        <strong>📌 Modèle de données V1.1 (mai 2026)</strong> — Un intérimaire
+        est désormais affecté à un <strong>Site</strong> (Station service / Siège /
+        Dépôt) et à une ou plusieurs <strong>Unités organisationnelles</strong>
+        (BU pour Stations, Départements ou Segments pour le Siège).
+        <br><br>
+        Les anciens champs <code>Station</code>, <code>BU</code>, <code>EstDG</code>
+        sont marqués <span class="badge badge-legacy">[Legacy]</span> sur les fiches
+        existantes mais ne doivent plus être utilisés pour les nouvelles saisies.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape1">👤 Étape 1 — Créer une fiche Intérimaire</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Naviguer vers le menu Intérimaires</h3>
+        <p>Menu de gauche → <strong>GRH - Intérimaires</strong> →
+        <strong>Intérimaires</strong> → bouton <kbd>+ New</kbd>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Renseigner les informations d'identité</h3>
+        <div class="field-list">
+            <dl>
+                <dt>Matricule</dt><dd>Auto-généré (format <code>INT-2026-0042</code>) — non modifiable</dd>
+                <dt>Nom *</dt><dd>En MAJUSCULES (auto-formaté)</dd>
+                <dt>Prénom *</dt><dd>Saisie libre</dd>
+                <dt>N° CNI / Passeport</dt><dd>Pièce d'identité</dd>
+                <dt>Date de naissance</dt><dd>Format JJ/MM/AAAA</dd>
+                <dt>Nationalité</dt><dd>Par défaut : Sénégalaise</dd>
+                <dt>Statut</dt><dd>Disponible (par défaut), Affecté, Inactif, Blacklisté</dd>
+            </dl>
+        </div>
+        <p>(*) Champs obligatoires</p>
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple :</strong> Création d'un intérimaire « Mamadou DIOP »<br>
+        - Nom : <code>DIOP</code> · Prénom : <code>Mamadou</code><br>
+        - N° CNI : <code>1 234 5678 9012</code><br>
+        - Date naissance : <code>15/04/1996</code><br>
+        - Nationalité : <code>Sénégalaise</code><br>
+        - Statut : <strong>Disponible</strong><br>
+        Cliquer <kbd>Save</kbd> → matricule auto-généré : <code>INT-2026-0042</code>
+    </div>
+
+    <div class="alerte">
+        <strong>⚠️ Note V1.1 :</strong> l'entité <code>Interimaire</code> n'a pas
+        de champ <em>Sexe</em>. Donc les KPI %F/%H des dashboards EXTERNE restent
+        à 0%. Si métier le demande, ajouter une migration XPO.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape2">📝 Étape 2 — Faire une Demande de recrutement</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Initier la demande</h3>
+        <p>Menu → <strong>GRH - Intérimaires</strong> →
+        <strong>Demandes de recrutement</strong> → <kbd>+ New</kbd>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Renseigner les besoins</h3>
+        <div class="field-list">
+            <dl>
+                <dt>Site demandeur *</dt><dd>Le site qui a besoin de renfort (Station, Siège, Dépôt)</dd>
+                <dt>Nombre d'intérimaires *</dt><dd>Combien de personnes pour cette demande</dd>
+                <dt>Poste recherché *</dt><dd>Caissier / Pompiste / Laveur / Magasinier / etc.</dd>
+                <dt>Date de début souhaitée *</dt><dd>Quand la mission doit commencer</dd>
+                <dt>Durée estimée</dt><dd>1 mois, 3 mois, 6 mois, 1 an…</dd>
+                <dt>Motif du recours *</dt><dd>Surcroît d'activité, remplacement maladie, projet ponctuel, etc.</dd>
+                <dt>Société d'intérim préférée</dt><dd>Optionnel — sinon « Toutes »</dd>
+                <dt>Taux journalier max accepté</dt><dd>Plafond budgétaire en FCFA</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple :</strong> Demande de Mamadou DIOP en Caissier à BANDIA pour 3 mois<br>
+        - Site demandeur : <code>🏪 BANDIA</code><br>
+        - Nombre d'intérimaires : <code>1</code><br>
+        - Poste : <code>Caissier</code><br>
+        - Date début : <code>01/06/2026</code><br>
+        - Durée estimée : <code>3 mois</code><br>
+        - Motif : <code>Remplacement congé maternité Mme NDIAYE</code><br>
+        - Taux journalier max : <code>20 000 FCFA</code><br>
+        Cliquer <kbd>Save</kbd> → statut initial = <strong>Brouillon</strong>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape3">✅ Étape 3 — Validation de la demande</h2>
+
+    <p>La demande passe par un circuit d'approbation à 2 niveaux :</p>
+
+    <table>
+        <thead><tr><th>Statut</th><th>Qui agit</th><th>Action</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Brouillon</strong></td><td>Demandeur</td><td>Saisie initiale, peut modifier librement</td></tr>
+            <tr><td><strong>Soumise</strong></td><td>Demandeur</td><td>Envoie pour validation hiérarchique</td></tr>
+            <tr><td><strong>Validée N+1</strong></td><td>Manager <span class="badge badge-rh">RH</span></td><td>Vérifie le besoin métier</td></tr>
+            <tr><td><strong>Validée DAF</strong></td><td>Direction Financière <span class="badge badge-rh">DAF</span></td><td>Vérifie le budget</td></tr>
+            <tr><td><strong>Approuvée</strong></td><td>RH</td><td>Crée le contrat (Étape 4)</td></tr>
+            <tr><td><strong>Rejetée</strong></td><td>RH ou DAF</td><td>Refus motivé, demande clôturée</td></tr>
+        </tbody>
+    </table>
+
+    <div class="info">
+        <strong>📧 Notifications :</strong> chaque changement de statut envoie
+        automatiquement un email au prochain valideur (configurable dans
+        <code>Paramétrage → Notifications</code>).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape4">📄 Étape 4 — Créer le Contrat avec affectation Site / Unités</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Créer le contrat depuis la demande approuvée</h3>
+        <p>Menu → <strong>GRH - Intérimaires</strong> → <strong>Contrats Intérim</strong>
+        → <kbd>+ New</kbd>, OU directement depuis la fiche Intérimaire (onglet Contrats).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Renseigner les champs principaux</h3>
+        <div class="field-list">
+            <dl>
+                <dt>Intérimaire *</dt><dd>Sélectionner la fiche créée à l'Étape 1</dd>
+                <dt>Société d'intérim</dt><dd>SEN-INTERIM, etc.</dd>
+                <dt>Date de début *</dt><dd>JJ/MM/AAAA — début effectif du contrat</dd>
+                <dt>Date de fin *</dt><dd>JJ/MM/AAAA — fin prévisionnelle (peut être prolongée)</dd>
+                <dt>Type contrat</dt><dd>Première mission / Renouvellement / Prolongation</dd>
+                <dt>Taux journalier *</dt><dd>En FCFA — valeur convenue avec l'intérimaire</dd>
+                <dt>Poste occupé</dt><dd>Caissier, Pompiste, etc. (référentiel)</dd>
+                <dt>Motif du recours *</dt><dd>Doit reprendre le motif de la demande validée</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3</span><span class="badge badge-new">V1.1 nouveau</span> Affecter au Site et aux Unités</h3>
+        <div class="field-list">
+            <dl>
+                <dt>Site *</dt><dd>
+                    Choisir UN site parmi :<br>
+                    🏪 Stations service (BANDIA, CAP DES BICHES, MERMOZ, etc.)<br>
+                    🏢 Siège ELTON (1 seul)<br>
+                    📦 Dépôts (Dakar, Thiès, etc.)
+                </dd>
+                <dt>Unités</dt><dd>
+                    <strong>Multi-affectation possible</strong> — sélectionner une ou plusieurs unités au sein du site choisi :<br>
+                    Pour une <strong>Station</strong> : 1 BU (Boutique, Piste, E-Service ou Espace Auto)<br>
+                    Pour le <strong>Siège</strong> : 1 ou plusieurs Départements (DSI, Commerciale, RH…) ou Segments (Consommateurs, BTP, Mines)
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple A — Affectation simple Boutique BANDIA</strong><br>
+        - Site : <code>🏪 BANDIA</code><br>
+        - Unités : <code>Boutique</code> (1 seule)<br>
+        - Poste : <code>Caissier</code><br>
+        - Taux journalier : <code>15 000 FCFA</code><br>
+        - Du <code>01/06/2026</code> au <code>31/08/2026</code>
+        <br><br>
+        <strong>Exemple B — Affectation multi-segment Siège Direction Commerciale</strong><br>
+        - Site : <code>🏢 Siège ELTON</code><br>
+        - Unités : <code>Direction Commerciale</code> + <code>Segment Consommateurs</code> + <code>Segment BTP</code><br>
+          (un commercial qui travaille sur plusieurs segments)<br>
+        - Poste : <code>Comptable Aux.</code><br>
+        - Taux journalier : <code>50 000 FCFA</code>
+        <br><br>
+        <strong>Exemple C — Affectation Dépôt</strong><br>
+        - Site : <code>📦 Dépôt Dakar</code><br>
+        - Unités : (vide — les dépôts n'ont pas de sous-structure pour le moment)<br>
+        - Poste : <code>Magasinier</code><br>
+        - Taux journalier : <code>18 000 FCFA</code>
+    </div>
+
+    <div class="alerte">
+        <strong>⚠️ Champs <span class="badge badge-legacy">[Legacy]</span> à NE PAS utiliser :</strong>
+        Sur la fiche Contrat, vous verrez aussi les anciens champs :
+        <code>[Legacy] Station de service</code>, <code>[Legacy] Business Unit</code>,
+        <code>[Legacy] Direction Générale</code>. Ces champs sont conservés pour
+        les anciens contrats déjà saisis. <strong>NE LES REMPLISSEZ PLUS</strong>
+        pour les nouveaux contrats — utilisez uniquement <strong>Site (V1.1)</strong>
+        et <strong>Unités (V1.1)</strong>.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape5">🔄 Étape 5 — Gérer les Mouvements entre sites</h2>
+
+    <p>Un intérimaire peut être réaffecté en cours de contrat (ex: BANDIA →
+    Siège, ou MERMOZ → Dépôt Dakar). Tracer ces changements via l'écran
+    <strong>Mouvements Intérimaires</strong>.</p>
+
+    <div class="step">
+        <h3><span class="num">1</span>Créer un mouvement</h3>
+        <p>Menu → <strong>GRH - Intérimaires</strong> → <strong>Mouvements</strong> → <kbd>+ New</kbd>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Renseigner origine et destination</h3>
+        <div class="field-list">
+            <dl>
+                <dt>Intérimaire *</dt><dd>Personne concernée par le mouvement</dd>
+                <dt>Date du mouvement *</dt><dd>JJ/MM/AAAA — quand prend effet le changement</dd>
+                <dt>Site origine</dt><dd>Site d'où il vient (Station/Siège/Dépôt)</dd>
+                <dt>Unité origine</dt><dd>Unité organisationnelle d'origine</dd>
+                <dt>Site destination *</dt><dd>Nouveau site d'affectation</dd>
+                <dt>Unité destination</dt><dd>Nouvelle unité organisationnelle</dd>
+                <dt>Type mouvement</dt><dd>Affectation initiale / Réaffectation / Sortie</dd>
+                <dt>Motif</dt><dd>Texte libre (ex: « Renfort Siège suite croissance d'activité »)</dd>
+                <dt>Validé RH</dt><dd>Case à cocher après validation hiérarchique</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple :</strong> Mamadou DIOP passe de Boutique BANDIA à Direction Commerciale du Siège<br>
+        - Intérimaire : <code>DIOP Mamadou</code><br>
+        - Date : <code>01/09/2026</code><br>
+        - Site origine : <code>🏪 BANDIA</code> · Unité origine : <code>Boutique</code><br>
+        - Site destination : <code>🏢 Siège ELTON</code> · Unité destination : <code>Direction Commerciale</code><br>
+        - Type : <code>Réaffectation</code><br>
+        - Motif : <code>Renfort équipe consommateurs Q3 2026</code><br>
+        - Validé RH : ☑️
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape6">📊 Étape 6 — Suivi via les Tableaux de Bord</h2>
+
+    <p>Une fois les contrats créés, les <a href="/help/dashboards/index.html">
+    <strong>Tableaux de Bord RH</strong></a> reflètent automatiquement l'activité
+    intérimaire. Toggle <strong>EXTERNE</strong> sur les dashboards :</p>
+
+    <table>
+        <thead><tr><th>Tableau</th><th>Ce que vous voyez côté intérim</th></tr></thead>
+        <tbody>
+            <tr><td><a href="/help/dashboards/analyse-effectif.html"><strong>N°2 Analyse Effectif</strong></a></td><td>Effectif total intérimaires actifs, évolution 8 ans, % rotation, par Site/Unité</td></tr>
+            <tr><td><a href="/help/dashboards/mouvements.html"><strong>N°3 Mouvements</strong></a></td><td>Arrivées et départs de contrats par Site/Unité, % renouvellement</td></tr>
+            <tr><td><a href="/help/dashboards/remuneration.html"><strong>N°4 Rémunération</strong></a></td><td>Coût total intérim par Site, par Unité, ventilation Boutique/Piste/Direction…</td></tr>
+            <tr><td><a href="/help/dashboards/bilan-social.html"><strong>N°6 Bilan Social</strong></a></td><td>Ligne « dont Intérimaires » dans le bilan annuel ELTON</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="cas-usage">💼 Cas d'usage concrets ELTON</h2>
+
+    <h3>Cas 1 — Remplacement saisonnier en Boutique</h3>
+    <ol>
+        <li>Manager BANDIA crée demande : 2 caissiers pour juillet-août</li>
+        <li>RH valide → DAF valide budget → Approuvée</li>
+        <li>RH sélectionne 2 intérimaires de la base (statut Disponible)</li>
+        <li>Création de 2 contrats : Site = BANDIA, Unité = Boutique, durée 2 mois</li>
+        <li>En septembre : statut contrats = Terminé automatiquement à DateFin</li>
+        <li>Tableau N°3 Mouvements montre les 2 arrivées juillet + 2 départs août</li>
+    </ol>
+
+    <h3>Cas 2 — Renfort pluri-segments à la Direction Commerciale</h3>
+    <ol>
+        <li>DG demande renfort pour le projet « Boost BTP-Mines » sur 6 mois</li>
+        <li>Création contrat : Site = Siège ELTON, Unités = <strong>Segment BTP</strong> + <strong>Segment Mines</strong> (multi)</li>
+        <li>Le coût apparaîtra dans le tableau Rémunération sous Siège ELTON, et dans la décomposition par Unité sur les 2 segments</li>
+    </ol>
+
+    <h3>Cas 3 — Mutation Station → Dépôt</h3>
+    <ol>
+        <li>Intérimaire MERMOZ (Pompiste) muté au Dépôt Dakar (Magasinier) en cours de contrat</li>
+        <li>Créer un Mouvement : Origine MERMOZ/Piste → Destination Dépôt Dakar</li>
+        <li>Le contrat ne change pas de Site automatiquement — il faut éditer le contrat manuellement pour le réaffecter</li>
+        <li>Tableau Mouvements affichera ce mouvement</li>
+    </ol>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+
+    <h3>Q : Pourquoi mon contrat n'apparaît pas dans les dashboards EXTERNE ?</h3>
+    <div class="erreur">
+        <strong>Cause probable :</strong> le champ <strong>Site (V1.1)</strong> n'est
+        pas renseigné. Les dashboards V1.1 lisent uniquement <code>ContratInterim.Site</code>
+        + <code>ContratInterim.Unites</code>. Si vous avez rempli les anciens champs
+        <code>[Legacy] Station</code> / <code>[Legacy] BU</code>, ils ne sont plus
+        utilisés par les dashboards.
+        <br><br>
+        <strong>Fix :</strong> ouvrir le contrat → renseigner Site + Unités → Save → recharger le dashboard.
+    </div>
+
+    <h3>Q : J'ai créé une nouvelle BU (ex: « Restauration ») mais elle n'apparaît pas dans Unités</h3>
+    <div class="info">
+        Vérifier que :<br>
+        - L'unité est bien rattachée à un <strong>Site</strong> (FK obligatoire)<br>
+        - L'unité est <strong>Active</strong> (case à cocher)<br>
+        - Le <strong>Type d'unité</strong> est cohérent (BU pour station, Département pour siège)
+    </div>
+
+    <h3>Q : Le % Renouvellement dépasse 100 % sur un site</h3>
+    <div class="ok">
+        <strong>C'est normal en V1.1</strong> si beaucoup de contrats courts se
+        succèdent sur peu de places. Ex: 11 contrats de 1 mois sur 3 places dans
+        l'année = 366 % de renouvellement « rotatif ».
+        <br><br>
+        Depuis le fix Sprint 1C.2 fix2, le ratio est plafonné à 100 % naturellement
+        (numérateur et dénominateur en contrats). Si vous voyez encore > 100 %,
+        rafraîchissez le cache via le bouton ↻ Refresh du dashboard.
+    </div>
+
+    <h3>Q : Comment savoir qui a accès au module Intérimaires ?</h3>
+    <p>Les rôles autorisés sont définis dans <code>Updater.cs</code> :</p>
+    <table>
+        <thead><tr><th>Rôle</th><th>Permissions Intérimaires</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Administrators</strong></td><td>Tout (CRUD complet)</td></tr>
+            <tr><td><strong>RH</strong></td><td>Tout (saisie, validation, contrats, mouvements)</td></tr>
+            <tr><td><strong>RH_Manager</strong></td><td>Lecture seule (consultation dashboards)</td></tr>
+            <tr><td><strong>DAF</strong></td><td>Lecture + validation budget des demandes</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="donnees-demo">🧪 Données démo pour tester</h2>
+
+    <p>Au premier démarrage de l'application, un seed crée automatiquement
+    un jeu de données démo (préfixe <code>DEMO_</code>) pour permettre la
+    formation et les tests :</p>
+
+    <ul>
+        <li><strong>6 sites</strong> : 3 stations (BANDIA, CAP DES BICHES, MERMOZ) + 1 Siège + 2 Dépôts (Dakar, Thiès)</li>
+        <li><strong>19 unités</strong> : 12 BU station + 4 départements siège + 3 segments commerciaux</li>
+        <li><strong>1 société d'intérim</strong> : DEMO_SEN-INTERIM</li>
+        <li><strong>8 postes</strong> : Caissier, Pompiste, Laveur, Technicien, Chef Boutique, Magasinier, Comptable Aux., Assistant RH</li>
+        <li><strong>25 intérimaires</strong> : noms sénégalais réalistes (DIOP, SARR, FALL…)</li>
+        <li><strong>~40 contrats</strong> répartis 2024-2026 sur tous les sites</li>
+        <li><strong>10 mouvements</strong> entre sites</li>
+    </ul>
+
+    <h3>Désactiver le seed démo en production</h3>
+    <div class="info">
+        Modifier <code>appsettings.json</code> :
+        <pre><code>"Dashboards": {
+    "SeedDemoData": false
+}</code></pre>
+        OU positionner la variable d'environnement :
+        <pre><code>set DASHBOARDS_SEED_DEMO=false</code></pre>
+    </div>
+
+    <h3>Supprimer toutes les données démo</h3>
+    <div class="info">
+        Aller dans <strong>Administration → Mon profil utilisateur (Admin)</strong> →
+        bouton <kbd>Vider les données démo</kbd> → confirmer.
+        <br><br>
+        Ce bouton supprime UNIQUEMENT les enregistrements préfixés <code>DEMO_</code>.
+        Vos données métier réelles (rubriques de paie, paramètres, catégories,
+        etc.) ne sont JAMAIS touchées car leurs codes ne commencent pas par DEMO_.
+    </div>
+
+    <p class="footer-help">
+        SunuPaie v1.1 — Module Intérimaires — Mise à jour mai 2026<br>
+        Voir aussi : <a href="/help/dashboards/index.html">Tableaux de bord RH</a> ·
+        <a href="/help/index.html">Aide générale</a>
+    </p>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rémunération — Aide Tableau N°4</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html" class="active">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°4</div>
+        <h1>Rémunération — Égalité des salaires</h1>
+        <p class="lead">Vue annuelle de la masse salariale, du coût employeur et de l'égalité H/F
+        par segment et par catégorie. Toggle Interne / Externe + Coût Employeur / Rémunération Nette.</p>
+
+        <h2>Sources de données</h2>
+        <table>
+            <thead><tr><th>Mode</th><th>INTERNE</th><th>EXTERNE</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Coût Employeur</strong></td>
+                    <td><code>SUM(Bulletin.BrutFiscal) + SUM(BulletinLigne.MontantEmployeur)</code></td>
+                    <td><code>TauxJournalier × 22 jours × NbMois</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Rémunération Nette</strong></td>
+                    <td><code>SUM(Bulletin.NetAPayer)</code></td>
+                    <td><em>(non disponible — toggle désactivé)</em></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Lecture des 5 KPI</h2>
+        <ul>
+            <li><strong>Total</strong> — masse selon mode (Coût Employeur ou Net)</li>
+            <li><strong>Salaire Min</strong> / <strong>Max</strong> — extrema des bulletins</li>
+            <li><strong>Salaire Moyen</strong> — moyenne arithmétique des bulletins</li>
+            <li><strong>Coût Moy. Salarié</strong> — Total / nb salariés distincts (annuel)</li>
+        </ul>
+
+        <h2>Tableaux Égalité des Salaires</h2>
+        <p>2 tableaux structurellement identiques :</p>
+        <ul>
+            <li>Par <strong>Segment</strong> (Département INTERNE ou Station EXTERNE)</li>
+            <li>Par <strong>Catégorie professionnelle</strong> (Cadre / Non Cadre / etc., ou Poste pour EXTERNE)</li>
+        </ul>
+        <p>Colonnes : Total · Coût Moyen · Min · Max · Moyenne · <strong>Moy. ♀</strong> ·
+        <strong>Moy. ♂</strong>. La barre orange dans la colonne « Rémun. totale » montre le
+        poids relatif du segment/catégorie sur le total.</p>
+
+        <h2>Évolution mensuelle 12 mois</h2>
+        <p>Bar chart vertical avec valeurs en milliers/millions (k/M). Visualise la saisonnalité
+        de la masse (pics en juin pour la prime de fin d'exercice, en décembre pour le 13e mois).</p>
+
+        <h2>Décomposition par famille de rubrique (INTERNE)</h2>
+        <p>Tableau qui ventile la masse en 7 familles macro (alignées au formulaire DTSS) :
+        Salaire de base &amp; primes · Indemnités imposables · Indemnités non imposables ·
+        Avantages en nature · Cotisations sociales · Cotisations fiscales · Retenues diverses.</p>
+
+        <div class="info">
+            <strong>Format FCFA :</strong> séparateur d'espace pour les milliers (ex. <code>1 059 808</code>),
+            sans décimales. Source <code>Bulletin.GCRecord IS NULL</code> (filtre soft-delete XPO).
+        </div>
+
+        <div class="alerte">
+            <strong>EXTERNE — colonnes Moy. ♀ / ♂ vides :</strong> l'entité <code>Interimaire</code>
+            n'a pas de champ Sexe. Les colonnes affichent « — » côté EXTERNE.
+        </div>
+
+        <div class="footer">ELTON Oil · Tableau N°4 · Étape 4.4</div>
+    </main>
+</body>
+</html>

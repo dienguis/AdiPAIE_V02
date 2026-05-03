@@ -25,6 +25,135 @@ Chaque entrée précise :
 
 ---
 
+## [V1.1 — Sprint Help.B+C] 2026-05-03 — Refonte step-by-step de toutes les pages help (modules secondaires + admin)
+
+**Demande utilisateur** : « il est bien la et bien fait. tu peux en
+profiter pour passer en revu tous les module et dashbord et refaire le
+help sous se format ».
+
+### Phase B — Modules secondaires (5 pages)
+
+Refonte au format step-by-step (TOC + workflow visuel + étapes numérotées
++ exemples concrets + cas d'usage + FAQ + référence boutons + footer-help)
+en utilisant `help-shared.css` :
+
+- `wwwroot/help/missions.html` (~420 lignes) — Workflow N+1→Asst.RH→RH→DAF→Comptable, frais prévisionnels/réels, état de frais PDF, 3 cas d'usage (mission nationale, internationale, refus DAF).
+- `wwwroot/help/formations.html` (~360 lignes) — Cycle annuel : Plan → Session → Inscriptions → Validation → Réalisation → Attestations → Évaluation à froid J+30/J+90, 3 cas d'usage.
+- `wwwroot/help/evaluations.html` (~390 lignes) — Campagne annuelle, génération entretiens, N+1 → Salarié auto-éval → N+2 → Clôture RH, formule pondération critères.
+- `wwwroot/help/periodes.html` (~340 lignes) — Cycle mensuel + déclarations IPRES/CSS/VRS/1024 détaillées, 3 cas d'usage.
+- `wwwroot/help/prets.html` (~430 lignes) — Cycle de vie pret, formules amortissement (principal constant, annuité, avance 0%), exemples chiffrés tableaux 6 mois, 3 cas d'usage.
+
+### Phase C — Modules administration et imports (10 pages)
+
+- `wwwroot/help/livre-de-paye.html` — Génération Excel mensuel art. L.120, contenu 19 colonnes, récap, cas d'usage CAC + inspection travail.
+- `wwwroot/help/offboarding.html` — STC complet : 4 formules légales (congés, préavis, licenciement par paliers, prorata), exemple chiffré 1 725 615 FCFA.
+- `wwwroot/help/disciplinaire.html` — Procédure complète Code travail SN : Notification → Audition → Sanction (mise à pied max 8j) → Clôture, 3 cas d'usage.
+- `wwwroot/help/audit.html` — Journal lecture seule, 4 cas d'usage de filtrage, garanties intégrité.
+- `wwwroot/help/import-salaries.html` — Modèle xlsx, 4 sections colonnes (identification/état civil/classification/affectation), règles idempotence.
+- `wwwroot/help/import-comptes-bancaires.html` — Multi-comptes, modes Reliquat/MontantFixe/Pourcentage, 3 cas d'usage.
+- `wwwroot/help/import-conjoints.html` — Polygamie, impact parts fiscales, 4 cas d'usage.
+- `wwwroot/help/heures-supplementaires.html` — 4 taux légaux SN (15/40/60/100%), formule taux horaire 173,33h, exemple chiffré 42 237 FCFA.
+- `wwwroot/help/avancements.html` — 3 types (échelon/promotion/catégorie), workflow N+1→N+2→DAF→RH applique.
+- `wwwroot/help/parametrage.html` — Rubriques/canoniques, barèmes, cotisations SN, SMTP, abattement IR.
+
+### Index et harmonisation
+
+- `wwwroot/help/index.html` REFONDUE — utilise `help-shared.css`,
+  6 sections regroupées (Cycle paie / Salariés / Développement RH /
+  Vie contrat / Imports / Administration), liens rangés par thématique.
+- `wwwroot/help/interimaires.html` — Migration vers `help-shared.css`
+  (suppression de la duplication CSS inline) + footer harmonisé.
+
+### Vérification
+
+Tous les fichiers HTML help (sauf dashboards/) ont :
+- `<link rel="stylesheet" href="/help/help-shared.css">` ✓
+- `<div class="toc">` (sauf index.html qui est une page d'accueil) ✓
+- Au moins un `<div class="step">` ✓
+- `class="footer-help"` ✓
+- `<h2 id="...">` anchors pour navigation interne ✓
+
+### Bénéfices
+
+- **Cohérence visuelle** : un seul CSS (~225 lignes) pour 19 pages help.
+- **Maintenance** : changer la charte graphique = modifier `help-shared.css` une fois.
+- **Pédagogie** : tous les modules ont désormais des exemples concrets
+  ELTON/sénégalais (DIOP, NDIAYE, BANDIA, Thiès…), des FAQ et une
+  référence rapide des boutons.
+- **Navigation** : nav 2-tier (modules clés + séparateur + Tableaux de bord)
+  cohérente sur toutes les pages.
+
+### Hash Git
+À renseigner après commit côté Windows.
+
+### Rollback
+```
+git revert <hash>
+```
+
+---
+
+## [V1.1 — Sprint 1D.2] 2026-05-03 1745 — Page d'aide complète Module Intérimaires
+
+**Demande utilisateur** : créer une documentation step-by-step du module
+intérimaire pour faciliter l'utilisation, avec exemples concrets.
+
+### Fichier créé
+
+`AdiPAIE_V02.Blazor.Server/wwwroot/help/interimaires.html` (~430 lignes)
+
+### Contenu du guide
+
+10 sections numérotées avec ToC en haut :
+
+1. **Vue d'ensemble** : workflow visuel 6 boîtes (Fiche → Demande → Validation → Contrat → Mouvements → Suivi)
+2. **Étape 1 — Créer une fiche Intérimaire** : champs détaillés (Matricule auto, Nom/Prénom, CNI, Date naissance...) + exemple Mamadou DIOP
+3. **Étape 2 — Demande de recrutement** : tous les champs (Site demandeur, Nb intérim, Poste, Durée, Motif, Taux max) + exemple
+4. **Étape 3 — Validation** : tableau circuit Brouillon → Soumise → Validée N+1 → DAF → Approuvée / Rejetée
+5. **Étape 4 — Création du Contrat** : focus sur **affectation V1.1** (Site + Unités multi)
+   - Exemple A : affectation simple Boutique BANDIA
+   - Exemple B : multi-segments Direction Commerciale (Consommateurs+BTP+Mines)
+   - Exemple C : Dépôt Dakar
+   - Avertissement champs `[Legacy]` à ne plus utiliser
+6. **Étape 5 — Mouvements** : changement Site/Unité avec exemple muta BANDIA→Siège
+7. **Étape 6 — Suivi via Tableaux de Bord** : tableau récap Tab 2/3/4/6 EXTERNE
+8. **3 Cas d'usage concrets ELTON** :
+   - Remplacement saisonnier en Boutique
+   - Renfort pluri-segments (multi-affectation)
+   - Mutation Station → Dépôt
+9. **FAQ et erreurs fréquentes** :
+   - « Pourquoi mon contrat n'apparaît pas dans les dashboards ? »
+   - « % Renouvellement > 100 % »
+   - « Qui a accès au module ? »
+10. **Données démo pour tester** : volume seed, désactivation appsettings, bouton wipe
+
+### Style visuel
+
+- Charte SunuPaie verte (#0F6E56) cohérente avec le reste du help
+- Boîtes colorées : `.exemple` (orange), `.alerte` (orange), `.info` (bleu),
+  `.erreur` (rouge), `.ok` (vert), `.step` (vert ELTON)
+- Workflow visuel avec boîtes vertes + flèches
+- Badges : `.badge-new` `.badge-legacy` `.badge-rh`
+- Liste de champs (`.field-list`) avec dt/dd stylés
+- Snippets `<code>` colorés
+- Touches clavier `<kbd>`
+
+### Liens d'intégration
+
+- Ajouté dans la **nav** de `/help/index.html` (entre Salaries et Conges)
+- Ajoutée comme **carte cliquable** dans la grille de l'index
+- Liens internes vers les 4 dashboards EXTERNE (Tab 2/3/4/6)
+
+### Fichiers modifiés (2)
+
+| Fichier | Nature |
+|---|---|
+| `wwwroot/help/interimaires.html` | nouveau — guide complet 430 lignes |
+| `wwwroot/help/index.html` | + lien nav + carte cliquable Intérimaires |
+| `docs/dashboards/CHANGELOG.md` | cette entrée |
+
+---
+
 ## [V1.1 — Sprint 1D] 2026-05-03 1700 — Masquage entités legacy (sans casser le reste)
 
 **Stratégie validée par utilisateur** : option « masquage » plutôt que

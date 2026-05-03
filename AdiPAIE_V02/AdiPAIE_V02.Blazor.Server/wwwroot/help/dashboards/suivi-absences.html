@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi des Absences — Aide Tableau N°5</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html" class="active">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°5</div>
+        <h1>Suivi des Absences — Congés &amp; arrêts</h1>
+        <p class="lead">Vue annuelle des congés et arrêts (INTERNE uniquement). Source :
+        <code>CongeDemande</code> filtrée par défaut sur Statut <strong>Accordée</strong>.</p>
+
+        <h2>Toggle Statut</h2>
+        <ul>
+            <li><strong>Accordées</strong> (recommandé) — uniquement les demandes validées par RH (Statut=20)</li>
+            <li><strong>+ En attente</strong> — vue large incluant aussi En attente N+1, En attente N+2 et Soumise</li>
+        </ul>
+
+        <h2>Lecture des 8 KPI</h2>
+        <table>
+            <thead><tr><th>KPI</th><th>Calcul / Sens</th></tr></thead>
+            <tbody>
+                <tr><td>Nb absences</td><td>Nombre de demandes accordées dans l'année</td></tr>
+                <tr><td>Total jours</td><td>Somme des <code>DureeJours</code> (jours ouvrables)</td></tr>
+                <tr><td>% Absentéisme</td><td>Σ jours / (Effectif × 264 jours ouvrables) × 100</td></tr>
+                <tr><td>Durée Moy.</td><td>Total jours / Nb absences (en jours)</td></tr>
+                <tr><td>% Justifiées</td><td>Demandes avec <code>JustificatifFourni = true</code></td></tr>
+                <tr><td>Top Absent</td><td>Salarié ayant le plus de jours d'absence sur l'année</td></tr>
+                <tr><td>Mois pic</td><td>Mois ayant cumulé le plus de jours d'absence</td></tr>
+                <tr><td>Coût impayé</td><td>Familles « Sans solde » : <code>Σ DureeJours × salaire jour</code></td></tr>
+            </tbody>
+        </table>
+
+        <h2>Familles de congé (CongeType.Famille)</h2>
+        <ul>
+            <li>Congé annuel (le plus fréquent)</li>
+            <li>Maladie</li>
+            <li>Maternité / Paternité</li>
+            <li>Événement familial</li>
+            <li>Sans solde (génère du coût impayé)</li>
+            <li>Récupération</li>
+        </ul>
+
+        <h2>Filtres disponibles</h2>
+        <p>Année · Site · Genre · Segment (Département) · Catégorie pro ·
+        <strong>Famille</strong> (filtre spécifique tableau 5).</p>
+
+        <h2>Charts</h2>
+        <ol>
+            <li><strong>Évolution mensuelle</strong> — bar vertical 12 mois (jours d'absence par mois)</li>
+            <li><strong>Par famille de congé</strong> — bar horizontal</li>
+            <li><strong>Par catégorie professionnelle</strong> — bar horizontal Top 10</li>
+            <li><strong>Par département</strong> — bar horizontal</li>
+        </ol>
+
+        <h2>Top 10 absents</h2>
+        <p>Tableau ranké par total jours d'absence : Salarié · Catégorie · Segment · Famille
+        principale · NbAbsences · TotalJours.</p>
+
+        <div class="info">
+            <strong>Note méthodologique :</strong> base 264 jours ouvrables/an = 22 j × 12 mois,
+            constante métier. Le mois pic est calculé en prenant le mois du <em>milieu</em> de
+            chaque période de congé (gère le cas des congés à cheval sur 2 mois).
+        </div>
+
+        <div class="footer">ELTON Oil · Tableau N°5 · Étape 4.5</div>
+    </main>
+</body>
+</html>

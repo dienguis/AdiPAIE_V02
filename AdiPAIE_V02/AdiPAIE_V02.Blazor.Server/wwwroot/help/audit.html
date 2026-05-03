@@ -3,133 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journal d'audit — SunuPaie</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
-        h2 { color: #0F6E56; margin-top: 25px; }
-        h3 { color: #555; }
-        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
-        .bouton strong { color: #0F6E56; }
-        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .info { background: #e3f2fd; border-left: 4px solid #2196F3; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
-        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
-        nav a:hover { text-decoration: underline; }
-    </style>
+    <title>SunuPaie — Journal d'audit (Guide complet)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/periodes.html">Periodes</a>
-        <a href="/help/prets.html">Prets</a>
-        <a href="/help/salaries.html">Salaries</a>
-        <a href="/help/conges.html">Conges</a>
-        <a href="/help/missions.html">Missions</a>
-        <a href="/help/formations.html">Formations</a>
-        <a href="/help/evaluations.html">Evaluations</a>
-        <a href="/help/parametrage.html">Parametrage</a>
-        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
+        <a href="/help/salaries.html">Salariés</a>
         <a href="/help/offboarding.html">Offboarding</a>
         <a href="/help/disciplinaire.html">Disciplinaire</a>
-        <a href="/help/audit.html">Audit</a>
-        <a href="/help/import-salaries.html">Import</a>
-        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+        <a href="/help/audit.html" class="active">Audit</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>Journal d'audit</h1>
+    <h1>🔍 Journal d'audit — Guide complet</h1>
+    <p>Le journal d'audit trace automatiquement <strong>toutes les actions
+    significatives</strong> dans SunuPaie. Chaque entrée enregistre :
+    qui a fait quoi, quand, sur quel objet, et avec quels détails.
+    Les entrées sont en <strong>lecture seule</strong> et ne peuvent ni
+    être modifiées ni supprimées.</p>
 
-    <!-- ===== DESCRIPTION ===== -->
-    <h2>Objectif</h2>
-    <div class="info">
-        Le journal d'audit trace automatiquement <strong>toutes les actions significatives</strong> effectuees dans SunuPaie. Chaque entree enregistre : qui a fait quoi, quand, sur quel objet, et avec quels details. Les entrees d'audit sont en <strong>lecture seule</strong> et ne peuvent pas etre modifiees ou supprimees.
-    </div>
-
-    <!-- ===== ACTIONS TRACEES ===== -->
-    <h2>Actions tracees</h2>
-    <table>
-        <tr><th>Module</th><th>Actions tracees</th></tr>
-        <tr>
-            <td>Bulletins de paie</td>
-            <td>Valider, Cloturer, Reouvrir</td>
-        </tr>
-        <tr>
-            <td>Offboarding (STC)</td>
-            <td>Calculer le solde, Valider RH, Valider DAF, Cloturer</td>
-        </tr>
-        <tr>
-            <td>Disciplinaire</td>
-            <td>Notifier, Programmer audition, Enregistrer audition, Prononcer sanction, Cloturer</td>
-        </tr>
-    </table>
-
-    <!-- ===== CHAMPS ===== -->
-    <h2>Informations enregistrees</h2>
-    <table>
-        <tr><th>Champ</th><th>Description</th><th>Exemple</th></tr>
-        <tr><td>Date</td><td>Date et heure exacte de l'action</td><td>17/04/2026 14:32</td></tr>
-        <tr><td>Utilisateur</td><td>Nom de l'utilisateur connecte</td><td>Abdoulaye DIENG</td></tr>
-        <tr><td>Entite</td><td>Type d'objet concerne</td><td>Bulletin</td></tr>
-        <tr><td>Action</td><td>Nom de l'action effectuee</td><td>Valider</td></tr>
-        <tr><td>Identifiant objet</td><td>Cle unique (Oid) de l'objet</td><td>3fa85f64-...</td></tr>
-        <tr><td>Libelle objet</td><td>Description lisible de l'objet</td><td>DIOP Moussa — 04/2026</td></tr>
-        <tr><td>Details</td><td>Informations complementaires</td><td>Net a payer : 385 000 FCFA</td></tr>
-        <tr><td>Ancien statut</td><td>Statut avant l'action</td><td>Brouillon</td></tr>
-        <tr><td>Nouveau statut</td><td>Statut apres l'action</td><td>Valide</td></tr>
-    </table>
-
-    <!-- ===== MODE OPERATOIRE ===== -->
-    <h2>Mode operatoire — Consultation</h2>
-    <div class="flux">
+    <div class="toc">
+        <strong>📑 Sections</strong>
         <ol>
-            <li>Aller dans <strong>Administration &rarr; Journal d'audit</strong></li>
-            <li>La liste affiche toutes les entrees, les plus recentes en premier</li>
-            <li>Utiliser les <strong>filtres</strong> pour affiner :
-                <ul>
-                    <li>Par utilisateur : filtrer sur la colonne "Utilisateur"</li>
-                    <li>Par entite : filtrer sur "Entite" (Bulletin, DossierOffboarding, etc.)</li>
-                    <li>Par date : filtrer sur la colonne "Date"</li>
-                    <li>Par action : filtrer sur "Action" (Valider, Cloturer, etc.)</li>
-                </ul>
-            </li>
-            <li>Cliquer sur une entree pour voir les <strong>details complets</strong></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du fonctionnement</a></li>
+            <li><a href="#actions-tracees">Actions tracées par module</a></li>
+            <li><a href="#champs">Informations enregistrées</a></li>
+            <li><a href="#etape1">Mode opératoire — Consultation</a></li>
+            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
+            <li><a href="#regles">Règles métier et garanties</a></li>
+            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
         </ol>
     </div>
 
-    <!-- ===== CAS D'USAGE ===== -->
-    <h2>Cas d'usage</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="vue-ensemble">📋 Vue d'ensemble du fonctionnement</h2>
 
-    <h3>Qui a valide ce bulletin ?</h3>
-    <div class="info">
-        Filtrer : Entite = "Bulletin", Action = "Valider", puis rechercher le libelle du bulletin concerne. L'entree montre l'utilisateur et la date/heure exacte.
+    <div class="workflow">
+        <div class="box">🎬 Action métier</div>
+        <span class="arrow">→</span>
+        <div class="box">🔄 Capture auto</div>
+        <span class="arrow">→</span>
+        <div class="box">💾 Écriture audit</div>
+        <span class="arrow">→</span>
+        <div class="box">🔒 Lecture seule</div>
+        <span class="arrow">→</span>
+        <div class="box">🔍 Consultation RH</div>
     </div>
 
-    <h3>Historique complet d'un dossier de depart</h3>
     <div class="info">
-        Filtrer : Entite = "DossierOffboarding", puis chercher le nom du salarie dans le libelle. Toutes les etapes du workflow (calcul STC, validation RH, validation DAF, cloture) apparaissent avec leurs horodatages.
+        💡 L'audit utilise un <strong>ObjectSpace séparé</strong> pour
+        garantir l'intégrité : si l'écriture audit échoue, l'action métier
+        s'exécute quand même (le métier prime sur l'audit).
     </div>
 
-    <h3>Audit des sanctions disciplinaires</h3>
-    <div class="info">
-        Filtrer : Entite = "DossierDisciplinaire". Chaque etape de la procedure (notification, audition, sanction, cloture) est tracee avec le nom de l'utilisateur qui l'a effectuee.
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="actions-tracees">📊 Actions tracées par module</h2>
+
+    <table>
+        <thead><tr><th>Module</th><th>Actions tracées</th></tr></thead>
+        <tbody>
+            <tr><td>Bulletins de paie</td><td>Valider, Clôturer, Rouvrir</td></tr>
+            <tr><td>Offboarding (STC)</td><td>Calculer le solde, Valider RH, Valider DAF, Clôturer</td></tr>
+            <tr><td>Disciplinaire</td><td>Notifier, Programmer audition, Enregistrer audition, Prononcer sanction, Clôturer</td></tr>
+            <tr><td>Périodes</td><td>Ouvrir, Clôturer, Réouverture forcée (admin)</td></tr>
+            <tr><td>Imports</td><td>Import salariés, conjoints, comptes (avec compteurs créés/ignorés/erreurs)</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="champs">🗂️ Informations enregistrées</h2>
+
+    <table>
+        <thead><tr><th>Champ</th><th>Description</th><th>Exemple</th></tr></thead>
+        <tbody>
+            <tr><td>Date</td><td>Date et heure exacte de l'action</td><td>17/04/2026 14:32</td></tr>
+            <tr><td>Utilisateur</td><td>Nom de l'utilisateur connecté</td><td>Abdoulaye DIENG</td></tr>
+            <tr><td>Entité</td><td>Type d'objet concerné</td><td>Bulletin</td></tr>
+            <tr><td>Action</td><td>Nom de l'action effectuée</td><td>Valider</td></tr>
+            <tr><td>Identifiant objet</td><td>Clé unique (Oid) de l'objet</td><td>3fa85f64-…</td></tr>
+            <tr><td>Libellé objet</td><td>Description lisible de l'objet</td><td>DIOP Moussa — 04/2026</td></tr>
+            <tr><td>Détails</td><td>Informations complémentaires</td><td>Net à payer : 385 000 FCFA</td></tr>
+            <tr><td>Ancien statut</td><td>Statut avant l'action</td><td>Brouillon</td></tr>
+            <tr><td>Nouveau statut</td><td>Statut après l'action</td><td>Validé</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape1">🔍 Mode opératoire — Consultation</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Aller dans Administration → Journal d'audit</h3>
+        <p>La liste affiche toutes les entrées, les plus récentes en premier.</p>
     </div>
 
-    <!-- ===== REGLES ===== -->
-    <h2>Regles importantes</h2>
-    <div class="alerte">
+    <div class="step">
+        <h3><span class="num">2</span>Filtrer pour affiner</h3>
         <ul>
-            <li>Les entrees d'audit sont <strong>en lecture seule</strong> — aucune modification possible</li>
-            <li>L'audit ne bloque jamais le flux metier — en cas d'erreur d'ecriture audit, l'action principale s'execute quand meme</li>
-            <li>Chaque entree utilise un ObjectSpace separe pour garantir l'integrite</li>
-            <li>Les entrees sont indexees par date, utilisateur et entite pour des recherches rapides</li>
+            <li><strong>Par utilisateur :</strong> filtrer la colonne <em>Utilisateur</em></li>
+            <li><strong>Par entité :</strong> filtrer sur <em>Entité</em> (Bulletin, DossierOffboarding, etc.)</li>
+            <li><strong>Par date :</strong> filtrer sur la colonne <em>Date</em> (plage)</li>
+            <li><strong>Par action :</strong> filtrer sur <em>Action</em> (Valider, Clôturer, etc.)</li>
         </ul>
     </div>
+
+    <div class="step">
+        <h3><span class="num">3</span>Cliquer sur une entrée</h3>
+        <p>Affiche les détails complets : ancien/nouveau statut, contexte,
+        données associées.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
+
+    <h3>Cas 1 — Qui a validé ce bulletin ?</h3>
+    <div class="exemple">
+        Filtrer : Entité = <em>Bulletin</em>, Action = <em>Valider</em>,
+        rechercher le libellé du bulletin (<em>DIOP Moussa — 04/2026</em>).
+        L'entrée affiche l'utilisateur et la date/heure exacte.
+    </div>
+
+    <h3>Cas 2 — Historique complet d'un dossier de départ</h3>
+    <div class="exemple">
+        Filtrer : Entité = <em>DossierOffboarding</em>, recherche par
+        nom du salarié dans le libellé. Toutes les étapes du workflow
+        (calcul STC → validation RH → validation DAF → clôture) apparaissent
+        avec leurs horodatages.
+    </div>
+
+    <h3>Cas 3 — Audit des sanctions disciplinaires d'un mois</h3>
+    <div class="exemple">
+        Filtrer : Entité = <em>DossierDisciplinaire</em>, Action =
+        <em>Prononcer sanction</em>, Date entre 01/05/2026 et 31/05/2026.
+        Liste de toutes les sanctions prononcées en mai avec leurs auteurs.
+    </div>
+
+    <h3>Cas 4 — Détecter une activité anormale</h3>
+    <div class="exemple">
+        Filtrer : Utilisateur = <em>compte_X</em>, Action = <em>Réouverture forcée</em>.
+        Permet de vérifier qu'aucune action sensible n'a été effectuée hors
+        de la procédure normale.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="regles">📜 Règles métier et garanties</h2>
+
+    <div class="alerte">
+        <ul>
+            <li>Les entrées d'audit sont <strong>en lecture seule</strong> — aucune modification ni suppression possible</li>
+            <li>L'audit ne <strong>bloque jamais le flux métier</strong> — en cas d'erreur d'écriture audit, l'action principale s'exécute quand même</li>
+            <li>Chaque entrée utilise un <strong>ObjectSpace séparé</strong> pour garantir l'intégrité (transaction indépendante)</li>
+            <li>Les entrées sont <strong>indexées</strong> par date, utilisateur et entité pour des recherches rapides</li>
+            <li>Pas de purge automatique : les entrées sont conservées indéfiniment (à archiver hors-base si volume important au bout de plusieurs années)</li>
+        </ul>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+
+    <div class="info">
+        💡 <strong>Comment exporter le journal d'audit ?</strong>
+        Depuis la liste, sélectionner les entrées (filtre + Ctrl+A) →
+        bouton standard XAF <em>Export Excel</em>.
+    </div>
+
+    <div class="info">
+        💡 <strong>Pourquoi je ne vois pas une action que j'ai faite ?</strong>
+        Vérifier que cette action est bien dans la liste des actions tracées
+        (cf. tableau ci-dessus). Toutes les actions ne sont pas tracées
+        (ex. consultation simple n'est pas tracée).
+    </div>
+
+    <div class="info">
+        💡 <strong>Qui peut consulter le journal d'audit ?</strong>
+        Les rôles <em>Administrators</em> et <em>RH_Manager</em>. Les autres
+        rôles n'y ont pas accès (RBAC).
+    </div>
+
+    <p class="footer-help">
+        SunuPaie v1.1 — Module Journal d'audit — Mise à jour mai 2026
+    </p>
 </body>
 </html>

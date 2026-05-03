@@ -3,147 +3,417 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Periodes de paie — SunuPaie</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
-        h2 { color: #0F6E56; margin-top: 25px; }
-        h3 { color: #555; }
-        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
-        .bouton strong { color: #0F6E56; }
-        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
-        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
-        nav a:hover { text-decoration: underline; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
-        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-decoration: none; color: #333; transition: box-shadow 0.2s; }
-        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .card h3 { color: #0F6E56; margin-top: 0; }
-    </style>
+    <title>SunuPaie — Périodes de paie (Guide complet)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/periodes.html">Periodes</a>
-        <a href="/help/prets.html">Prets</a>
-        <a href="/help/salaries.html">Salaries</a>
-        <a href="/help/conges.html">Conges</a>
+        <a href="/help/periodes.html" class="active">Périodes</a>
+        <a href="/help/prets.html">Prêts</a>
+        <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/interimaires.html">Intérimaires</a>
+        <a href="/help/conges.html">Congés</a>
         <a href="/help/missions.html">Missions</a>
-        <a href="/help/formations.html">Formations</a>
-        <a href="/help/evaluations.html">Evaluations</a>
-        <a href="/help/parametrage.html">Parametrage</a>
-        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
-        <a href="/help/offboarding.html">Offboarding</a>
-        <a href="/help/disciplinaire.html">Disciplinaire</a>
-        <a href="/help/audit.html">Audit</a>
-        <a href="/help/import-salaries.html">Import</a>
-        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>Periodes de paie</h1>
+    <h1>📅 Périodes de paie — Guide complet</h1>
+    <p>La <strong>période de paie</strong> est le conteneur mensuel
+    obligatoire de tous les bulletins. Elle structure le cycle paie :
+    une seule période ouverte à la fois, ouverture, génération des
+    bulletins, validation, déclarations sociales (IPRES, CSS, VRS, 1024)
+    et clôture définitive.</p>
 
-    <h2>Flux</h2>
-    <div class="flux">
+    <div class="toc">
+        <strong>📑 Étapes du processus</strong>
         <ol>
-            <li>Creer une periode (Mois/Annee)</li>
-            <li>Ouvrir → statut Ouverte</li>
-            <li>Generer les bulletins</li>
-            <li>Cloturer apres validation de tous les bulletins</li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du cycle mensuel</a></li>
+            <li><a href="#etape1">Étape 1 — Créer la période du mois</a></li>
+            <li><a href="#etape2">Étape 2 — Ouvrir la période</a></li>
+            <li><a href="#etape3">Étape 3 — Générer les bulletins (batch)</a></li>
+            <li><a href="#etape4">Étape 4 — Suivre l'avancement de validation</a></li>
+            <li><a href="#etape5">Étape 5 — Générer les déclarations sociales</a></li>
+            <li><a href="#etape6">Étape 6 — Clôturer la période</a></li>
+            <li><a href="#declarations">Déclarations & exports détaillés</a></li>
+            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
+            <li><a href="#regles">Règles métier</a></li>
+            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
         </ol>
     </div>
 
-    <h2>Regles</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="vue-ensemble">📋 Vue d'ensemble du cycle mensuel</h2>
+
+    <div class="workflow">
+        <div class="box">📅 Création</div>
+        <span class="arrow">→</span>
+        <div class="box">🔓 Ouverture</div>
+        <span class="arrow">→</span>
+        <div class="box">📄 Génération bulletins</div>
+        <span class="arrow">→</span>
+        <div class="box">✅ Validation</div>
+        <span class="arrow">→</span>
+        <div class="box">📊 Déclarations</div>
+        <span class="arrow">→</span>
+        <div class="box">🔒 Clôture</div>
+    </div>
+
+    <h3>Statuts d'une période</h3>
+    <table>
+        <thead><tr><th>Statut</th><th>Action possible</th></tr></thead>
+        <tbody>
+            <tr><td>Brouillon</td><td>Modifier dates, supprimer, ouvrir</td></tr>
+            <tr><td>Ouverte</td><td>Générer bulletins, recalculer, valider</td></tr>
+            <tr><td>Clôturée</td><td>Lecture seule, exports déclarations possibles</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape1">📅 Étape 1 — Créer la période du mois</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Naviguer vers Paie → Périodes de paie</h3>
+        <p>Cliquer sur <strong>+ Nouveau</strong>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Renseigner les bornes du mois</h3>
+        <dl class="field-list">
+            <dt>Mois / Année</dt>
+            <dd>Ex. <em>Mai 2026</em>.</dd>
+            <dt>Date de début</dt>
+            <dd>1er jour du mois (ex. 01/05/2026).</dd>
+            <dt>Date de fin</dt>
+            <dd>Dernier jour du mois (ex. 31/05/2026).</dd>
+            <dt>Date de paiement prévue</dt>
+            <dd>Date virement bancaire (ex. 28/05/2026 à 17h).</dd>
+            <dt>Libellé</dt>
+            <dd>Auto-rempli (<em>Paie Mai 2026</em>) — modifiable.</dd>
+        </dl>
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple :</strong> ELTON crée la période Mai 2026 le
+        25/04/2026, dates 01/05 → 31/05, virement programmé le 28/05.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape2">🔓 Étape 2 — Ouvrir la période</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer sur Ouvrir la période</h3>
+        <p>La période passe au statut <strong>Ouverte</strong>. À partir
+        de là, les bulletins peuvent être créés.</p>
+    </div>
+
     <div class="alerte">
+        ⚠️ <strong>Une seule période peut être Ouverte simultanément.</strong>
+        Si vous tentez d'ouvrir Juin sans avoir clôturé Mai, le système refuse
+        l'opération.
+    </div>
+
+    <div class="info">
+        💡 L'ouverture déclenche aussi : (1) le calcul des soldes congés du
+        mois, (2) la consolidation des heures pointées du mois précédent,
+        (3) la prise en compte des arrêts maladie validés.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape3">📄 Étape 3 — Générer les bulletins (batch)</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer sur Générer tous les bulletins</h3>
+        <p>Action en masse : le système crée un bulletin pour
+        <strong>chaque salarié actif</strong> sur la période, en pré-remplissant :</p>
         <ul>
-            <li>Une seule periode Ouverte a la fois</li>
-            <li>Impossible de creer un bulletin sans periode Ouverte</li>
-            <li>Cloturer bloque toute modification des bulletins du mois</li>
+            <li>Identité + matricule + service + catégorie</li>
+            <li>Salaire de base (depuis le contrat actif)</li>
+            <li>Indemnités fixes (transport, logement, etc.)</li>
+            <li>Échéances de prêts en cours du mois</li>
+            <li>Cotisations sociales (calculées automatiquement)</li>
         </ul>
     </div>
 
-    <!-- ===== DECLARATIONS ET EXPORTS ===== -->
-    <h2>Declarations et exports</h2>
-
-    <p>Depuis la liste des periodes de paie, plusieurs boutons d'export sont disponibles :</p>
-
-    <h3>Boutons disponibles</h3>
-    <div class="bouton">
-        <strong>Generer etat 1024 :</strong> exporte la declaration annuelle des salaires (DGID Senegal) en Excel. Selectionner la ou les periodes concernees.
-    </div>
-    <div class="bouton">
-        <strong>Generer etat VRS :</strong> exporte l'etat mensuel VRS (Versement Retenue a la Source) en Excel. Colonnes : Matricule, Statut, Nom, BRUT, IR, TRIMF, CFCE, IPRES (RG/RC salarie et employeur), CSS (AT/AF), NET.
-    </div>
-    <div class="bouton">
-        <strong>Generer bordereau IPRES :</strong> exporte le bordereau mensuel IPRES en Excel. Contient les cotisations Regime General (salarie + employeur) et Regime Cadre (salarie + employeur) pour chaque salarie, avec totaux et sous-totaux.
-    </div>
-    <div class="bouton">
-        <strong>Generer bordereau CSS :</strong> exporte le bordereau mensuel CSS en Excel. Contient les cotisations Accident du Travail et Allocation Familiale (parts employeur) pour chaque salarie, avec totaux.
+    <div class="step">
+        <h3><span class="num">2</span>Vérifier le rapport de génération</h3>
+        <p>Affiche : nb créés / nb erreurs / nb skip. Erreurs typiques :
+        salarié sans contrat actif, RIB manquant, catégorie non paramétrée.</p>
     </div>
 
-    <h3>Mode operatoire — Declarations sociales</h3>
-    <div class="flux">
-        <ol>
-            <li>Aller dans <strong>Paie &rarr; Periodes de paie</strong></li>
-            <li>S'assurer que tous les bulletins du mois sont <strong>valides</strong></li>
-            <li>Selectionner la periode dans la liste</li>
-            <li>Cliquer sur le bouton souhaite :
-                <ul>
-                    <li><strong>Generer bordereau IPRES</strong> pour la declaration IPRES</li>
-                    <li><strong>Generer bordereau CSS</strong> pour la declaration CSS</li>
-                    <li><strong>Generer etat VRS</strong> pour la declaration fiscale</li>
-                </ul>
-            </li>
-            <li>Confirmer la periode dans le popup (pre-remplie)</li>
-            <li>Le fichier Excel est telecharge automatiquement</li>
-        </ol>
+    <div class="exemple">
+        <strong>Exemple :</strong> 247 salariés actifs → 245 bulletins créés,
+        2 erreurs (Coumba C. : pas de contrat actif ; Modou D. : RIB manquant).
+        Le RH corrige et relance la génération uniquement pour ces deux.
     </div>
 
-    <h3>Contenu des bordereaux</h3>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape4">✅ Étape 4 — Suivre l'avancement de validation</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Tableau de bord de la période</h3>
+        <p>Depuis la fiche période, le RH voit en temps réel :</p>
+        <ul>
+            <li>📄 Bulletins en Brouillon : à valider</li>
+            <li>✅ Bulletins Validés : prêts pour paiement</li>
+            <li>📨 Bulletins Envoyés : PDF reçu par le salarié</li>
+            <li>🔒 Bulletins Clôturés : verrouillés</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Filtrer et corriger</h3>
+        <p>Cliquer sur le badge <em>Brouillon</em> pour voir la liste des
+        bulletins encore en attente de validation. Pour le détail des étapes,
+        voir le <a href="/help/bulletins.html">guide Bulletins</a>.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape5">📊 Étape 5 — Générer les déclarations sociales</h2>
+
+    <p>Une fois <strong>tous les bulletins validés</strong>, on peut
+    produire les déclarations légales mensuelles. Cf section
+    <a href="#declarations">Déclarations & exports</a> pour le détail.</p>
+
+    <div class="workflow">
+        <div class="box">📊 Bordereau IPRES</div>
+        <div class="box">📊 Bordereau CSS</div>
+        <div class="box">📊 État VRS (DGID)</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape6">🔒 Étape 6 — Clôturer la période</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Vérifier les pré-requis</h3>
+        <ul>
+            <li>Tous les bulletins doivent être au statut Validé/Envoyé/Clôturé.</li>
+            <li>Les déclarations sociales doivent avoir été exportées.</li>
+            <li>Les ordres de virement (OD) doivent être émis.</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Cliquer sur Clôturer la période</h3>
+        <p>Une popup de confirmation s'affiche. Une fois cliqué, la période
+        passe à <strong>Clôturée</strong> et <strong>aucun bulletin du
+        mois ne peut plus être modifié</strong>.</p>
+    </div>
+
+    <div class="alerte">
+        ⚠️ La clôture est <strong>quasi-irréversible</strong>. Une réouverture
+        n'est possible que par l'administrateur système, et toujours documentée
+        dans l'audit.
+    </div>
+
+    <div class="ok">
+        ✅ Une fois la période Mai clôturée, vous pouvez ouvrir Juin et
+        commencer le cycle suivant.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="declarations">📊 Déclarations & exports détaillés</h2>
+
+    <p>Boutons disponibles depuis la liste ou la fiche période :</p>
+
+    <div class="bouton">
+        <strong>📊 Générer bordereau IPRES :</strong> exporte le bordereau
+        mensuel IPRES en Excel. Contient les cotisations Régime Général
+        (salarié + employeur) et Régime Cadre (salarié + employeur) pour
+        chaque salarié, avec totaux et sous-totaux.
+    </div>
+
+    <div class="bouton">
+        <strong>📊 Générer bordereau CSS :</strong> exporte le bordereau
+        mensuel CSS en Excel. Contient les cotisations Accident du Travail
+        et Allocation Familiale (parts employeur uniquement) pour chaque
+        salarié, avec totaux.
+    </div>
+
+    <div class="bouton">
+        <strong>📊 Générer état VRS :</strong> exporte l'état mensuel VRS
+        (Versement Retenue à la Source) en Excel. Colonnes : Matricule,
+        Statut, Nom, BRUT, IR, TRIMF, CFCE, IPRES (RG/RC sal. + emp.),
+        CSS (AT/AF), NET.
+    </div>
+
+    <div class="bouton">
+        <strong>📊 Générer état 1024 :</strong> exporte la déclaration
+        annuelle des salaires (DGID Sénégal) en Excel. Sélectionner les
+        12 périodes de l'année concernée.
+    </div>
+
+    <h3>Mode opératoire — Déclarations mensuelles</h3>
+    <div class="step">
+        <h3><span class="num">1</span>Aller dans Paie → Périodes de paie</h3>
+    </div>
+    <div class="step">
+        <h3><span class="num">2</span>S'assurer que tous les bulletins sont validés</h3>
+    </div>
+    <div class="step">
+        <h3><span class="num">3</span>Sélectionner la période dans la liste</h3>
+    </div>
+    <div class="step">
+        <h3><span class="num">4</span>Cliquer sur le bouton souhaité</h3>
+        <p>(IPRES, CSS, VRS, ou 1024 pour le bilan annuel).</p>
+    </div>
+    <div class="step">
+        <h3><span class="num">5</span>Confirmer la période dans le popup</h3>
+        <p>Pré-remplie avec la sélection. Le fichier Excel est téléchargé
+        automatiquement.</p>
+    </div>
+
+    <h3>Contenu détaillé des bordereaux</h3>
     <table>
-        <tr><th>Declaration</th><th>Organisme</th><th>Frequence</th><th>Colonnes principales</th></tr>
-        <tr>
-            <td>Bordereau IPRES</td>
-            <td>IPRES</td>
-            <td>Mensuel</td>
-            <td>Matricule, Nom, Categorie, Brut Social, RG Salarie/Employeur, RC Salarie/Employeur, Total</td>
-        </tr>
-        <tr>
-            <td>Bordereau CSS</td>
-            <td>CSS</td>
-            <td>Mensuel</td>
-            <td>Matricule, Nom, Brut Social, Accident Travail, Allocation Familiale, Total</td>
-        </tr>
-        <tr>
-            <td>Etat VRS</td>
-            <td>DGID</td>
-            <td>Mensuel</td>
-            <td>Matricule, Statut, Nom, BRUT, IR, TRIMF, CFCE, IPRES, CSS, NET</td>
-        </tr>
-        <tr>
-            <td>Declaration 1024</td>
-            <td>DGID</td>
-            <td>Annuel</td>
-            <td>Declaration annuelle des salaires</td>
-        </tr>
+        <thead><tr><th>Déclaration</th><th>Organisme</th><th>Fréquence</th><th>Colonnes principales</th></tr></thead>
+        <tbody>
+            <tr>
+                <td>Bordereau IPRES</td>
+                <td>IPRES</td>
+                <td>Mensuel</td>
+                <td>Matricule, Nom, Catégorie, Brut Social, RG Sal./Emp., RC Sal./Emp., Total</td>
+            </tr>
+            <tr>
+                <td>Bordereau CSS</td>
+                <td>CSS</td>
+                <td>Mensuel</td>
+                <td>Matricule, Nom, Brut Social, Accident Travail, Allocation Familiale, Total</td>
+            </tr>
+            <tr>
+                <td>État VRS</td>
+                <td>DGID</td>
+                <td>Mensuel</td>
+                <td>Matricule, Statut, Nom, BRUT, IR, TRIMF, CFCE, IPRES, CSS, NET</td>
+            </tr>
+            <tr>
+                <td>Déclaration 1024</td>
+                <td>DGID</td>
+                <td>Annuel</td>
+                <td>Récapitulatif annuel des salaires + cotisations par salarié</td>
+            </tr>
+        </tbody>
     </table>
 
     <div class="alerte">
-        <strong>Important :</strong> seuls les bulletins <strong>valides, envoyes ou clotures</strong> sont pris en compte dans les declarations. Les bulletins en brouillon sont ignores.
+        ⚠️ <strong>Important :</strong> seuls les bulletins
+        <strong>validés, envoyés ou clôturés</strong> sont pris en compte
+        dans les déclarations. Les bulletins en brouillon sont ignorés.
     </div>
 
-    <h2>Erreurs frequentes</h2>
-    <div class="erreur">
-        <strong>"Aucun bulletin valide trouve" &rarr;</strong> Verifier que les bulletins du mois sont bien valides (pas en Brouillon).
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
+
+    <h3>Cas 1 — Cycle mensuel standard</h3>
+    <div class="exemple">
+        <strong>20/05 :</strong> RH crée la période Mai et l'ouvre.<br>
+        <strong>21/05 :</strong> Génère 245 bulletins. 5 erreurs corrigées.<br>
+        <strong>22-23/05 :</strong> Validation par RH + DAF.<br>
+        <strong>26/05 :</strong> Exports IPRES/CSS/VRS. Envoi banque.<br>
+        <strong>28/05 :</strong> Virements effectués. Bulletins envoyés par mail.<br>
+        <strong>02/06 :</strong> Clôture définitive de Mai. Ouverture Juin.
     </div>
-    <div class="erreur">
-        <strong>Montants IPRES/CSS a 0 &rarr;</strong> Verifier que les rubriques IPRES_RG, IPRES_RC, CSS_AccidentTravail, CSS_AllocationFamiliale sont bien parametrees avec les bons taux.
+
+    <h3>Cas 2 — Régularisation rétroactive</h3>
+    <div class="exemple">
+        En juin, on découvre une erreur de prime sur le bulletin Mai d'un
+        salarié. Comme Mai est <strong>clôturée</strong>, on ne peut pas
+        modifier directement le bulletin de mai. Solution : <strong>ajouter
+        une régularisation</strong> sur le bulletin de Juin (rubrique
+        <em>RÉGUL_MOIS_PRECEDENT</em>) qui ajuste le net.
     </div>
+
+    <h3>Cas 3 — Déclaration annuelle 1024</h3>
+    <div class="exemple">
+        Fin janvier 2027, la DGID demande la déclaration annuelle 1024 pour
+        2026. RH va dans <em>Périodes de paie</em>, sélectionne les 12
+        périodes Jan-Déc 2026, clique <strong>Générer état 1024</strong>.
+        Excel obtenu prêt à déposer sur la plateforme DGID.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="regles">📜 Règles métier</h2>
+
+    <table>
+        <thead><tr><th>Règle</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td>Une seule période ouverte</td><td>Pas de chevauchement possible.</td></tr>
+            <tr><td>Bulletin ⇔ période ouverte</td><td>Impossible de créer un bulletin sans période ouverte.</td></tr>
+            <tr><td>Clôture verrouille</td><td>Aucune modification après clôture (sauf admin).</td></tr>
+            <tr><td>Déclarations = bulletins validés</td><td>Brouillon ignoré dans tous les exports légaux.</td></tr>
+            <tr><td>Continuité</td><td>Pas de "trou" : on ne peut pas créer Juillet si Juin n'existe pas.</td></tr>
+            <tr><td>Audit</td><td>Toute action (création, ouverture, clôture, réouverture) est tracée.</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+
+    <div class="erreur">
+        <strong>"Une période est déjà ouverte, fermez-la avant d'en ouvrir une autre"</strong><br>
+        → Aller sur la période en cours et cliquer sur <em>Clôturer</em>.
+        Vérifier que tous les bulletins sont au moins Validés.
+    </div>
+
+    <div class="erreur">
+        <strong>"Aucun bulletin valide trouvé"</strong> (lors d'un export)<br>
+        → Vérifier que les bulletins du mois sont bien validés (pas en
+        Brouillon). Filtrer la liste par statut.
+    </div>
+
+    <div class="erreur">
+        <strong>Montants IPRES/CSS à 0 dans le bordereau</strong><br>
+        → Vérifier que les rubriques <code>IPRES_RG</code>, <code>IPRES_RC</code>,
+        <code>CSS_AccidentTravail</code>, <code>CSS_AllocationFamiliale</code>
+        sont bien paramétrées avec les bons taux dans
+        <em>Paramétrage → Rubriques</em>.
+    </div>
+
+    <div class="erreur">
+        <strong>"Période impossible à clôturer : 3 bulletins en brouillon"</strong><br>
+        → Le système liste les bulletins concernés. Les valider ou les
+        supprimer (si salarié sorti).
+    </div>
+
+    <div class="info">
+        💡 <strong>Comment réouvrir une période clôturée par erreur ?</strong>
+        Action réservée à l'administrateur :
+        <em>Administration → Périodes → Sélectionner → Forcer la réouverture</em>.
+        Une justification écrite est obligatoire et l'action est tracée dans l'audit.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+
+    <div class="bouton">
+        <strong>+ Nouvelle période :</strong> crée la fiche du mois.
+    </div>
+    <div class="bouton">
+        <strong>🔓 Ouvrir la période :</strong> active la création de bulletins.
+    </div>
+    <div class="bouton">
+        <strong>📄 Générer tous les bulletins :</strong> batch création pour tous les salariés actifs.
+    </div>
+    <div class="bouton">
+        <strong>📊 Bordereau IPRES :</strong> Excel cotisations retraite (mensuel).
+    </div>
+    <div class="bouton">
+        <strong>📊 Bordereau CSS :</strong> Excel cotisations sécurité sociale (mensuel).
+    </div>
+    <div class="bouton">
+        <strong>📊 État VRS :</strong> Excel récapitulatif fiscal mensuel (DGID).
+    </div>
+    <div class="bouton">
+        <strong>📊 État 1024 :</strong> Excel déclaration annuelle (DGID).
+    </div>
+    <div class="bouton">
+        <strong>🔒 Clôturer la période :</strong> verrouille définitivement le mois.
+    </div>
+
+    <p class="footer-help">
+        SunuPaie v1.1 — Module Périodes de paie — Mise à jour mai 2026
+    </p>
 </body>
 </html>

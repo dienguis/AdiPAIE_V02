@@ -3,116 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Import en masse des conjoints — SunuPaie</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
-        h2 { color: #0F6E56; margin-top: 25px; }
-        h3 { color: #555; }
-        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
-        .bouton strong { color: #0F6E56; }
-        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
-        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
-        nav a:hover { text-decoration: underline; }
-        code { background: #e8f5e9; padding: 2px 6px; border-radius: 3px; font-size: 0.95em; }
-    </style>
+    <title>SunuPaie — Import des conjoints (Guide complet)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
-        <a href="/help/salaries.html">Salaries</a>
+        <a href="/help/salaries.html">Salariés</a>
         <a href="/help/import-salaries.html">Import Salariés</a>
-        <a href="/help/import-conjoints.html"><strong>Import Conjoints</strong></a>
+        <a href="/help/import-conjoints.html" class="active">Import Conjoints</a>
         <a href="/help/import-comptes-bancaires.html">Import Comptes</a>
-        <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/prets.html">Prêts</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>Import en masse des conjoints</h1>
+    <h1>👫 Import en masse des conjoints — Guide complet</h1>
+    <p>Cette fonctionnalité permet d'importer plusieurs conjoints en une
+    seule opération à partir d'un Excel (.xlsx). Idéal pour la migration
+    initiale ou la mise à jour des familles. <strong>Impact direct sur les
+    parts fiscales</strong> (TRIMF / IRPP) car un conjoint <em>Inactif à
+    charge</em> ajoute 0,5 part fiscale.</p>
 
-    <p>
-        Cette fonctionnalité permet d'importer plusieurs conjoints en une seule opération
-        à partir d'un fichier Excel (.xlsx). Idéal pour la migration initiale ou la mise
-        à jour des familles des salariés (impact direct sur le calcul des parts fiscales TRIMF/IRPP).
-    </p>
-
-    <h2>Boutons disponibles</h2>
-    <p>Les boutons apparaissent sur la <strong>liste des Salariés</strong>.</p>
-
-    <div class="bouton">
-        <strong>Modèle Conjoints :</strong>
-        Télécharge un fichier Excel modèle (<code>Modele_Import_Conjoints.xlsx</code>)
-        avec les en-têtes attendus et 2 lignes d'exemple.
+    <div class="toc">
+        <strong>📑 Étapes du processus</strong>
+        <ol>
+            <li><a href="#vue-ensemble">Vue d'ensemble</a></li>
+            <li><a href="#etape1">Étape 1 — Télécharger le modèle</a></li>
+            <li><a href="#etape2">Étape 2 — Préparer le fichier</a></li>
+            <li><a href="#etape3">Étape 3 — Importer</a></li>
+            <li><a href="#colonnes">Colonnes attendues</a></li>
+            <li><a href="#regles">Règles de traitement</a></li>
+            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
+            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+        </ol>
     </div>
 
-    <div class="bouton">
-        <strong>Importer Conjoints :</strong>
-        Ouvre un popup pour sélectionner votre fichier Excel (.xlsx).
-        Cliquez sur « Importer » pour lancer le traitement.
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="vue-ensemble">📋 Vue d'ensemble</h2>
+
+    <div class="workflow">
+        <div class="box">📥 Modèle</div>
+        <span class="arrow">→</span>
+        <div class="box">✏️ Remplir conjoints</div>
+        <span class="arrow">→</span>
+        <div class="box">📤 Importer</div>
+        <span class="arrow">→</span>
+        <div class="box">📊 Rapport</div>
+        <span class="arrow">→</span>
+        <div class="box">🔄 Recalcul parts fiscales</div>
     </div>
 
-    <h2>Colonnes attendues</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape1">📥 Étape 1 — Télécharger le modèle</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Liste Salariés → Modèle Conjoints</h3>
+        <p>Télécharge <code>Modele_Import_Conjoints.xlsx</code> avec
+        en-têtes et 2 lignes d'exemple.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape2">✏️ Étape 2 — Préparer le fichier</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Une ligne = un conjoint</h3>
+        <p>Polygamie autorisée : un même salarié peut avoir plusieurs lignes.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Vérifier que les salariés existent</h3>
+        <p>Le matricule doit déjà être en base (sinon ligne rejetée).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3</span>Vérifier que la situation maritale = Marié</h3>
+        <p>Sinon la ligne est rejetée. Modifier d'abord la fiche si besoin.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape3">📤 Étape 3 — Importer</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer Importer Conjoints</h3>
+        <p>Sélectionner le fichier .xlsx → Importer.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Lire le rapport</h3>
+        <p>Format : <em>X créés, Y ignorés, Z erreurs</em>.
+        Les parts fiscales sont automatiquement recalculées sur les
+        prochains bulletins.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="colonnes">📋 Colonnes attendues</h2>
 
     <h3>Obligatoires</h3>
     <table>
-        <tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr>
-        <tr><td><code>MatriculeSalarie</code></td><td>Texte</td><td>SAL001</td>
-            <td>Matricule du salarié titulaire (doit exister en base)</td></tr>
-        <tr><td><code>NomComplet</code></td><td>Texte</td><td>Khady NDIAYE</td>
-            <td>Nom complet du conjoint (Prénom + Nom)</td></tr>
+        <thead><tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td><code>MatriculeSalarie</code></td><td>Texte</td><td>SAL001</td><td>Doit exister en base</td></tr>
+            <tr><td><code>NomComplet</code></td><td>Texte</td><td>Khady NDIAYE</td><td>Prénom + Nom du conjoint</td></tr>
+        </tbody>
     </table>
 
     <h3>Optionnelles</h3>
     <table>
-        <tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr>
-        <tr><td><code>DateMariage</code></td><td>Date</td><td>15/06/2010</td>
-            <td>Date du mariage (format JJ/MM/AAAA)</td></tr>
-        <tr><td><code>DateFinUnion</code></td><td>Date</td><td>(vide)</td>
-            <td>Date de fin de l'union (divorce, décès). Laissez vide si union en cours.</td></tr>
-        <tr><td><code>Statut</code></td><td>Texte</td><td>Inactif</td>
-            <td>« Actif », « Inactif » ou « NonRenseigne ». Par défaut : Inactif.
-                <br><strong>Impact</strong> : un conjoint <em>Inactif à charge</em> ajoute 0,5 part fiscale.</td></tr>
-        <tr><td><code>ACharge</code></td><td>Texte</td><td>Oui</td>
-            <td>« Oui » ou « Non ». Par défaut : Oui si Statut=Inactif, Non sinon.</td></tr>
+        <thead><tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td><code>DateMariage</code></td><td>Date</td><td>15/06/2010</td><td>Format JJ/MM/AAAA</td></tr>
+            <tr><td><code>DateFinUnion</code></td><td>Date</td><td>(vide)</td><td>Divorce/décès. Vide si union en cours.</td></tr>
+            <tr><td><code>Statut</code></td><td>Texte</td><td>Inactif</td><td>Actif / Inactif / NonRenseigne (défaut Inactif). Inactif à charge → +0,5 part.</td></tr>
+            <tr><td><code>ACharge</code></td><td>Texte</td><td>Oui</td><td>Oui/Non (défaut Oui si Statut=Inactif, Non sinon)</td></tr>
+        </tbody>
     </table>
 
-    <h2>Règles de traitement</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="regles">📜 Règles de traitement</h2>
+
     <div class="alerte">
         <ul>
-            <li><strong>Matricule unique :</strong> le salarié doit exister en base.</li>
-            <li><strong>Statut Marié obligatoire :</strong> si le salarié n'est pas Marié, la ligne est rejetée
-                (vous devez d'abord changer son SatutMarital sur sa fiche).</li>
-            <li><strong>Idempotent :</strong> si un conjoint avec exactement le même <code>NomComplet</code>
-                existe déjà pour ce salarié → ligne ignorée.</li>
-            <li><strong>Plusieurs conjoints :</strong> autorisé. Mettez plusieurs lignes avec le même
-                MatriculeSalarie mais des NomComplet différents.</li>
-            <li><strong>Impact paie :</strong> les parts fiscales du salarié sont recalculées
-                automatiquement à partir des conjoints inactifs à charge.</li>
+            <li><strong>Salarié doit exister</strong> en base pour ce matricule.</li>
+            <li><strong>Statut Marié obligatoire :</strong> si non, la ligne est rejetée. Changer d'abord la situation maritale sur la fiche.</li>
+            <li><strong>Idempotent :</strong> si un conjoint avec exactement le même <code>NomComplet</code> existe déjà → ligne ignorée.</li>
+            <li><strong>Polygamie :</strong> autorisé. Plusieurs lignes avec même matricule mais NomComplet différents.</li>
+            <li><strong>Impact paie :</strong> les parts fiscales sont recalculées automatiquement à partir des conjoints inactifs à charge.</li>
         </ul>
     </div>
 
-    <h2>Exemple complet</h2>
-    <table style="font-size:0.9em;">
-        <tr>
-            <th>MatriculeSalarie</th><th>NomComplet</th><th>DateMariage</th>
-            <th>DateFinUnion</th><th>Statut</th><th>ACharge</th>
-        </tr>
-        <tr><td>SAL001</td><td>Khady NDIAYE</td><td>15/06/2010</td><td></td><td>Inactif</td><td>Oui</td></tr>
-        <tr><td>SAL001</td><td>Awa SECK</td><td>20/12/2018</td><td></td><td>Inactif</td><td>Oui</td></tr>
-        <tr><td>SAL002</td><td>Modou DIOP</td><td>01/01/2015</td><td></td><td>Actif</td><td>Non</td></tr>
-        <tr><td>SAL003</td><td>Fatou BA</td><td>05/03/2008</td><td>10/10/2022</td><td>Inactif</td><td>Non</td></tr>
-    </table>
-    <p>
-        Résultat attendu : <strong>4 créés, 0 ignorés, 0 erreurs</strong>.
-        SAL001 a 2 conjointes (polygamie autorisée).
-        SAL003 a un conjoint divorcé (DateFinUnion remplie).
-    </p>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
 
+    <h3>Cas 1 — Conjointe au foyer (impact parts)</h3>
+    <div class="exemple">
+        SAL001 a 1 conjointe (Khady) <em>Inactif à charge</em>. Cela ajoute
+        +0,5 part fiscale au calcul du TRIMF/IR. Sur les prochains bulletins,
+        le calcul est ajusté automatiquement.
+    </div>
+
+    <h3>Cas 2 — Conjointe active (pas d'impact)</h3>
+    <div class="exemple">
+        SAL002 a un conjoint <em>Actif</em> (qui travaille). Aucun impact
+        sur les parts fiscales du salarié.
+    </div>
+
+    <h3>Cas 3 — Polygamie</h3>
+    <div class="exemple">
+        SAL001 (sénégalais) déclare 2 conjointes Khady et Awa, toutes deux
+        Inactif à charge. Cela ajoute +1 part au total (0,5 × 2).
+    </div>
+
+    <h3>Cas 4 — Divorce</h3>
+    <div class="exemple">
+        SAL003 divorcé : ligne avec <em>DateFinUnion</em> renseignée et
+        <em>ACharge = Non</em>. Le conjoint reste dans l'historique mais
+        n'impacte plus les parts fiscales.
+    </div>
+
+    <h3>Exemple complet — 4 lignes</h3>
+    <table style="font-size:0.9em;">
+        <thead><tr>
+            <th>Mat.</th><th>NomComplet</th><th>DateMariage</th>
+            <th>DateFinUnion</th><th>Statut</th><th>ACharge</th>
+        </tr></thead>
+        <tbody>
+            <tr><td>SAL001</td><td>Khady NDIAYE</td><td>15/06/2010</td><td></td><td>Inactif</td><td>Oui</td></tr>
+            <tr><td>SAL001</td><td>Awa SECK</td><td>20/12/2018</td><td></td><td>Inactif</td><td>Oui</td></tr>
+            <tr><td>SAL002</td><td>Modou DIOP</td><td>01/01/2015</td><td></td><td>Actif</td><td>Non</td></tr>
+            <tr><td>SAL003</td><td>Fatou BA</td><td>05/03/2008</td><td>10/10/2022</td><td>Inactif</td><td>Non</td></tr>
+        </tbody>
+    </table>
+    <p>Résultat : <strong>4 créés, 0 ignorés, 0 erreurs</strong>.
+    SAL001 a 2 conjointes (polygamie), SAL003 a un conjoint divorcé.</p>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+
+    <div class="erreur">
+        <strong>"Salarié non Marié — ligne rejetée"</strong> → la situation
+        maritale n'est pas <em>Marié</em>. Modifier d'abord la fiche du salarié.
+    </div>
+
+    <div class="erreur">
+        <strong>"Matricule introuvable"</strong> → importer d'abord les
+        salariés via <a href="/help/import-salaries.html">Import Salariés</a>.
+    </div>
+
+    <div class="info">
+        💡 <strong>Pourquoi les parts fiscales ne sont pas mises à jour ?</strong>
+        Le recalcul se fait à la <em>génération du prochain bulletin</em>.
+        Pour forcer immédiatement, ouvrir un bulletin existant et cliquer
+        <em>Recalculer</em>.
+    </div>
+
+    <p class="footer-help">
+        SunuPaie v1.1 — Module Import Conjoints — Mise à jour mai 2026
+    </p>
 </body>
 </html>
