@@ -337,13 +337,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         ContratInterimStatut statut;
 
-        // ── Affectation — Station / BU / DG ──────────────────────────
+        // ── ⚠️ V1.1 Sprint 1D — Affectation LEGACY (Station / BU / EstDG) ─
+        //   Ces 3 FK sont conservées pour la compat des écrans hors dashboards
+        //   (DemandeRecrutementInterim, AlerteInterimaireService) mais NE
+        //   doivent PLUS être saisies. Utilisez Site (V1.1) + Unites à la place.
+        //   Les dashboards V1.1 lisent uniquement Site/Unites.
 
-        /// <summary>
-        /// Si vrai : affectation Direction Générale
-        /// (Station = null, BU = null)
-        /// </summary>
-        [XafDisplayName("Direction Générale")]
+        [XafDisplayName("[Legacy] Direction Générale")]
         [ImmediatePostData]
         public bool EstDG
         {
@@ -353,7 +353,6 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
                 SetPropertyValue(nameof(EstDG), ref estDG, value);
                 if (value)
                 {
-                    // Effacer station/BU si DG coché
                     Station = null;
                     BU = null;
                 }
@@ -362,7 +361,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         bool estDG;
 
         [Association("Station-Contrats")]
-        [XafDisplayName("Station de service")]
+        [XafDisplayName("[Legacy] Station de service")]
         [DataSourceCriteria("Actif = true")]
         [Appearance("CI_StationDisabled", Criteria = "EstDG = true", Enabled = false,
             TargetItems = "Station")]
@@ -372,7 +371,6 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set
             {
                 SetPropertyValue(nameof(Station), ref station, value);
-                // Réinitialiser la BU si on change de station
                 if (BU != null && BU.Station?.Oid != value?.Oid)
                     BU = null;
             }
@@ -380,7 +378,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         StationService station;
 
         [Association("BU-Contrats")]
-        [XafDisplayName("Business Unit")]
+        [XafDisplayName("[Legacy] Business Unit")]
         [DataSourceCriteria("Actif = true AND Station.Oid = '@This.Station.Oid'")]
         [Appearance("CI_BUDisabled", Criteria = "EstDG = true OR Station Is Null", Enabled = false,
             TargetItems = "BU")]
@@ -596,7 +594,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         DateTime dateMouvement;
 
         // ── Origine ───────────────────────────────────────────────────
-        [XafDisplayName("Station origine")]
+        [XafDisplayName("[Legacy] Station origine")]
         public StationService StationOrigine
         {
             get => stationOrigine;
@@ -604,7 +602,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         StationService stationOrigine;
 
-        [XafDisplayName("BU origine")]
+        [XafDisplayName("[Legacy] BU origine")]
         [DataSourceCriteria("Station.Oid = '@This.StationOrigine.Oid'")]
         public BusinessUnitStation BUOrigine
         {
@@ -613,7 +611,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         BusinessUnitStation buOrigine;
 
-        [XafDisplayName("DG → Station (origine)")]
+        [XafDisplayName("[Legacy] DG → Station (origine)")]
         public bool OrigineEstDG
         {
             get => origineEstDG;
@@ -622,7 +620,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         bool origineEstDG;
 
         // ── Destination ───────────────────────────────────────────────
-        [XafDisplayName("Station destination")]
+        [XafDisplayName("[Legacy] Station destination")]
         public StationService StationDestination
         {
             get => stationDestination;
@@ -630,7 +628,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         StationService stationDestination;
 
-        [XafDisplayName("BU destination")]
+        [XafDisplayName("[Legacy] BU destination")]
         [DataSourceCriteria("Station.Oid = '@This.StationDestination.Oid'")]
         public BusinessUnitStation BUDestination
         {
@@ -639,7 +637,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         BusinessUnitStation buDestination;
 
-        [XafDisplayName("Destination = Direction Générale")]
+        [XafDisplayName("[Legacy] Destination = Direction Générale")]
         public bool DestinationEstDG
         {
             get => destinationEstDG;

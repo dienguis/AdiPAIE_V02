@@ -25,6 +25,85 @@ Chaque entrée précise :
 
 ---
 
+## [V1.1 — Sprint 1D] 2026-05-03 1700 — Masquage entités legacy (sans casser le reste)
+
+**Stratégie validée par utilisateur** : option « masquage » plutôt que
+« suppression brutale » pour ne pas casser les écrans non-dashboards
+(`DemandeRecrutementInterim`, `AlerteInterimaireService`, etc.) qui
+référencent encore `StationService` / `BusinessUnitStation`.
+
+### Actions effectuées
+
+1. **Entités legacy masquées du menu XAF** — retrait `[DefaultClassOptions]`
+   et `[NavigationItem]`, ajout préfixe `[Deprecated]` dans le `XafDisplayName` :
+   - `StationService` → « [Deprecated] Station de service »
+   - `BusinessUnitStation` → « [Deprecated] Business Unit (Station) »
+   - `BusinessUnitType` → « [Deprecated] Type de Business Unit »
+   - + `[VisibleInReports(false)]` pour ne plus apparaître dans les rapports XAF
+
+2. **FK legacy sur ContratInterim et MouvementInterimaire labellisées `[Legacy]`** :
+   - `ContratInterim.Station` → « [Legacy] Station de service »
+   - `ContratInterim.BU` → « [Legacy] Business Unit »
+   - `ContratInterim.EstDG` → « [Legacy] Direction Générale »
+   - `MouvementInterimaire.StationOrigine/Destination`, `BUOrigine/Destination`,
+     `OrigineEstDG`, `DestinationEstDG` → tous préfixés « [Legacy] »
+
+   Aucune n'était `[RuleRequiredField]` → elles restent non-obligatoires
+   et peuvent être laissées vides en saisie. Les dashboards V1.1 lisent
+   uniquement `Site` et `Unites`.
+
+3. **Service AnalyseEffectifDashboardService nettoyé** :
+   `ComputeBarSegmentExterne` ne lit plus le fallback `c.EstDG` /
+   `c.Station` / `c.BU` — uniquement `c.Site` V1.1.
+
+4. **Updater.cs nettoyé** :
+   - `EnsureBusinessUnitTypesSeed()` n'est plus appelé (méthode marquée
+     obsolète mais conservée)
+   - `MigrateBUsToTypes()` n'est plus appelé
+   - `GrantBusinessUnitTypeReadAccess()` marqué `[Obsolete]` et remplacé
+     par `GrantUniteOrganisationnelleReadAccess()` qui donne uniquement
+     accès Read sur la nouvelle entité `UniteOrganisationnelle`
+
+### Fichiers modifiés (4)
+
+| Fichier | Nature |
+|---|---|
+| `BusinessObjects/RH/StationService.cs` | StationService + BusinessUnitStation : retrait DefaultClassOptions/NavigationItem, libellé [Deprecated] |
+| `BusinessObjects/RH/BusinessUnitType.cs` | Idem [Deprecated] |
+| `BusinessObjects/RH/Interimaire.cs` | FK legacy ContratInterim + MouvementInterimaire labellisées [Legacy] |
+| `Services/Dashboards/AnalyseEffectifDashboardService.cs` | Plus de fallback `c.EstDG`/`c.Station`/`c.BU` dans ComputeBarSegmentExterne |
+| `DatabaseUpdate/Updater.cs` | Plus d'appel BusinessUnitType seed/migration ; nouvelle méthode `GrantUniteOrganisationnelleReadAccess` |
+| `docs/dashboards/CHANGELOG.md` | cette entrée |
+
+### Code legacy restant (acceptable, à nettoyer en Sprint 1F éventuel)
+
+- Variables `_stationsDispo`, `_selectedStation`, `OnStationChanged` dans
+  les Razor Tab 2/3/4 — dead code (n'est plus rendu par le markup)
+- Méthode `GetStationsServiceActives` dans interfaces et services (encore
+  appelée par les Razor pour `_stationsDispo` mais résultat inutilisé)
+- Méthodes `EnsureBusinessUnitTypesSeed`, `MigrateBUsToTypes`,
+  `GrantBusinessUnitTypeReadAccess` dans Updater (marquées `[Obsolete]`)
+
+Ces nettoyages cosmétiques peuvent être faits plus tard sans risque.
+
+### Effet attendu après build
+
+1. Menu XAF → ne pas voir les entrées « Station de service » /
+   « Business Unit (Station) » / « Type de Business Unit » (masquées)
+2. Sur la fiche d'un ContratInterim → les champs Station/BU/EstDG portent
+   désormais le préfixe « [Legacy] » pour signaler qu'il ne faut plus les
+   utiliser
+3. Les dashboards V1.1 fonctionnent identiquement (déjà sur Site/Unites)
+4. Les écrans hors dashboards (DemandeRecrutementInterim, etc.) continuent
+   de fonctionner car les FK sont conservées en C#
+
+### Sprint 1E à venir
+
+Refonte des 6 fichiers SQL + install.sql + README pour refléter le
+modèle V1.1 final (Site + UniteOrganisationnelle).
+
+---
+
 ## [V1.1 — Sprint 1C.3 hot-fix] 2026-05-03 1620 — Tab 2 : dropdown Site V1.1 unifié
 
 **Constat utilisateur (screenshot)** : Tab 2 EXTERNE affiche encore le

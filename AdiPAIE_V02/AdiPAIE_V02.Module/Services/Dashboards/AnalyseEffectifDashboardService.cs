@@ -370,11 +370,21 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 ? (int)Math.Round(effectifMoyen, 0, MidpointRounding.AwayFromZero)
                 : actifs.Count;
 
-            // ── KPIs ─────────────────────────────────────────────────────────
+            // ── KPIs (V1.1 Sprint 1C.3 fix) ──────────────────────────────────
+            //   PROBLÈME ANTÉRIEUR : clotures.Count compte des CONTRATS, mais
+            //   actifs.Count compte des INTÉRIMAIRES. Mismatch → un intérim
+            //   ayant 4 contrats clos donnait 400 % ❌.
+            //   FIX : on compte les intérimaires DISTINCTS ayant eu au moins
+            //   une clôture (sémantique cohérente avec actifs = intérimaires).
+            int nbInterimsAyantQuitté = contratsClotures
+                .Where(c => c.Interimaire != null)
+                .Select(c => c.Interimaire!.Oid)
+                .Distinct()
+                .Count();
             decimal pctDeparts = actifs.Count > 0
-                ? Round1((decimal)contratsClotures.Count * 100m / actifs.Count) : 0m;
+                ? Round1((decimal)nbInterimsAyantQuitté * 100m / actifs.Count) : 0m;
             decimal pctRotation = effectifMoyen > 0
-                ? Round1((decimal)contratsClotures.Count * 100m / effectifMoyen) : 0m;
+                ? Round1((decimal)nbInterimsAyantQuitté * 100m / effectifMoyen) : 0m;
 
             decimal ageMoyen          = AgeMoyenInterimaires(actifs, dateRef);
             decimal ancMoyenneContrat = AncienneteMoyenneContratExterne(actifs, dateRef);
@@ -477,9 +487,9 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
                     if (contratActif == null) return false;
 
-                    // Filtre Station service (= filter.SiteOid en mode EXTERNE)
+                    // V1.1 Sprint 1C.3 — Filtre Site V1.1 (au lieu de Station legacy)
                     if (filter.SiteOid.HasValue &&
-                        contratActif.Station?.Oid != filter.SiteOid.Value)
+                        contratActif.Site?.Oid != filter.SiteOid.Value)
                         return false;
 
                     // Filtre Poste
@@ -586,13 +596,20 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
         private static List<BarItemDto> ComputeBarSegmentExterne(IList<Interimaire> actifs, DateTime dateRef)
         {
+            // V1.1 Sprint 1D — Plus de fallback legacy : Site V1.1 obligatoire.
             return actifs
                 .Select(i =>
                 {
                     var c = GetContratActif(i, dateRef);
-                    if (c == null) return "(Non renseigné)";
-                    if (c.EstDG) return "Direction Générale";
-                    return c.Station?.Nom ?? c.BU?.Libelle ?? "(Non renseigné)";
+                    if (c?.Site == null) return "(Non renseigné)";
+                    string emoji = c.Site.Type switch
+                    {
+                        TypeSite.StationService => "🏪",
+                        TypeSite.Siege          => "🏢",
+                        TypeSite.Depot          => "📦",
+                        _                       => "🏭"
+                    };
+                    return $"{emoji} {c.Site.Nom}";
                 })
                 .GroupBy(label => label)
                 .OrderByDescending(g => g.Count())

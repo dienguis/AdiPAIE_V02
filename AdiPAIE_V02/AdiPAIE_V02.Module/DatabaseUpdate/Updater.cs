@@ -400,14 +400,11 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             GrantDashboardAccessToExistingRole("DAF");
 
             // ═══════════════════════════════════════════════════════════════
-            //  V1.1 — Référentiel BusinessUnitType (Étape Phase 1)
-            //  Crée les 4 types initiaux (Boutique, Piste, E-Service,
-            //  Espace Auto) puis migre les BusinessUnitStation existants
-            //  vers le bon Type en matchant leur Libelle. Idempotent.
+            //  V1.1 Sprint 1D — Permissions Read sur UniteOrganisationnelle
+            //  uniquement (BusinessUnitType est DEPRECATED — plus de seed
+            //  ni de migration ni de permission). Voir CHANGELOG Sprint 1D.
             // ═══════════════════════════════════════════════════════════════
-            EnsureBusinessUnitTypesSeed();
-            MigrateBUsToTypes();
-            GrantBusinessUnitTypeReadAccess();
+            GrantUniteOrganisationnelleReadAccess();
 
             // ═══════════════════════════════════════════════════════════════
             //  V1.1 Sprint 1B — Seed démo COMPLET pour tester les dashboards
@@ -1280,10 +1277,33 @@ string adminUserName = "Admin";
         }
 
         /// <summary>
-        /// Étend les permissions des rôles RH_Manager / RH / DAF pour
-        /// lire le nouveau référentiel BusinessUnitType (sinon les
-        /// dashboards ne pourront pas filtrer par Type BU).
+        /// V1.1 Sprint 1D — Étend les permissions des rôles dashboards
+        /// pour lire UniteOrganisationnelle (nouveau modèle).
         /// </summary>
+        private void GrantUniteOrganisationnelleReadAccess()
+        {
+            const string NavRead =
+                SecurityOperations.Navigate + ";" + SecurityOperations.Read;
+
+            foreach (var roleName in new[] { "RH_Manager", "RH", "DAF" })
+            {
+                var role = ObjectSpace.GetObjectsQuery<PermissionPolicyRole>()
+                    .Where(r => r.Name == roleName)
+                    .FirstOrDefault();
+                if (role == null) continue;
+
+                role.AddTypePermissionsRecursively<UniteOrganisationnelle>(
+                    NavRead, SecurityPermissionState.Allow);
+            }
+        }
+
+        /// <summary>
+        /// [DEPRECATED V1.1 Sprint 1D] Conservée pour ne pas casser le code
+        /// si elle est appelée ailleurs. N'est plus invoquée par défaut au
+        /// démarrage. Sera supprimée définitivement quand le BO BusinessUnitType
+        /// sera retiré.
+        /// </summary>
+        [System.Obsolete("Remplacée par GrantUniteOrganisationnelleReadAccess en V1.1 Sprint 1D")]
         private void GrantBusinessUnitTypeReadAccess()
         {
             const string NavRead =

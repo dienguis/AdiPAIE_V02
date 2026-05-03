@@ -94,13 +94,16 @@ Entités SUPPRIMÉES :
 
 ### Sprints V1.1
 
-| Sprint | Objet | Effort | Statut |
-|---|---|---|---|
-| 1 | Modèle de données refondu | 1 jour | 🟡 in progress |
-| 2 | Updater seed démo (préfixe DEMO_) + Controller wipe + RBAC | 0.5 jour | 🕒 pending |
-| 3 | Refonte 6 services + razor (filtres en cascade Site→Unité) | 2 jours | 🕒 pending |
-| 4 | Refonte 6 SQL + install.sql + README + MISSION_STATE | 0.5 jour | 🕒 pending |
-| **TOTAL V1.1** | | **~4 jours** | |
+| Sprint | Objet | Effort | Statut | Hash |
+|---|---|---|---|---|
+| 1A | Modèle Site enrichi + UniteOrganisationnelle (cohabitation) | 4h | ✅ done | `4ec43373` |
+| 1A.2 | Vues XAF (xafml override pour exposer Site.Type) | 30 min | ✅ done | `ac2d2311` |
+| 1B | Seed démo COMPLET (~100 entrées) + Controller wipe + flag appsettings + RBAC | 4h | ✅ done | _consolidé_ |
+| 1B.2 | Hot-fix duplication grilles XAF | 15 min | ✅ done | `461c0b21` |
+| 1C | Refonte 4 services + razor EXTERNE (filtres Site→Unité) | 2 jours | ✅ done | `515b2531` (final) |
+| 1D | Masquage entités legacy (DefaultClassOptions retiré, [Legacy] sur FK) | 0.5 jour | ✅ done | _commit pending_ |
+| 1E | Refonte 6 SQL + install.sql + README + MISSION_STATE | 0.5 jour | 🟡 next | — |
+| 1F (futur) | Nettoyage cosmétique : dead code Razor + suppression définitive | 1h | 🕒 plus tard | — |
 
 ### Convention seed démo
 
