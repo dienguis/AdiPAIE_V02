@@ -25,6 +25,50 @@ Chaque entrée précise :
 
 ---
 
+## [V1.1 — Sprint 1A.2] 2026-05-03 1015 — Vues XAF pour Site + garanties anti-suppression seeds réels
+
+### Hot-fix UI — colonne Type invisible
+
+Constat utilisateur post-build Sprint 1A : la nouvelle propriété `Type` sur
+`Site` est bien créée en base mais **n'apparaît pas dans le formulaire XAF**.
+Cause : le ModelDifference figé en base ne connaît pas la nouvelle propriété
+et ne la régénère pas automatiquement.
+
+**Correctif** : ajout dans `Model.DesignedDiffs.xafml` :
+- Override explicite de `Site_DetailView` avec la propriété `Type`,
+  les onglets `Unites` (sous-structure) et `ContratsInterim`
+- Override de `Site_ListView` avec colonne `Type`
+
+### Garantie seeds réels (non-suppression)
+
+Constat utilisateur : il existe déjà des seeds en prod (rubriques de paie,
+paramètres, catégories) qui ne doivent PAS être supprimés par le wipe
+des données démo V1.1.
+
+**Garantie de la stratégie DEMO_** :
+
+| Seed | Préfixe | Sécurisé ? |
+|---|---|---|
+| Rubriques de paie (BRUT_BASE, IPRES_RG…) | code métier réel | ✅ |
+| RubriqueTypeRef (BRUTE, COTSOC…) | code métier réel | ✅ |
+| ParametresPaie (singleton) | — | ✅ |
+| Catégories (Cadre, Non Cadre…) | code métier | ✅ |
+| Sites V1.1 démo | `DEMO_BANDIA`, `DEMO_SIEGE` | ❌ supprimés au wipe |
+| Unités V1.1 démo | `DEMO_BU_BOUTIQUE_BANDIA` | ❌ supprimés au wipe |
+
+Le Controller « Vider données démo » filtre **uniquement** sur
+`Code.StartsWith("DEMO_")` — les enregistrements avec un Code métier
+réel ne sont jamais touchés.
+
+### Fichiers modifiés (2)
+
+| Fichier | Nature |
+|---|---|
+| `Model.DesignedDiffs.xafml` | Override Site_DetailView + Site_ListView pour exposer Type/Unites/ContratsInterim |
+| `docs/dashboards/CHANGELOG.md` | cette entrée + garantie seeds |
+
+---
+
 ## [V1.1 — Sprint 1A] 2026-05-03 0930 — Modèle Site + UniteOrganisationnelle (cohabitation)
 
 **Stratégie de migration** : pas de big-bang. Les nouvelles entités/champs
