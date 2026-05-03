@@ -25,6 +25,43 @@ Chaque entrée précise :
 
 ---
 
+## [V1.1 — Sprint 1C.3 hot-fix] 2026-05-03 1620 — Tab 2 : dropdown Site V1.1 unifié
+
+**Constat utilisateur (screenshot)** : Tab 2 EXTERNE affiche encore le
+dropdown legacy « STATION SERVICE » avec uniquement les 3 anciennes
+stations (ELTON MERMOZ, ELTON THIES, ELTON VDN). Pas de BANDIA, CDB,
+Siège ELTON, Dépôts visibles.
+
+**Cause** : la Razor Tab 2 EXTERNE utilisait toujours le dropdown
+`StationService` (legacy) au lieu de `Site` V1.1.
+
+**Fix** : unification sur Site V1.1 pour INTERNE et EXTERNE
+- 1 seul dropdown au lieu de 2 conditionnels
+- TextFieldName = `NomAvecType` (avec emoji 🏪🏢📦)
+- Tri par TypeSite (Stations → Siège → Dépôts) déjà géré dans
+  `GetSitesActifs`
+
+Le service backend Tab 2 utilise déjà `c.Site?.Oid` depuis le Sprint 1C.3 fix.
+
+### Fichier modifié
+
+| Fichier | Nature |
+|---|---|
+| `Pages/Dashboards/Effectif/AnalyseEffectifDashboard.razor` | Suppression du dropdown StationService EXTERNE → Site V1.1 unifié avec NomAvecType |
+| `docs/dashboards/CHANGELOG.md` | cette entrée |
+
+### Effet attendu après build
+
+Tab 2 EXTERNE → dropdown Site contient désormais :
+- 🏪 BANDIA, 🏪 CAP DES BICHES, 🏪 MERMOZ
+- 🏢 Siège ELTON
+- 📦 Dépôt Dakar, 📦 Dépôt Thiès, 📦 Dépôt CDB, 📦 Dépôt Hann
+
+(legacy : ELTON MERMOZ / ELTON THIES / ELTON VDN seront à supprimer
+en Sprint 1D — entités StationService obsolètes)
+
+---
+
 ## [V1.1 — Sprint 1C.2 fix2] 2026-05-03 1545 — DOUBLE fix Tab 3 : filtre Site sur contrats + ratio direct
 
 **Constat utilisateur (2 bugs)** :

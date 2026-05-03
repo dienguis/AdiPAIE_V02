@@ -107,35 +107,19 @@ else
                             ValueChanged="@((int v) => OnAnneeChanged(v))"
                             CssClass="ed-input" />
             </div>
-            @* Site : Site (INTERNE) ou StationService (EXTERNE) selon Personnel *@
-            @if (_filter.Personnel == PersonnelType.Externe)
-            {
-                <div class="ed-filter">
-                    <label>Station service</label>
-                    <DxComboBox TData="StationService" TValue="StationService"
-                                Data="@_stationsDispo"
-                                TextFieldName="@nameof(StationService.Nom)"
-                                Value="@_selectedStation"
-                                ValueChanged="@((StationService? s) => OnStationChanged(s))"
-                                NullText="Toutes"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                CssClass="ed-input" />
-                </div>
-            }
-            else
-            {
-                <div class="ed-filter">
-                    <label>Site</label>
-                    <DxComboBox TData="Site" TValue="Site"
-                                Data="@_sitesDispo"
-                                TextFieldName="@nameof(Site.Nom)"
-                                Value="@_selectedSite"
-                                ValueChanged="@((Site? s) => OnSiteChanged(s))"
-                                NullText="Tous"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                CssClass="ed-input" />
-                </div>
-            }
+            @* V1.1 Sprint 1C.3 — Site V1.1 unifié pour INTERNE et EXTERNE
+               (avec emoji typé via NomAvecType pour distinguer Stations / Siège / Dépôts) *@
+            <div class="ed-filter">
+                <label>Site</label>
+                <DxComboBox TData="Site" TValue="Site"
+                            Data="@_sitesDispo"
+                            TextFieldName="@nameof(Site.NomAvecType)"
+                            Value="@_selectedSite"
+                            ValueChanged="@((Site? s) => OnSiteChanged(s))"
+                            NullText="Tous"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            CssClass="ed-input" />
+            </div>
             <div class="ed-filter">
                 <label>Genre</label>
                 <DxComboBox TData="Sexe?" TValue="Sexe?"
@@ -527,8 +511,8 @@ else
 
     private AnalyseEffectifFilterModel _filter = new();
     private List<int> _anneesDispo = new();
-    private List<Site> _sitesDispo = new();                          // INTERNE
-    private List<StationService> _stationsDispo = new();             // EXTERNE
+    private List<Site> _sitesDispo = new();                          // V1.1 unifié INTERNE+EXTERNE
+    private List<StationService> _stationsDispo = new();             // legacy (à retirer en Sprint 1D)
     private List<Departement> _departementsDispo = new();
     private List<Categories> _categoriesDispo = new();
     private List<SocieteInterim> _societesDispo = new();             // EXTERNE
