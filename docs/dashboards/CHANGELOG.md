@@ -25,6 +25,47 @@ Chaque entrée précise :
 
 ---
 
+## [V1.1 — Sprint 1B.2] 2026-05-03 1230 — Hot-fix duplication grille Unités sur Site_DetailView
+
+**Constat utilisateur (screenshot)** : sur la fiche d'un site (BANDIA), la
+grille des Unités organisationnelles apparaît **deux fois** dupliquée.
+Idem suspecté pour la grille ContratsInterim.
+
+**Cause racine** : XAF auto-génère les onglets pour les XPCollection
+associées (Unites, ContratsInterim, Salaries) **par défaut**. Mon
+override xafml du Sprint 1A.2 ajoutait en plus des `<ListPropertyEditor>`
++ des `<LayoutGroup>` → résultat : 2 grilles côte à côte.
+
+**Fix** : retirer du xafml les overrides de Layout + les ListPropertyEditor
+explicites. Conserver uniquement le `<PropertyEditor Id="Type">` qui
+**n'est PAS** auto-généré (car nouveau enum sur l'entité).
+
+### Fichier modifié
+
+| Fichier | Nature |
+|---|---|
+| `Model.DesignedDiffs.xafml` | Simplifié : Site_DetailView ne contient plus que `PropertyEditor Type`, XAF gère le reste auto |
+
+### Test attendu après build
+
+1. Sites → ouvrir DEMO_BANDIA
+2. Champ **« Type de site »** visible (avec dropdown 🏪🏢📦)
+3. Onglet **« Unités »** : UNE seule grille avec les 4 BU
+4. Onglet **« Contrats Intérim »** : UNE seule grille
+5. Liste générale des Sites → colonne `Type` visible
+
+### Bonus — confirmation visuelle du seed (screenshot user)
+
+Les 4 BU de BANDIA seedées sont correctement créées avec leurs couleurs :
+- 🟧 Boutique (Orange ELTON)
+- 🟦 Piste (Navy ELTON)
+- 🟦 E-Service (Bleu clair)
+- 🟩 Espace Auto (Vert)
+
+Le seed démo fonctionne, il ne reste qu'à corriger l'affichage en doublon.
+
+---
+
 ## [V1.1 — Sprint 1B] 2026-05-03 1130 — Seed démo COMPLET + Controller wipe + flag appsettings + RBAC
 
 **Objet** : créer un jeu de données de démonstration COMPLET pour tester

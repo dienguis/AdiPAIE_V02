@@ -1700,33 +1700,14 @@
     </DetailView>
     <!-- ╔═══════════════════════════════════════════════════════════════╗
          ║  V1.1 Sprint 1A — Vues Site enrichies                          ║
-         ║  Force l'affichage des nouvelles propriétés Type et Unites      ║
-         ║  dans les vues XAF (sinon le ModelDifference figé en BD ne     ║
-         ║  les expose pas automatiquement).                               ║
+         ║  XAF auto-génère les onglets pour les XPCollection (Unites,    ║
+         ║  ContratsInterim, Salaries) — on n'override QUE le PropertyEditor║
+         ║  Type qui n'apparaît pas tout seul si le ModelDifference est figé.║
          ╚═══════════════════════════════════════════════════════════════╝ -->
     <DetailView Id="Site_DetailView">
       <Items>
         <PropertyEditor Id="Type" PropertyName="Type" IsNewNode="True" />
-        <ListPropertyEditor Id="Unites" PropertyName="Unites" IsNewNode="True" />
-        <ListPropertyEditor Id="ContratsInterim" PropertyName="ContratsInterim" IsNewNode="True" />
       </Items>
-      <Layout>
-        <LayoutGroup Id="Main">
-          <LayoutGroup Id="SimpleEditors">
-            <LayoutGroup Id="Site">
-              <LayoutItem Id="Type" ViewItem="Type" Index="3" IsNewNode="True" />
-            </LayoutGroup>
-          </LayoutGroup>
-          <TabbedGroup Id="Tabs">
-            <LayoutGroup Id="Unites" Caption="Unités organisationnelles" Index="10" IsNewNode="True">
-              <LayoutItem Id="UnitesItem" ViewItem="Unites" Index="0" IsNewNode="True" />
-            </LayoutGroup>
-            <LayoutGroup Id="ContratsInterim" Caption="Contrats intérim" Index="11" IsNewNode="True">
-              <LayoutItem Id="ContratsInterimItem" ViewItem="ContratsInterim" Index="0" IsNewNode="True" />
-            </LayoutGroup>
-          </TabbedGroup>
-        </LayoutGroup>
-      </Layout>
     </DetailView>
     <ListView Id="Site_ListView">
       <Columns>
