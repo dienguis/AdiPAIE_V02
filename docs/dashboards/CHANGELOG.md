@@ -25,6 +25,77 @@ Chaque entrée précise :
 
 ---
 
+## [Étape FINAL] 2026-05-03 0700 — Livrables : README + install.sql
+
+**Objet** : clôture de la mission Tableaux de Bord RH avec 2 livrables :
+
+1. **`docs/dashboards/README.md`** (~370 lignes) — documentation
+   en 3 parties :
+   - **Partie DRH** : accès, RBAC, 6 tableaux en 1 coup d'œil, boutons communs
+   - **Partie Dev** : architecture, build, dépendances, patterns clés, pièges
+   - **Partie Annexes** : scripts SQL, limitations, évolutions futures
+   - ToC complète + style markdown propre
+
+2. **`sql/dashboards/install.sql`** (~600 lignes) — script consolidé
+   regroupant les 6 modules SQL avec :
+   - En-tête commenté (rôle du script, usages prévus)
+   - **Table des matières** numérotée § 0 à § 6
+   - Bloc paramètres globaux (`@annee`, `@debut`, `@fin`, `@sentinelle`)
+   - 1 sélection des requêtes essentielles par module (KPI + charts clés)
+   - Renvois vers les fichiers détaillés `01_*.sql` à `06_*.sql`
+
+3. **`docs/dashboards/MISSION_STATE.md`** : tableau d'avancement final
+   mis à jour avec tous les hashes des commits.
+
+### Fichiers créés (2)
+
+| Fichier | Lignes | Type |
+|---|---|---|
+| `docs/dashboards/README.md` | ~370 | Markdown documentation |
+| `sql/dashboards/install.sql` | ~600 | SQL consolidé |
+
+### Récapitulatif final de la mission
+
+**11 étapes complétées** :
+
+| # | Étape | Hash | Date |
+|---|---|---|---|
+| 0 | Préparation Git + journalisation | — | 2026-05-02 |
+| 1 | Analyse de l'existant | — | 2026-05-02 |
+| 2 | Architecture cible + DI + rôle RH_Manager | — | 2026-05-02 |
+| 3 | Page d'accueil DashboardHome (6 cartes) | `5d57771e` | 2026-05-02 |
+| 4.1 | Tableau N°1 — Effectif détaillé | `45bb075` | 2026-05-02 |
+| 4.2 | Tableau N°2 — Analyse de l'Effectif (Interne+Externe) | `504cb1ee` | 2026-05-02 |
+| 4.3 | Tableau N°3 — Mouvements (Arrivées/Départs) | `2e1347bd` | 2026-05-02 |
+| 4.4 | Tableau N°4 — Rémunération (Égalité salaires) | _consolidé_ | 2026-05-02 |
+| 4.5 | Tableau N°5 — Suivi des Absences | `686fb3b8` | 2026-05-02 |
+| 4.6 | Tableau N°6 — Bilan Social Mensuel | `cae0763` | 2026-05-03 |
+| 7.1+7.2+7.4 | Aide en ligne + Excel + Bilan Social option B | _consolidé_ | 2026-05-03 |
+| 7.3 | Export PDF QuestPDF | _consolidé_ | 2026-05-03 |
+| 7.SEC | Hot-fix nouvel onglet + lisibilité boutons + Bootstrap Icons | `6faecfc` | 2026-05-03 |
+| 7.SEC RBAC | RBAC complet 4 rôles + helper partagé | `b7815bb` | 2026-05-03 |
+| 7.UX | Nettoyage 3 menus legacy en doublon | `ce1d7af` | 2026-05-03 |
+| FINAL | Livrables README + install.sql | _commit pending_ | 2026-05-03 |
+
+### Statistiques
+
+- **6 dashboards** Blazor Server fonctionnels (3 INTERNE-only, 3 toggle Interne/Externe)
+- **~50 fichiers** créés ou modifiés (Models, Services, Razor, CSS, SQL, Help)
+- **~5 000 lignes** de code C# / Razor / CSS / SQL
+- **2 export formats** (Excel ClosedXML + PDF QuestPDF)
+- **7 pages d'aide HTML** statiques (1 hub + 6 spécifiques)
+- **4 rôles RBAC** supportés (Administrators / RH_Manager / RH / DAF)
+- **3 dépendances NuGet** ajoutées (`ClosedXML` déjà présent, `QuestPDF` 2024.7.3, `Microsoft.Extensions.Caching.Memory` 8.0.1)
+- **6 fichiers SQL** d'audit + 1 consolidé `install.sql`
+
+### Mission TERMINÉE ✅
+
+Cette entrée clôt formellement la mission « Tableaux de Bord RH » sur la
+branche `feature/dashboards-rh`. Pour merger sur `main` : voir README §
+« Maintenance / contact ».
+
+---
+
 ## [Étape 7.UX] 2026-05-03 0600 — Nettoyage menus « Tableaux de bord » en doublon
 
 **Constat utilisateur** : 4 entrées « Tableaux de bord » apparaissaient dans

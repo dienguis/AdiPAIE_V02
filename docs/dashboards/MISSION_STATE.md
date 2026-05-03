@@ -38,7 +38,21 @@
 | 7.4 | Bilan Social option B — ligne « dont Intérimaires » | ✅ done | _commit pending_ | 2026-05-03 |
 | 7.x | Hot-fix nouvel onglet + lisibilité boutons | ✅ done | _commit pending_ | 2026-05-03 |
 | 7.SEC | Guard d'authentification (faille critique) + Bootstrap Icons CDN | ✅ done | _commit pending_ | 2026-05-03 |
-| 7.SEC RBAC | RBAC complet (Administrators / RH_Manager / RH / DAF) + helper partagé | ✅ done | _commit pending_ | 2026-05-03 |
+| 7.SEC RBAC | RBAC complet (Administrators / RH_Manager / RH / DAF) + helper partagé | ✅ done | `b7815bb` | 2026-05-03 |
+| 7.UX | Nettoyage 3 menus « Tableaux de bord » legacy en doublon | ✅ done | `ce1d7af` | 2026-05-03 |
+| Final | Livrables : README + install.sql | ✅ done | _commit pending_ | 2026-05-03 |
+
+## ⭐ MISSION TERMINÉE ⭐
+
+Tous les livrables sont produits. Pour merger `feature/dashboards-rh` →
+`main` : valider 1-2 jours en environnement réel, puis :
+
+```
+git checkout main
+git merge --no-ff feature/dashboards-rh -m "Merge: Module Tableaux de Bord RH (6 dashboards + exports + RBAC)"
+git tag v1.0-dashboards-rh
+git push origin main --tags
+```
 | Final | Livrables (README, scripts SQL) | 🕒 pending | — | — |
 
 ## 2. Architecture du module — fichiers clés
