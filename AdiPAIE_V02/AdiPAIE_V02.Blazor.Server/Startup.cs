@@ -33,6 +33,53 @@ namespace AdiPAIE_V02.Blazor.Server
             services.AddHttpContextAccessor();
             services.AddScoped<CircuitHandler, CircuitHandlerProxy>();
 
+            // ── Module « Tableaux de Bord RH » (Étape 2 + 4.x) ───────────
+            // Cache mémoire utilisé par les services Dashboards pour
+            // mémoriser les KPI lourds (TTL configuré côté service, 5 min
+            // par défaut). Les services concrets sont ajoutés au fur
+            // et à mesure des Tableaux 1 → 6 (Étape 4).
+            services.AddMemoryCache();
+
+            // Tableau N°1 — Effectif détaillé (Étape 4.1)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IEffectifDetailleDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.EffectifDetailleDashboardService>();
+
+            // Tableau N°2 — Analyse de l'Effectif (Étape 4.2)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IAnalyseEffectifDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.AnalyseEffectifDashboardService>();
+
+            // Tableau N°3 — Mouvements (Arrivées / Départs) (Étape 4.3)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IMouvementsDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.MouvementsDashboardService>();
+
+            // Tableau N°4 — Rémunération (Égalité des salaires) (Étape 4.4)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IRemunerationDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.RemunerationDashboardService>();
+
+            // Tableau N°5 — Suivi des Absences (Étape 4.5)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.ISuiviAbsencesDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.SuiviAbsencesDashboardService>();
+
+            // Tableau N°6 — Bilan Social Mensuel (Étape 4.6)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IBilanSocialDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.BilanSocialDashboardService>();
+
+            // Export Excel partagé pour les 6 tableaux (Étape 7.2)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IDashboardExcelExportService,
+                AdiPAIE_V02.Module.Services.Dashboards.DashboardExcelExportService>();
+
+            // Export PDF partagé pour les 6 tableaux (Étape 7.3 — QuestPDF)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IDashboardPdfExportService,
+                AdiPAIE_V02.Module.Services.Dashboards.DashboardPdfExportService>();
+
             services.AddHostedService<AttestationRappelService>();
            // services.AddHostedService<AttestationRappelService>();
             services.AddHostedService<DossierExpirationRappelService>();

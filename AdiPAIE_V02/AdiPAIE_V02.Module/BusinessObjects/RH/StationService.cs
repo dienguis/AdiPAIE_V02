@@ -15,11 +15,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     // STATION DE SERVICE — référentiel ELTON
     // ════════════════════════════════════════════════════════════════════
 
-    [DefaultClassOptions]
-    [XafDisplayName("Station de service")]
+    // ⚠️ V1.1 Sprint 1D — DEPRECATED. Remplacée par Site (Type=StationService).
+    // Conservée pour compat des écrans hors dashboards (DemandeRecrutementInterim,
+    // SocieteInterim, AlerteInterimaireService). Masquée du menu XAF — visible
+    // uniquement via les FK existantes. À supprimer définitivement quand les
+    // écrans métier auront migré vers Site V1.1.
+    [XafDisplayName("[Deprecated] Station de service")]
     [DefaultProperty(nameof(Nom))]
     [ImageName("BO_Organization")]
-    //[NavigationItem("GRH - Intérimaires")]
+    [VisibleInReports(false)]
     public class StationService : BaseObject
     {
         public StationService(Session session) : base(session) { }
@@ -112,11 +116,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     // Piste de Station A ≠ Piste de Station B
     // ════════════════════════════════════════════════════════════════════
 
-    [DefaultClassOptions]
-    [XafDisplayName("Business Unit (Station)")]
+    // ⚠️ V1.1 Sprint 1D — DEPRECATED. Remplacée par UniteOrganisationnelle
+    // (Type=BU). Conservée pour compat ContratInterim.BU + MouvementInterimaire.
+    // Masquée du menu XAF.
+    [XafDisplayName("[Deprecated] Business Unit (Station)")]
     [DefaultProperty(nameof(DisplayName))]
     [ImageName("BO_Department")]
-    //[NavigationItem("GRH - Intérimaires")]
+    [VisibleInReports(false)]
     public class BusinessUnitStation : BaseObject
     {
         public BusinessUnitStation(Session session) : base(session) { }
@@ -140,6 +146,24 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(Libelle), ref libelle, value?.Trim());
         }
         string libelle;
+
+        // ── Type partagé (référentiel transversal) ─────────────────────
+        // Permet de regrouper toutes les "Boutique" de toutes les stations
+        // sous un même Type pour les KPI dashboards. Migration auto au
+        // démarrage via Updater.MigrateBUsToTypes (assigne le bon Type
+        // selon le Libelle existant).
+        // RuleRequiredField volontairement omis pour permettre la
+        // migration douce — sera activé en V1.2 une fois tous les BU
+        // historiques rattachés.
+        [Association("BUType-BUs")]
+        [XafDisplayName("Type")]
+        [ImmediatePostData]
+        public BusinessUnitType Type
+        {
+            get => type;
+            set => SetPropertyValue(nameof(Type), ref type, value);
+        }
+        BusinessUnitType type;
 
         // ── Effectif max pour cette BU sur cette station ──────────────
         [XafDisplayName("Effectif max (intérimaires)")]

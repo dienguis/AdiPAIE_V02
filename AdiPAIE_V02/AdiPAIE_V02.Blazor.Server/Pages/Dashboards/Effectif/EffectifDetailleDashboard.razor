@@ -1,0 +1,905 @@
+@* =====================================================================
+    EffectifDetailleDashboard.razor — Tableau N°1
+    URL : /dashboards/effectif-detaille
+    Périmètre : Personnel INTERNE (Salarie)
+
+    Design Power BI (passe pro — Étape 4.1.b) :
+      - Bandeau header sombre avec titre + KPI tiles G/H/F + filtres
+      - Bandeau light avec :
+          * Timeline 3 ans (horizontale, ▲/▼)
+          * Mini-tables tranches (sparkbar embarquée)
+          * Big bar stacked F/H à droite
+
+    Couleurs ELTON Oil :
+      - Header : #142E4D (navy ELTON, polos / logo "ON")
+      - Orange : #F18A1C (orange ELTON, logo "ELT")
+      - Action : #E63946 (rouge ELTON, bouton CONTACT)
+      - Femme  : #F18A1C (orange ELTON)
+      - Homme  : #6B7686 (gris ardoise)
+   ===================================================================== *@
+
+@page "/dashboards/effectif-detaille"
+@attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+@using static AdiPAIE_V02.Module.Domain.DomainEnums
+
+@inject IEffectifDetailleDashboardService Service
+@inject IDashboardExcelExportService ExcelExport
+@inject IDashboardPdfExportService PdfExport
+@inject IJSRuntime JS
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
+
+<PageTitle>Effectif détaillé — Tableaux de Bord RH</PageTitle>
+
+@if (_data == null && _errorMessage == null)
+{
+    <div class="ed-loading">
+        <DxLoadingPanel Text="Chargement…" Visible="true" />
+    </div>
+}
+else
+{
+
+@* ══════════════════════════════════════════════════════════════════════
+    BANDEAU SOMBRE — TITLE + KPI TILES + FILTRES
+   ══════════════════════════════════════════════════════════════════════ *@
+<header class="ed-header">
+
+    @* ── Titre + perimètre ─────────────────────────────────────────── *@
+    <div class="ed-header__title">
+        <button class="ed-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
+            <i class="bi bi-arrow-left-circle"></i>
+        </button>
+        <div>
+            <div class="ed-header__perimetre">Tableau N°1 · Personnel Interne (CDI / CDD / Stage)</div>
+            <h1 class="ed-header__h1">Effectif détaillé</h1>
+        </div>
+    </div>
+
+    @* ── KPI tiles : Âge Moyen × G/H/F ─────────────────────────────── *@
+    <div class="ed-kpigroup" title="Âge moyen des salariés à la date de référence">
+        <div class="ed-kpigroup__head">
+            <i class="bi bi-cake2"></i>
+            <span>Âge Moyen</span>
+        </div>
+        <div class="ed-kpigroup__tiles">
+            <div class="ed-tile ed-tile--global" title="Global (Hommes + Femmes)">
+                <span class="ed-tile__icons">@SilhouetteMan@SilhouetteWoman</span>
+                <span class="ed-tile__label">Global</span>
+                <span class="ed-tile__value">@FormatAns(_data?.Kpis.AgeMoyenGlobal ?? 0)</span>
+            </div>
+            <div class="ed-tile ed-tile--men" title="Hommes">
+                <span class="ed-tile__icons">@SilhouetteMan</span>
+                <span class="ed-tile__label">Hommes</span>
+                <span class="ed-tile__value">@FormatAns(_data?.Kpis.AgeMoyenHommes ?? 0)</span>
+            </div>
+            <div class="ed-tile ed-tile--women" title="Femmes">
+                <span class="ed-tile__icons">@SilhouetteWoman</span>
+                <span class="ed-tile__label">Femmes</span>
+                <span class="ed-tile__value">@FormatAns(_data?.Kpis.AgeMoyenFemmes ?? 0)</span>
+            </div>
+        </div>
+    </div>
+
+    @* ── KPI tiles : Ancienneté Moyenne × G/H/F ────────────────────── *@
+    <div class="ed-kpigroup" title="Ancienneté moyenne (en années pleines)">
+        <div class="ed-kpigroup__head">
+            <i class="bi bi-hourglass-split"></i>
+            <span>Ancienneté Moyenne</span>
+        </div>
+        <div class="ed-kpigroup__tiles">
+            <div class="ed-tile ed-tile--global" title="Global (Hommes + Femmes)">
+                <span class="ed-tile__icons">@SilhouetteMan@SilhouetteWoman</span>
+                <span class="ed-tile__label">Global</span>
+                <span class="ed-tile__value">@FormatAns(_data?.Kpis.AncienneteMoyenneGlobal ?? 0)</span>
+            </div>
+            <div class="ed-tile ed-tile--men" title="Hommes">
+                <span class="ed-tile__icons">@SilhouetteMan</span>
+                <span class="ed-tile__label">Hommes</span>
+                <span class="ed-tile__value">@FormatAns(_data?.Kpis.AncienneteMoyenneHommes ?? 0)</span>
+            </div>
+            <div class="ed-tile ed-tile--women" title="Femmes">
+                <span class="ed-tile__icons">@SilhouetteWoman</span>
+                <span class="ed-tile__label">Femmes</span>
+                <span class="ed-tile__value">@FormatAns(_data?.Kpis.AncienneteMoyenneFemmes ?? 0)</span>
+            </div>
+        </div>
+    </div>
+
+    @* ── KPI Effectif total ────────────────────────────────────────── *@
+    <div class="ed-kpi-effectif" title="Effectif à la date de référence">
+        <div class="ed-kpi-effectif__label">Effectif total</div>
+        <div class="ed-kpi-effectif__value">@(_data?.EffectifTotal.ToString("N0", FrCulture) ?? "—")</div>
+        <div class="ed-kpi-effectif__date">au @(_data?.DateReference.ToString("dd/MM/yyyy", FrCulture) ?? "—")</div>
+    </div>
+
+    @* ── Filtres dans le header ────────────────────────────────────── *@
+    <div class="ed-filters">
+        <div class="ed-filter">
+            <label>Années</label>
+            <DxTagBox TData="int" TValue="int"
+                      Data="@_anneesDispo"
+                      Values="@_filter.Annees"
+                      ValuesChanged="@((IEnumerable<int> v) => OnAnneesChanged(v))"
+                      NullText="Année courante"
+                      CssClass="ed-input" />
+        </div>
+        <div class="ed-filter">
+            <label>Site</label>
+            <DxComboBox TData="Site" TValue="Site"
+                        Data="@_sitesDispo"
+                        TextFieldName="@nameof(Site.Nom)"
+                        Value="@_selectedSite"
+                        ValueChanged="@((Site? s) => OnSiteChanged(s))"
+                        NullText="Tous"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        CssClass="ed-input" />
+        </div>
+        <div class="ed-filter">
+            <label>Genre</label>
+            <DxComboBox TData="Sexe?" TValue="Sexe?"
+                        Data="@_genresDispo"
+                        Value="@_filter.Genre"
+                        ValueChanged="@((Sexe? s) => OnGenreChanged(s))"
+                        NullText="Tous"
+                        CssClass="ed-input">
+                <ItemTemplate>
+                    @(context is null ? "Tous" : ((Sexe)context) == Sexe.Masculin ? "Masculin" : "Féminin")
+                </ItemTemplate>
+            </DxComboBox>
+        </div>
+        <div class="ed-filter">
+            <label>Type contrat</label>
+            <DxComboBox TData="TypeContrat?" TValue="TypeContrat?"
+                        Data="@_typesContratDispo"
+                        Value="@_filter.TypeContrat"
+                        ValueChanged="@((TypeContrat? t) => OnTypeContratChanged(t))"
+                        NullText="Tous"
+                        CssClass="ed-input">
+                <ItemTemplate>
+                    @(context is null ? "Tous" : ((TypeContrat)context).ToString())
+                </ItemTemplate>
+            </DxComboBox>
+        </div>
+        <div class="ed-actions">
+            <button class="ed-btn ed-btn--icon" title="Actualiser" @onclick="OnRefreshClick" disabled="@_loading">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+            <button class="ed-btn ed-btn--icon" title="Export PDF (Étape 7)" @onclick="OnExportPdfClick" disabled="@_loading">
+                <i class="bi bi-file-earmark-pdf"></i>
+            </button>
+            <button class="ed-btn ed-btn--icon" title="Export Excel (Étape 7)" @onclick="OnExportExcelClick" disabled="@_loading">
+                <i class="bi bi-file-earmark-excel"></i>
+            </button>
+            <a class="ed-btn ed-btn--icon" title="Aide ce tableau" href="/help/dashboards/effectif-detaille.html" target="_blank" rel="noopener">
+                <i class="bi bi-question-circle"></i>
+            </a>
+        </div>
+    </div>
+</header>
+
+@* Erreur globale *@
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="ed-error">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <strong>Erreur : </strong>@_errorMessage
+    </div>
+}
+
+@if (_data != null)
+{
+    @* ══════════════════════════════════════════════════════════════════
+        BANDEAU CLAIR — TIMELINE + TRANCHES + BAR F/H
+       ══════════════════════════════════════════════════════════════════ *@
+    <main class="ed-main">
+
+        @* ── Timeline 3 ans ─────────────────────────────────────────── *@
+        <section class="ed-section ed-section--timeline">
+            <h3 class="ed-section__title">Évolution de l'effectif sur 3 ans</h3>
+            <div class="ed-timeline">
+                @for (int i = 0; i < _data.EvolutionTroisAns.Count; i++)
+                {
+                    var pt = _data.EvolutionTroisAns[i];
+                    var dateLib = IsCurrentYearOrLater(pt.Annee)
+                        ? $"au {_data.DateReference:dd/MM/yyyy}"
+                        : $"au 31/12/{pt.Annee}";
+
+                    <div class="ed-timeline__card">
+                        <div class="ed-timeline__year">@pt.Annee</div>
+                        <div class="ed-timeline__value">@pt.Effectif.ToString("N0", FrCulture)</div>
+                        <div class="ed-timeline__date">@dateLib</div>
+                        @if (pt.VariationPourcent.HasValue)
+                        {
+                            var v = pt.VariationPourcent.Value;
+                            var cls = v > 0 ? "up" : v < 0 ? "down" : "flat";
+                            var arrow = v > 0 ? "▲" : v < 0 ? "▼" : "•";
+                            <div class="ed-timeline__delta ed-timeline__delta--@cls">
+                                <span class="arrow">@arrow</span>
+                                @v.ToString("+0.0;-0.0;0", FrCulture)<span class="pct">%</span>
+                            </div>
+                        }
+                    </div>
+
+                    @if (i < _data.EvolutionTroisAns.Count - 1)
+                    {
+                        <div class="ed-timeline__connector">
+                            <i class="bi bi-arrow-right-short"></i>
+                        </div>
+                    }
+                }
+            </div>
+        </section>
+
+        @* ── Layout 2 colonnes : tranches | bar F/H ─────────────────── *@
+        <div class="ed-grid">
+
+            <section class="ed-section ed-section--tranches">
+                <h3 class="ed-section__title">Effectif par tranche d'âge × catégorie pro</h3>
+
+                <div class="ed-tranches">
+                    @foreach (var bucket in AgeBucketHelper.All)
+                    {
+                        var rows = _data.TrancheCategorie.GetValueOrDefault(bucket) ?? new();
+                        var total = rows.Sum(r => r.Effectif);
+                        var maxPct = rows.Count > 0 ? rows.Max(r => r.PourcentageDansTranche) : 0m;
+
+                        <div class="ed-tranche">
+                            <div class="ed-tranche__head">
+                                <span class="ed-tranche__title">@AgeBucketHelper.GetLibelle(bucket)</span>
+                                <span class="ed-tranche__total">@total <small>salarié@(total > 1 ? "s" : "")</small></span>
+                            </div>
+                            @if (rows.Count == 0)
+                            {
+                                <div class="ed-tranche__empty">— Aucun salarié —</div>
+                            }
+                            else
+                            {
+                                <table class="ed-sparktable">
+                                    <thead>
+                                        <tr>
+                                            <th>Catégorie professionnelle</th>
+                                            <th class="num">Eff.</th>
+                                            <th class="num">%</th>
+                                            <th class="bar"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var r in rows)
+                                        {
+                                            var widthPct = maxPct > 0 ? (decimal)r.PourcentageDansTranche * 100m / maxPct : 0m;
+                                            <tr>
+                                                <td title="@r.Categorie">@r.Categorie</td>
+                                                <td class="num">@r.Effectif</td>
+                                                <td class="num">@r.PourcentageDansTranche.ToString("0.0", FrCulture)%</td>
+                                                <td class="bar">
+                                                    <div class="ed-sparkbar">
+                                                        <div class="ed-sparkbar__fill" style="@($"width:{widthPct.ToString("0.00", InvCulture)}%")"></div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <section class="ed-section ed-section--bar">
+                <h3 class="ed-section__title">Répartition Femmes / Hommes — % par tranche × catégorie</h3>
+                @if (_data.BarStackHommesFemmes.Count == 0)
+                {
+                    <div class="ed-empty">Pas de données.</div>
+                }
+                else
+                {
+                    <div class="ed-fhbars">
+                        <div class="ed-fhbars__legend">
+                            <span class="legend-item"><span class="dot dot-h"></span>Hommes</span>
+                            <span class="legend-item"><span class="dot dot-f"></span>Femmes</span>
+                            <span class="legend-axis">0%</span>
+                            <span class="legend-axis legend-axis--end">100%</span>
+                        </div>
+
+                        @{
+                            // Group by tranche pour titrer chaque section
+                            var byTranche = _data.BarStackHommesFemmes
+                                .GroupBy(p => p.Tranche)
+                                .OrderBy(g => g.Key);
+                        }
+                        @foreach (var grp in byTranche)
+                        {
+                            <div class="ed-fhbars__group">
+                                <div class="ed-fhbars__grouplabel">@AgeBucketHelper.GetLibelle(grp.Key)</div>
+                                <div class="ed-fhbars__rows">
+                                    @foreach (var p in grp)
+                                    {
+                                        <div class="ed-fhbar">
+                                            <div class="ed-fhbar__label" title="@p.Categorie">@p.Categorie</div>
+                                            <div class="ed-fhbar__track">
+                                                @if (p.PourcentageHommes > 0)
+                                                {
+                                                    <div class="ed-fhbar__h"
+                                                         style="@($"width:{p.PourcentageHommes.ToString("0.00", InvCulture)}%")">
+                                                        @if (p.PourcentageHommes >= 8)
+                                                        {
+                                                            <span>@p.PourcentageHommes.ToString("0", FrCulture)%</span>
+                                                        }
+                                                    </div>
+                                                }
+                                                @if (p.PourcentageFemmes > 0)
+                                                {
+                                                    <div class="ed-fhbar__f"
+                                                         style="@($"width:{p.PourcentageFemmes.ToString("0.00", InvCulture)}%")">
+                                                        @if (p.PourcentageFemmes >= 8)
+                                                        {
+                                                            <span>@p.PourcentageFemmes.ToString("0", FrCulture)%</span>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="ed-fhbar__total" title="Effectif total cellule">@p.Total</div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+
+        @* ── Footer ─────────────────────────────────────────────────── *@
+        <footer class="ed-footer">
+            <span><i class="bi bi-clock-history"></i> Données calculées le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
+            <span class="sep">·</span>
+            <span>Filtres : Années=@(_filter.Annees.Count == 0 ? "courante" : string.Join(",", _filter.Annees))
+                / Site=@(_selectedSite?.Nom ?? "Tous")
+                / Genre=@(_filter.Genre is null ? "Tous" : _filter.Genre.ToString())
+                / Contrat=@(_filter.TypeContrat is null ? "Tous" : _filter.TypeContrat.ToString())</span>
+        </footer>
+    </main>
+}
+
+}
+
+@* ══════════════════════════════════════════════════════════════════════
+    STYLES — design Power BI inspiré du mockup utilisateur
+   ══════════════════════════════════════════════════════════════════════ *@
+<style>
+    :root {
+        /* Charte ELTON Oil */
+        --ed-bg-dark      : #0E2240;   /* Navy profond ELTON */
+        --ed-bg-dark-2    : #142E4D;   /* Navy ELTON (polos) */
+        --ed-bg-dark-3    : #1F4376;   /* Navy clair ELTON */
+        --ed-bg-light     : #F6F7F9;
+        --ed-card         : #FFFFFF;
+        --ed-text-dark    : #E6EAF1;
+        --ed-text-muted   : #94A3BC;
+        --ed-text         : #142E4D;
+        --ed-text-soft    : #5C6679;
+        --ed-border       : #E5E7EB;
+        --ed-orange       : #F18A1C;   /* Orange ELTON (logo ELT) */
+        --ed-orange-soft  : rgba(241, 138, 28, 0.12);
+        --ed-red          : #E63946;   /* Rouge ELTON (bouton CONTACT) */
+        --ed-gray-bar     : #6B7686;
+        --ed-gray-track   : #E5E9EE;
+        --ed-up           : #2EA75B;
+        --ed-down         : #E63946;
+    }
+
+    /* Page background full bleed */
+    .ed-loading { padding: 2rem; }
+
+    /* ────────────────────────────── HEADER ─────────────────────────── */
+    .ed-header {
+        background: linear-gradient(135deg, var(--ed-bg-dark) 0%, var(--ed-bg-dark-2) 100%);
+        color: var(--ed-text-dark);
+        padding: 1.25rem 1.5rem;
+        display: grid;
+        grid-template-columns: minmax(220px, 1.1fr) auto auto auto 1fr;
+        grid-template-rows: auto auto;
+        gap: 1.25rem 1.5rem;
+        align-items: center;
+        border-bottom: 3px solid var(--ed-orange);
+    }
+
+    .ed-header__title {
+        display: flex; align-items: center; gap: 0.75rem;
+        grid-column: 1; grid-row: 1 / span 2;
+    }
+    .ed-back {
+        background: var(--ed-bg-dark-3); border: none; color: var(--ed-text-dark);
+        width: 38px; height: 38px; border-radius: 50%;
+        font-size: 1.25rem; cursor: pointer;
+        transition: background 0.15s ease;
+    }
+    .ed-back:hover { background: var(--ed-orange); color: #fff; }
+
+    .ed-header__h1 {
+        font-size: 1.6rem; font-weight: 700; margin: 0; color: #fff;
+        letter-spacing: -0.01em;
+    }
+    .ed-header__perimetre {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--ed-orange); font-weight: 600;
+    }
+
+    /* KPI groups */
+    .ed-kpigroup {
+        display: flex; flex-direction: column; gap: 0.4rem;
+        grid-row: 1;
+    }
+    .ed-kpigroup__head {
+        font-size: 0.75rem; color: var(--ed-text-muted); text-transform: uppercase;
+        letter-spacing: 0.06em; display: flex; align-items: center; gap: 0.4rem;
+        font-weight: 600;
+    }
+    .ed-kpigroup__head i { color: var(--ed-orange); }
+    .ed-kpigroup__tiles { display: flex; gap: 0.4rem; }
+
+    .ed-tile {
+        background: var(--ed-bg-dark-3);
+        border-radius: 8px;
+        padding: 0.55rem 0.7rem 0.5rem;
+        display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+        min-width: 90px;
+        border-top: 3px solid transparent;
+        transition: transform 0.12s ease;
+    }
+    .ed-tile:hover { transform: translateY(-2px); }
+
+    /* Couleur de l'accent supérieur par catégorie */
+    .ed-tile--global { border-top-color: var(--ed-orange); }
+    .ed-tile--men    { border-top-color: #4DA3FF; }
+    .ed-tile--women  { border-top-color: #FF6FB5; }
+
+    /* Silhouettes (SVG inline — rendu identique multi-OS) */
+    .ed-tile__icons {
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 2px;
+        line-height: 1;
+        margin-bottom: 0.1rem;
+        height: 26px;
+    }
+    .ed-svg {
+        width: 22px;
+        height: 22px;
+        fill: currentColor;
+        display: inline-block;
+    }
+    /* Tonalités par genre */
+    .ed-svg--man   { color: #4DA3FF; }     /* Bleu (cohérent bord Hommes) */
+    .ed-svg--woman { color: #FF6FB5; }     /* Rose (cohérent bord Femmes) */
+
+    .ed-tile__label {
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--ed-text-muted);
+        font-weight: 600;
+        margin-top: 0.1rem;
+    }
+    .ed-tile__value {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #fff;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Effectif total */
+    .ed-kpi-effectif {
+        background: var(--ed-orange);
+        color: #20283A;
+        border-radius: 8px;
+        padding: 0.65rem 1rem;
+        text-align: center;
+        grid-row: 1;
+    }
+    .ed-kpi-effectif__label {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+        font-weight: 600;
+    }
+    .ed-kpi-effectif__value {
+        font-size: 1.85rem; font-weight: 800; line-height: 1.05;
+        color: #20283A;
+    }
+    .ed-kpi-effectif__date {
+        font-size: 0.7rem; color: rgba(32, 40, 58, 0.75);
+    }
+
+    /* Filtres */
+    .ed-filters {
+        grid-column: 1 / -1; grid-row: 2;
+        display: flex; gap: 1rem; flex-wrap: wrap;
+        align-items: end;
+    }
+    .ed-filter { display: flex; flex-direction: column; gap: 0.2rem; }
+    .ed-filter label {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
+        color: var(--ed-text-muted); font-weight: 600;
+    }
+    .ed-input { min-width: 180px; }
+    .ed-input ::deep .dxbl-edit { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.18); }
+
+    .ed-actions { display: flex; gap: 0.4rem; align-items: end; margin-left: auto; }
+    .ed-btn {
+        background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+        color: #fff; padding: 0.45rem 0.65rem; border-radius: 6px;
+        cursor: pointer; transition: background 0.12s ease, border-color 0.12s ease;
+    }
+    .ed-btn:hover:not(:disabled) { background: var(--ed-red); border-color: var(--ed-red); }
+    .ed-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .ed-btn--icon { font-size: 1rem; }
+
+    /* ────────────────────────────── ERREUR ─────────────────────────── */
+    .ed-error {
+        background: #FEE; color: #911; padding: 0.75rem 1rem;
+        border-left: 4px solid var(--ed-down);
+        margin: 1rem 1.5rem;
+        display: flex; align-items: center; gap: 0.6rem;
+    }
+    .ed-error i { font-size: 1.2rem; }
+
+    /* ────────────────────────────── MAIN ───────────────────────────── */
+    .ed-main {
+        background: var(--ed-bg-light);
+        padding: 1.5rem;
+        min-height: calc(100vh - 200px);
+    }
+
+    .ed-section {
+        background: var(--ed-card);
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        box-shadow: 0 1px 3px rgba(15, 24, 39, 0.08);
+        margin-bottom: 1.25rem;
+    }
+    .ed-section__title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--ed-text);
+        margin: 0 0 0.85rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--ed-orange);
+        display: inline-block;
+    }
+
+    /* ────────────────────────────── TIMELINE ───────────────────────── */
+    .ed-timeline {
+        display: flex; align-items: stretch; justify-content: center;
+        gap: 0.75rem; flex-wrap: wrap;
+    }
+    .ed-timeline__card {
+        background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+        border: 1px solid var(--ed-border);
+        border-radius: 10px;
+        padding: 0.85rem 1.25rem;
+        min-width: 180px;
+        text-align: center;
+        position: relative;
+    }
+    .ed-timeline__year {
+        font-size: 0.8rem; color: var(--ed-text-muted);
+        text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;
+    }
+    .ed-timeline__value {
+        font-size: 2.2rem; font-weight: 800; line-height: 1.1;
+        color: var(--ed-text);
+    }
+    .ed-timeline__date { font-size: 0.7rem; color: var(--ed-text-soft); }
+    .ed-timeline__delta {
+        margin-top: 0.4rem;
+        font-size: 0.95rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center; gap: 0.25rem;
+    }
+    .ed-timeline__delta--up   { color: var(--ed-up); }
+    .ed-timeline__delta--down { color: var(--ed-down); }
+    .ed-timeline__delta--flat { color: var(--ed-text-soft); }
+    .ed-timeline__delta .pct  { font-size: 0.85rem; opacity: 0.85; margin-left: 1px; }
+
+    .ed-timeline__connector {
+        display: flex; align-items: center; color: var(--ed-text-muted);
+        font-size: 1.5rem;
+    }
+
+    /* ────────────────────────────── GRID 2 colonnes ────────────────── */
+    .ed-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+        gap: 1.25rem;
+    }
+    @@media (max-width: 1100px) {
+        .ed-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ────────────────────────────── TRANCHES ───────────────────────── */
+    .ed-tranches { display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .ed-tranche {
+        border: 1px solid var(--ed-border);
+        border-radius: 6px;
+        padding: 0.55rem 0.7rem;
+    }
+    .ed-tranche__head {
+        display: flex; justify-content: space-between; align-items: baseline;
+        margin-bottom: 0.35rem;
+    }
+    .ed-tranche__title {
+        font-weight: 700; font-size: 0.85rem; color: var(--ed-text);
+        text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .ed-tranche__total {
+        font-size: 0.95rem; font-weight: 700; color: var(--ed-orange);
+    }
+    .ed-tranche__total small { color: var(--ed-text-muted); font-weight: 500; font-size: 0.7rem; }
+    .ed-tranche__empty { color: var(--ed-text-muted); font-size: 0.85rem; padding: 0.25rem 0; font-style: italic; }
+
+    .ed-sparktable { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .ed-sparktable th {
+        font-weight: 600; color: var(--ed-text-muted); text-transform: uppercase;
+        letter-spacing: 0.04em; font-size: 0.65rem;
+        padding: 0.25rem 0.4rem; border-bottom: 1px solid var(--ed-border);
+        text-align: left;
+    }
+    .ed-sparktable th.num { text-align: right; }
+    .ed-sparktable td {
+        padding: 0.3rem 0.4rem;
+        border-bottom: 1px dashed var(--ed-border);
+        color: var(--ed-text);
+    }
+    .ed-sparktable td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+    .ed-sparktable td.bar { width: 100px; }
+    .ed-sparktable tbody tr:last-child td { border-bottom: none; }
+
+    .ed-sparkbar {
+        height: 8px; background: var(--ed-gray-track); border-radius: 4px; overflow: hidden;
+    }
+    .ed-sparkbar__fill {
+        height: 100%; background: linear-gradient(90deg, var(--ed-orange) 0%, #FFB347 100%);
+        border-radius: 4px;
+    }
+
+    /* ────────────────────────────── BAR F/H ────────────────────────── */
+    .ed-fhbars { display: flex; flex-direction: column; gap: 0.85rem; }
+
+    .ed-fhbars__legend {
+        display: flex; gap: 1.2rem; align-items: center;
+        font-size: 0.75rem; color: var(--ed-text-soft);
+        margin-bottom: 0.25rem; padding-bottom: 0.4rem;
+        border-bottom: 1px dashed var(--ed-border);
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600; }
+    .dot { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+    .dot-h { background: var(--ed-gray-bar); }
+    .dot-f { background: var(--ed-orange); }
+    .legend-axis { margin-left: auto; font-weight: 600; color: var(--ed-text-muted); }
+    .legend-axis--end { margin-left: 0; }
+
+    .ed-fhbars__group {
+        display: grid;
+        grid-template-columns: 90px 1fr;
+        gap: 0.6rem;
+        padding-bottom: 0.35rem;
+        border-bottom: 1px dashed var(--ed-border);
+    }
+    .ed-fhbars__group:last-child { border-bottom: none; padding-bottom: 0; }
+    .ed-fhbars__grouplabel {
+        font-size: 0.78rem; font-weight: 700; color: var(--ed-orange);
+        align-self: center; text-align: right;
+        text-transform: uppercase; letter-spacing: 0.04em;
+        padding-right: 0.5rem;
+        border-right: 2px solid var(--ed-orange);
+    }
+    .ed-fhbars__rows { display: flex; flex-direction: column; gap: 0.3rem; }
+
+    .ed-fhbar {
+        display: grid;
+        grid-template-columns: 150px 1fr 38px;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    .ed-fhbar__label {
+        font-size: 0.78rem; color: var(--ed-text);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .ed-fhbar__track {
+        display: flex; height: 18px;
+        background: var(--ed-gray-track);
+        border-radius: 3px; overflow: hidden;
+    }
+    .ed-fhbar__h {
+        background: var(--ed-gray-bar);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.65rem; color: #fff; font-weight: 700;
+    }
+    .ed-fhbar__f {
+        background: var(--ed-orange);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.65rem; color: #fff; font-weight: 700;
+    }
+    .ed-fhbar__total {
+        font-size: 0.78rem; font-weight: 700; color: var(--ed-text-soft);
+        text-align: right; font-variant-numeric: tabular-nums;
+    }
+
+    .ed-empty { color: var(--ed-text-muted); padding: 1rem; text-align: center; font-style: italic; }
+
+    /* ────────────────────────────── FOOTER ─────────────────────────── */
+    .ed-footer {
+        margin-top: 1rem;
+        padding: 0.6rem 0;
+        font-size: 0.72rem; color: var(--ed-text-muted);
+        text-align: center;
+    }
+    .ed-footer .sep { margin: 0 0.5rem; opacity: 0.5; }
+    .ed-footer i { margin-right: 0.3rem; opacity: 0.8; }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture  = CultureInfo.GetCultureInfo("fr-FR");
+    private static readonly CultureInfo InvCulture = CultureInfo.InvariantCulture;
+
+    private bool _loading = false;
+    private string? _errorMessage = null;
+    private EffectifDetailleDto? _data;
+
+    private EffectifDetailleFilterModel _filter = new();
+    private List<int> _anneesDispo = new();
+    private List<Site> _sitesDispo = new();
+    private Site? _selectedSite;
+
+    private readonly List<Sexe?> _genresDispo = new() { null, Sexe.Masculin, Sexe.Feminin };
+    private readonly List<TypeContrat?> _typesContratDispo = new()
+    {
+        null, TypeContrat.CDI, TypeContrat.CDD, TypeContrat.Stage
+    };
+
+    protected override void OnInitialized()
+    {
+        if (!DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
+        LoadLookups();
+        LoadData();
+    }
+
+    private IObjectSpace CreateOs() =>
+        ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Salarie));
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = CreateOs();
+            _anneesDispo = Service.GetAnneesDisponibles(os);
+            _sitesDispo  = Service.GetSitesActifs(os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Chargement des filtres : {ex.Message}";
+        }
+    }
+
+    private void LoadData()
+    {
+        _loading = true;
+        _errorMessage = null;
+        try
+        {
+            using var os = CreateOs();
+            _data = Service.GetData(_filter, os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Calcul du tableau : {ex.Message}";
+            _data = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private Task OnAnneesChanged(IEnumerable<int> annees)
+    {
+        _filter.Annees = annees?.ToList() ?? new();
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private Task OnSiteChanged(Site? site)
+    {
+        _selectedSite = site;
+        _filter.SiteOid = site?.Oid;
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private Task OnGenreChanged(Sexe? genre)
+    {
+        _filter.Genre = genre;
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private Task OnTypeContratChanged(TypeContrat? type)
+    {
+        _filter.TypeContrat = type;
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private Task OnRefreshClick()
+    {
+        Service.InvalidateCache(_filter);
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnExportPdfClick()
+    {
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = PdfExport.ExportEffectifDetaille(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName, "application/pdf", Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export PDF : {ex.Message}"; }
+    }
+
+    private async Task OnExportExcelClick()
+    {
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = ExcelExport.ExportEffectifDetaille(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export Excel : {ex.Message}"; }
+    }
+
+    /// <summary>
+    /// Formate un nombre d'années en entier suivi de « ans » (ex. "44 ans").
+    /// Choix produit : on arrondit aux unités, plus lisible que 44,4 sur des
+    /// indicateurs RH et conforme au mockup ELTON.
+    /// </summary>
+    private static string FormatAns(decimal ans) =>
+        $"{Math.Round(ans, 0, MidpointRounding.AwayFromZero).ToString("0", FrCulture)} ans";
+
+    // ─────────────────────────────────────────────────────────────────────
+    //  Silhouettes SVG inline (rendu identique sur tous les postes,
+    //  pas de dépendance aux fonts emoji du système).
+    //  Les couleurs sont appliquées via CSS sur les classes ed-svg--man
+    //  et ed-svg--woman (fill: currentColor).
+    // ─────────────────────────────────────────────────────────────────────
+    private static readonly MarkupString SilhouetteMan = new(
+        "<svg class='ed-svg ed-svg--man' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'>" +
+        "<circle cx='12' cy='5.5' r='3.5'/>" +
+        "<path d='M4 22v-6.5C4 12.5 7.5 10 12 10s8 2.5 8 5.5V22h-3.5v-6.5h-9V22H4z'/>" +
+        "</svg>"
+    );
+
+    private static readonly MarkupString SilhouetteWoman = new(
+        "<svg class='ed-svg ed-svg--woman' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'>" +
+        "<circle cx='12' cy='5.5' r='3.5'/>" +
+        "<path d='M12 10c-2.4 0-4.4 1.7-5 4l-2.2 8h3.4l1-7h5.6l1 7h3.4L17 14c-.6-2.3-2.6-4-5-4z'/>" +
+        "</svg>"
+    );
+
+    private static bool IsCurrentYearOrLater(int annee) => annee >= DateTime.Today.Year;
+}

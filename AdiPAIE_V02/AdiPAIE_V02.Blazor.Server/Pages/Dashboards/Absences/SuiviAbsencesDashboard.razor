@@ -1,0 +1,579 @@
+@* =====================================================================
+    SuiviAbsencesDashboard.razor — Tableau N°5
+    URL : /dashboards/suivi-absences
+    Périmètre : Personnel INTERNE uniquement (Salarie + CongeDemande)
+
+    UI complète (Étape 4.5) :
+      - Filtres : Année, Site, Genre, Segment, Catégorie, Famille
+      - Toggle « Accordées seulement » / « Inclure En attente + Soumise »
+      - 8 KPI cartes : NbAbsences, TotalJours, TauxAbsenteisme,
+                       DureeMoyenne, %Justifiées, TopAbsent, MoisPic,
+                       CoutImpaye
+      - Bar horizontal Famille (Annuel / Maladie / Maternité / ...)
+      - Bar horizontal Catégorie (Top 10)
+      - Bar horizontal Segment
+      - Bar vertical mensuel 12 mois (jours d'absence)
+      - Tableau Top 10 absents (Salarié, Catégorie, Segment, NbAbs, Jours, Famille principale)
+
+    Source : CongeDemande filtré CongeStatut.Accordee par défaut.
+    Charte ELTON Oil héritée via wwwroot/css/dashboards-elton.css.
+   ===================================================================== *@
+
+@page "/dashboards/suivi-absences"
+@attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+@using static AdiPAIE_V02.Module.Domain.DomainEnums
+
+@inject ISuiviAbsencesDashboardService Service
+@inject IDashboardExcelExportService ExcelExport
+@inject IDashboardPdfExportService PdfExport
+@inject IJSRuntime JS
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
+
+<PageTitle>Suivi des Absences — Tableaux de Bord RH</PageTitle>
+
+@if (_data == null && _errorMessage == null)
+{
+    <div class="ed-loading">
+        <DxLoadingPanel Text="Chargement…" Visible="true" />
+    </div>
+}
+else
+{
+    <header class="ed-header">
+
+        @* ── Ligne 1 : titre + toggle statut + KPI total jours ──────── *@
+        <div class="ed-header__row">
+
+            <div class="ed-header__title">
+                <button class="ed-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+                <div>
+                    <div class="ed-header__perimetre">
+                        Tableau N°5 · Personnel Interne (CDI / CDD / Stage)
+                    </div>
+                    <h1 class="ed-header__h1">Suivi des Absences <span class="ed-h1-sub">— Congés &amp; arrêts</span></h1>
+                </div>
+            </div>
+
+            <div class="ed-kpigroup">
+                <div class="ed-kpigroup__head"><i class="bi bi-clipboard-check"></i><span>Statut</span></div>
+                <div class="ed-toggle">
+                    <button class="ed-toggle__btn @(!_filter.InclureEnAttente ? "ed-toggle__btn--active" : "")"
+                            @onclick="@(() => OnInclureEnAttenteChanged(false))">Accordées</button>
+                    <button class="ed-toggle__btn @(_filter.InclureEnAttente ? "ed-toggle__btn--active" : "")"
+                            @onclick="@(() => OnInclureEnAttenteChanged(true))">+ En attente</button>
+                </div>
+            </div>
+
+            <div class="ed-kpi-effectif" title="Total jours d'absence (selon statut + filtres actifs)">
+                <div class="ed-kpi-effectif__label">Total jours @_filter.Annee</div>
+                <div class="ed-kpi-effectif__value">@FormatNum(_data?.Kpis.TotalJours ?? 0)</div>
+                <div class="ed-kpi-effectif__date">@(_data?.Kpis.NbAbsences ?? 0) absences · @(_data?.Kpis.NbSalariesAbsents ?? 0) salariés</div>
+            </div>
+        </div>
+
+        @* ── Ligne 2 : filtres + actions ───────────────────────────── *@
+        <div class="ed-header__row ed-header__row--filters">
+            <div class="ed-filter">
+                <label>Année</label>
+                <DxComboBox TData="int" TValue="int"
+                            Data="@_anneesDispo"
+                            Value="@_filter.Annee"
+                            ValueChanged="@((int v) => OnAnneeChanged(v))"
+                            CssClass="ed-input" />
+            </div>
+            <div class="ed-filter">
+                <label>Site</label>
+                <DxComboBox TData="Site" TValue="Site"
+                            Data="@_sitesDispo"
+                            TextFieldName="@nameof(Site.Nom)"
+                            Value="@_selectedSite"
+                            ValueChanged="@((Site? s) => OnSiteChanged(s))"
+                            NullText="Tous"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            CssClass="ed-input" />
+            </div>
+            <div class="ed-filter">
+                <label>Genre</label>
+                <DxComboBox TData="Sexe?" TValue="Sexe?"
+                            Data="@_genresDispo"
+                            Value="@_filter.Genre"
+                            ValueChanged="@((Sexe? s) => OnGenreChanged(s))"
+                            NullText="Tous"
+                            CssClass="ed-input">
+                    <ItemTemplate>
+                        @(context is null ? "Tous" : ((Sexe)context) == Sexe.Masculin ? "Masculin" : "Féminin")
+                    </ItemTemplate>
+                </DxComboBox>
+            </div>
+            <div class="ed-filter">
+                <label>Segment</label>
+                <DxComboBox TData="Departement" TValue="Departement"
+                            Data="@_departementsDispo"
+                            TextFieldName="@nameof(Departement.Nom)"
+                            Value="@_selectedDepartement"
+                            ValueChanged="@((Departement? d) => OnSegmentChanged(d))"
+                            NullText="Tous"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            CssClass="ed-input" />
+            </div>
+            <div class="ed-filter">
+                <label>Catégorie</label>
+                <DxComboBox TData="Categories" TValue="Categories"
+                            Data="@_categoriesDispo"
+                            TextFieldName="@nameof(Categories.Intitule)"
+                            Value="@_selectedCategorie"
+                            ValueChanged="@((Categories? c) => OnCategorieChanged(c))"
+                            NullText="Toutes"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            CssClass="ed-input" />
+            </div>
+            <div class="ed-filter">
+                <label>Famille</label>
+                <DxComboBox TData="FamilleConge?" TValue="FamilleConge?"
+                            Data="@_famillesDispo"
+                            Value="@_filter.Famille"
+                            ValueChanged="@((FamilleConge? f) => OnFamilleChanged(f))"
+                            NullText="Toutes"
+                            CssClass="ed-input">
+                    <ItemTemplate>
+                        @(context is null ? "Toutes" : LabelFamille((FamilleConge)context))
+                    </ItemTemplate>
+                </DxComboBox>
+            </div>
+            <div class="ed-actions">
+                <button class="ed-btn ed-btn--icon" title="Actualiser" @onclick="OnRefreshClick" disabled="@_loading">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+                <button class="ed-btn ed-btn--icon" title="Export PDF (Étape 7)" @onclick="OnExportPdfClick" disabled="@_loading">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                </button>
+                <button class="ed-btn ed-btn--icon" title="Export Excel (Étape 7)" @onclick="OnExportExcelClick" disabled="@_loading">
+                    <i class="bi bi-file-earmark-excel"></i>
+                </button>
+                <a class="ed-btn ed-btn--icon" title="Aide ce tableau" href="/help/dashboards/suivi-absences.html" target="_blank" rel="noopener">
+                    <i class="bi bi-question-circle"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="ed-error"><i class="bi bi-exclamation-triangle-fill"></i><strong>Erreur :</strong> @_errorMessage</div>
+    }
+
+    @if (_data != null)
+    {
+        <main class="ed-main">
+
+            @* ── 8 KPI cartes ──────────────────────────────────────────── *@
+            <section class="ed-section">
+                <h3 class="ed-section__title">Indicateurs clés — @_filter.Annee</h3>
+                <div class="ed-kpiinline">
+                    <div class="ed-kpiinline__card">
+                        <div class="ed-kpiinline__label">Nb absences</div>
+                        <div class="ed-kpiinline__value">@_data.Kpis.NbAbsences.ToString("N0", FrCulture)</div>
+                        <div class="ed-kpiinline__sub">demandes accordées</div>
+                    </div>
+                    <div class="ed-kpiinline__card">
+                        <div class="ed-kpiinline__label">Total jours</div>
+                        <div class="ed-kpiinline__value">@FormatNum(_data.Kpis.TotalJours)</div>
+                        <div class="ed-kpiinline__sub">jours ouvrables</div>
+                    </div>
+                    <div class="ed-kpiinline__card ed-kpiinline__card--down">
+                        <div class="ed-kpiinline__label">% Absentéisme</div>
+                        <div class="ed-kpiinline__value">@FormatPct(_data.Kpis.TauxAbsenteisme)</div>
+                        <div class="ed-kpiinline__sub">/ @_data.Kpis.NbSalariesEffectif salariés × 264 j</div>
+                    </div>
+                    <div class="ed-kpiinline__card">
+                        <div class="ed-kpiinline__label">Durée Moy.</div>
+                        <div class="ed-kpiinline__value">@FormatNum(_data.Kpis.DureeMoyenneJours) j</div>
+                        <div class="ed-kpiinline__sub">par absence</div>
+                    </div>
+                    <div class="ed-kpiinline__card">
+                        <div class="ed-kpiinline__label">% Justifiées</div>
+                        <div class="ed-kpiinline__value">@FormatPct(_data.Kpis.PourcentageJustifie)</div>
+                        <div class="ed-kpiinline__sub">justificatif fourni</div>
+                    </div>
+                    <div class="ed-kpiinline__card">
+                        <div class="ed-kpiinline__label">Top Absent</div>
+                        <div class="ed-kpiinline__value sb-topname">@TruncSafe(_data.Kpis.TopAbsent, 22)</div>
+                        <div class="ed-kpiinline__sub">@FormatNum(_data.Kpis.TopAbsentJours) jours</div>
+                    </div>
+                    <div class="ed-kpiinline__card">
+                        <div class="ed-kpiinline__label">Mois pic</div>
+                        <div class="ed-kpiinline__value">@CapitalizeFirst(_data.Kpis.MoisPicLibelle)</div>
+                        <div class="ed-kpiinline__sub">mois le + chargé</div>
+                    </div>
+                    <div class="ed-kpiinline__card ed-kpiinline__card--down">
+                        <div class="ed-kpiinline__label">Coût impayé</div>
+                        <div class="ed-kpiinline__value">@FormatFcfa(_data.Kpis.CoutEstimeImpaye)</div>
+                        <div class="ed-kpiinline__sub">familles « sans solde »</div>
+                    </div>
+                </div>
+            </section>
+
+            @* ── Évolution mensuelle 12 mois ──────────────────────────── *@
+            <section class="ed-section">
+                <h3 class="ed-section__title">Évolution mensuelle — jours d'absence</h3>
+                @if (_data.ParMois.All(m => m.NbJours == 0))
+                {
+                    <div class="ed-empty">Aucune absence sur l'année.</div>
+                }
+                else
+                {
+                    var maxM = _data.ParMois.Max(m => m.NbJours);
+                    <div class="ed-vbar-chart" style="grid-template-columns: repeat(12, 1fr); height: 220px;">
+                        @foreach (var m in _data.ParMois)
+                        {
+                            var h = maxM > 0 ? m.NbJours * 100m / maxM : 0m;
+                            <div class="ed-vbar">
+                                <div class="ed-vbar__value">@FormatNum(m.NbJours)</div>
+                                <div class="ed-vbar__col sb-vbar__col" style="@($"height:{h.ToString("0.00", InvCulture)}%")"></div>
+                                <div class="ed-vbar__label">@m.Libelle</div>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+
+            @* ── Grille bar charts (3 colonnes responsive) ───────────── *@
+            <div class="sb-grid">
+
+                <section class="ed-section">
+                    <h3 class="ed-section__title">Par famille de congé</h3>
+                    @if (_data.ParFamille.Count == 0)
+                    {
+                        <div class="ed-empty">Pas de données.</div>
+                    }
+                    else
+                    {
+                        var maxF = _data.ParFamille.Max(b => b.Valeur);
+                        <div class="ed-hbar-chart">
+                            @foreach (var b in _data.ParFamille)
+                            {
+                                var w = maxF > 0 ? (decimal)b.Valeur * 100m / maxF : 0m;
+                                <div class="ed-hbar">
+                                    <div class="ed-hbar__label" title="@b.Libelle">@b.Libelle</div>
+                                    <div class="ed-hbar__track">
+                                        <div class="ed-hbar__fill sb-hbar__fill" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
+                                    </div>
+                                    <div class="ed-hbar__value">@b.Valeur.ToString("N0", FrCulture) j (@b.Pourcentage.ToString("0.0", FrCulture)%)</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </section>
+
+                <section class="ed-section">
+                    <h3 class="ed-section__title">Par catégorie professionnelle (Top 10)</h3>
+                    @if (_data.ParCategorie.Count == 0)
+                    {
+                        <div class="ed-empty">Pas de données.</div>
+                    }
+                    else
+                    {
+                        var maxC = _data.ParCategorie.Max(b => b.Valeur);
+                        <div class="ed-hbar-chart">
+                            @foreach (var b in _data.ParCategorie)
+                            {
+                                var w = maxC > 0 ? (decimal)b.Valeur * 100m / maxC : 0m;
+                                <div class="ed-hbar">
+                                    <div class="ed-hbar__label" title="@b.Libelle">@b.Libelle</div>
+                                    <div class="ed-hbar__track">
+                                        <div class="ed-hbar__fill sb-hbar__fill" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
+                                    </div>
+                                    <div class="ed-hbar__value">@b.Valeur.ToString("N0", FrCulture) j (@b.Pourcentage.ToString("0.0", FrCulture)%)</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </section>
+
+                <section class="ed-section">
+                    <h3 class="ed-section__title">Par département</h3>
+                    @if (_data.ParSegment.Count == 0)
+                    {
+                        <div class="ed-empty">Pas de données.</div>
+                    }
+                    else
+                    {
+                        var maxS = _data.ParSegment.Max(b => b.Valeur);
+                        <div class="ed-hbar-chart">
+                            @foreach (var b in _data.ParSegment)
+                            {
+                                var w = maxS > 0 ? (decimal)b.Valeur * 100m / maxS : 0m;
+                                <div class="ed-hbar">
+                                    <div class="ed-hbar__label" title="@b.Libelle">@b.Libelle</div>
+                                    <div class="ed-hbar__track">
+                                        <div class="ed-hbar__fill sb-hbar__fill" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
+                                    </div>
+                                    <div class="ed-hbar__value">@b.Valeur.ToString("N0", FrCulture) j (@b.Pourcentage.ToString("0.0", FrCulture)%)</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </section>
+            </div>
+
+            @* ── Top 10 absents ─────────────────────────────────────── *@
+            <section class="ed-section">
+                <h3 class="ed-section__title">Top 10 salariés les plus absents</h3>
+                @if (_data.Top10Absents.Count == 0)
+                {
+                    <div class="ed-empty">Pas de données.</div>
+                }
+                else
+                {
+                    <table class="sb-table">
+                        <thead>
+                            <tr>
+                                <th class="sb-th-rank">#</th>
+                                <th class="sb-th-left">Salarié</th>
+                                <th class="sb-th-left">Catégorie</th>
+                                <th class="sb-th-left">Segment</th>
+                                <th class="sb-th-left">Famille principale</th>
+                                <th class="sb-th-num">Nb absences</th>
+                                <th class="sb-th-num">Total jours</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int rank = 1; }
+                            @foreach (var r in _data.Top10Absents)
+                            {
+                                <tr>
+                                    <td class="sb-td-rank">@rank</td>
+                                    <td class="sb-td-left">@r.NomSalarie</td>
+                                    <td class="sb-td-left">@r.Categorie</td>
+                                    <td class="sb-td-left">@r.Segment</td>
+                                    <td class="sb-td-left">@r.FamillePrincipale</td>
+                                    <td class="sb-td-num">@r.NbAbsences.ToString("N0", FrCulture)</td>
+                                    <td class="sb-td-num"><strong>@FormatNum(r.TotalJours)</strong></td>
+                                </tr>
+                                rank++;
+                            }
+                        </tbody>
+                    </table>
+                }
+            </section>
+
+            <footer class="ed-footer">
+                <span><i class="bi bi-clock-history"></i> Calculé le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
+                <span class="sep">·</span>
+                <span>Source CongeDemande (statut @(_filter.InclureEnAttente ? "EnAttente + Soumise + Accordée" : "Accordée uniquement"))</span>
+                <span class="sep">·</span>
+                <span>Base 264 j ouvrables / an</span>
+            </footer>
+        </main>
+    }
+}
+
+@* ── Styles propres au Tableau N°5 ───────────────────────────────── *@
+<style>
+    .ed-h1-sub { font-weight: 400; opacity: 0.75; font-size: 0.85em; }
+
+    /* Charts couleur secondaire (orange ELTON pour absences = élément à surveiller) */
+    .sb-vbar__col   { background: linear-gradient(180deg, var(--ed-orange, #F18A1C) 0%, #FFB347 100%) !important; }
+    .sb-hbar__fill  { background: linear-gradient(90deg,  var(--ed-orange, #F18A1C) 0%, #FFB347 100%) !important; }
+
+    /* Grille des 3 bar-charts */
+    .sb-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        gap: 1rem;
+    }
+
+    /* Top Absent : nom potentiellement long */
+    .sb-topname { font-size: 1rem !important; line-height: 1.2 !important; }
+
+    /* Tableau Top 10 absents */
+    .sb-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+    .sb-table thead th {
+        background: var(--ed-bg-dark-2, #142E4D);
+        color: #fff;
+        font-weight: 600;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+    }
+    .sb-table thead .sb-th-left { text-align: left; }
+    .sb-table thead .sb-th-num  { text-align: right; }
+    .sb-table thead .sb-th-rank { text-align: center; width: 2rem; }
+    .sb-table tbody tr {
+        border-bottom: 1px solid var(--ed-border, #E5E7EB);
+    }
+    .sb-table tbody tr:nth-child(even) { background: rgba(20, 46, 77, 0.025); }
+    .sb-table tbody tr:hover           { background: var(--ed-orange-soft, rgba(241,138,28,.08)); }
+    .sb-table td {
+        padding: 0.55rem 0.75rem;
+        font-variant-numeric: tabular-nums;
+    }
+    .sb-td-left { text-align: left; }
+    .sb-td-num  { text-align: right; }
+    .sb-td-rank {
+        text-align: center;
+        font-weight: 700;
+        color: var(--ed-orange, #F18A1C);
+    }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture  = CultureInfo.GetCultureInfo("fr-FR");
+    private static readonly CultureInfo InvCulture = CultureInfo.InvariantCulture;
+    private static readonly NumberFormatInfo FcfaFmt = new()
+    {
+        NumberGroupSeparator = " ",
+        NumberDecimalSeparator = ",",
+        NumberDecimalDigits = 0
+    };
+
+    private bool _loading = false;
+    private string? _errorMessage = null;
+    private SuiviAbsencesDto? _data;
+
+    private SuiviAbsencesFilterModel _filter = new();
+    private List<int> _anneesDispo = new();
+    private List<Site> _sitesDispo = new();
+    private List<Departement> _departementsDispo = new();
+    private List<Categories> _categoriesDispo = new();
+    private Site? _selectedSite;
+    private Departement? _selectedDepartement;
+    private Categories? _selectedCategorie;
+
+    private readonly List<Sexe?> _genresDispo = new() { null, Sexe.Masculin, Sexe.Feminin };
+    private readonly List<FamilleConge?> _famillesDispo = new()
+    {
+        null,
+        FamilleConge.Annuel, FamilleConge.Maladie, FamilleConge.Maternite,
+        FamilleConge.EvenementFamilial, FamilleConge.SansSolde, FamilleConge.Recuperation
+    };
+
+    protected override void OnInitialized()
+    {
+        if (!DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
+        LoadLookups();
+        LoadData();
+    }
+
+    private IObjectSpace CreateOs() =>
+        ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Salarie));
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = CreateOs();
+            _anneesDispo       = Service.GetAnneesDisponibles(os);
+            _sitesDispo        = Service.GetSitesActifs(os);
+            _departementsDispo = Service.GetDepartements(os);
+            _categoriesDispo   = Service.GetCategories(os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Chargement des filtres : {ex.Message}";
+        }
+    }
+
+    private void LoadData()
+    {
+        _loading = true;
+        _errorMessage = null;
+        try
+        {
+            using var os = CreateOs();
+            _data = Service.GetData(_filter, os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Calcul du tableau : {ex.Message}";
+            _data = null;
+        }
+        finally { _loading = false; }
+    }
+
+    private Task OnInclureEnAttenteChanged(bool v)        { _filter.InclureEnAttente = v; LoadData(); return Task.CompletedTask; }
+    private Task OnAnneeChanged(int a)                    { _filter.Annee = a; LoadData(); return Task.CompletedTask; }
+    private Task OnSiteChanged(Site? s)                   { _selectedSite = s; _filter.SiteOid = s?.Oid; LoadData(); return Task.CompletedTask; }
+    private Task OnGenreChanged(Sexe? g)                  { _filter.Genre = g; LoadData(); return Task.CompletedTask; }
+    private Task OnSegmentChanged(Departement? d)         { _selectedDepartement = d; _filter.Segment = d?.Nom; LoadData(); return Task.CompletedTask; }
+    private Task OnCategorieChanged(Categories? c)        { _selectedCategorie = c; _filter.CategorieOid = c?.Oid; LoadData(); return Task.CompletedTask; }
+    private Task OnFamilleChanged(FamilleConge? f)        { _filter.Famille = f; LoadData(); return Task.CompletedTask; }
+
+    private Task OnRefreshClick()
+    {
+        Service.InvalidateCache(_filter);
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnExportPdfClick()
+    {
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = PdfExport.ExportSuiviAbsences(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName, "application/pdf", Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export PDF : {ex.Message}"; }
+    }
+    private async Task OnExportExcelClick()
+    {
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = ExcelExport.ExportSuiviAbsences(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export Excel : {ex.Message}"; }
+    }
+
+    private static string FormatNum(decimal v) => v.ToString("N1", FrCulture);
+    private static string FormatPct(decimal v) => v.ToString("0.0", FrCulture) + " %";
+    private static string FormatFcfa(decimal v) => Math.Round(v, 0).ToString("#,##0", FcfaFmt) + " F";
+
+    private static string LabelFamille(FamilleConge f) => f switch
+    {
+        FamilleConge.Annuel             => "Congé annuel",
+        FamilleConge.Maladie            => "Maladie",
+        FamilleConge.Maternite          => "Maternité / Paternité",
+        FamilleConge.EvenementFamilial  => "Événement familial",
+        FamilleConge.SansSolde          => "Sans solde",
+        FamilleConge.Recuperation       => "Récupération",
+        _                               => f.ToString()
+    };
+
+    private static string TruncSafe(string s, int max)
+    {
+        if (string.IsNullOrEmpty(s)) return "—";
+        return s.Length > max ? s.Substring(0, max - 1) + "…" : s;
+    }
+
+    private static string CapitalizeFirst(string s)
+    {
+        if (string.IsNullOrEmpty(s)) return "—";
+        return char.ToUpper(s[0], FrCulture) + s.Substring(1);
+    }
+}

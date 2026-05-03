@@ -1,0 +1,389 @@
+/* ============================================================================
+   dashboards-elton.css
+   Charte visuelle ELTON Oil pour le module « Tableaux de Bord RH ».
+   Référence chargée par _Host.cshtml — partagée entre les 6 dashboards.
+
+   Couleurs source :
+     - Polos employés / "ON" du logo : navy profond  → #142E4D
+     - "ELT" du logo / accent        : orange ELTON  → #F18A1C
+     - Bouton CONTACT du site web    : rouge action  → #E63946
+   ============================================================================ */
+
+:root {
+    /* Charte ELTON Oil */
+    --ed-bg-dark      : #0E2240;   /* Navy profond */
+    --ed-bg-dark-2    : #142E4D;   /* Navy ELTON (polos) */
+    --ed-bg-dark-3    : #1F4376;   /* Navy clair ELTON */
+    --ed-bg-light     : #F6F7F9;
+    --ed-card         : #FFFFFF;
+    --ed-text-dark    : #E6EAF1;
+    --ed-text-muted   : #94A3BC;
+    --ed-text         : #142E4D;
+    --ed-text-soft    : #5C6679;
+    --ed-border       : #E5E7EB;
+    --ed-orange       : #F18A1C;   /* Orange ELTON (logo "ELT") */
+    --ed-orange-soft  : rgba(241, 138, 28, 0.12);
+    --ed-red          : #E63946;   /* Rouge ELTON (bouton CONTACT) */
+    --ed-blue         : #4DA3FF;   /* Bleu silhouette Hommes */
+    --ed-pink         : #FF6FB5;   /* Rose silhouette Femmes */
+    --ed-gray-bar     : #6B7686;
+    --ed-gray-track   : #E5E9EE;
+    --ed-up           : #2EA75B;
+    --ed-down         : #E63946;
+}
+
+/* ──────────────────────────────────── HEADER SOMBRE ─────────────────────── */
+.ed-header {
+    background: linear-gradient(135deg, var(--ed-bg-dark) 0%, var(--ed-bg-dark-2) 100%);
+    color: var(--ed-text-dark);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 3px solid var(--ed-orange);
+
+    /* Layout :
+        - Ligne 1 (flex wrap) : titre à gauche, puis KPI tiles + effectif total à droite.
+        - Ligne 2 (flex wrap) : tous les filtres + actions, pleine largeur.
+       Pas de grid avec span pour éviter les chevauchements quand le contenu wrappe. */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Ligne 1 : conteneur flex à part, généré par JS/CSS via :first-line concept.
+   Comme on ne peut pas le faire facilement en CSS pur, on définit deux groupes
+   d'enfants : "ligne 1" (titre + KPI groups + effectif) et "ligne 2" (filters). */
+.ed-header__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    align-items: center;
+}
+.ed-header__row--filters {
+    align-items: end;
+    margin-top: 0.25rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 0.85rem;
+}
+
+.ed-header__title {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-right: auto;  /* pousse les KPI tiles vers la droite */
+}
+.ed-back {
+    background: var(--ed-bg-dark-3); border: none; color: var(--ed-text-dark);
+    width: 38px; height: 38px; border-radius: 50%;
+    font-size: 1.25rem; cursor: pointer;
+    transition: background 0.15s ease;
+}
+.ed-back:hover { background: var(--ed-orange); color: #fff; }
+
+.ed-header__h1 {
+    font-size: 1.6rem; font-weight: 700; margin: 0; color: #fff;
+    letter-spacing: -0.01em;
+}
+.ed-header__perimetre {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ed-orange); font-weight: 600;
+}
+
+/* ──────────────────────────────────── KPI TILES G/H/F ───────────────────── */
+.ed-kpigroup {
+    display: flex; flex-direction: column; gap: 0.4rem;
+    grid-row: 1;
+}
+.ed-kpigroup__head {
+    font-size: 0.75rem; color: var(--ed-text-muted); text-transform: uppercase;
+    letter-spacing: 0.06em; display: flex; align-items: center; gap: 0.4rem;
+    font-weight: 600;
+}
+.ed-kpigroup__head i { color: var(--ed-orange); }
+.ed-kpigroup__tiles { display: flex; gap: 0.4rem; }
+
+.ed-tile {
+    background: var(--ed-bg-dark-3);
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem 0.5rem;
+    display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+    min-width: 90px;
+    border-top: 3px solid transparent;
+    transition: transform 0.12s ease;
+}
+.ed-tile:hover { transform: translateY(-2px); }
+
+.ed-tile--global { border-top-color: var(--ed-orange); }
+.ed-tile--men    { border-top-color: var(--ed-blue); }
+.ed-tile--women  { border-top-color: var(--ed-pink); }
+
+.ed-tile__icons {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 2px; line-height: 1; margin-bottom: 0.1rem; height: 26px;
+}
+.ed-svg {
+    width: 22px; height: 22px;
+    fill: currentColor;
+    display: inline-block;
+}
+.ed-svg--man   { color: var(--ed-blue); }
+.ed-svg--woman { color: var(--ed-pink); }
+
+.ed-tile__label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ed-text-muted);
+    font-weight: 600;
+    margin-top: 0.1rem;
+}
+.ed-tile__value {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ──────────────────────────────────── EFFECTIF TOTAL ────────────────────── */
+.ed-kpi-effectif {
+    background: var(--ed-orange);
+    color: #20283A;
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    text-align: center;
+    grid-row: 1;
+}
+.ed-kpi-effectif__label {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 600;
+}
+.ed-kpi-effectif__value {
+    font-size: 1.85rem; font-weight: 800; line-height: 1.05;
+    color: #20283A;
+}
+.ed-kpi-effectif__date {
+    font-size: 0.7rem; color: rgba(32, 40, 58, 0.75);
+}
+
+/* ──────────────────────────────────── FILTRES ──────────────────────────── */
+.ed-filters {
+    grid-column: 1 / -1; grid-row: 2;
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    align-items: end;
+}
+.ed-filter { display: flex; flex-direction: column; gap: 0.2rem; }
+.ed-filter label {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ed-text-muted); font-weight: 600;
+}
+.ed-input { min-width: 180px; }
+.ed-input ::deep .dxbl-edit { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.18); }
+
+.ed-actions { display: flex; gap: 0.4rem; align-items: end; margin-left: auto; }
+.ed-btn {
+    background: rgba(255,255,255,0.18);          /* contraste renforcé sur fond navy */
+    border: 1px solid rgba(255,255,255,0.45);
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease, transform 0.08s ease, box-shadow 0.12s ease;
+    display: inline-flex;                         /* aligne aussi les <a class="ed-btn"> */
+    align-items: center; justify-content: center;
+    text-decoration: none;
+    line-height: 1;
+}
+.ed-btn:hover:not(:disabled) {
+    background: var(--ed-orange);
+    border-color: var(--ed-orange);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(241,138,28,0.35);
+}
+.ed-btn:disabled, .ed-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.ed-btn--icon {
+    font-size: 1.15rem;
+    min-width: 2.4rem;
+    min-height: 2.4rem;
+}
+.ed-btn--icon i { line-height: 1; }
+
+/* ──────────────────────────────────── TOGGLES (mode/sous-mode) ────────── */
+.ed-toggle {
+    display: inline-flex;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.ed-toggle__btn {
+    background: transparent; border: none; color: #fff;
+    padding: 0.4rem 0.85rem; cursor: pointer;
+    font-size: 0.78rem; font-weight: 600;
+    transition: background 0.12s ease;
+}
+.ed-toggle__btn:hover { background: rgba(255,255,255,0.08); }
+.ed-toggle__btn--active {
+    background: var(--ed-orange); color: #20283A;
+}
+.ed-toggle__btn--active:hover { background: var(--ed-orange); }
+
+/* ──────────────────────────────────── ERREUR ───────────────────────────── */
+.ed-error {
+    background: #FEE; color: #911; padding: 0.75rem 1rem;
+    border-left: 4px solid var(--ed-down);
+    margin: 1rem 1.5rem;
+    display: flex; align-items: center; gap: 0.6rem;
+}
+.ed-error i { font-size: 1.2rem; }
+
+/* ──────────────────────────────────── MAIN CONTAINER ───────────────────── */
+.ed-main {
+    background: var(--ed-bg-light);
+    padding: 1.5rem;
+    min-height: calc(100vh - 200px);
+}
+
+.ed-section {
+    background: var(--ed-card);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 1px 3px rgba(15, 24, 39, 0.08);
+    margin-bottom: 1.25rem;
+}
+.ed-section__title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ed-text);
+    margin: 0 0 0.85rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--ed-orange);
+    display: inline-block;
+}
+
+/* ──────────────────────────────────── KPI INLINE (light bg) ────────────── */
+.ed-kpiinline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.75rem;
+}
+.ed-kpiinline__card {
+    background: #fff;
+    border: 1px solid var(--ed-border);
+    border-left: 4px solid var(--ed-orange);
+    border-radius: 6px;
+    padding: 0.7rem 0.9rem;
+}
+.ed-kpiinline__label {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--ed-text-muted); font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+.ed-kpiinline__value {
+    font-size: 1.5rem; font-weight: 800; color: var(--ed-text);
+    font-variant-numeric: tabular-nums; line-height: 1.15;
+}
+.ed-kpiinline__sub {
+    font-size: 0.7rem; color: var(--ed-text-soft); margin-top: 0.15rem;
+}
+
+/* Variantes de couleur de barre gauche */
+.ed-kpiinline__card--blue   { border-left-color: var(--ed-blue); }
+.ed-kpiinline__card--pink   { border-left-color: var(--ed-pink); }
+.ed-kpiinline__card--red    { border-left-color: var(--ed-red); }
+.ed-kpiinline__card--up     { border-left-color: var(--ed-up); }
+.ed-kpiinline__card--down   { border-left-color: var(--ed-down); }
+
+/* ──────────────────────────────────── BAR CHARTS GENERIQUES ─────────────── */
+/* Barre verticale (categorical, par tranche) */
+.ed-vbar-chart {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    gap: 0.5rem;
+    align-items: end;
+    height: 220px;
+    padding-top: 0.5rem;
+}
+.ed-vbar {
+    display: flex; flex-direction: column; align-items: center; height: 100%;
+    justify-content: end;
+}
+.ed-vbar__col {
+    width: 100%; max-width: 38px;
+    background: linear-gradient(180deg, var(--ed-orange) 0%, #FFB347 100%);
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    min-height: 1px;
+}
+.ed-vbar__value {
+    font-size: 0.72rem; font-weight: 700; color: var(--ed-text);
+    text-align: center;
+    margin-bottom: 0.15rem;
+}
+.ed-vbar__label {
+    font-size: 0.7rem; color: var(--ed-text-soft); text-align: center;
+    margin-top: 0.25rem; line-height: 1.1;
+    word-break: break-word;
+}
+
+/* Barre horizontale (categorical, par segment / catégorie) */
+.ed-hbar-chart {
+    display: flex; flex-direction: column; gap: 0.4rem;
+}
+.ed-hbar {
+    display: grid;
+    grid-template-columns: 180px 1fr 60px;
+    gap: 0.6rem;
+    align-items: center;
+}
+.ed-hbar__label {
+    font-size: 0.8rem; color: var(--ed-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ed-hbar__track {
+    background: var(--ed-gray-track); height: 18px; border-radius: 3px;
+    overflow: hidden;
+}
+.ed-hbar__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ed-orange) 0%, #FFB347 100%);
+    border-radius: 3px;
+}
+.ed-hbar__value {
+    font-size: 0.8rem; font-weight: 700; color: var(--ed-text-soft);
+    font-variant-numeric: tabular-nums; text-align: right;
+}
+
+/* Courbe (sparkline / 8 ans) */
+.ed-curve {
+    width: 100%; height: 220px;
+    background: #FAFBFC; border: 1px solid var(--ed-border); border-radius: 8px;
+    padding: 0.5rem; box-sizing: border-box;
+    overflow: hidden;
+}
+.ed-curve svg { width: 100%; height: 100%; }
+.ed-curve .line { fill: none; stroke: var(--ed-orange); stroke-width: 2.5; }
+.ed-curve .area { fill: var(--ed-orange-soft); }
+.ed-curve .point { fill: var(--ed-orange); }
+.ed-curve .axis-label { font-size: 10px; fill: var(--ed-text-muted); }
+.ed-curve .value-label { font-size: 11px; font-weight: 700; fill: var(--ed-text); }
+
+/* ──────────────────────────────────── EMPTY / FOOTER ─────────────────────── */
+.ed-empty { color: var(--ed-text-muted); padding: 1rem; text-align: center; font-style: italic; }
+
+.ed-footer {
+    margin-top: 1rem;
+    padding: 0.6rem 0;
+    font-size: 0.72rem; color: var(--ed-text-muted);
+    text-align: center;
+}
+.ed-footer .sep { margin: 0 0.5rem; opacity: 0.5; }
+.ed-footer i { margin-right: 0.3rem; opacity: 0.8; }
+
+.ed-loading { padding: 2rem; }
+
+/* ──────────────────────────────────── RESPONSIVE ─────────────────────────── */
+@media (max-width: 1100px) {
+    .ed-header {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+    .ed-header__title { grid-row: auto; }
+    .ed-kpigroup, .ed-kpi-effectif, .ed-filters { grid-row: auto; }
+}

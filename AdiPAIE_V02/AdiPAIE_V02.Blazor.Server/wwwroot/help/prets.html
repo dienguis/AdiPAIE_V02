@@ -3,241 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prets et avances — SunuPaie</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
-        h2 { color: #0F6E56; margin-top: 25px; }
-        h3 { color: #555; }
-        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
-        .bouton strong { color: #0F6E56; }
-        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .info { background: #e3f2fd; border-left: 4px solid #2196F3; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .formule { background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 12px; border-radius: 4px; margin: 10px 0; font-family: monospace; }
-        .exemple { background: #fff8e1; border-left: 4px solid #ffc107; padding: 12px; border-radius: 4px; margin: 10px 0; }
-        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        td.num { text-align: right; font-family: monospace; }
-        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
-        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
-        nav a:hover { text-decoration: underline; }
-        code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
-    </style>
+    <title>SunuPaie — Prêts et avances (Guide complet)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
+    <style>td.num { text-align: right; font-family: monospace; }</style>
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/periodes.html">Periodes</a>
-        <a href="/help/prets.html">Prets</a>
-        <a href="/help/salaries.html">Salaries</a>
-        <a href="/help/conges.html">Conges</a>
+        <a href="/help/periodes.html">Périodes</a>
+        <a href="/help/prets.html" class="active">Prêts</a>
+        <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/interimaires.html">Intérimaires</a>
+        <a href="/help/conges.html">Congés</a>
         <a href="/help/missions.html">Missions</a>
-        <a href="/help/formations.html">Formations</a>
-        <a href="/help/evaluations.html">Evaluations</a>
-        <a href="/help/parametrage.html">Parametrage</a>
-        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
-        <a href="/help/offboarding.html">Offboarding</a>
-        <a href="/help/disciplinaire.html">Disciplinaire</a>
-        <a href="/help/audit.html">Audit</a>
-        <a href="/help/import-salaries.html">Import</a>
-        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>Prets et avances sur salaire</h1>
+    <h1>💰 Prêts et avances sur salaire — Guide complet</h1>
+    <p>Ce module gère le cycle complet d'un prêt employeur : création,
+    génération de l'échéancier (principal constant ou annuité constante),
+    intégration automatique des retenues mensuelles dans les bulletins,
+    suivi du remboursement, suspension/reprise, et clôture en fin
+    d'amortissement.</p>
 
-    <!-- ===== FLUX ===== -->
-    <h2>Flux de travail</h2>
-    <div class="flux">
+    <div class="toc">
+        <strong>📑 Étapes du processus</strong>
         <ol>
-            <li>Paie &rarr; Prets &rarr; <strong>Nouveau</strong></li>
-            <li>Renseigner : Salarie, Type de pret, Montant principal, Duree (mois), Taux annuel %, Mode d'amortissement</li>
-            <li>Renseigner la <strong>Rubrique de retenue</strong> (obligatoire)</li>
-            <li>Cliquer <strong>Generer l'echeancier</strong></li>
-            <li>Le pret passe automatiquement en statut <strong>"En cours"</strong></li>
-            <li>A chaque bulletin du mois correspondant &rarr; la retenue apparait automatiquement dans les lignes</li>
-            <li>Valider le bulletin &rarr; l'echeance est marquee <strong>"Prelevee"</strong></li>
-            <li>Quand toutes les echeances sont prelevees &rarr; le pret passe en <strong>"Termine"</strong></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du cycle de vie</a></li>
+            <li><a href="#etape1">Étape 1 — Créer le prêt (en-tête)</a></li>
+            <li><a href="#etape2">Étape 2 — Choisir le mode d'amortissement</a></li>
+            <li><a href="#etape3">Étape 3 — Renseigner la rubrique de retenue</a></li>
+            <li><a href="#etape4">Étape 4 — Générer l'échéancier</a></li>
+            <li><a href="#etape5">Étape 5 — Suivi mensuel sur les bulletins</a></li>
+            <li><a href="#etape6">Étape 6 — Suspension / reprise / clôture</a></li>
+            <li><a href="#calculs">Méthodes de calcul détaillées</a></li>
+            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
+            <li><a href="#regles">Règles métier</a></li>
+            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
         </ol>
     </div>
 
-    <!-- ===== TYPES ===== -->
-    <h2>Types de prets</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="vue-ensemble">📋 Vue d'ensemble du cycle de vie</h2>
+
+    <div class="workflow">
+        <div class="box">📝 Brouillon</div>
+        <span class="arrow">→</span>
+        <div class="box">📊 Échéancier généré</div>
+        <span class="arrow">→</span>
+        <div class="box">🟢 En cours</div>
+        <span class="arrow">→</span>
+        <div class="box">⏸️ Suspendu (option.)</div>
+        <span class="arrow">→</span>
+        <div class="box">✅ Terminé</div>
+    </div>
+
+    <h3>Statuts</h3>
     <table>
-        <tr><th>Type</th><th>Interets</th><th>Duree typique</th><th>Usage</th></tr>
-        <tr>
-            <td><strong>Pret ordinaire</strong></td>
-            <td>Oui (taux annuel configurable)</td>
-            <td>6 a 60 mois</td>
-            <td>Pret personnel, pret immobilier, pret vehicule</td>
-        </tr>
-        <tr>
-            <td><strong>Avance sur salaire</strong></td>
-            <td>Non (taux = 0%)</td>
-            <td>1 a 3 mois</td>
-            <td>Avance ponctuelle, remboursee sur 1 a 3 bulletins</td>
-        </tr>
+        <thead><tr><th>Statut</th><th>Signification</th><th>Transition</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Brouillon</strong></td><td>Prêt créé, pas encore d'échéancier</td><td>Générer l'échéancier → En cours</td></tr>
+            <tr><td><strong>En cours</strong></td><td>Échéancier généré, prélèvements actifs</td><td>Toutes échéances prélevées → Terminé</td></tr>
+            <tr><td><strong>Suspendu</strong></td><td>Prélèvements gelés temporairement</td><td>Le RH peut relancer → En cours</td></tr>
+            <tr><td><strong>Terminé</strong></td><td>Capital intégralement remboursé</td><td>Final</td></tr>
+        </tbody>
     </table>
 
-    <!-- ===== PARAMETRES ===== -->
-    <h2>Parametres du pret</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape1">📝 Étape 1 — Créer le prêt (en-tête)</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Naviguer vers Paie → Prêts → + Nouveau</h3>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Renseigner les paramètres principaux</h3>
+        <dl class="field-list">
+            <dt>Salarié</dt>
+            <dd>Le salarié bénéficiaire (recherche par matricule ou nom).</dd>
+            <dt>Type de prêt</dt>
+            <dd>Catégorie configurée dans <em>Paramétrage → Types de prêt</em>
+                (ex. <em>Prêt logement</em>, <em>Prêt scolaire</em>,
+                <em>Avance ponctuelle</em>).</dd>
+            <dt>Montant principal</dt>
+            <dd>Capital emprunté (FCFA).</dd>
+            <dt>Taux annuel %</dt>
+            <dd>0 % pour une avance, > 0 pour un prêt classique
+                (typiquement 4 à 8 %).</dd>
+            <dt>Durée (mois)</dt>
+            <dd>Nombre de mensualités (1 à 60).</dd>
+            <dt>Date de début</dt>
+            <dd>Date du premier prélèvement (souvent le mois suivant la signature).</dd>
+        </dl>
+    </div>
+
+    <h3>Types de prêts standards</h3>
     <table>
-        <tr><th>Champ</th><th>Description</th><th>Obligatoire</th></tr>
-        <tr><td>Salarie</td><td>Le salarie beneficiaire</td><td>Oui</td></tr>
-        <tr><td>Type de pret</td><td>Categorie du pret (configure dans Parametrage)</td><td>Oui</td></tr>
-        <tr><td>Montant principal</td><td>Capital emprunte (FCFA)</td><td>Oui</td></tr>
-        <tr><td>Taux annuel %</td><td>Taux d'interet annuel. 0% pour les avances</td><td>Non (defaut 0)</td></tr>
-        <tr><td>Duree (mois)</td><td>Nombre de mensualites</td><td>Oui</td></tr>
-        <tr><td>Mode d'amortissement</td><td>Principal constant ou Annuite constante</td><td>Oui</td></tr>
-        <tr><td>Date debut</td><td>Date du premier prelevement</td><td>Oui</td></tr>
-        <tr><td>Rubrique retenue</td><td>Rubrique de retenue utilisee dans le bulletin</td><td>Oui</td></tr>
+        <thead><tr><th>Type</th><th>Intérêts</th><th>Durée typique</th><th>Usage</th></tr></thead>
+        <tbody>
+            <tr>
+                <td><strong>Prêt ordinaire</strong></td>
+                <td>Oui (taux annuel configurable)</td>
+                <td>6 à 60 mois</td>
+                <td>Prêt personnel, logement, véhicule</td>
+            </tr>
+            <tr>
+                <td><strong>Avance sur salaire</strong></td>
+                <td>Non (taux = 0 %)</td>
+                <td>1 à 3 mois</td>
+                <td>Avance ponctuelle, remboursée sur 1 à 3 bulletins</td>
+            </tr>
+        </tbody>
     </table>
 
-    <!-- ===== METHODES DE CALCUL ===== -->
-    <h2>Methodes de calcul des retenues</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape2">📐 Étape 2 — Choisir le mode d'amortissement</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Sélectionner Principal constant ou Annuité constante</h3>
+    </div>
+
+    <table>
+        <thead><tr><th>Mode</th><th>Caractéristique</th><th>Quand choisir ?</th></tr></thead>
+        <tbody>
+            <tr>
+                <td><strong>Principal constant</strong></td>
+                <td>Capital remboursé fixe chaque mois, intérêts décroissants</td>
+                <td>Le salarié veut payer plus au début et moins à la fin</td>
+            </tr>
+            <tr>
+                <td><strong>Annuité constante</strong></td>
+                <td>Mensualité totale identique chaque mois</td>
+                <td>Le salarié préfère un budget stable et prévisible</td>
+            </tr>
+        </tbody>
+    </table>
 
     <div class="info">
-        Le <strong>taux mensuel</strong> est calcule a partir du taux annuel :<br>
+        💡 Pour une <strong>avance à taux 0</strong>, les deux modes donnent
+        un résultat identique (mensualité = montant / durée).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape3">🏷️ Étape 3 — Renseigner la rubrique de retenue</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Champ Rubrique de retenue (obligatoire)</h3>
+        <p>Sélectionner la rubrique de paie qui apparaîtra dans le bulletin
+        (ex. <code>RET_PRET_LOGEMENT</code>, <code>RET_AVANCE_SALAIRE</code>).
+        Cette rubrique <strong>doit être de type Retenue</strong>.</p>
+    </div>
+
+    <h3>Ordre de résolution de la rubrique</h3>
+    <div class="alerte">
+        Le système cherche la rubrique de retenue dans cet ordre de priorité :
+        <ol>
+            <li><strong>Pret.RubriqueRetenue</strong> — si renseignée directement
+                sur le prêt (recommandé)</li>
+            <li><strong>TypePret.RubriqueRetenue</strong> — si définie sur le type
+                de prêt (par défaut)</li>
+            <li><strong>ParamètresPaie</strong> — rubrique par défaut selon la
+                nature (Prêt ou Avance)</li>
+        </ol>
+        Renseigner toujours la rubrique au niveau du prêt évite toute ambiguïté.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape4">📊 Étape 4 — Générer l'échéancier</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer sur Générer l'échéancier</h3>
+        <p>Le système calcule toutes les échéances selon le mode choisi
+        et les affiche en tableau (Mois, Capital restant, Capital, Intérêt,
+        Mensualité). Le prêt passe automatiquement au statut
+        <strong>En cours</strong>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Vérifier l'échéancier</h3>
+        <p>Contrôler que la dernière échéance solde bien le capital.
+        Si parameters incorrects (durée, taux), modifier puis
+        <strong>regénérer l'échéancier</strong> (l'ancien est effacé).</p>
+    </div>
+
+    <div class="alerte">
+        ⚠️ La regénération <strong>ne fonctionne que si aucune échéance n'est
+        encore prélevée</strong>. Sinon, il faut d'abord rouvrir les bulletins
+        concernés ou créer un nouveau prêt.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape5">💵 Étape 5 — Suivi mensuel sur les bulletins</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Recalcul automatique du bulletin</h3>
+        <p>Lors du <strong>recalcul</strong> d'un bulletin, le système :</p>
+        <ol>
+            <li>Cherche toutes les échéances <strong>Prévue</strong> dont la
+                date correspond au mois/année du bulletin</li>
+            <li>Crée (ou met à jour) une <strong>ligne de retenue</strong>
+                pour chaque échéance, en utilisant la Rubrique de retenue
+                du prêt</li>
+            <li>Le montant de la retenue = <strong>MontantTotal de l'échéance</strong>
+                (capital + intérêts + frais éventuels)</li>
+            <li>Si plusieurs prêts utilisent la <strong>même rubrique</strong>,
+                les montants sont <strong>cumulés</strong> sur une seule ligne</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Validation du bulletin</h3>
+        <p>Lors de la validation du bulletin, l'échéance passe en statut
+        <strong>Prélevée</strong> et est liée au bulletin (traçabilité).</p>
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple :</strong> En mai 2026, Aïssa a 2 prêts en cours
+        utilisant la même rubrique <code>RET_PRET</code> :
+        échéance prêt logement 45 000 + échéance prêt scolaire 15 000.
+        Une <strong>seule ligne</strong> apparaît au bulletin :
+        <code>RET_PRET = 60 000 FCFA</code>.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape6">⏸️ Étape 6 — Suspension / reprise / clôture</h2>
+
+    <h3>Suspension</h3>
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer sur Suspendre</h3>
+        <p>Les échéances restent au statut <em>Prévue</em> mais ne sont
+        plus prélevées automatiquement. Cas d'usage : congé sans solde,
+        accident de travail, suspension contractuelle.</p>
+    </div>
+
+    <h3>Reprise</h3>
+    <div class="step">
+        <h3><span class="num">2</span>Cliquer sur Relancer</h3>
+        <p>Le statut repasse à <em>En cours</em>. Les futures échéances
+        seront à nouveau prélevées sur les bulletins.</p>
+    </div>
+
+    <h3>Réouverture d'un bulletin</h3>
+    <div class="alerte">
+        Si on rouvre un bulletin déjà validé, les échéances qui y étaient
+        prélevées sont automatiquement remises au statut
+        <strong>"Prévue"</strong>. Le prêt repasse en <em>En cours</em>
+        si nécessaire.
+    </div>
+
+    <h3>Clôture automatique</h3>
+    <div class="ok">
+        ✅ Quand toutes les échéances sont au statut <em>Prélevée</em>,
+        le prêt passe automatiquement en <strong>Terminé</strong> au
+        prochain chargement.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="calculs">🧮 Méthodes de calcul détaillées</h2>
+
+    <div class="info">
+        Le <strong>taux mensuel</strong> est calculé à partir du taux annuel :<br>
         <code>Taux mensuel = Taux annuel % / 12 / 100</code>
     </div>
 
-    <!-- --- Principal constant --- -->
-    <h3>1. Amortissement a principal constant</h3>
-    <p>Le capital rembourse est <strong>identique chaque mois</strong>. Les interets diminuent car ils sont calcules sur le capital restant du.</p>
+    <h3>1. Amortissement à principal constant</h3>
+    <p>Le capital remboursé est <strong>identique chaque mois</strong>.
+    Les intérêts diminuent car ils sont calculés sur le capital restant dû.</p>
 
     <div class="formule">
-        Capital mensuel = Montant principal / Duree (mois)<br>
-        Interet mensuel = Capital restant du &times; Taux mensuel<br>
-        Mensualite = Capital mensuel + Interet mensuel<br>
-        <em>(la mensualite diminue chaque mois car les interets baissent)</em>
+        Capital mensuel = Montant principal / Durée (mois)<br>
+        Intérêt mensuel = Capital restant dû × Taux mensuel<br>
+        Mensualité = Capital mensuel + Intérêt mensuel<br>
+        <em>(la mensualité diminue chaque mois car les intérêts baissent)</em>
     </div>
 
     <div class="exemple">
-        <strong>Exemple :</strong> Pret de 600 000 FCFA, taux 12% annuel, duree 6 mois<br>
-        Taux mensuel = 12 / 12 / 100 = 0,01 (1%)<br>
+        <strong>Exemple :</strong> Prêt de 600 000 FCFA, taux 12 % annuel, durée 6 mois<br>
+        Taux mensuel = 12 / 12 / 100 = 0,01 (1 %)<br>
         Capital mensuel = 600 000 / 6 = 100 000 FCFA
         <table>
-            <tr><th>Mois</th><th>Capital restant</th><th>Capital</th><th>Interet</th><th>Mensualite</th></tr>
-            <tr><td>1</td><td class="num">600 000</td><td class="num">100 000</td><td class="num">6 000</td><td class="num">106 000</td></tr>
-            <tr><td>2</td><td class="num">500 000</td><td class="num">100 000</td><td class="num">5 000</td><td class="num">105 000</td></tr>
-            <tr><td>3</td><td class="num">400 000</td><td class="num">100 000</td><td class="num">4 000</td><td class="num">104 000</td></tr>
-            <tr><td>4</td><td class="num">300 000</td><td class="num">100 000</td><td class="num">3 000</td><td class="num">103 000</td></tr>
-            <tr><td>5</td><td class="num">200 000</td><td class="num">100 000</td><td class="num">2 000</td><td class="num">102 000</td></tr>
-            <tr><td>6</td><td class="num">100 000</td><td class="num">100 000</td><td class="num">1 000</td><td class="num">101 000</td></tr>
-            <tr style="font-weight:bold;background:#fff2cc"><td>Total</td><td></td><td class="num">600 000</td><td class="num">21 000</td><td class="num">621 000</td></tr>
+            <thead><tr><th>Mois</th><th>Capital restant</th><th>Capital</th><th>Intérêt</th><th>Mensualité</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td class="num">600 000</td><td class="num">100 000</td><td class="num">6 000</td><td class="num">106 000</td></tr>
+                <tr><td>2</td><td class="num">500 000</td><td class="num">100 000</td><td class="num">5 000</td><td class="num">105 000</td></tr>
+                <tr><td>3</td><td class="num">400 000</td><td class="num">100 000</td><td class="num">4 000</td><td class="num">104 000</td></tr>
+                <tr><td>4</td><td class="num">300 000</td><td class="num">100 000</td><td class="num">3 000</td><td class="num">103 000</td></tr>
+                <tr><td>5</td><td class="num">200 000</td><td class="num">100 000</td><td class="num">2 000</td><td class="num">102 000</td></tr>
+                <tr><td>6</td><td class="num">100 000</td><td class="num">100 000</td><td class="num">1 000</td><td class="num">101 000</td></tr>
+                <tr style="font-weight:bold;background:#fff2cc"><td>Total</td><td></td><td class="num">600 000</td><td class="num">21 000</td><td class="num">621 000</td></tr>
+            </tbody>
         </table>
     </div>
 
-    <!-- --- Annuite constante --- -->
-    <h3>2. Amortissement a annuite constante</h3>
-    <p>La <strong>mensualite est identique chaque mois</strong>. La part de capital augmente progressivement tandis que la part d'interets diminue.</p>
+    <h3>2. Amortissement à annuité constante</h3>
+    <p>La <strong>mensualité est identique chaque mois</strong>. La part de
+    capital augmente progressivement tandis que la part d'intérêts diminue.</p>
 
     <div class="formule">
         r = Taux mensuel<br>
-        Annuite = Principal &times; r / (1 - 1/(1+r)^n)<br>
-        Interet mensuel = Capital restant du &times; r<br>
-        Capital mensuel = Annuite - Interet mensuel<br>
-        <em>(si taux = 0% : Annuite = Principal / Duree)</em>
+        Annuité = Principal × r / (1 − 1/(1+r)^n)<br>
+        Intérêt mensuel = Capital restant dû × r<br>
+        Capital mensuel = Annuité − Intérêt mensuel<br>
+        <em>(si taux = 0 % : Annuité = Principal / Durée)</em>
     </div>
 
     <div class="exemple">
-        <strong>Exemple :</strong> Pret de 600 000 FCFA, taux 12% annuel, duree 6 mois<br>
-        r = 0,01 &mdash; Annuite = 600 000 &times; 0,01 / (1 - 1/1,01^6) &asymp; 103 025 FCFA/mois
+        <strong>Exemple :</strong> Prêt de 600 000 FCFA, taux 12 % annuel, durée 6 mois<br>
+        r = 0,01 — Annuité = 600 000 × 0,01 / (1 − 1/1,01^6) ≈ 103 025 FCFA/mois
         <table>
-            <tr><th>Mois</th><th>Capital restant</th><th>Capital</th><th>Interet</th><th>Mensualite</th></tr>
-            <tr><td>1</td><td class="num">600 000</td><td class="num">97 025</td><td class="num">6 000</td><td class="num">103 025</td></tr>
-            <tr><td>2</td><td class="num">502 975</td><td class="num">97 995</td><td class="num">5 030</td><td class="num">103 025</td></tr>
-            <tr><td>3</td><td class="num">404 980</td><td class="num">98 975</td><td class="num">4 050</td><td class="num">103 025</td></tr>
-            <tr><td>4</td><td class="num">306 005</td><td class="num">99 965</td><td class="num">3 060</td><td class="num">103 025</td></tr>
-            <tr><td>5</td><td class="num">206 040</td><td class="num">100 965</td><td class="num">2 060</td><td class="num">103 025</td></tr>
-            <tr><td>6</td><td class="num">105 075</td><td class="num">105 075</td><td class="num">1 051</td><td class="num">106 126</td></tr>
-            <tr style="font-weight:bold;background:#fff2cc"><td>Total</td><td></td><td class="num">600 000</td><td class="num">21 251</td><td class="num">621 251</td></tr>
+            <thead><tr><th>Mois</th><th>Capital restant</th><th>Capital</th><th>Intérêt</th><th>Mensualité</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td class="num">600 000</td><td class="num">97 025</td><td class="num">6 000</td><td class="num">103 025</td></tr>
+                <tr><td>2</td><td class="num">502 975</td><td class="num">97 995</td><td class="num">5 030</td><td class="num">103 025</td></tr>
+                <tr><td>3</td><td class="num">404 980</td><td class="num">98 975</td><td class="num">4 050</td><td class="num">103 025</td></tr>
+                <tr><td>4</td><td class="num">306 005</td><td class="num">99 965</td><td class="num">3 060</td><td class="num">103 025</td></tr>
+                <tr><td>5</td><td class="num">206 040</td><td class="num">100 965</td><td class="num">2 060</td><td class="num">103 025</td></tr>
+                <tr><td>6</td><td class="num">105 075</td><td class="num">105 075</td><td class="num">1 051</td><td class="num">106 126</td></tr>
+                <tr style="font-weight:bold;background:#fff2cc"><td>Total</td><td></td><td class="num">600 000</td><td class="num">21 251</td><td class="num">621 251</td></tr>
+            </tbody>
         </table>
-        <em>Note : la derniere echeance est ajustee pour solder le capital restant.</em>
+        <em>Note : la dernière échéance est ajustée pour solder le capital restant.</em>
     </div>
 
-    <!-- --- Avance sans interet --- -->
-    <h3>3. Avance sur salaire (taux 0%)</h3>
-    <p>Cas particulier : pas d'interets. La retenue mensuelle est simplement le montant divise par la duree.</p>
+    <h3>3. Avance sur salaire (taux 0 %)</h3>
+    <p>Cas particulier : pas d'intérêts. La retenue mensuelle est simplement
+    le montant divisé par la durée.</p>
     <div class="formule">
-        Mensualite = Montant / Duree<br>
+        Mensualité = Montant / Durée<br>
         <em>(identique quel que soit le mode d'amortissement)</em>
     </div>
     <div class="exemple">
-        <strong>Exemple :</strong> Avance de 150 000 FCFA sur 3 mois &rarr; retenue = 50 000 FCFA/mois
+        <strong>Exemple :</strong> Avance de 150 000 FCFA sur 3 mois →
+        retenue = 50 000 FCFA/mois.
     </div>
 
-    <!-- ===== RETENUE SUR BULLETIN ===== -->
-    <h2>Comment la retenue apparait dans le bulletin</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
 
-    <div class="info">
-        <ol>
-            <li>Lors du <strong>recalcul</strong> du bulletin, le systeme cherche toutes les echeances <strong>Prevue</strong> dont la date correspond au mois/annee du bulletin.</li>
-            <li>Pour chaque echeance trouvee, il cree (ou met a jour) une <strong>ligne de retenue</strong> dans le bulletin, en utilisant la Rubrique de retenue du pret.</li>
-            <li>Le montant de la retenue = <strong>MontantTotal de l'echeance</strong> (capital + interets + frais).</li>
-            <li>Si plusieurs prets utilisent la <strong>meme rubrique</strong>, les montants sont <strong>cumules</strong> sur une seule ligne.</li>
-            <li>Lors de la <strong>validation</strong> du bulletin, l'echeance passe en statut "Prelevee" et est liee au bulletin.</li>
-        </ol>
+    <h3>Cas 1 — Prêt logement 24 mois</h3>
+    <div class="exemple">
+        <strong>Modou (Cadre)</strong> demande un prêt logement de 4 800 000 FCFA
+        à 6 % annuel sur 24 mois, mode <em>Annuité constante</em>.<br>
+        Mensualité ≈ 213 000 FCFA, total intérêts ≈ 312 000 FCFA.
+        Le RH crée le prêt, génère l'échéancier, et chaque mois
+        Modou voit la ligne <code>RET_PRET_LOGEMENT</code> sur son bulletin.
     </div>
 
-    <!-- ===== RUBRIQUE RETENUE ===== -->
-    <h2>Resolution de la rubrique de retenue</h2>
-    <div class="alerte">
-        Le systeme cherche la rubrique de retenue dans cet ordre de priorite :
-        <ol>
-            <li><strong>Pret.RubriqueRetenue</strong> &mdash; si renseignee directement sur le pret</li>
-            <li><strong>TypePret.RubriqueRetenue</strong> &mdash; si definie sur le type de pret</li>
-            <li><strong>ParametresPaie</strong> &mdash; rubrique par defaut selon la nature (Pret ou Avance)</li>
-        </ol>
-        Il est recommande de toujours renseigner la rubrique au niveau du pret pour eviter toute ambiguite.
+    <h3>Cas 2 — Avance ponctuelle de scolarité</h3>
+    <div class="exemple">
+        <strong>Aïssa</strong> demande une avance de 200 000 FCFA pour la
+        rentrée scolaire, à rembourser sur 2 mois (taux 0 %).<br>
+        Mensualité = 100 000 FCFA. Apparaît automatiquement sur les bulletins
+        de septembre et octobre.
     </div>
 
-    <!-- ===== CYCLE DE VIE ===== -->
-    <h2>Cycle de vie du pret</h2>
+    <h3>Cas 3 — Suspension pour congé sans solde</h3>
+    <div class="exemple">
+        <strong>Coumba</strong> part en congé sans solde 3 mois (formation
+        externe). Son prêt logement est <em>Suspendu</em>. Aucune retenue
+        sur ses bulletins (qui sont à 0 brut). À son retour, le RH clique
+        <em>Relancer</em>, les retenues reprennent automatiquement et la
+        durée du prêt est étendue de 3 mois.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="regles">📜 Règles métier</h2>
+
     <table>
-        <tr><th>Statut</th><th>Signification</th><th>Transition</th></tr>
-        <tr><td><strong>Brouillon</strong></td><td>Pret cree, pas encore d'echeancier</td><td>Generer l'echeancier &rarr; En cours</td></tr>
-        <tr><td><strong>En cours</strong></td><td>Echeancier genere, prelevements actifs</td><td>Toutes echeances prelevees &rarr; Termine</td></tr>
-        <tr><td><strong>Suspendu</strong></td><td>Prelevements geles temporairement</td><td>Le RH peut relancer &rarr; En cours</td></tr>
-        <tr><td><strong>Termine</strong></td><td>Capital integralement rembourse</td><td>(final)</td></tr>
+        <thead><tr><th>Règle</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td>Rubrique de retenue obligatoire</td><td>Le prêt ne peut pas être validé sans rubrique.</td></tr>
+            <tr><td>Échéancier figé après prélèvement</td><td>Impossible de regénérer si une échéance est déjà prélevée.</td></tr>
+            <tr><td>Cumul même rubrique</td><td>Plusieurs prêts avec la même rubrique = une seule ligne au bulletin (somme).</td></tr>
+            <tr><td>Réouverture bulletin</td><td>Remet automatiquement les échéances en "Prévue".</td></tr>
+            <tr><td>Plafond endettement</td><td>Configurable (ex. retenues ≤ 33 % du net) : alerte si dépassé.</td></tr>
+            <tr><td>Clôture auto</td><td>Le prêt passe en "Terminé" dès que toutes les échéances sont prélevées.</td></tr>
+        </tbody>
     </table>
 
-    <div class="alerte">
-        <strong>Suspendre un pret :</strong> les echeances restent en statut "Prevue" mais ne sont plus prelevees automatiquement. Pour reprendre les prelevements, repasser le statut a "En cours".<br><br>
-        <strong>Reouvrir un bulletin :</strong> les echeances prelevees sur ce bulletin sont remises en "Prevue" automatiquement. Le pret repasse en "En cours" si necessaire.
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+
+    <div class="erreur">
+        <strong>"La rubrique de retenue est obligatoire"</strong><br>
+        → Renseigner le champ <em>Rubrique retenue</em> sur le prêt.
+        Vérifier que la rubrique est bien de type <strong>Retenue</strong>
+        (pas Gain).
     </div>
 
-    <!-- ===== BOUTONS ===== -->
-    <h2>Boutons disponibles</h2>
-    <div class="bouton">
-        <strong>Generer l'echeancier :</strong> calcule et cree toutes les echeances du pret selon le mode d'amortissement choisi. Efface l'echeancier precedent si existant.
-    </div>
-    <div class="bouton">
-        <strong>Suspendre / Relancer :</strong> gele ou relance les prelevements mensuels.
-    </div>
-
-    <!-- ===== ERREURS ===== -->
-    <h2>Erreurs frequentes</h2>
     <div class="erreur">
-        <strong>"La rubrique de retenue est obligatoire" &rarr;</strong> renseigner le champ Rubrique retenue sur le pret. Verifier que la rubrique est de type Retenue.
-    </div>
-    <div class="erreur">
-        <strong>Retenue non visible dans le bulletin &rarr;</strong> verifier que :
+        <strong>Retenue non visible dans le bulletin</strong><br>
+        → Vérifier que :
         <ul>
-            <li>Le pret est en statut <strong>"En cours"</strong> (pas Brouillon ou Suspendu)</li>
-            <li>La <strong>date d'echeance</strong> correspond au mois/annee du bulletin</li>
-            <li>L'echeance est en statut <strong>"Prevue"</strong> (pas deja Prelevee)</li>
+            <li>Le prêt est en statut <strong>"En cours"</strong> (pas Brouillon ou Suspendu)</li>
+            <li>La <strong>date d'échéance</strong> correspond au mois/année du bulletin</li>
+            <li>L'échéance est en statut <strong>"Prévue"</strong> (pas déjà Prélevée)</li>
+            <li>Le bulletin a bien été <strong>recalculé</strong> après création du prêt</li>
         </ul>
     </div>
+
     <div class="erreur">
-        <strong>Montant de retenue incorrect &rarr;</strong> verifier le taux annuel et la duree du pret. Regenerer l'echeancier si les parametres ont change.
+        <strong>Montant de retenue incorrect</strong><br>
+        → Vérifier le taux annuel et la durée du prêt. Si modification après
+        génération, regénérer l'échéancier (uniquement si rien n'est encore
+        prélevé).
     </div>
+
     <div class="erreur">
-        <strong>Pret reste "En cours" alors que tout est paye &rarr;</strong> ouvrir le pret, il se recalcule automatiquement au chargement. Verifier que toutes les echeances sont bien "Prelevee".
+        <strong>Prêt reste "En cours" alors que tout est payé</strong><br>
+        → Ouvrir le prêt, il se recalcule automatiquement au chargement.
+        Vérifier que toutes les échéances sont bien <em>Prélevée</em>
+        (pas <em>Prévue</em>). Sinon corriger manuellement.
     </div>
+
+    <div class="info">
+        💡 <strong>Comment annuler un prêt déjà signé ?</strong>
+        Si aucune échéance n'a été prélevée, le RH peut supprimer le prêt
+        directement. Sinon, il faut <em>Suspendre</em> + créer une rubrique
+        de remboursement anticipé sur le prochain bulletin pour solder.
+    </div>
+
+    <div class="info">
+        💡 <strong>Comment exporter l'historique des prêts d'un salarié ?</strong>
+        Aller sur la fiche du salarié → onglet <em>Prêts</em> → bouton
+        <strong>📊 Export Excel</strong>.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+
+    <div class="bouton">
+        <strong>+ Nouveau prêt :</strong> crée la fiche prêt en Brouillon.
+    </div>
+    <div class="bouton">
+        <strong>📊 Générer l'échéancier :</strong> calcule et crée toutes les
+        échéances selon le mode d'amortissement choisi. Efface l'échéancier
+        précédent si existant.
+    </div>
+    <div class="bouton">
+        <strong>⏸️ Suspendre :</strong> gèle les prélèvements (reste affiché En cours visuellement).
+    </div>
+    <div class="bouton">
+        <strong>▶️ Relancer :</strong> reprend les prélèvements après suspension.
+    </div>
+    <div class="bouton">
+        <strong>📊 Export Excel :</strong> historique de l'échéancier (par salarié ou globalement).
+    </div>
+
+    <p class="footer-help">
+        SunuPaie v1.1 — Module Prêts et avances — Mise à jour mai 2026
+    </p>
 </body>
 </html>

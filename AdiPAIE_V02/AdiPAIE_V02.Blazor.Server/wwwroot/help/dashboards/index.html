@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableaux de Bord RH — Guide utilisateur</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+    <style>
+        .card .num { font-size: 0.7rem; color: var(--orange); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+        .card h3 { color: var(--navy); margin: 4px 0 8px; }
+        .card p { font-size: 0.9rem; color: var(--text-soft); margin: 0; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html" class="active">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+    </nav>
+
+    <main>
+        <h1>Tableaux de Bord RH — Guide utilisateur</h1>
+        <p>Le module <strong>Tableaux de Bord RH</strong> regroupe 6 vues analytiques pour piloter
+        l'effectif, les mouvements, la rémunération et le bilan social de l'entreprise.
+        Chaque tableau possède des filtres (Année, Site, Genre, Catégorie…) et certains
+        proposent un toggle <em>Personnel Interne / Externe</em>.</p>
+
+        <div class="info">
+            <strong>Périmètre des données :</strong>
+            INTERNE = Salariés CDI/CDD/Stage (entité <code>Salarie</code>),
+            EXTERNE = Intérimaires (entité <code>Interimaire</code> + <code>ContratInterim</code>).
+            Les tableaux 1, 5 et 6 sont INTERNE uniquement ; les tableaux 2, 3 et 4 ont un toggle.
+        </div>
+
+        <div class="grid">
+            <a href="/help/dashboards/effectif-detaille.html" class="card">
+                <div class="num">Tableau N°1</div>
+                <h3>Effectif détaillé</h3>
+                <p>Pyramide des âges, répartition par tranche × catégorie pro, distribution H/F.</p>
+            </a>
+            <a href="/help/dashboards/analyse-effectif.html" class="card">
+                <div class="num">Tableau N°2</div>
+                <h3>Analyse de l'Effectif</h3>
+                <p>Effectif global / moyen, évolution 8 ans, KPI démographiques (toggle Interne/Externe).</p>
+            </a>
+            <a href="/help/dashboards/mouvements.html" class="card">
+                <div class="num">Tableau N°3</div>
+                <h3>Mouvements (Arrivées / Départs)</h3>
+                <p>Embauches et sorties par mois, motif, site, catégorie. Toggle Interne/Externe.</p>
+            </a>
+            <a href="/help/dashboards/remuneration.html" class="card">
+                <div class="num">Tableau N°4</div>
+                <h3>Rémunération — Égalité des salaires</h3>
+                <p>Masse salariale, coût employeur, écart H/F par segment et catégorie. Toggle Interne/Externe.</p>
+            </a>
+            <a href="/help/dashboards/suivi-absences.html" class="card">
+                <div class="num">Tableau N°5</div>
+                <h3>Suivi des Absences</h3>
+                <p>Congés et arrêts, taux d'absentéisme, Top 10 absents (Interne uniquement).</p>
+            </a>
+            <a href="/help/dashboards/bilan-social.html" class="card">
+                <div class="num">Tableau N°6</div>
+                <h3>Bilan Social Mensuel</h3>
+                <p>Synthèse 12 mois × indicateurs DTSS-style (effectif, masse, charges, absences).</p>
+            </a>
+        </div>
+
+        <h2>Boutons communs à tous les tableaux</h2>
+        <table>
+            <thead>
+                <tr><th>Bouton</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>↻ Actualiser</td><td>Vide le cache (TTL 5 min) et recharge les KPI depuis la base.</td></tr>
+                <tr><td>📄 Export PDF</td><td>Génère un PDF du tableau (KPI + tableaux principaux), prêt à imprimer.</td></tr>
+                <tr><td>📊 Export Excel</td><td>Génère un .xlsx avec les données détaillées (1 onglet par section).</td></tr>
+                <tr><td>? Aide</td><td>Ouvre la page d'aide spécifique du tableau (vous y êtes !).</td></tr>
+                <tr><td>← Retour</td><td>Retour à la page d'accueil <code>/dashboards</code>.</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Sources de données</h2>
+        <p>Les tableaux de bord lisent en temps réel les entités métier :</p>
+        <ul>
+            <li><code>Salarie</code> + <code>Person</code> — fiche salarié, dates d'embauche / sortie, sexe, catégorie, site, département</li>
+            <li><code>Interimaire</code> + <code>ContratInterim</code> — intérimaires, contrats, taux journalier, station service</li>
+            <li><code>Bulletin</code> + <code>BulletinLigne</code> — paie mensuelle, masse brute, charges patronales, rubriques</li>
+            <li><code>CongeDemande</code> + <code>CongeType</code> — demandes de congé, famille (Annuel / Maladie / etc.)</li>
+            <li><code>Site</code>, <code>StationService</code>, <code>Departement</code>, <code>Categories</code>, <code>PosteInterimaire</code> — référentiels</li>
+        </ul>
+
+        <h2>Cache et performance</h2>
+        <p>Chaque calcul KPI est <strong>caché 5 minutes</strong> côté serveur (mémoire). Le bouton ↻
+        Actualiser permet d'invalider ce cache si vous venez de saisir une donnée fraîche
+        (nouveau salarié, bulletin validé, etc.).</p>
+
+        <div class="footer">
+            ELTON Oil Company · Module Tableaux de Bord RH · Aide v1.0
+        </div>
+    </main>
+</body>
+</html>

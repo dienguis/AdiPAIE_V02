@@ -3,227 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulletins de paie — SunuPaie</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
-        h2 { color: #0F6E56; margin-top: 25px; }
-        h3 { color: #555; }
-        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
-        .bouton strong { color: #0F6E56; }
-        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .info { background: #e3f2fd; border-left: 4px solid #2196F3; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
-        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
-        nav a:hover { text-decoration: underline; }
-        code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
-        .formule { background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 12px; border-radius: 4px; margin: 10px 0; font-family: monospace; }
-    </style>
+    <title>SunuPaie — Bulletins de paie (Guide complet)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
-        <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/periodes.html">Periodes</a>
-        <a href="/help/prets.html">Prets</a>
-        <a href="/help/salaries.html">Salaries</a>
-        <a href="/help/conges.html">Conges</a>
+        <a href="/help/bulletins.html" class="active">Bulletins</a>
+        <a href="/help/periodes.html">Périodes</a>
+        <a href="/help/prets.html">Prêts</a>
+        <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/interimaires.html">Intérimaires</a>
+        <a href="/help/conges.html">Congés</a>
         <a href="/help/missions.html">Missions</a>
-        <a href="/help/formations.html">Formations</a>
-        <a href="/help/evaluations.html">Evaluations</a>
-        <a href="/help/parametrage.html">Parametrage</a>
-        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
-        <a href="/help/offboarding.html">Offboarding</a>
-        <a href="/help/disciplinaire.html">Disciplinaire</a>
-        <a href="/help/audit.html">Audit</a>
-        <a href="/help/import-salaries.html">Import</a>
-        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>Bulletins de paie</h1>
+    <h1>📄 Bulletins de paie — Guide complet</h1>
+    <p>Ce module permet de créer, calculer, valider, envoyer et clôturer
+    les bulletins de paie mensuels conformément à la législation
+    sénégalaise (IPRES, CSS, IR, TRIMF, CFCE).</p>
 
-    <h2>Flux de travail</h2>
-    <div class="flux">
+    <div class="toc">
+        <strong>📑 Étapes du processus</strong>
         <ol>
-            <li>Paie &rarr; Periodes de paie &rarr; Creer/Ouvrir une periode</li>
-            <li>Liste des salaries actifs &rarr; Selectionner &rarr; <strong>Creer bulletins (periode)</strong></li>
-            <li>Ouvrir un bulletin &rarr; Verifier le champ <strong>Jours travailles</strong> (prorata)</li>
-            <li>Cliquer <strong>Recalculer</strong></li>
-            <li>Verifier les lignes &rarr; <strong>Valider</strong></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du workflow mensuel</a></li>
+            <li><a href="#etape1">Étape 1 — Ouvrir/créer la Période de paie</a></li>
+            <li><a href="#etape2">Étape 2 — Créer les Bulletins (batch ou manuel)</a></li>
+            <li><a href="#etape3">Étape 3 — Vérifier les Jours travaillés (prorata)</a></li>
+            <li><a href="#etape4">Étape 4 — Recalculer les cotisations</a></li>
+            <li><a href="#etape5">Étape 5 — Valider</a></li>
+            <li><a href="#etape6">Étape 6 — Télécharger / Envoyer le PDF</a></li>
+            <li><a href="#etape7">Étape 7 — Clôturer le bulletin</a></li>
+            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
+            <li><a href="#regles">Règles métier</a></li>
+            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
         </ol>
     </div>
 
-    <h2>Boutons disponibles</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="vue-ensemble">📋 Vue d'ensemble du workflow mensuel</h2>
 
-    <h3>Sur le bulletin (DetailView)</h3>
-    <div class="bouton">
-        <strong>Recalculer :</strong> recalcule toutes les cotisations et retenues (IPRES, CSS, IR, TRIMF, CFCE) depuis le parametrage salarie. Detecte automatiquement le prorata si c'est un premier bulletin avec embauche en cours de mois.
+    <div class="workflow">
+        <div class="box">📅 Période</div>
+        <span class="arrow">→</span>
+        <div class="box">📄 Création</div>
+        <span class="arrow">→</span>
+        <div class="box">✏️ Vérif.</div>
+        <span class="arrow">→</span>
+        <div class="box">🔄 Recalcul</div>
+        <span class="arrow">→</span>
+        <div class="box">✅ Validation</div>
+        <span class="arrow">→</span>
+        <div class="box">📧 Envoi</div>
+        <span class="arrow">→</span>
+        <div class="box">🔒 Clôture</div>
     </div>
-    <div class="bouton">
-        <strong>Valider :</strong> passe le bulletin en statut Valide. Marque automatiquement les echeances de prets du mois comme "Prelevees".
-    </div>
-    <div class="bouton">
-        <strong>Remplacer depuis le modele :</strong> supprime toutes les lignes et repart de zero depuis le modele du salarie.
-    </div>
-    <div class="bouton">
-        <strong>Charger depuis le modele :</strong> ajoute les lignes manquantes sans ecraser les lignes existantes.
-    </div>
-    <div class="bouton">
-        <strong>Remplacer lignes du modele uniquement :</strong> recharge les lignes issues du modele, mais garde les lignes manuelles.
-    </div>
-    <div class="bouton">
-        <strong>Recharger lignes standard :</strong> met a jour SB, LOGT, Sursalaire, Transport depuis la fiche salarie.
-    </div>
-    <div class="bouton">
-        <strong>Reordonner lignes :</strong> renumerote les lignes en 10, 20, 30...
-    </div>
-    <div class="bouton">
-        <strong>Renvoyer (PDF archive) :</strong> renvoie par email le PDF deja genere.
-    </div>
-
-    <h3>Sur la liste des bulletins (ListView)</h3>
-    <div class="bouton">
-        <strong>Telecharger PDF :</strong> genere et telecharge le bulletin selectionne en PDF. Si une archive existe, elle est servie directement. Sinon le PDF est genere a la volee et archive pour les prochains telechargements. <em>Visible uniquement pour le RH/Admin.</em>
-    </div>
-    <div class="bouton">
-        <strong>Envoyer au salarie :</strong> envoie le bulletin PDF par email au salarie concerne. Le bulletin doit etre au minimum en statut <strong>Valide</strong> (pas Brouillon). Le statut passe automatiquement a Envoye. <em>Visible uniquement pour le RH/Admin.</em>
-    </div>
-    <div class="bouton">
-        <strong>Filtre rapide :</strong> filtre predetermine pour retrouver rapidement les bulletins. Options disponibles :
-        <ul style="margin:5px 0 0 20px;">
-            <li><strong>Tous</strong> : affiche tous les bulletins (retire le filtre)</li>
-            <li><strong>Mois en cours</strong> : bulletins du mois actuel</li>
-            <li><strong>Mois precedent</strong> : bulletins du mois precedent</li>
-            <li><strong>Brouillons</strong> : bulletins en statut Brouillon</li>
-            <li><strong>Valides (non envoyes)</strong> : bulletins valides mais pas encore envoyes</li>
-            <li><strong>Envoyes</strong> : bulletins deja envoyes au salarie</li>
-            <li><strong>Clotures</strong> : bulletins clotures definitivement</li>
-        </ul>
-    </div>
-    <div class="bouton">
-        <strong>Cloturer :</strong> cloture le bulletin (irreversible sauf reopening RH). Verifie que tous les bulletins anterieurs sont clotures.
-    </div>
-    <div class="bouton">
-        <strong>Reouvrir :</strong> remet le bulletin en Brouillon. Annule les prelevements de prets du mois, remet les echeances en "Prevue", et recalcule le bulletin.
-    </div>
-
-    <h3>Sur Periodes de paie (ListView)</h3>
-    <div class="bouton">
-        <strong>Generer etat 1024 :</strong> exporte la declaration annuelle des salaires (DGID Senegal) en Excel.
-    </div>
-    <div class="bouton">
-        <strong>Generer etat VRS :</strong> exporte l'etat mensuel VRS (Versement Retenue a la Source) en Excel. Colonnes : Matricule, Statut, Nom, BRUT, IR, TRIMF, CFCE, IPRES (RG/RC salarie et employeur), CSS (AT/AF), NET. Avec totaux et sous-totaux par groupe.
-    </div>
-
-    <!-- ===== PRORATA ===== -->
-    <h2>Prorata — Jours travailles</h2>
 
     <div class="info">
-        Chaque bulletin a un champ <strong>Jours travailles</strong> (defaut : 30). Ce champ controle le prorata du salaire de base et de l'indemnite de logement. Il est modifiable par le RH directement sur le bulletin, <strong>sans toucher a la fiche salarie</strong>.
+        <strong>📌 Statuts d'un bulletin</strong> :
+        <strong>Brouillon</strong> (modifiable) →
+        <strong>Validé</strong> (figé, prêt à envoyer) →
+        <strong>Envoyé</strong> (PDF transmis au salarié) →
+        <strong>Clôturé</strong> (irréversible sauf réouverture RH).
     </div>
 
-    <h3>Cas d'utilisation</h3>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape1">📅 Étape 1 — Ouvrir / créer la Période de paie</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Naviguer vers les Périodes</h3>
+        <p>Menu <strong>Paie</strong> → <strong>Périodes de paie</strong>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Créer ou sélectionner la période</h3>
+        <p>Soit cliquer <kbd>+ New</kbd> pour une nouvelle période (ex: Mai 2026),
+        soit ouvrir la période existante du mois.</p>
+        <div class="field-list">
+            <dl>
+                <dt>Année *</dt><dd>Année de la période (ex: 2026)</dd>
+                <dt>Mois *</dt><dd>1 à 12</dd>
+                <dt>Statut</dt><dd>Ouverte (en cours) / Fermée (clôturée)</dd>
+                <dt>Date d'ouverture</dt><dd>Auto à la création</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="alerte">
+        <strong>⚠️ Une seule période ouverte à la fois</strong> par société. Si
+        la période antérieure n'est pas clôturée, le système empêche d'en
+        ouvrir une nouvelle.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape2">📄 Étape 2 — Créer les Bulletins (batch ou manuel)</h2>
+
+    <div class="step">
+        <h3><span class="num">A</span>Création en lot (recommandé)</h3>
+        <p>Depuis la fiche <strong>Période de paie</strong> ouverte :</p>
+        <ol>
+            <li>Onglet <strong>Liste des salariés actifs</strong></li>
+            <li>Sélectionner les salariés (Ctrl+A pour tout)</li>
+            <li>Cliquer <kbd>Créer bulletins (période)</kbd></li>
+        </ol>
+        <p>Le système crée un bulletin Brouillon par salarié avec les lignes
+        standard (SB, LOGT, Sursalaire, Transport) tirées de la fiche.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">B</span>Création manuelle</h3>
+        <p>Menu <strong>Paie</strong> → <strong>Bulletins</strong> →
+        <kbd>+ New</kbd> → choisir le Salarié et la Période.</p>
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple :</strong> Mai 2026, 47 salariés actifs.<br>
+        - Ouvrir la Période <code>05/2026</code><br>
+        - Onglet « Salariés actifs » → tout sélectionner (47 lignes)<br>
+        - Cliquer <kbd>Créer bulletins</kbd><br>
+        - Résultat : <strong>47 bulletins en Brouillon</strong> (les nouveaux
+        embauchés ce mois-ci ont un prorata auto-calculé)
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape3">✏️ Étape 3 — Vérifier les Jours travaillés (prorata)</h2>
+
+    <p>Chaque bulletin a un champ <strong>Jours travaillés</strong>
+    (défaut : 30). Il pilote le prorata du Salaire de Base et de l'Indemnité
+    de Logement.</p>
+
+    <h3>Tableau des cas typiques</h3>
     <table>
-        <tr><th>Situation</th><th>Jours travailles</th><th>Qui modifie ?</th></tr>
-        <tr><td>Salarie normal, mois complet</td><td>30</td><td>Automatique (defaut)</td></tr>
-        <tr><td>Nouvelle recrue embauche le 17 du mois</td><td>14</td><td>Automatique au Recalcul (premier bulletin detecte)</td></tr>
-        <tr><td>Arret pour faute (10 jours non payes)</td><td>20</td><td>Le RH modifie manuellement</td></tr>
-        <tr><td>Absence non payee (5 jours)</td><td>25</td><td>Le RH modifie manuellement</td></tr>
+        <thead><tr><th>Situation</th><th>Jours travaillés</th><th>Qui modifie ?</th></tr></thead>
+        <tbody>
+            <tr><td>Salarié normal, mois complet</td><td>30</td><td>Automatique (défaut)</td></tr>
+            <tr><td>Embauche le 17 du mois</td><td>14</td><td>Automatique au Recalcul (1er bulletin détecté)</td></tr>
+            <tr><td>Arrêt pour faute (10 jours non payés)</td><td>20</td><td>RH manuel</td></tr>
+            <tr><td>Absence non payée 5 jours</td><td>25</td><td>RH manuel</td></tr>
+        </tbody>
     </table>
 
-    <h3>Formule de calcul</h3>
     <div class="formule">
-        Salaire de base = (SalaireBase / 30) &times; JoursTravailles<br>
-        Indemnite logement = (IndemniteLogement / 30) &times; JoursTravailles
-    </div>
-
-    <h3>Fonctionnement automatique</h3>
-    <div class="alerte">
-        <ul>
-            <li>Quand le RH clique <strong>Recalculer</strong> sur un bulletin neuf : si la DateEmbauche tombe dans le mois du bulletin et qu'il n'y a aucun bulletin anterieur, les jours travailles sont calcules automatiquement : <code>30 - (jour embauche - 1)</code>.</li>
-            <li>Si le RH a deja modifie JoursTravailles (valeur != 30), le recalcul <strong>ne l'ecrase pas</strong>.</li>
-            <li>Le mois suivant, JoursTravailles revient a 30 automatiquement (nouveau bulletin).</li>
-        </ul>
-    </div>
-
-    <!-- ===== CONTROLE EMBAUCHE ===== -->
-    <h2>Controle date d'embauche</h2>
-
-    <div class="erreur">
-        <strong>Un bulletin ne peut pas etre cree pour un mois anterieur a la date d'embauche.</strong><br>
-        Exemple : un salarie recrute le 17/04/2026 ne peut pas avoir de bulletin pour mars 2026 ou avant.
-    </div>
-    <div class="info">
-        <ul>
-            <li><strong>En generation batch :</strong> le salarie est simplement ignore (compte dans les "ignores").</li>
-            <li><strong>En creation manuelle :</strong> une erreur s'affiche a la sauvegarde avec le message : "Impossible de creer un bulletin pour 03/2026. [Nom] n'a ete recrute(e) que le 17/04/2026."</li>
-        </ul>
-    </div>
-
-    <!-- ===== REGLES METIER ===== -->
-    <h2>Regles metier</h2>
-    <div class="alerte">
-        <ul>
-            <li>Le bulletin doit etre en <strong>Brouillon</strong> pour etre modifie</li>
-            <li>Valider integre automatiquement le remboursement des prets du mois</li>
-            <li>Les lignes avec Source=Calcul sont recalculees automatiquement</li>
-            <li>Les lignes manuelles ne sont PAS recalculees (intentionnel)</li>
-            <li>Pour forcer le recalcul de SB/LOGT : utiliser "Recalculer"</li>
-            <li>Les cotisations IPRES/CSS sont calculees sur le <strong>Brut Social</strong></li>
-            <li>L'IR et la TRIMF sont calcules sur le <strong>Brut Fiscal</strong></li>
-            <li>La CFCE est une charge patronale uniquement (pas de retenue salarie)</li>
-        </ul>
-    </div>
-
-    <!-- ===== VERROUILLAGE ===== -->
-    <h2>Verrouillage optimiste</h2>
-
-    <div class="info">
-        Le bulletin est protege par un <strong>verrouillage optimiste</strong> : si deux utilisateurs modifient le meme bulletin en meme temps, le deuxieme a enregistrer recoit un message d'avertissement et doit rafraichir la page (F5) avant de reessayer. Cela evite les ecrasements de donnees involontaires.
+        Salaire de base = (SalaireBase / 30) × JoursTravailles<br>
+        Indemnité logement = (IndemniteLogement / 30) × JoursTravailles
     </div>
 
     <div class="alerte">
-        <strong>Message "Ce bulletin a ete modifie par un autre utilisateur" :</strong> un autre RH a modifie et enregistre ce bulletin pendant que vous travailliez dessus. Rafraichissez la vue (F5) pour charger la version a jour, puis refaites vos modifications si necessaire.
+        <strong>⚠️ Une fois modifié manuellement (≠ 30), le Recalcul ne
+        l'écrase pas.</strong> Le mois suivant, JoursTravailles revient à
+        30 automatiquement (nouveau bulletin).
     </div>
 
-    <!-- ===== HEURES SUPPLEMENTAIRES ===== -->
-    <h2>Heures supplementaires</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape4">🔄 Étape 4 — Recalculer les cotisations</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer le bouton Recalculer</h3>
+        <p>Sur la fiche bulletin → bouton <kbd>Recalculer</kbd>.</p>
+    </div>
 
     <div class="info">
-        Si le module HS est active (voir <a href="/help/heures-supplementaires.html">Aide Heures Sup.</a>), un bouton <strong>Ajouter HS</strong> apparait sur le bulletin. Les heures supplementaires sont calculees automatiquement et integrees dans le Brut.
+        <strong>Ce que fait le Recalculer :</strong>
+        <ul>
+            <li>Recharge le SB / LOGT / Sursalaire / Transport depuis la fiche salarié</li>
+            <li>Recalcule l'IPRES RG (5,60% / 8,40%, plafond 432 000)</li>
+            <li>Recalcule l'IPRES RC pour cadres (2,40% / 3,60%, plafond 1 296 000)</li>
+            <li>Recalcule la CSS (AT/AF) — variable selon paramétrage</li>
+            <li>Recalcule la CFCE — variable selon paramétrage</li>
+            <li>Recalcule l'IR (abattement 30%, max 75 000/mois) sur Brut Fiscal</li>
+            <li>Recalcule la TRIMF (Taxe Représentative IMF) sur Brut Fiscal</li>
+            <li>Détecte automatiquement le prorata si premier bulletin avec embauche en cours de mois</li>
+        </ul>
     </div>
 
-    <!-- ===== ERREURS ===== -->
-    <h2>Erreurs frequentes</h2>
-    <div class="erreur">
-        <strong>SB ou LOGT = 0 &rarr;</strong> cliquer "Recalculer". Verifier aussi que la fiche salarie a un SalaireBase et IndemniteLogement renseignes.
+    <div class="exemple">
+        <strong>Exemple :</strong> Bulletin Mai 2026 de Awa SOW (Cadre)<br>
+        - Salaire base : 1 200 000 FCFA → IPRES RC déclenchée<br>
+        - IPRES RG salariale : 432 000 × 5,60% = 24 192<br>
+        - IPRES RG patronale : 432 000 × 8,40% = 36 288<br>
+        - IPRES RC salariale : (1 200 000 − 432 000) × 2,40% = 18 432<br>
+        - IPRES RC patronale : 27 648<br>
+        - Brut Fiscal calculé puis IR/TRIMF appliqués
     </div>
-    <div class="erreur">
-        <strong>Pret non visible &rarr;</strong> verifier que le pret est En cours et que la date echeance correspond au mois du bulletin. Voir <a href="/help/prets.html">Aide Prets</a>.
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape5">✅ Étape 5 — Valider</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer Valider</h3>
+        <p>Bouton <kbd>Valider</kbd> sur la fiche du bulletin.</p>
     </div>
-    <div class="erreur">
-        <strong>IR = 0 &rarr;</strong> verifier les parts fiscales du salarie et le bareme IR parametre.
+
+    <div class="info">
+        <strong>Effets de la Validation :</strong>
+        <ul>
+            <li>Statut <strong>Brouillon</strong> → <strong>Validé</strong></li>
+            <li>Les lignes deviennent figées (sauf réouverture)</li>
+            <li>Les <strong>échéances de prêts</strong> du mois sont marquées
+            « Prélevées » automatiquement</li>
+            <li>Le bulletin devient envoyable au salarié (Étape 6)</li>
+        </ul>
     </div>
-    <div class="erreur">
-        <strong>"Impossible de creer un bulletin..." &rarr;</strong> la DateEmbauche du salarie est posterieure au mois du bulletin. Le premier bulletin possible est le mois d'embauche.
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape6">📧 Étape 6 — Télécharger / Envoyer le PDF</h2>
+
+    <div class="step">
+        <h3><span class="num">A</span>Télécharger PDF (test/archive)</h3>
+        <p>Liste des bulletins → sélectionner → bouton <kbd>Télécharger PDF</kbd>.
+        Génère et télécharge le PDF (archivé pour les prochains téléchargements).</p>
     </div>
-    <div class="erreur">
-        <strong>JoursTravailles revient a 30 apres Recalcul &rarr;</strong> cela se produit uniquement si la valeur etait deja a 30 ou 0. Si vous avez mis une valeur specifique (ex: 20), elle est preservee.
+
+    <div class="step">
+        <h3><span class="num">B</span>Envoyer au salarié (par email)</h3>
+        <p>Liste des bulletins → sélectionner → bouton <kbd>Envoyer au salarié</kbd>.
+        Le bulletin doit être au minimum <strong>Validé</strong>. Le statut
+        passe automatiquement à <strong>Envoyé</strong>.</p>
     </div>
-    <div class="erreur">
-        <strong>"Ce bulletin a ete modifie par un autre utilisateur" &rarr;</strong> conflit de verrouillage optimiste. Rafraichissez la vue (F5) et reessayez.
+
+    <div class="alerte">
+        Boutons <strong>Visible uniquement pour le RH/Admin</strong>. Le salarié
+        reçoit le PDF dans sa boîte email professionnelle (renseignée sur sa fiche).
     </div>
-    <div class="erreur">
-        <strong>"Un bulletin existe deja pour ce salarie sur cette periode" &rarr;</strong> un bulletin avec le meme salarie, annee et mois existe deja. Chaque salarie ne peut avoir qu'un seul bulletin par mois.
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape7">🔒 Étape 7 — Clôturer le bulletin</h2>
+
+    <p>En fin de mois (et après vérification de tous les bulletins) :</p>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer Clôturer</h3>
+        <p>Liste des bulletins → sélectionner → bouton <kbd>Clôturer</kbd>.
+        Vérifie que tous les bulletins antérieurs sont clôturés.</p>
     </div>
+
     <div class="erreur">
-        <strong>"Les montants d'une ligne de bulletin ne peuvent pas etre negatifs" &rarr;</strong> la base, le montant salarie ou le montant employeur d'une ligne est negatif. Corrigez la saisie.
+        <strong>⚠️ Action irréversible</strong> sauf réouverture par RH/Admin
+        via le bouton <kbd>Réouvrir</kbd> qui :
+        <ul>
+            <li>Remet le bulletin en <strong>Brouillon</strong></li>
+            <li>Annule les prélèvements de prêts du mois</li>
+            <li>Remet les échéances en « Prévue »</li>
+            <li>Recalcule le bulletin</li>
+        </ul>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="cas-usage">💼 Cas d'usage concrets</h2>
+
+    <h3>Cas 1 — Première paie d'un nouvel embauché</h3>
+    <ol>
+        <li>Salarié embauché le 17/04/2026 (DateEmbauche)</li>
+        <li>Au mois d'avril, le RH crée le bulletin (Période 04/2026)</li>
+        <li>Recalcul → JoursTravailles auto-calculé : 30 − (17 − 1) = <strong>14</strong></li>
+        <li>Salaire base proratisé : (1 000 000 / 30) × 14 = <strong>466 667 FCFA</strong></li>
+        <li>Cotisations calculées sur la base proratisée</li>
+        <li>Mai 2026 : nouveau bulletin avec JoursTravailles = 30 automatiquement</li>
+    </ol>
+
+    <h3>Cas 2 — Absence non payée de 5 jours</h3>
+    <ol>
+        <li>Le salarié a 5 jours d'absence non justifiée en juin</li>
+        <li>RH ouvre le bulletin Brouillon → modifie JoursTravailles : 30 → <strong>25</strong></li>
+        <li>Cliquer Recalculer → SB et LOGT sont proratisés à 25/30</li>
+        <li>Cotisations recalculées sur le nouveau brut</li>
+        <li>Valider</li>
+    </ol>
+
+    <h3>Cas 3 — Erreur découverte après envoi</h3>
+    <ol>
+        <li>Bulletin déjà Envoyé au salarié, erreur découverte (mauvais sursalaire)</li>
+        <li>Admin clique <kbd>Réouvrir</kbd> → bulletin repasse Brouillon</li>
+        <li>RH corrige la ligne erronée → <kbd>Recalculer</kbd> → <kbd>Valider</kbd></li>
+        <li>RH clique <kbd>Renvoyer (PDF archive)</kbd> → email reparti automatiquement</li>
+    </ol>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="regles">📜 Règles métier</h2>
+
+    <div class="alerte">
+        <ul>
+            <li>Le bulletin doit être en <strong>Brouillon</strong> pour être modifié</li>
+            <li>Valider intègre automatiquement le remboursement des prêts du mois</li>
+            <li>Les lignes avec Source=<strong>Calcul</strong> sont recalculées automatiquement</li>
+            <li>Les lignes <strong>manuelles</strong> ne sont PAS recalculées (intentionnel)</li>
+            <li>Pour forcer le recalcul de SB/LOGT : utiliser « Recalculer »</li>
+            <li>Les cotisations IPRES/CSS sont calculées sur le <strong>Brut Social</strong></li>
+            <li>L'IR et la TRIMF sont calculés sur le <strong>Brut Fiscal</strong></li>
+            <li>Un bulletin ne peut PAS être créé pour un mois antérieur à la DateEmbauche</li>
+        </ul>
+    </div>
+
+    <h3>Cotisations Sénégal — Référence rapide</h3>
+    <table>
+        <thead><tr><th>Cotisation</th><th>Salarié</th><th>Employeur</th><th>Plafond mensuel</th></tr></thead>
+        <tbody>
+            <tr><td>IPRES RG</td><td>5,60%</td><td>8,40%</td><td>432 000 FCFA</td></tr>
+            <tr><td>IPRES RC (Cadres)</td><td>2,40%</td><td>3,60%</td><td>1 296 000 FCFA</td></tr>
+            <tr><td>CSS AT</td><td>0%</td><td>Variable</td><td>Pas de plafond</td></tr>
+            <tr><td>CSS AF</td><td>0%</td><td>Variable</td><td>Pas de plafond</td></tr>
+            <tr><td>CFCE</td><td>0%</td><td>Variable</td><td>Base = Brut Fiscal</td></tr>
+        </tbody>
+    </table>
+
+    <div class="info">
+        <strong>IR — Abattement :</strong> 30% du Brut Fiscal. Maximum annuel : 900 000 FCFA (75 000/mois).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+
+    <h3>Q : Erreur « Impossible de créer un bulletin pour 03/2026 »</h3>
+    <div class="erreur">
+        <strong>Cause :</strong> le salarié a été embauché APRÈS le 31/03/2026.
+        Un bulletin ne peut pas être créé pour un mois antérieur à la DateEmbauche.
+        <br><br>
+        <strong>Fix :</strong> vérifier la DateEmbauche sur la fiche salarié.
+        Si la date est correcte, le salarié n'a tout simplement pas droit à
+        un bulletin pour ce mois.
+    </div>
+
+    <h3>Q : Comment réintégrer une ligne manuelle après un Recalcul ?</h3>
+    <div class="ok">
+        Les lignes manuelles ne sont jamais écrasées par Recalculer. Si vous
+        l'avez supprimée par erreur via « Remplacer depuis le modèle », il
+        faut la recréer manuellement.
+    </div>
+
+    <h3>Q : Le bouton « Envoyer au salarié » ne fonctionne pas</h3>
+    <div class="info">
+        Vérifier :
+        <ul>
+            <li>Le bulletin est <strong>Validé</strong> (pas Brouillon)</li>
+            <li>Le salarié a un email renseigné dans sa fiche</li>
+            <li>Le serveur SMTP est paramétré (Paramétrage → Notifications)</li>
+        </ul>
+    </div>
+
+    <h3>Q : Je dois proratiser SEULEMENT le Sursalaire (pas SB)</h3>
+    <div class="info">
+        JoursTravailles ne touche QUE SB et LOGT. Pour proratiser une autre
+        ligne, modifier directement le Montant de la ligne dans le bulletin
+        (mode manuel). Le Recalcul ne touchera plus à cette ligne.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+
+    <h3>Sur la fiche Bulletin (DetailView)</h3>
+    <div class="bouton"><strong>Recalculer :</strong> recalcule toutes les cotisations + retenues + détecte prorata.</div>
+    <div class="bouton"><strong>Valider :</strong> passe en statut Validé + marque les échéances de prêts comme Prélevées.</div>
+    <div class="bouton"><strong>Remplacer depuis le modèle :</strong> supprime toutes les lignes et repart de zéro.</div>
+    <div class="bouton"><strong>Charger depuis le modèle :</strong> ajoute les lignes manquantes sans écraser.</div>
+    <div class="bouton"><strong>Remplacer lignes du modèle uniquement :</strong> recharge les lignes du modèle, garde les manuelles.</div>
+    <div class="bouton"><strong>Recharger lignes standard :</strong> met à jour SB, LOGT, Sursalaire, Transport.</div>
+    <div class="bouton"><strong>Réordonner lignes :</strong> renumérote en 10, 20, 30…</div>
+    <div class="bouton"><strong>Renvoyer (PDF archive) :</strong> renvoie par email le PDF déjà généré.</div>
+
+    <h3>Sur la liste des Bulletins (ListView)</h3>
+    <div class="bouton"><strong>Télécharger PDF :</strong> génère/télécharge le bulletin sélectionné. Visible RH/Admin.</div>
+    <div class="bouton"><strong>Envoyer au salarié :</strong> email du PDF. Bulletin doit être Validé. Visible RH/Admin.</div>
+    <div class="bouton"><strong>Filtre rapide :</strong> Tous, Mois en cours/précédent, Brouillons, Validés non envoyés, Envoyés, Clôturés.</div>
+    <div class="bouton"><strong>Clôturer :</strong> action irréversible. Vérifie clôture des bulletins antérieurs.</div>
+    <div class="bouton"><strong>Réouvrir :</strong> remet en Brouillon, annule prélèvements prêts, recalcule.</div>
+
+    <h3>Sur la liste des Périodes de paie</h3>
+    <div class="bouton"><strong>Générer état 1024 :</strong> exporte la déclaration annuelle des salaires (DGID Sénégal) en Excel.</div>
+    <div class="bouton"><strong>Générer état VRS :</strong> exporte l'état mensuel Versement Retenue à la Source en Excel (Matricule, Statut, Nom, BRUT, IR, TRIMF, CFCE, IPRES, CSS, NET avec totaux).</div>
+
+    <div class="footer-help">
+        ELTON Oil Company / SunuPaie · Bulletins de paie · Guide v1.1 (mai 2026)<br>
+        Voir aussi : <a href="/help/periodes.html">Périodes</a> ·
+        <a href="/help/prets.html">Prêts</a> ·
+        <a href="/help/livre-de-paye.html">Livre de Paie</a>
     </div>
 </body>
 </html>

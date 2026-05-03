@@ -3,129 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parametrage — SunuPaie</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
-        h2 { color: #0F6E56; margin-top: 25px; }
-        h3 { color: #555; }
-        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
-        .bouton strong { color: #0F6E56; }
-        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
-        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
-        nav a:hover { text-decoration: underline; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
-        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-decoration: none; color: #333; transition: box-shadow 0.2s; }
-        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .card h3 { color: #0F6E56; margin-top: 0; }
-    </style>
+    <title>SunuPaie — Paramétrage (Guide complet)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/periodes.html">Periodes</a>
-        <a href="/help/prets.html">Prets</a>
-        <a href="/help/salaries.html">Salaries</a>
-        <a href="/help/conges.html">Conges</a>
-        <a href="/help/missions.html">Missions</a>
-        <a href="/help/formations.html">Formations</a>
-        <a href="/help/evaluations.html">Evaluations</a>
-        <a href="/help/parametrage.html">Parametrage</a>
+        <a href="/help/parametrage.html" class="active">Paramétrage</a>
         <a href="/help/heures-supplementaires.html">Heures Sup.</a>
-        <a href="/help/offboarding.html">Offboarding</a>
-        <a href="/help/disciplinaire.html">Disciplinaire</a>
-        <a href="/help/audit.html">Audit</a>
-        <a href="/help/import-salaries.html">Import</a>
-        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+        <a href="/help/salaries.html">Salariés</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>Parametrage</h1>
+    <h1>⚙️ Paramétrage — Guide complet</h1>
+    <p>Le paramétrage de SunuPaie regroupe tout ce qui détermine le calcul
+    de la paie : <strong>rubriques</strong> (gains et retenues),
+    <strong>barèmes</strong> légaux (IR, TRIMF, parts familiales),
+    <strong>cotisations sociales</strong> (IPRES, CSS, CFCE), et la
+    configuration <strong>SMTP</strong> pour les notifications.</p>
 
-    <h2>Types de rubrique</h2>
-    <div class="bouton">
-        <strong>BruteFiscal / BruteSocial :</strong> determine les assiettes de cotisation. <strong>Col 13/14 etat 1024 :</strong> pour la declaration DGID annuelle.
-    </div>
-
-    <h2>Rubriques de paie</h2>
-    <div class="bouton">
-        <strong>Ordre d'affichage :</strong> determine l'ordre dans le bulletin (10, 20, 30...). <strong>Canonique :</strong> role technique (SalaireDeBase, IPRES_RG, TRIMF, etc.). <strong>Taux1</strong> = part salariale / <strong>Taux2</strong> = part patronale.
-    </div>
-
-    <h2>Baremes</h2>
-    <div class="bouton">
-        <strong>IR (IRPP) :</strong> bareme progressif DGID — mettre a jour chaque annee.
-    </div>
-    <div class="bouton">
-        <strong>TRIMF :</strong> bareme mensuel et annuel — mettre a jour chaque annee.
-    </div>
-    <div class="bouton">
-        <strong>Reduction familiale IR :</strong> par nombre de parts.
-    </div>
-
-    <h2>Parametres SMTP</h2>
-    <div class="bouton">
-        Configurer pour l'envoi des bulletins et notifications. Tester avec le bouton "Test email".
+    <div class="toc">
+        <strong>📑 Sections</strong>
+        <ol>
+            <li><a href="#vue-ensemble">Vue d'ensemble</a></li>
+            <li><a href="#etape1">Étape 1 — Rubriques de paie</a></li>
+            <li><a href="#etape2">Étape 2 — Barèmes (IR, TRIMF, parts)</a></li>
+            <li><a href="#etape3">Étape 3 — Cotisations sociales Sénégal</a></li>
+            <li><a href="#etape4">Étape 4 — Paramètres SMTP</a></li>
+            <li><a href="#abattement">IR — Abattement professionnel</a></li>
+            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
+            <li><a href="#regles">Règles métier</a></li>
+            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+        </ol>
     </div>
 
-    <h2>Cotisations Senegal</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="vue-ensemble">📋 Vue d'ensemble</h2>
+
+    <div class="workflow">
+        <div class="box">📋 Rubriques</div>
+        <div class="box">📊 Barèmes</div>
+        <div class="box">💼 Cotisations</div>
+        <div class="box">📧 SMTP</div>
+        <div class="box">🔌 Intégrations</div>
+    </div>
+
+    <div class="alerte">
+        ⚠️ Le paramétrage est <strong>structurant</strong>. Toute modification
+        impacte les calculs des bulletins futurs. À effectuer en début
+        d'exercice (1er janvier) ou lors de changements légaux (lois de finances).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape1">📋 Étape 1 — Rubriques de paie</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Aller dans Paramétrage → Rubriques</h3>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Champs clés d'une rubrique</h3>
+        <dl class="field-list">
+            <dt>Code</dt>
+            <dd>Identifiant court (ex. <code>SAL_BASE</code>, <code>IPRES_RG</code>).</dd>
+            <dt>Libellé</dt>
+            <dd>Texte affiché sur le bulletin.</dd>
+            <dt>Canonique</dt>
+            <dd>Rôle technique : <code>SalaireDeBase</code>, <code>IPRES_RG</code>,
+                <code>TRIMF</code>, <code>HeuresSupplementaires</code>, etc.
+                Permet la reconnaissance auto par le moteur de calcul.</dd>
+            <dt>Type calcul</dt>
+            <dd>Gain (positif) / Retenue (négatif) / Information.</dd>
+            <dt>Brut Fiscal</dt>
+            <dd>Oui = entre dans la base de calcul TRIMF/IR.</dd>
+            <dt>Brut Social</dt>
+            <dd>Oui = entre dans la base de calcul IPRES/CSS.</dd>
+            <dt>Taux 1 / Taux 2</dt>
+            <dd>Taux 1 = part salariale ; Taux 2 = part patronale.</dd>
+            <dt>Ordre d'affichage</dt>
+            <dd>Ordre dans le bulletin (10, 20, 30…). Trier par centaines pour insérer entre.</dd>
+            <dt>Col 13/14 état 1024</dt>
+            <dd>Pour la déclaration DGID annuelle.</dd>
+        </dl>
+    </div>
+
+    <div class="info">
+        💡 Un canonique <strong>doit rester unique</strong> dans la base.
+        Le moteur de calcul s'appuie dessus pour appliquer la bonne formule.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape2">📊 Étape 2 — Barèmes (IR, TRIMF, parts)</h2>
+
+    <p>Les barèmes sont à mettre à jour <strong>chaque année</strong>
+    suite aux lois de finances. Ils sont rétroactifs au 1er janvier.</p>
+
+    <div class="bouton">
+        <strong>📊 IR (IRPP) :</strong> barème progressif DGID. Plusieurs
+        tranches avec taux croissants. Mettre à jour chaque année après
+        publication de la loi de finances.
+    </div>
+
+    <div class="bouton">
+        <strong>📊 TRIMF :</strong> barème mensuel et annuel. À mettre à
+        jour chaque année. Calculé sur le brut fiscal après abattement.
+    </div>
+
+    <div class="bouton">
+        <strong>📊 Réduction familiale IR :</strong> barème par nombre
+        de parts (1, 1,5, 2, 2,5, etc.). Détermine la réduction d'impôt.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape3">💼 Étape 3 — Cotisations sociales Sénégal</h2>
+
     <table>
         <thead>
-            <tr>
-                <th>Cotisation</th>
-                <th>Salarie</th>
-                <th>Employeur</th>
-                <th>Plafond mensuel</th>
-            </tr>
+            <tr><th>Cotisation</th><th>Salarié</th><th>Employeur</th><th>Plafond mensuel</th></tr>
         </thead>
         <tbody>
-            <tr>
-                <td>IPRES RG</td>
-                <td>5,60%</td>
-                <td>8,40%</td>
-                <td>432 000 FCFA</td>
-            </tr>
-            <tr>
-                <td>IPRES RC (cadres)</td>
-                <td>2,40%</td>
-                <td>3,60%</td>
-                <td>1 296 000 FCFA</td>
-            </tr>
-            <tr>
-                <td>CSS AT</td>
-                <td>0%</td>
-                <td>Variable</td>
-                <td>Pas de plafond</td>
-            </tr>
-            <tr>
-                <td>CSS AF</td>
-                <td>0%</td>
-                <td>Variable</td>
-                <td>Pas de plafond</td>
-            </tr>
-            <tr>
-                <td>CFCE</td>
-                <td>0%</td>
-                <td>Variable</td>
-                <td>Base = brut fiscal</td>
-            </tr>
+            <tr><td>IPRES RG</td><td>5,60 %</td><td>8,40 %</td><td>432 000 FCFA</td></tr>
+            <tr><td>IPRES RC (cadres)</td><td>2,40 %</td><td>3,60 %</td><td>1 296 000 FCFA</td></tr>
+            <tr><td>CSS AT (Accident Travail)</td><td>0 %</td><td>Variable selon risque</td><td>Pas de plafond</td></tr>
+            <tr><td>CSS AF (Allocation Familiale)</td><td>0 %</td><td>Variable</td><td>Pas de plafond</td></tr>
+            <tr><td>CFCE</td><td>0 %</td><td>Variable</td><td>Base = brut fiscal</td></tr>
         </tbody>
     </table>
 
-    <h2>IR — Abattement</h2>
+    <div class="info">
+        💡 Les taux IPRES sont <strong>pré-configurés</strong> dans la base.
+        Ne les modifier que sur instruction officielle (réforme).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape4">📧 Étape 4 — Paramètres SMTP</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Paramétrage → Paramètres SMTP</h3>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Renseigner</h3>
+        <dl class="field-list">
+            <dt>Serveur SMTP</dt>
+            <dd>ex. <em>smtp.gmail.com</em>, <em>smtp.office365.com</em>.</dd>
+            <dt>Port</dt>
+            <dd>587 (TLS) ou 465 (SSL).</dd>
+            <dt>Utilisateur</dt>
+            <dd>Adresse email d'envoi.</dd>
+            <dt>Mot de passe</dt>
+            <dd>Password ou App Password (Gmail/Office365).</dd>
+            <dt>SSL/TLS</dt>
+            <dd>Activer selon le port choisi.</dd>
+            <dt>Expéditeur</dt>
+            <dd>Nom affiché dans les emails (ex. <em>SunuPaie ELTON</em>).</dd>
+        </dl>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3</span>Tester avec le bouton Test email</h3>
+        <p>Envoie un email de test à l'utilisateur connecté pour valider la
+        configuration.</p>
+    </div>
+
+    <div class="info">
+        💡 SMTP est utilisé pour : envoi des bulletins PDF, notifications
+        de validation (congés, missions, avancements), relances workflow.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="abattement">💰 IR — Abattement professionnel</h2>
+
     <div class="alerte">
         <ul>
-            <li>30% du revenu brut fiscal</li>
+            <li><strong>30 % du revenu brut fiscal</strong></li>
             <li>Minimum annuel : 0 FCFA</li>
             <li>Maximum annuel : 900 000 FCFA (75 000 FCFA/mois)</li>
         </ul>
+        Cet abattement est appliqué automatiquement avant calcul de l'IR
+        progressif. Configuré au niveau <em>Paramètres de paie</em>.
     </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
+
+    <h3>Cas 1 — Mise à jour annuelle après loi de finances</h3>
+    <div class="exemple">
+        Janvier 2027 : la DGID publie le nouveau barème IR. Le RH ouvre
+        <em>Paramétrage → Barèmes → IR</em>, ajuste les tranches/taux,
+        enregistre. Tous les bulletins de janvier 2027 et après utilisent
+        automatiquement le nouveau barème.
+    </div>
+
+    <h3>Cas 2 — Création d'une nouvelle prime</h3>
+    <div class="exemple">
+        L'entreprise crée une <em>Prime de fin d'année</em> versée en
+        décembre. Le RH ajoute une rubrique : Code = <code>PRIME_FIN_ANNEE</code>,
+        Type = Gain, Brut Fiscal = Oui, Brut Social = Oui, Ordre = 250.
+        Cette prime apparaîtra dans les bulletins de décembre.
+    </div>
+
+    <h3>Cas 3 — Activation des heures supplémentaires</h3>
+    <div class="exemple">
+        Voir <a href="/help/heures-supplementaires.html">Guide Heures
+        supplémentaires</a> pour la procédure complète d'activation.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="regles">📜 Règles métier</h2>
+
+    <div class="alerte">
+        <ul>
+            <li>Les modifications de paramétrage sont <strong>tracées dans le journal d'audit</strong>.</li>
+            <li>Aucune rubrique ne peut être supprimée si elle a déjà été utilisée dans un bulletin (intégrité référentielle).</li>
+            <li>Pour désactiver une rubrique sans la supprimer, mettre <em>Actif = Non</em>.</li>
+            <li>Les barèmes sont historisés : le calcul d'un ancien bulletin utilise toujours le barème en vigueur à sa date.</li>
+            <li>Le canonique d'une rubrique ne doit jamais être modifié après mise en production.</li>
+        </ul>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+
+    <div class="erreur">
+        <strong>"Test email échoué : authentification refusée"</strong>
+        → Pour Gmail/Office365, créer un <em>App Password</em> spécifique
+        plutôt qu'utiliser le mot de passe principal. Activer la 2FA d'abord.
+    </div>
+
+    <div class="erreur">
+        <strong>"Cotisation IPRES = 0 sur le bulletin"</strong>
+        → Vérifier que la rubrique IPRES_RG (et IPRES_RC pour les cadres)
+        existe, est active, et a les bons Taux 1/Taux 2.
+    </div>
+
+    <div class="erreur">
+        <strong>"Cette rubrique ne peut pas être supprimée"</strong>
+        → Elle est référencée dans des bulletins. Mettre <em>Actif = Non</em>
+        au lieu de supprimer.
+    </div>
+
+    <div class="info">
+        💡 <strong>Quels rôles peuvent modifier le paramétrage ?</strong>
+        Uniquement <em>Administrators</em>. Le RH peut consulter mais
+        pas modifier (RBAC).
+    </div>
+
+    <p class="footer-help">
+        SunuPaie v1.1 — Module Paramétrage — Mise à jour mai 2026
+    </p>
 </body>
 </html>

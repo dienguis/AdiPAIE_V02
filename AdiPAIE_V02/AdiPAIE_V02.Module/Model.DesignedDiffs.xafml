@@ -112,7 +112,18 @@
           <Item Id="Cpta_Plan" Caption="Plan comptable" ViewId="PlanComptable_ListView" Index="2" IsNewNode="True" />
         </Items>
       </Item>
-      <Item Id="GRH_Dashboards" Caption="Tableaux de bord" Index="36" ImageName="Action_Report" IsNewNode="True">
+      <!-- ╔═══════════════════════════════════════════════════════════════╗
+           ║  Étape 7.SEC : nettoyage doublons "Tableaux de bord"          ║
+           ║  3 groupes legacy masqués (Visible="False"), à supprimer       ║
+           ║  définitivement après période de validation. Le groupe         ║
+           ║  "GRH - Tableaux de Bord" (DashboardsRHMenu) reste visible.    ║
+           ╚═══════════════════════════════════════════════════════════════╝ -->
+      <!-- Auto-créé par BusinessObject TableauBordInterimaire + TableauBordEffectif -->
+      <Item Id="Tableaux de Bord" Visible="False" />
+      <!-- Auto-créé par BusinessObject RapportPowerBI -->
+      <Item Id="Tableaux de bord" Visible="False" />
+
+      <Item Id="GRH_Dashboards" Caption="Tableaux de bord" Index="36" ImageName="Action_Report" IsNewNode="True" Visible="False">
         <Items IsNewNode="True">
           <Item Id="Dash_DashboardData" Caption="Tableaux de bord RH" ViewId="DashboardData_ListView" Index="0" ImageName="Action_Report" IsNewNode="True" />
           <Item Id="Dash_Effectifs" Caption="Effectifs RH" ViewId="TableauBordEffectif_DetailView" Index="1" ImageName="BO_Organization" IsNewNode="True" />
@@ -1687,5 +1698,21 @@
         </LayoutGroup>
       </Layout>
     </DetailView>
+    <!-- ╔═══════════════════════════════════════════════════════════════╗
+         ║  V1.1 Sprint 1A — Vues Site enrichies                          ║
+         ║  XAF auto-génère les onglets pour les XPCollection (Unites,    ║
+         ║  ContratsInterim, Salaries) — on n'override QUE le PropertyEditor║
+         ║  Type qui n'apparaît pas tout seul si le ModelDifference est figé.║
+         ╚═══════════════════════════════════════════════════════════════╝ -->
+    <DetailView Id="Site_DetailView">
+      <Items>
+        <PropertyEditor Id="Type" PropertyName="Type" IsNewNode="True" />
+      </Items>
+    </DetailView>
+    <ListView Id="Site_ListView">
+      <Columns>
+        <ColumnInfo Id="Type" PropertyName="Type" Index="2" IsNewNode="True" />
+      </Columns>
+    </ListView>
   </Views>
 </Application>

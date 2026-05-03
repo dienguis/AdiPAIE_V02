@@ -1,0 +1,612 @@
+@* =====================================================================
+    MouvementsDashboard.razor — Tableau N°3
+    URL : /dashboards/mouvements
+    Périmètre : Personnel INTERNE et EXTERNE (toggle)
+
+    UI complète (Étape 4.3) :
+      - Toggle Interne / Externe
+      - Filtres : Année, Site/Station, Genre (INTERNE), Segment, Catégorie
+      - 7 KPI cartes : NbArrivées, NbDéparts, Solde, %Arrivées, %Départs,
+                       Effectif Début, Effectif Fin
+      - Section Arrivées : bar mensuel × 12, bar par Site, bar par Catégorie
+      - Section Départs  : bar mensuel × 12, bar par Motif, bar par Site,
+                           bar par Catégorie
+
+    INTERNE : Salarie.DateEmbauche / Salarie.DateSortie + MotifDepart enum
+    EXTERNE : ContratInterim.DateDebut / DateFinReelle + Statut
+
+    Charte ELTON Oil héritée via wwwroot/css/dashboards-elton.css.
+   ===================================================================== *@
+
+@page "/dashboards/mouvements"
+@attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.BusinessObjects.RH
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+@using static AdiPAIE_V02.Module.Domain.DomainEnums
+
+@inject IMouvementsDashboardService Service
+@inject IDashboardExcelExportService ExcelExport
+@inject IDashboardPdfExportService PdfExport
+@inject IJSRuntime JS
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
+
+<PageTitle>Mouvements — Tableaux de Bord RH</PageTitle>
+
+@if (_data == null && _errorMessage == null)
+{
+    <div class="ed-loading">
+        <DxLoadingPanel Text="Chargement…" Visible="true" />
+    </div>
+}
+else
+{
+    @* ── HEADER SOMBRE ELTON ──────────────────────────────────────── *@
+    <header class="ed-header">
+
+        @* ── Ligne 1 : titre + toggle + KPI Solde ─────────────────── *@
+        <div class="ed-header__row">
+
+            <div class="ed-header__title">
+                <button class="ed-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+                <div>
+                    <div class="ed-header__perimetre">
+                        Tableau N°3 ·
+                        @(_filter.Personnel == PersonnelType.Externe ? "Personnel Externe (Intérimaires)" : "Personnel Interne (CDI / CDD / Stage)")
+                    </div>
+                    <h1 class="ed-header__h1">Mouvements (Arrivées / Départs)</h1>
+                </div>
+            </div>
+
+            @* Toggle INTERNE/EXTERNE *@
+            <div class="ed-kpigroup">
+                <div class="ed-kpigroup__head"><i class="bi bi-people"></i><span>Périmètre</span></div>
+                <div class="ed-toggle">
+                    <button class="ed-toggle__btn @(_filter.Personnel == PersonnelType.Interne ? "ed-toggle__btn--active" : "")"
+                            @onclick="@(() => OnPersonnelChanged(PersonnelType.Interne))">Interne</button>
+                    <button class="ed-toggle__btn @(_filter.Personnel == PersonnelType.Externe ? "ed-toggle__btn--active" : "")"
+                            @onclick="@(() => OnPersonnelChanged(PersonnelType.Externe))">Externe</button>
+                </div>
+            </div>
+
+            @* Solde Mouvements (gros chiffre) *@
+            <div class="ed-kpi-effectif" title="Solde net (Arrivées – Départs)">
+                <div class="ed-kpi-effectif__label">Solde @_filter.Annee</div>
+                <div class="ed-kpi-effectif__value @(_data?.Kpis.Solde >= 0 ? "ed-pos" : "ed-neg")">
+                    @((_data?.Kpis.Solde ?? 0).ToString("+0;-0;0", FrCulture))
+                </div>
+                <div class="ed-kpi-effectif__date">@(_data?.Kpis.NbArrivees ?? 0) arrivées · @(_data?.Kpis.NbDeparts ?? 0) départs</div>
+            </div>
+        </div>
+
+        @* ── Ligne 2 : filtres + actions ───────────────────────────── *@
+        <div class="ed-header__row ed-header__row--filters">
+            <div class="ed-filter">
+                <label>Année</label>
+                <DxComboBox TData="int" TValue="int"
+                            Data="@_anneesDispo"
+                            Value="@_filter.Annee"
+                            ValueChanged="@((int v) => OnAnneeChanged(v))"
+                            CssClass="ed-input" />
+            </div>
+            @if (_filter.Personnel == PersonnelType.Externe)
+            {
+                @* V1.1 Sprint 1C.2 — Site (V1.1) au lieu de StationService legacy *@
+                <div class="ed-filter">
+                    <label>Site</label>
+                    <DxComboBox TData="Site" TValue="Site"
+                                Data="@_sitesDispo"
+                                TextFieldName="@nameof(Site.NomAvecType)"
+                                Value="@_selectedSiteV1"
+                                ValueChanged="@((Site? s) => OnSiteV1Changed(s))"
+                                NullText="Tous"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                CssClass="ed-input" />
+                </div>
+            }
+            else
+            {
+                <div class="ed-filter">
+                    <label>Site</label>
+                    <DxComboBox TData="Site" TValue="Site"
+                                Data="@_sitesDispo"
+                                TextFieldName="@nameof(Site.Nom)"
+                                Value="@_selectedSite"
+                                ValueChanged="@((Site? s) => OnSiteChanged(s))"
+                                NullText="Tous"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                CssClass="ed-input" />
+                </div>
+                <div class="ed-filter">
+                    <label>Genre</label>
+                    <DxComboBox TData="Sexe?" TValue="Sexe?"
+                                Data="@_genresDispo"
+                                Value="@_filter.Genre"
+                                ValueChanged="@((Sexe? s) => OnGenreChanged(s))"
+                                NullText="Tous"
+                                CssClass="ed-input">
+                        <ItemTemplate>
+                            @(context is null ? "Tous" : ((Sexe)context) == Sexe.Masculin ? "Masculin" : "Féminin")
+                        </ItemTemplate>
+                    </DxComboBox>
+                </div>
+                <div class="ed-filter">
+                    <label>Segment</label>
+                    <DxComboBox TData="Departement" TValue="Departement"
+                                Data="@_departementsDispo"
+                                TextFieldName="@nameof(Departement.Nom)"
+                                Value="@_selectedDepartement"
+                                ValueChanged="@((Departement? d) => OnSegmentChanged(d))"
+                                NullText="Tous"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                CssClass="ed-input" />
+                </div>
+                <div class="ed-filter">
+                    <label>Catégorie</label>
+                    <DxComboBox TData="Categories" TValue="Categories"
+                                Data="@_categoriesDispo"
+                                TextFieldName="@nameof(Categories.Intitule)"
+                                Value="@_selectedCategorie"
+                                ValueChanged="@((Categories? c) => OnCategorieChanged(c))"
+                                NullText="Toutes"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                CssClass="ed-input" />
+                </div>
+            }
+            <div class="ed-actions">
+                <button class="ed-btn ed-btn--icon" title="Actualiser" @onclick="OnRefreshClick" disabled="@_loading">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+                <button class="ed-btn ed-btn--icon" title="Export PDF (Étape 7)" @onclick="OnExportPdfClick" disabled="@_loading">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                </button>
+                <button class="ed-btn ed-btn--icon" title="Export Excel (Étape 7)" @onclick="OnExportExcelClick" disabled="@_loading">
+                    <i class="bi bi-file-earmark-excel"></i>
+                </button>
+                <a class="ed-btn ed-btn--icon" title="Aide ce tableau" href="/help/dashboards/mouvements.html" target="_blank" rel="noopener">
+                    <i class="bi bi-question-circle"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="ed-error"><i class="bi bi-exclamation-triangle-fill"></i><strong>Erreur :</strong> @_errorMessage</div>
+    }
+
+    @if (_data != null)
+    {
+        <main class="ed-main">
+
+            @* ── 7 KPI cartes ─────────────────────────────────────────── *@
+            <section class="ed-section">
+                <h3 class="ed-section__title">Indicateurs clés — @_filter.Annee</h3>
+                <div class="ed-kpiinline">
+                    <div class="ed-kpiinline__card ed-kpiinline__card--blue">
+                        <div class="ed-kpiinline__label">Arrivées</div>
+                        <div class="ed-kpiinline__value">@_data.Kpis.NbArrivees.ToString("N0", FrCulture)</div>
+                        <div class="ed-kpiinline__sub">total année</div>
+                    </div>
+                    <div class="ed-kpiinline__card ed-kpiinline__card--red">
+                        <div class="ed-kpiinline__label">Départs</div>
+                        <div class="ed-kpiinline__value">@_data.Kpis.NbDeparts.ToString("N0", FrCulture)</div>
+                        <div class="ed-kpiinline__sub">total année</div>
+                    </div>
+                    <div class="ed-kpiinline__card @(_data.Kpis.Solde >= 0 ? "ed-kpiinline__card--blue" : "ed-kpiinline__card--down")">
+                        <div class="ed-kpiinline__label">Solde net</div>
+                        <div class="ed-kpiinline__value">@_data.Kpis.Solde.ToString("+0;-0;0", FrCulture)</div>
+                        <div class="ed-kpiinline__sub">arrivées − départs</div>
+                    </div>
+                    <div class="ed-kpiinline__card" title="Nouveaux contrats / Nb contrats moyens actifs sur l'année">
+                        <div class="ed-kpiinline__label">% Renouvellement</div>
+                        <div class="ed-kpiinline__value">@FormatPct(_data.Kpis.TauxArrivees)</div>
+                        <div class="ed-kpiinline__sub">arrivées / contrats moy.</div>
+                    </div>
+                    <div class="ed-kpiinline__card ed-kpiinline__card--down" title="Contrats clos / Nb contrats moyens actifs sur l'année">
+                        <div class="ed-kpiinline__label">% Sortie contrats</div>
+                        <div class="ed-kpiinline__value">@FormatPct(_data.Kpis.TauxDeparts)</div>
+                        <div class="ed-kpiinline__sub">départs / contrats moy.</div>
+                    </div>
+                    <div class="ed-kpiinline__card">
+                        <div class="ed-kpiinline__label">Effectif Début</div>
+                        <div class="ed-kpiinline__value">@_data.Kpis.EffectifDebut.ToString("N0", FrCulture)</div>
+                        <div class="ed-kpiinline__sub">au 01/01/@_filter.Annee</div>
+                    </div>
+                    <div class="ed-kpiinline__card">
+                        <div class="ed-kpiinline__label">Effectif Fin</div>
+                        <div class="ed-kpiinline__value">@_data.Kpis.EffectifFin.ToString("N0", FrCulture)</div>
+                        <div class="ed-kpiinline__sub">au 31/12/@_filter.Annee</div>
+                    </div>
+                </div>
+            </section>
+
+            @* ──────────────── SECTION ARRIVÉES ──────────────────────── *@
+            <section class="ed-section ed-section--accent-blue">
+                <h3 class="ed-section__title">
+                    <i class="bi bi-box-arrow-in-down-right"></i>
+                    Arrivées — @_data.Kpis.NbArrivees.ToString("N0", FrCulture) sur l'année
+                </h3>
+
+                @* Bar VERTICAL — Mensuel (12 colonnes) *@
+                <div class="ed-subsection">
+                    <h4 class="ed-section__subtitle">Répartition mensuelle</h4>
+                    @if (_data.ArriveesParMois.All(b => b.Valeur == 0))
+                    {
+                        <div class="ed-empty">Aucune arrivée enregistrée sur l'année.</div>
+                    }
+                    else
+                    {
+                        var maxA = _data.ArriveesParMois.Max(b => b.Valeur);
+                        <div class="ed-vbar-chart ed-vbar-chart--mois">
+                            @foreach (var b in _data.ArriveesParMois)
+                            {
+                                var h = maxA > 0 ? (decimal)b.Valeur * 100m / maxA : 0m;
+                                <div class="ed-vbar">
+                                    <div class="ed-vbar__value">@b.Valeur.ToString("N0", FrCulture)</div>
+                                    <div class="ed-vbar__col ed-vbar__col--blue" style="@($"height:{h.ToString("0.00", InvCulture)}%")"></div>
+                                    <div class="ed-vbar__label">@b.Libelle</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="mv-grid">
+                    @* Bar HORIZONTAL — Site / Station *@
+                    <div class="ed-subsection">
+                        <h4 class="ed-section__subtitle">@(_filter.Personnel == PersonnelType.Externe ? "Par station" : "Par site")</h4>
+                        @if (_data.ArriveesParSite.Count == 0)
+                        {
+                            <div class="ed-empty">Pas de données.</div>
+                        }
+                        else
+                        {
+                            var maxS = _data.ArriveesParSite.Max(b => b.Valeur);
+                            <div class="ed-hbar-chart">
+                                @foreach (var b in _data.ArriveesParSite)
+                                {
+                                    var w = maxS > 0 ? (decimal)b.Valeur * 100m / maxS : 0m;
+                                    <div class="ed-hbar">
+                                        <div class="ed-hbar__label" title="@b.Libelle">@b.Libelle</div>
+                                        <div class="ed-hbar__track">
+                                            <div class="ed-hbar__fill ed-hbar__fill--blue" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
+                                        </div>
+                                        <div class="ed-hbar__value">@b.Valeur.ToString("N0", FrCulture) (@b.Pourcentage.ToString("0.0", FrCulture)%)</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    @* Bar HORIZONTAL — Catégorie / Poste *@
+                    <div class="ed-subsection">
+                        <h4 class="ed-section__subtitle">@(_filter.Personnel == PersonnelType.Externe ? "Par poste" : "Par catégorie")</h4>
+                        @if (_data.ArriveesParCategorie.Count == 0)
+                        {
+                            <div class="ed-empty">Pas de données.</div>
+                        }
+                        else
+                        {
+                            var maxC = _data.ArriveesParCategorie.Max(b => b.Valeur);
+                            <div class="ed-hbar-chart">
+                                @foreach (var b in _data.ArriveesParCategorie.Take(10))
+                                {
+                                    var w = maxC > 0 ? (decimal)b.Valeur * 100m / maxC : 0m;
+                                    <div class="ed-hbar">
+                                        <div class="ed-hbar__label" title="@b.Libelle">@b.Libelle</div>
+                                        <div class="ed-hbar__track">
+                                            <div class="ed-hbar__fill ed-hbar__fill--blue" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
+                                        </div>
+                                        <div class="ed-hbar__value">@b.Valeur.ToString("N0", FrCulture) (@b.Pourcentage.ToString("0.0", FrCulture)%)</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            @* ──────────────── SECTION DÉPARTS ───────────────────────── *@
+            <section class="ed-section ed-section--accent-red">
+                <h3 class="ed-section__title">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                    Départs — @_data.Kpis.NbDeparts.ToString("N0", FrCulture) sur l'année
+                </h3>
+
+                @* Bar VERTICAL — Mensuel (12 colonnes) *@
+                <div class="ed-subsection">
+                    <h4 class="ed-section__subtitle">Répartition mensuelle</h4>
+                    @if (_data.DepartsParMois.All(b => b.Valeur == 0))
+                    {
+                        <div class="ed-empty">Aucun départ enregistré sur l'année.</div>
+                    }
+                    else
+                    {
+                        var maxD = _data.DepartsParMois.Max(b => b.Valeur);
+                        <div class="ed-vbar-chart ed-vbar-chart--mois">
+                            @foreach (var b in _data.DepartsParMois)
+                            {
+                                var h = maxD > 0 ? (decimal)b.Valeur * 100m / maxD : 0m;
+                                <div class="ed-vbar">
+                                    <div class="ed-vbar__value">@b.Valeur.ToString("N0", FrCulture)</div>
+                                    <div class="ed-vbar__col ed-vbar__col--red" style="@($"height:{h.ToString("0.00", InvCulture)}%")"></div>
+                                    <div class="ed-vbar__label">@b.Libelle</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="mv-grid">
+                    @* Bar HORIZONTAL — Motif (INTERNE = MotifDepart enum, EXTERNE = Statut contrat) *@
+                    <div class="ed-subsection">
+                        <h4 class="ed-section__subtitle">@(_filter.Personnel == PersonnelType.Externe ? "Par statut de contrat" : "Par motif de départ")</h4>
+                        @if (_data.DepartsParMotif.Count == 0)
+                        {
+                            <div class="ed-empty">Pas de données.</div>
+                        }
+                        else
+                        {
+                            var maxM = _data.DepartsParMotif.Max(b => b.Valeur);
+                            <div class="ed-hbar-chart">
+                                @foreach (var b in _data.DepartsParMotif)
+                                {
+                                    var w = maxM > 0 ? (decimal)b.Valeur * 100m / maxM : 0m;
+                                    <div class="ed-hbar">
+                                        <div class="ed-hbar__label" title="@b.Libelle">@b.Libelle</div>
+                                        <div class="ed-hbar__track">
+                                            <div class="ed-hbar__fill ed-hbar__fill--red" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
+                                        </div>
+                                        <div class="ed-hbar__value">@b.Valeur.ToString("N0", FrCulture) (@b.Pourcentage.ToString("0.0", FrCulture)%)</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    @* Bar HORIZONTAL — Site / Station *@
+                    <div class="ed-subsection">
+                        <h4 class="ed-section__subtitle">@(_filter.Personnel == PersonnelType.Externe ? "Par station" : "Par site")</h4>
+                        @if (_data.DepartsParSite.Count == 0)
+                        {
+                            <div class="ed-empty">Pas de données.</div>
+                        }
+                        else
+                        {
+                            var maxS = _data.DepartsParSite.Max(b => b.Valeur);
+                            <div class="ed-hbar-chart">
+                                @foreach (var b in _data.DepartsParSite)
+                                {
+                                    var w = maxS > 0 ? (decimal)b.Valeur * 100m / maxS : 0m;
+                                    <div class="ed-hbar">
+                                        <div class="ed-hbar__label" title="@b.Libelle">@b.Libelle</div>
+                                        <div class="ed-hbar__track">
+                                            <div class="ed-hbar__fill ed-hbar__fill--red" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
+                                        </div>
+                                        <div class="ed-hbar__value">@b.Valeur.ToString("N0", FrCulture) (@b.Pourcentage.ToString("0.0", FrCulture)%)</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    @* Bar HORIZONTAL — Catégorie / Poste *@
+                    <div class="ed-subsection">
+                        <h4 class="ed-section__subtitle">@(_filter.Personnel == PersonnelType.Externe ? "Par poste" : "Par catégorie")</h4>
+                        @if (_data.DepartsParCategorie.Count == 0)
+                        {
+                            <div class="ed-empty">Pas de données.</div>
+                        }
+                        else
+                        {
+                            var maxC = _data.DepartsParCategorie.Max(b => b.Valeur);
+                            <div class="ed-hbar-chart">
+                                @foreach (var b in _data.DepartsParCategorie.Take(10))
+                                {
+                                    var w = maxC > 0 ? (decimal)b.Valeur * 100m / maxC : 0m;
+                                    <div class="ed-hbar">
+                                        <div class="ed-hbar__label" title="@b.Libelle">@b.Libelle</div>
+                                        <div class="ed-hbar__track">
+                                            <div class="ed-hbar__fill ed-hbar__fill--red" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
+                                        </div>
+                                        <div class="ed-hbar__value">@b.Valeur.ToString("N0", FrCulture) (@b.Pourcentage.ToString("0.0", FrCulture)%)</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <footer class="ed-footer">
+                <span><i class="bi bi-clock-history"></i> Données calculées le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
+                <span class="sep">·</span>
+                <span>Source @(_filter.Personnel == PersonnelType.Externe ? "ContratInterim (DateDebut / DateFinReelle)" : "Salarie (DateEmbauche / DateSortie + MotifDepart)")</span>
+            </footer>
+        </main>
+    }
+}
+
+@* ── Styles propres au Tableau N°3 (compléments du CSS partagé) ────── *@
+<style>
+    .mv-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        gap: 1rem;
+        margin-top: 0.75rem;
+    }
+
+    .ed-subsection { padding: 0.5rem 0; }
+
+    .ed-section__subtitle {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--ed-text-soft);
+        margin: 0.5rem 0 0.5rem;
+    }
+
+    /* Chart mensuel : forcer 12 colonnes égales */
+    .ed-vbar-chart--mois {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 0.25rem;
+        height: 200px;
+    }
+
+    /* Variantes de couleurs pour bar charts (Arrivées = navy ELTON, Départs = rouge ELTON) */
+    .ed-vbar__col--blue  { background: var(--ed-bg-dark-2, #142E4D) !important; }
+    .ed-vbar__col--red   { background: var(--ed-red,       #E63946) !important; }
+    .ed-hbar__fill--blue { background: var(--ed-bg-dark-2, #142E4D) !important; }
+    .ed-hbar__fill--red  { background: var(--ed-red,       #E63946) !important; }
+
+    /* Bordure colorée sur la section */
+    .ed-section--accent-blue { border-left: 4px solid var(--ed-bg-dark-2, #142E4D); }
+    .ed-section--accent-red  { border-left: 4px solid var(--ed-red,       #E63946); }
+
+    .ed-pos { color: var(--ed-up,   #2EA75B); }
+    .ed-neg { color: var(--ed-down, #E63946); }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture  = CultureInfo.GetCultureInfo("fr-FR");
+    private static readonly CultureInfo InvCulture = CultureInfo.InvariantCulture;
+
+    private bool _loading = false;
+    private string? _errorMessage = null;
+    private MouvementsDto? _data;
+
+    private MouvementsFilterModel _filter = new();
+    private List<int> _anneesDispo = new();
+    private List<Site> _sitesDispo = new();
+    private List<StationService> _stationsDispo = new();   // legacy
+    private Site? _selectedSiteV1;                          // V1.1 — pour EXTERNE
+    private List<Departement> _departementsDispo = new();
+    private List<Categories> _categoriesDispo = new();
+    private Site? _selectedSite;
+    private StationService? _selectedStation;
+    private Departement? _selectedDepartement;
+    private Categories? _selectedCategorie;
+
+    private readonly List<Sexe?> _genresDispo = new() { null, Sexe.Masculin, Sexe.Feminin };
+
+    protected override void OnInitialized()
+    {
+        if (!DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
+        LoadLookups();
+        LoadData();
+    }
+
+    private IObjectSpace CreateOs() =>
+        ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Salarie));
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = CreateOs();
+            _anneesDispo       = Service.GetAnneesDisponibles(os);
+            _sitesDispo        = Service.GetSitesActifs(os);
+            _stationsDispo     = Service.GetStationsServiceActives(os);
+            _departementsDispo = Service.GetDepartements(os);
+            _categoriesDispo   = Service.GetCategories(os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Chargement des filtres : {ex.Message}";
+        }
+    }
+
+    private void LoadData()
+    {
+        _loading = true;
+        _errorMessage = null;
+        try
+        {
+            using var os = CreateOs();
+            _data = Service.GetData(_filter, os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Calcul du tableau : {ex.Message}";
+            _data = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private Task OnPersonnelChanged(PersonnelType p)
+    {
+        _filter.Personnel = p;
+        // Reset les filtres dont les types diffèrent entre INTERNE et EXTERNE
+        _selectedSite = null;
+        _selectedStation = null;
+        _selectedSiteV1 = null;   // V1.1
+        _filter.SiteOid = null;
+        _selectedDepartement = null;
+        _filter.Segment = null;
+        _selectedCategorie = null;
+        _filter.CategorieOid = null;
+        _filter.Genre = null;
+        LoadData();
+        return Task.CompletedTask;
+    }
+    private Task OnAnneeChanged(int a)              { _filter.Annee = a; LoadData(); return Task.CompletedTask; }
+    private Task OnSiteChanged(Site? s)             { _selectedSite = s; _filter.SiteOid = s?.Oid; LoadData(); return Task.CompletedTask; }
+    private Task OnStationChanged(StationService? s){ _selectedStation = s; _filter.SiteOid = s?.Oid; LoadData(); return Task.CompletedTask; }
+    // V1.1 — pour EXTERNE on utilise Site V1.1 (au lieu de StationService legacy)
+    private Task OnSiteV1Changed(Site? s) { _selectedSiteV1 = s; _filter.SiteOid = s?.Oid; LoadData(); return Task.CompletedTask; }
+    private Task OnGenreChanged(Sexe? g)            { _filter.Genre = g; LoadData(); return Task.CompletedTask; }
+    private Task OnSegmentChanged(Departement? d)   { _selectedDepartement = d; _filter.Segment = d?.Nom; LoadData(); return Task.CompletedTask; }
+    private Task OnCategorieChanged(Categories? c)  { _selectedCategorie = c; _filter.CategorieOid = c?.Oid; LoadData(); return Task.CompletedTask; }
+
+    private Task OnRefreshClick()
+    {
+        Service.InvalidateCache(_filter);
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnExportPdfClick()
+    {
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = PdfExport.ExportMouvements(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName, "application/pdf", Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export PDF : {ex.Message}"; }
+    }
+    private async Task OnExportExcelClick()
+    {
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = ExcelExport.ExportMouvements(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export Excel : {ex.Message}"; }
+    }
+
+    private static string FormatPct(decimal pct) =>
+        $"{pct.ToString("0.0", FrCulture)}%";
+}

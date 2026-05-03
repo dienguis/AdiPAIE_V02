@@ -3,84 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avancements — SunuPaie</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
-        h2 { color: #0F6E56; margin-top: 25px; }
-        h3 { color: #555; }
-        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
-        .bouton strong { color: #0F6E56; }
-        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
-        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
-        nav a:hover { text-decoration: underline; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
-        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-decoration: none; color: #333; transition: box-shadow 0.2s; }
-        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .card h3 { color: #0F6E56; margin-top: 0; }
-    </style>
+    <title>SunuPaie — Avancements et promotions (Guide complet)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/periodes.html">Periodes</a>
-        <a href="/help/prets.html">Prets</a>
-        <a href="/help/salaries.html">Salaries</a>
-        <a href="/help/conges.html">Conges</a>
-        <a href="/help/missions.html">Missions</a>
-        <a href="/help/formations.html">Formations</a>
-        <a href="/help/evaluations.html">Evaluations</a>
-        <a href="/help/parametrage.html">Parametrage</a>
-        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
-        <a href="/help/offboarding.html">Offboarding</a>
-        <a href="/help/disciplinaire.html">Disciplinaire</a>
-        <a href="/help/audit.html">Audit</a>
-        <a href="/help/import-salaries.html">Import</a>
-        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+        <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/avancements.html" class="active">Avancements</a>
+        <a href="/help/parametrage.html">Paramétrage</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>Avancements et promotions</h1>
+    <h1>📈 Avancements et promotions — Guide complet</h1>
+    <p>Ce module gère les changements de statut professionnel d'un salarié :
+    progression automatique d'échelon, promotion à un poste supérieur,
+    changement de catégorie (Régime Général → Régime Cadre, etc.).
+    Workflow de validation hiérarchique et historique conservé pour audit.</p>
 
-    <h2>Flux</h2>
-    <div class="flux">
+    <div class="toc">
+        <strong>📑 Étapes du processus</strong>
         <ol>
-            <li>RH cree une demande d'avancement</li>
-            <li>Selectionner le salarie et la nouvelle fonction/echelon</li>
-            <li>Renseigner la date d'effet et la nouvelle remuneration</li>
-            <li>N+1 valide → N+2 valide → DAF valide</li>
-            <li>RH valide et applique → Remuneration mise a jour</li>
-            <li>Prochains bulletins : nouvelle remuneration</li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du workflow</a></li>
+            <li><a href="#etape1">Étape 1 — RH : créer la demande</a></li>
+            <li><a href="#etape2">Étape 2 — Choisir le type d'avancement</a></li>
+            <li><a href="#etape3">Étape 3 — Validation N+1 → N+2 → DAF</a></li>
+            <li><a href="#etape4">Étape 4 — RH applique l'avancement</a></li>
+            <li><a href="#types">Types d'avancement</a></li>
+            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
+            <li><a href="#regles">Règles métier</a></li>
+            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
         </ol>
     </div>
 
-    <h2>Types d'avancement</h2>
-    <div class="bouton">
-        <strong>Augmentation d'echelon :</strong> progression automatique dans l'echelle salariale
-    </div>
-    <div class="bouton">
-        <strong>Promotion de poste :</strong> changement de fonction avec nouvelle remuneration
-    </div>
-    <div class="bouton">
-        <strong>Changement de categorie :</strong> passage RG vers RC (IPRES) ou inverse
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="vue-ensemble">📋 Vue d'ensemble du workflow</h2>
+
+    <div class="workflow">
+        <div class="box">📝 Brouillon</div>
+        <span class="arrow">→</span>
+        <div class="box">⏳ N+1</div>
+        <span class="arrow">→</span>
+        <div class="box">⏳ N+2</div>
+        <span class="arrow">→</span>
+        <div class="box">⏳ DAF</div>
+        <span class="arrow">→</span>
+        <div class="box">✅ Appliqué</div>
+        <span class="arrow">→</span>
+        <div class="box">📄 Bulletins suivants</div>
     </div>
 
-    <h2>Regles</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape1">📝 Étape 1 — RH : créer la demande</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>RH → Avancements → + Nouveau</h3>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Sélectionner le salarié</h3>
+        <p>Recherche par matricule ou nom. Les données actuelles sont
+        affichées (échelon, fonction, catégorie, salaire actuel).</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape2">🔀 Étape 2 — Choisir le type d'avancement</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Sélectionner le type</h3>
+        <p>Augmentation d'échelon / Promotion de poste / Changement
+        de catégorie. Cf. <a href="#types">section Types</a>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Renseigner les nouvelles valeurs</h3>
+        <dl class="field-list">
+            <dt>Nouvel échelon / Nouvelle fonction / Nouvelle catégorie</dt>
+            <dd>Selon le type d'avancement.</dd>
+            <dt>Date d'effet</dt>
+            <dd>Date à partir de laquelle la nouvelle rémunération s'applique
+                sur les bulletins.</dd>
+            <dt>Nouvelle rémunération</dt>
+            <dd>Auto-calculée si avancement par échelon, sinon saisie manuelle.</dd>
+            <dt>Motif</dt>
+            <dd>Texte libre (ex. <em>"5 ans d'ancienneté + évaluation A"</em>).</dd>
+        </dl>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape3">✅ Étape 3 — Validation N+1 → N+2 → DAF</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>N+1 valide ou refuse</h3>
+        <p>Email automatique au manager direct.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>N+2 valide ou refuse</h3>
+        <p>Vérification de la cohérence (poste, équité interne).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3</span>DAF valide ou refuse (impact budgétaire)</h3>
+        <p>Validation financière de l'augmentation et de l'enveloppe
+        masse salariale.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape4">📄 Étape 4 — RH applique l'avancement</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer sur Appliquer l'avancement</h3>
+        <p>La fiche du salarié est mise à jour : nouvelle fonction, nouvel
+        échelon, nouvelle rémunération. Un historique est conservé.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Bulletins futurs</h3>
+        <p>Les bulletins générés <strong>après la date d'effet</strong>
+        appliquent automatiquement la nouvelle rémunération.</p>
+    </div>
+
+    <div class="info">
+        💡 Les bulletins déjà générés <strong>avant la date d'effet</strong>
+        ne sont pas modifiés (rétroactivité optionnelle via régularisation
+        sur le bulletin suivant).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="types">🔀 Types d'avancement</h2>
+
+    <div class="bouton">
+        <strong>📊 Augmentation d'échelon :</strong> progression automatique
+        dans l'échelle salariale (selon ancienneté ou mérite). La nouvelle
+        rémunération est calculée automatiquement depuis la grille des échelons.
+    </div>
+    <div class="bouton">
+        <strong>🚀 Promotion de poste :</strong> changement de fonction avec
+        nouvelle rémunération (saisie manuelle). Implique souvent un
+        changement de catégorie.
+    </div>
+    <div class="bouton">
+        <strong>🔄 Changement de catégorie :</strong> passage du Régime Général
+        au Régime Cadre IPRES (ou inverse). Impact direct sur les cotisations
+        de retraite (RC vs RG).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
+
+    <h3>Cas 1 — Augmentation d'échelon (ancienneté)</h3>
+    <div class="exemple">
+        Aïssa atteint 5 ans d'ancienneté. Son échelon passe de E1-A à E1-B.
+        Salaire de base : 280 000 → 310 000 FCFA. Date d'effet : 1er du
+        mois suivant l'anniversaire d'embauche.
+    </div>
+
+    <h3>Cas 2 — Promotion (Caissière → Chef de station)</h3>
+    <div class="exemple">
+        Coumba est promue Chef de la station ELTON BANDIA. Nouvelle
+        fonction, nouveau salaire (450 000 → 750 000), changement de
+        catégorie (RG → RC). Workflow complet : N+1 (DSI BU) → N+2
+        (Directeur Réseau) → DAF.
+    </div>
+
+    <h3>Cas 3 — Changement de catégorie sans changement de poste</h3>
+    <div class="exemple">
+        Modou (Comptable Senior) franchit le seuil pour devenir Cadre
+        après 10 ans. Son régime IPRES passe de RG à RC. Sa rémunération
+        ne change pas, mais ses cotisations retraite oui.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="regles">📜 Règles métier</h2>
+
     <div class="alerte">
         <ul>
-            <li>La date d'effet doit etre posterieure a la date de validation</li>
-            <li>La remuneration peut augmenter ou diminuer selon le poste</li>
-            <li>Historique conserve : consultable sur la fiche salarie</li>
-            <li>Les bulletins generes avant la date d'effet conservent l'ancienne remuneration</li>
-            <li>Les bulletins generes apres la date d'effet appliquent la nouvelle remuneration</li>
+            <li>La <strong>date d'effet</strong> doit être postérieure à la date de validation.</li>
+            <li>La rémunération peut <strong>augmenter ou diminuer</strong> selon le poste (rétrogradation possible).</li>
+            <li><strong>Historique conservé :</strong> consultable sur la fiche salarié, onglet <em>Avancements</em>.</li>
+            <li>Les bulletins générés <strong>avant la date d'effet</strong> conservent l'ancienne rémunération.</li>
+            <li>Les bulletins générés <strong>après la date d'effet</strong> appliquent la nouvelle rémunération.</li>
+            <li>Workflow strict : N+1 → N+2 → DAF, refus à n'importe quelle étape = retour Brouillon.</li>
         </ul>
     </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+
+    <div class="erreur">
+        <strong>"Date d'effet antérieure à la date du jour"</strong>
+        → l'avancement doit être prospectif. Pour rétroactivité, appliquer
+        un complément manuel sur le bulletin suivant.
+    </div>
+
+    <div class="erreur">
+        <strong>"Échelon supérieur introuvable"</strong> → vérifier que la
+        grille des échelons couvre bien le niveau supérieur. Sinon,
+        l'administrateur doit l'ajouter dans <em>Paramétrage → Échelons</em>.
+    </div>
+
+    <div class="info">
+        💡 <strong>Comment voir l'historique des avancements d'un salarié ?</strong>
+        Aller sur la fiche → onglet <em>Avancements</em>. Toutes les
+        promotions, changements d'échelon et changements de catégorie sont listés
+        avec dates et auteurs des validations.
+    </div>
+
+    <div class="info">
+        💡 <strong>Faut-il refaire un contrat à chaque avancement ?</strong>
+        Pas obligatoire pour un échelon. Pour une promotion de poste,
+        un avenant au contrat est recommandé (à joindre dans la fiche).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+
+    <div class="bouton">
+        <strong>+ Nouvel avancement :</strong> ouvre la fiche en Brouillon.
+    </div>
+    <div class="bouton">
+        <strong>📨 Soumettre :</strong> envoie au N+1 pour validation.
+    </div>
+    <div class="bouton">
+        <strong>✅ Valider :</strong> action N+1/N+2/DAF selon étape.
+    </div>
+    <div class="bouton">
+        <strong>❌ Refuser :</strong> rejet avec motif → retour Brouillon.
+    </div>
+    <div class="bouton">
+        <strong>🚀 Appliquer l'avancement :</strong> action RH finale,
+        met à jour la fiche du salarié à la date d'effet.
+    </div>
+
+    <p class="footer-help">
+        SunuPaie v1.1 — Module Avancements et promotions — Mise à jour mai 2026
+    </p>
 </body>
 </html>

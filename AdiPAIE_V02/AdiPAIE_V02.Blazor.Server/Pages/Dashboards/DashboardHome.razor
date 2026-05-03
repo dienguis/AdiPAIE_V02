@@ -1,0 +1,266 @@
+@* =====================================================================
+    DashboardHome.razor — page d'accueil du module « Tableaux de Bord RH »
+
+    URL : /dashboards
+
+    Grille responsive de 6 cartes cliquables, chacune ouvrant un tableau
+    dédié. Le périmètre du personnel (Interne / Externe / Global) est
+    affiché par un badge coloré.
+
+    Étape 3 — implémentation cible (cf. mission Étape 3).
+   ===================================================================== *@
+
+@page "/dashboards"
+@attribute [Authorize]
+
+@using AdiPAIE_V02.Blazor.Server.Services
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+
+<PageTitle>Tableaux de Bord RH</PageTitle>
+
+<div class="dash-home">
+
+    @* ── Hero / titre ─────────────────────────────────────────────── *@
+    <header class="dash-home__hero">
+        <h1 class="dash-home__hero-title">Tableaux de Bord RH</h1>
+        <p class="dash-home__hero-subtitle">
+            Choisissez un tableau de bord pour explorer les indicateurs.
+        </p>
+    </header>
+
+    @* ── Grille de 6 cartes ───────────────────────────────────────── *@
+    <div class="dash-home__grid">
+        @foreach (var card in _cards)
+        {
+            <a class="dash-home__card"
+               href="@card.Route"
+               aria-label="@($"Ouvrir le tableau {card.Title}")">
+
+                <div class="dash-home__icon">
+                    <i class="bi @card.Icon" aria-hidden="true"></i>
+                </div>
+
+                <div class="dash-home__title">@card.Title</div>
+
+                <span class="dash-home__perimetre dash-home__perimetre--@card.PerimetreCss">
+                    @card.PerimetreLabel
+                </span>
+
+                <p class="dash-home__desc">@card.Description</p>
+
+                <div class="dash-home__cta">
+                    <span class="dash-home__cta-link">
+                        Ouvrir <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </span>
+                </div>
+            </a>
+        }
+    </div>
+</div>
+
+@* ── Styles isolés à la page (pas d'impact sur le reste de l'app) ── *@
+<style>
+    .dash-home {
+        padding: 2rem 1.5rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .dash-home__hero {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .dash-home__hero-title {
+        font-size: 2rem;
+        font-weight: 600;
+        margin: 0;
+        color: #0F6E56;
+    }
+
+    .dash-home__hero-subtitle {
+        color: #6c757d;
+        margin: 0.5rem 0 0;
+        font-size: 1rem;
+    }
+
+    .dash-home__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    /* Carte cliquable */
+    .dash-home__card {
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        border: 2px solid transparent;
+        min-height: 230px;
+    }
+
+    .dash-home__card:hover,
+    .dash-home__card:focus {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+        border-color: #0F6E56;
+        outline: none;
+        text-decoration: none;
+    }
+
+    .dash-home__icon {
+        font-size: 2rem;
+        color: #0F6E56;
+        margin-bottom: 0.75rem;
+    }
+
+    .dash-home__title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: #212529;
+        margin: 0 0 0.5rem 0;
+    }
+
+    /* Badge périmètre — 3 variantes */
+    .dash-home__perimetre {
+        display: inline-block;
+        align-self: flex-start;
+        padding: 0.2rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-bottom: 0.75rem;
+    }
+
+    .dash-home__perimetre--interne {
+        background: #e7f1ff;
+        color: #0d6efd;
+    }
+
+    .dash-home__perimetre--externe {
+        background: #fff3cd;
+        color: #b76e00;
+    }
+
+    .dash-home__perimetre--mixte {
+        background: #f3e5ff;
+        color: #6f42c1;
+    }
+
+    .dash-home__desc {
+        color: #495057;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        flex: 1;
+        margin: 0 0 1rem 0;
+    }
+
+    .dash-home__cta {
+        margin-top: auto;
+    }
+
+    .dash-home__cta-link {
+        color: #0F6E56;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .dash-home__card:hover .dash-home__cta-link i {
+        transform: translateX(3px);
+        transition: transform 0.18s ease;
+    }
+</style>
+
+@code {
+
+    /// <summary>
+    /// Guard d'authentification + RBAC — App.razor utilise RouteView et non
+    /// AuthorizeRouteView, donc @attribute [Authorize] est ignoré.
+    /// Le helper vérifie auth + appartenance à un rôle autorisé
+    /// (Administrators / RH_Manager / RH / DAF).
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (!DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+        }
+    }
+
+    /// <summary>Description d'une carte de tableau de bord.</summary>
+    private record CardInfo(
+        string Title,
+        string PerimetreLabel,
+        string PerimetreCss,
+        string Description,
+        string Icon,
+        string Route);
+
+    /// <summary>
+    /// Configuration des 6 cartes. L'ordre suit la numérotation officielle
+    /// des tableaux de la mission (Tableaux N°1 → N°6).
+    /// </summary>
+    private readonly List<CardInfo> _cards = new()
+    {
+        new(
+            Title:           "Effectif détaillé",
+            PerimetreLabel:  "Personnel Interne",
+            PerimetreCss:    "interne",
+            Description:     "Tranches d'âge × catégorie professionnelle, KPI âge / ancienneté, évolution sur 3 ans.",
+            Icon:            "bi-people",
+            Route:           "/dashboards/effectif-detaille"),
+
+        new(
+            Title:           "Analyse de l'Effectif",
+            PerimetreLabel:  "Interne / Externe",
+            PerimetreCss:    "mixte",
+            Description:     "Vue Global ou Moyen, distributions par âge, ancienneté, segment, catégorie, contrat.",
+            Icon:            "bi-bar-chart",
+            Route:           "/dashboards/analyse-effectif"),
+
+        new(
+            Title:           "Mouvements",
+            PerimetreLabel:  "Interne / Externe",
+            PerimetreCss:    "mixte",
+            Description:     "Arrivées et départs : facteurs déclencheurs, raisons et motifs (démission, licenciement, fin CDD, etc.).",
+            Icon:            "bi-arrow-left-right",
+            Route:           "/dashboards/mouvements"),
+
+        new(
+            Title:           "Rémunération",
+            PerimetreLabel:  "Personnel Externe",
+            PerimetreCss:    "externe",
+            Description:     "Coût intérimaire ou rémunération nette, équité salariale par segment et catégorie professionnelle.",
+            Icon:            "bi-cash-coin",
+            Route:           "/dashboards/remuneration"),
+
+        new(
+            Title:           "Suivi des Absences",
+            PerimetreLabel:  "Personnel Interne",
+            PerimetreCss:    "interne",
+            Description:     "Absentéisme vs absences programmées, KPI mensuels, détail par employé / motif / département.",
+            Icon:            "bi-calendar-x",
+            Route:           "/dashboards/suivi-absences"),
+
+        new(
+            Title:           "Bilan Social Mensuel",
+            PerimetreLabel:  "Interne / Externe / Global",
+            PerimetreCss:    "mixte",
+            Description:     "Tableau 12 mois × 17 colonnes : effectifs, mouvements, formation, masse salariale, accidents.",
+            Icon:            "bi-clipboard-data",
+            Route:           "/dashboards/bilan-social"),
+    };
+}

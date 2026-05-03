@@ -1,0 +1,16 @@
+# Dossier des scripts SQL utilisés par le module « Tableaux de Bord RH ».
+#
+# Au fur et à mesure des Tableaux 1 → 6 (Étape 4), un fichier .sql sera
+# déposé ici par tableau, contenant la (les) requête(s) de référence
+# (vérifications, profilage, exports, ou requêtes de migration éventuelles).
+#
+# Convention de nommage : NN_<nom-court>.sql
+#   01_effectif_detaille.sql
+#   02_analyse_effectif.sql
+#   03_mouvements.sql
+#   04_remuneration.sql
+#   05_suivi_absences.sql
+#   06_bilan_social.sql
+#
+# Ce fichier .gitkeep garantit que le dossier vide est suivi par git
+# avant l'arrivée des premiers scripts.

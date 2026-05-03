@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouvements — Aide Tableau N°3</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html" class="active">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°3</div>
+        <h1>Mouvements (Arrivées / Départs)</h1>
+        <p class="lead">Vue annuelle des entrées et sorties, avec répartition mensuelle, par site,
+        par catégorie et par motif. Toggle Interne / Externe.</p>
+
+        <h2>Sources de données</h2>
+        <table>
+            <thead><tr><th>Périmètre</th><th>Arrivées</th><th>Départs</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>INTERNE</strong></td>
+                    <td><code>Salarie.DateEmbauche</code> dans l'année</td>
+                    <td><code>Salarie.DateSortie</code> dans l'année + <code>MotifDepart</code> (enum)</td>
+                </tr>
+                <tr>
+                    <td><strong>EXTERNE</strong></td>
+                    <td><code>ContratInterim.DateDebut</code> dans l'année</td>
+                    <td><code>ContratInterim</code> clos (Statut Terminé/Résilié) avec <code>DateFinReelle</code> dans l'année</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Lecture des 7 KPI</h2>
+        <ul>
+            <li><strong>Arrivées</strong> / <strong>Départs</strong> — nombre brut sur l'année</li>
+            <li><strong>Solde net</strong> = Arrivées − Départs (signé +/−)</li>
+            <li><strong>% Arrivées</strong> et <strong>% Départs</strong> = sur effectif moyen</li>
+            <li><strong>Effectif Début</strong> et <strong>Fin</strong> = au 1/1 et au 31/12 de l'année</li>
+        </ul>
+
+        <div class="alerte">
+            <strong>Cas EXTERNE en année de ramp-up :</strong> si tous les contrats démarrent
+            en cours d'année (Effectif Début = 0), les % arrivées peuvent paraître très élevés.
+            Pour éviter les valeurs aberrantes, le dénominateur est plafonné par
+            <code>MAX(ETP pondéré 13 dates, nb intérimaires distincts dans l'année)</code>,
+            ce qui ramène le taux à ~100% en cas de renouvellement complet.
+        </div>
+
+        <h2>Section Arrivées</h2>
+        <p>Bar chart vertical 12 mois (Jan→Déc) en bleu, puis 2 bar charts horizontaux par site
+        et par catégorie (ou poste pour EXTERNE).</p>
+
+        <h2>Section Départs</h2>
+        <p>Bar chart vertical 12 mois en rouge, puis 3 bar charts horizontaux : par
+        <strong>motif de départ</strong> (enum MotifDepart pour INTERNE, statut contrat pour
+        EXTERNE), par site, par catégorie.</p>
+
+        <div class="info">
+            <strong>Motifs de départ INTERNE :</strong> Démission · Licenciement · Retraite ·
+            Fin de CDD · Rupture conventionnelle · Décès · Autre.
+        </div>
+
+        <div class="footer">ELTON Oil · Tableau N°3 · Étape 4.3</div>
+    </main>
+</body>
+</html>

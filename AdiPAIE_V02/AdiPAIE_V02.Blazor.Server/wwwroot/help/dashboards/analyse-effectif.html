@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse de l'Effectif — Aide Tableau N°2</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html" class="active">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°2</div>
+        <h1>Analyse de l'Effectif (Global / Moyen)</h1>
+        <p class="lead">Vue analytique avec toggle Interne/Externe + Global/Moyen, courbe sur 8 ans
+        et 5 bar charts (tranche d'âge, ancienneté, segment, catégorie Top 5, type contrat).</p>
+
+        <h2>Toggle Personnel</h2>
+        <ul>
+            <li><strong>Interne</strong> = Salariés CDI/CDD/Stage (entité <code>Salarie</code>)</li>
+            <li><strong>Externe</strong> = Intérimaires (entité <code>Interimaire</code> + <code>ContratInterim</code>)</li>
+        </ul>
+        <p>Quand on bascule entre les deux, certains filtres changent : Site devient
+        Station service, Département devient Société Intérim, Catégorie devient Poste.</p>
+
+        <h2>Toggle Mode</h2>
+        <ul>
+            <li><strong>Global</strong> = effectif au 31/12 (photo instantanée)</li>
+            <li><strong>Moyen</strong> = (effectif au 1/1 + effectif au 31/12) / 2 (vue ETP annuel)</li>
+        </ul>
+
+        <h2>Lecture des 7 KPI</h2>
+        <table>
+            <thead><tr><th>KPI</th><th>Calcul</th></tr></thead>
+            <tbody>
+                <tr><td>Effectif</td><td>Selon mode actif (Global ou Moyen)</td></tr>
+                <tr><td>% Départs</td><td>Sorties année / effectif</td></tr>
+                <tr><td>% Rotation (turnover)</td><td>(Embauches + Sorties) / 2 / effectif moyen</td></tr>
+                <tr><td>Ancienneté Moy.</td><td>Moyenne arrondie en années</td></tr>
+                <tr><td>% Femmes / % Hommes</td><td>Sur effectif total (INTERNE seulement, Interimaire n'a pas de Sexe)</td></tr>
+                <tr><td>Âge Moyen</td><td>Moyenne arrondie en années</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Évolution sur 8 années glissantes</h2>
+        <p>Sparkline SVG avec aire orange : valeur année par année + variation % vs N-1
+        (▲ vert = croissance, ▼ rouge = décroissance).</p>
+
+        <h2>5 bar charts</h2>
+        <ol>
+            <li><strong>Tranche d'âge</strong> (vertical) — 4 tranches + vide</li>
+            <li><strong>Ancienneté</strong> (vertical) — 5 tranches + vide</li>
+            <li><strong>Segment</strong> (horizontal) — Département (INTERNE) ou BU (EXTERNE)</li>
+            <li><strong>Catégorie Top 5</strong> (horizontal)</li>
+            <li><strong>Type de contrat</strong> (horizontal)</li>
+        </ol>
+
+        <div class="alerte">
+            <strong>EXTERNE — limitations connues :</strong> les KPI %Femmes/%Hommes restent à 0
+            car l'entité <code>Interimaire</code> n'a pas de champ Sexe. Le filtre Genre est
+            également inactif pour les intérimaires.
+        </div>
+
+        <div class="footer">ELTON Oil · Tableau N°2 · Étape 4.2</div>
+    </main>
+</body>
+</html>

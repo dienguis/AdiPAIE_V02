@@ -1,0 +1,56 @@
+@using System.Globalization
+@* =====================================================================
+    KpiCard.razor
+    Carte KPI réutilisable : titre, valeur principale, sous-titre optionnel,
+    variation en % (▲ vert si positive, ▼ rouge si négative).
+
+    Exemples :
+        <KpiCard Title="Âge Moyen global" Value="38,4 ans" />
+        <KpiCard Title="Effectif total" Value="1 245" Variation="2.3m" />
+        <KpiCard Title="% Départs"   Value="6,8 %"   Variation="-1.1m" CssVariant="warning" />
+   ===================================================================== *@
+
+<div class="kpi-card @(string.IsNullOrEmpty(CssVariant) ? "" : "kpi-card--" + CssVariant)">
+    @if (!string.IsNullOrEmpty(IconCssClass))
+    {
+        <div class="kpi-card__icon"><i class="@IconCssClass" aria-hidden="true"></i></div>
+    }
+    <div class="kpi-card__body">
+        <div class="kpi-card__title">@Title</div>
+        <div class="kpi-card__value">@Value</div>
+        @if (!string.IsNullOrEmpty(Subtitle))
+        {
+            <div class="kpi-card__subtitle">@Subtitle</div>
+        }
+        @if (Variation.HasValue)
+        {
+            var v = Variation.Value;
+            var arrow = v > 0 ? "▲" : v < 0 ? "▼" : "•";
+            var cls = v > 0 ? "kpi-up" : v < 0 ? "kpi-down" : "kpi-flat";
+            <div class="kpi-card__variation @cls">
+                <span class="kpi-card__arrow">@arrow</span>
+                <span class="kpi-card__pct">@v.ToString("+0.0;-0.0;0", CultureInfo.GetCultureInfo("fr-FR")) %</span>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Libellé du KPI (ex. "Âge Moyen global").</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+
+    /// <summary>Valeur affichée en grand (déjà formatée).</summary>
+    [Parameter] public string Value { get; set; } = "—";
+
+    /// <summary>Sous-titre optionnel (ex. "période 2025").</summary>
+    [Parameter] public string? Subtitle { get; set; }
+
+    /// <summary>Variation en %, signée. Si null la zone n'est pas affichée.</summary>
+    [Parameter] public decimal? Variation { get; set; }
+
+    /// <summary>Classe CSS d'icône (ex. "bi bi-people"). Optionnel.</summary>
+    [Parameter] public string? IconCssClass { get; set; }
+
+    /// <summary>Variante visuelle ("primary" | "warning" | "success" | …). Optionnel.</summary>
+    [Parameter] public string? CssVariant { get; set; }
+}

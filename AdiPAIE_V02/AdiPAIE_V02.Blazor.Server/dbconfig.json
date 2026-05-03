@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "ConnectionString": "Data Source=(localdb)\\mssqllocaldb;Integrated Security=SSPI;Pooling=false;Initial Catalog=AdiPAIE_V02_company1"
+  }
+}

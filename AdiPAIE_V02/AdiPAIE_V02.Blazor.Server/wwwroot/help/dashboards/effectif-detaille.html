@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Effectif détaillé — Aide Tableau N°1</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html" class="active">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°1</div>
+        <h1>Effectif détaillé</h1>
+        <p class="lead">Vue par tranche d'âge × catégorie professionnelle, avec distinction Hommes / Femmes.</p>
+
+        <h2>À quoi sert ce tableau</h2>
+        <p>Ce tableau donne une <strong>photographie démographique</strong> de l'effectif INTERNE
+        (salariés CDI/CDD/Stage). Il est utile pour :</p>
+        <ul>
+            <li>Suivre la pyramide des âges et anticiper les départs en retraite</li>
+            <li>Vérifier l'équilibre Hommes / Femmes par catégorie professionnelle</li>
+            <li>Préparer les éléments démographiques du Bilan Social</li>
+        </ul>
+
+        <h2>Lecture des KPI (cartes du haut)</h2>
+        <table>
+            <thead><tr><th>KPI</th><th>Calcul</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Effectif Total</strong></td><td>Salariés actifs au 31/12 de l'année (DateEmbauche &lt; 31/12 et DateSortie nulle ou &gt; 31/12).</td></tr>
+                <tr><td><strong>Âge moyen G/H/F</strong></td><td>Moyenne arrondie de <code>DATEDIFF(YEAR, Birthday, today)</code>. Affiché en années entières + suffixe « Ans ».</td></tr>
+                <tr><td><strong>Ancienneté moyenne G/H/F</strong></td><td>Moyenne arrondie de <code>DATEDIFF(YEAR, DateEmbauche, today)</code>.</td></tr>
+                <tr><td><strong>Silhouettes ♂ / ♀</strong></td><td>SVG illustratifs avec compteur d'effectif H et F.</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Tableaux de répartition</h2>
+        <p>5 mini-tableaux par tranche d'âge (&lt;25 / 25-34 / 35-44 / 45-54 / 55+) ×
+        catégorie pro (Cadre / Non Cadre / etc.). Chaque cellule contient un nombre de salariés.</p>
+
+        <h2>Bar chart Femmes / Hommes empilé</h2>
+        <p>Pour chaque catégorie pro, une barre horizontale empile les Femmes (rose) et les Hommes
+        (bleu) — utile pour visualiser le déséquilibre par grade.</p>
+
+        <h2>Filtres disponibles</h2>
+        <ul>
+            <li><strong>Année</strong> — choix entre les 8 dernières années</li>
+            <li><strong>Site</strong> — filtre par implantation géographique (siège, dépôts)</li>
+            <li><strong>Genre</strong> — Tous / Masculin / Féminin</li>
+        </ul>
+
+        <h2>Source data</h2>
+        <p>Entités <code>Salarie</code> + <code>Person</code> (Birthday, FirstName, LastName, Sexe).
+        Filtre soft-delete : <code>DateSortie</code> doit être nulle ou postérieure au 1er janvier 1900
+        (les sorties à <code>DateTime.MinValue</code> ou epoch Excel sont considérées comme
+        « pas de sortie »).</p>
+
+        <div class="info">
+            <strong>Astuce :</strong> si vous corrigez la date de naissance d'un salarié,
+            cliquez sur <strong>↻ Actualiser</strong> pour invalider le cache et recalculer
+            immédiatement les KPI Âge moyen.
+        </div>
+
+        <div class="footer">ELTON Oil · Tableau N°1 · Étape 4.1</div>
+    </main>
+</body>
+</html>

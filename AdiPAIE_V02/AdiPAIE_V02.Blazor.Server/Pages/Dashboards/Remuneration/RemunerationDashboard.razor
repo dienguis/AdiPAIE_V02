@@ -1,0 +1,707 @@
+@* =====================================================================
+    RemunerationDashboard.razor — Tableau N°4
+    URL : /dashboards/remuneration
+    Périmètre : Personnel INTERNE (Bulletin) + EXTERNE (ContratInterim)
+
+    UI complète (Étape 4.4) — alignée maquette PowerBI utilisateur :
+      - Toggle Personnel : Interne / Externe
+      - Toggle Mode      : Coût Employeur / Rémunération Nette
+      - Filtres : Année, Site/Station, Genre (INTERNE), Segment, Catégorie
+      - 5 KPI cartes : Total, Salaire Min, Max, Moyen, Coût Moy. Salarié
+      - Tableau « Égalité par Segment » avec barre de % de masse + colonnes
+        Total, Coût Moy., Min, Max, Moyenne, Moy. ♀, Moy. ♂
+      - Tableau « Égalité par Catégorie » (mêmes colonnes)
+      - Évolution masse mensuelle 12 mois (bar chart)
+      - Décomposition par famille de rubrique (INTERNE uniquement)
+
+    Sources data validées par utilisateur (cf. MISSION_STATE.md §7) :
+      - INTERNE : Bulletin.BrutFiscal + BulletinLigne.MontantEmployeur
+      - EXTERNE : ContratInterim.TauxJournalier × 22j × NbMois
+      - Format FCFA : séparateur d'espace (NumberGroupSeparator = " ")
+   ===================================================================== *@
+
+@page "/dashboards/remuneration"
+@attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.BusinessObjects.RH
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+@using static AdiPAIE_V02.Module.Domain.DomainEnums
+
+@inject IRemunerationDashboardService Service
+@inject IDashboardExcelExportService ExcelExport
+@inject IDashboardPdfExportService PdfExport
+@inject IJSRuntime JS
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
+
+<PageTitle>Rémunération — Tableaux de Bord RH</PageTitle>
+
+@if (_data == null && _errorMessage == null)
+{
+    <div class="ed-loading">
+        <DxLoadingPanel Text="Chargement…" Visible="true" />
+    </div>
+}
+else
+{
+    @* ── HEADER SOMBRE ELTON ──────────────────────────────────────── *@
+    <header class="ed-header">
+
+        @* ── Ligne 1 : titre + toggles + KPI total ─────────────────── *@
+        <div class="ed-header__row">
+
+            <div class="ed-header__title">
+                <button class="ed-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+                <div>
+                    <div class="ed-header__perimetre">
+                        Tableau N°4 ·
+                        @(_filter.Personnel == PersonnelType.Externe ? "Personnel Externe (Intérimaires)" : "Personnel Interne (CDI / CDD / Stage)")
+                    </div>
+                    <h1 class="ed-header__h1">Rémunération <span class="ed-h1-sub">— Égalité des salaires</span></h1>
+                </div>
+            </div>
+
+            <div class="ed-kpigroup">
+                <div class="ed-kpigroup__head"><i class="bi bi-people"></i><span>Périmètre</span></div>
+                <div class="ed-toggle">
+                    <button class="ed-toggle__btn @(_filter.Personnel == PersonnelType.Interne ? "ed-toggle__btn--active" : "")"
+                            @onclick="@(() => OnPersonnelChanged(PersonnelType.Interne))">Interne</button>
+                    <button class="ed-toggle__btn @(_filter.Personnel == PersonnelType.Externe ? "ed-toggle__btn--active" : "")"
+                            @onclick="@(() => OnPersonnelChanged(PersonnelType.Externe))">Externe</button>
+                </div>
+            </div>
+
+            <div class="ed-kpigroup">
+                <div class="ed-kpigroup__head"><i class="bi bi-cash-stack"></i><span>Vue</span></div>
+                <div class="ed-toggle">
+                    <button class="ed-toggle__btn @(_filter.Mode == RemunerationMode.CoutEmployeur ? "ed-toggle__btn--active" : "")"
+                            @onclick="@(() => OnModeChanged(RemunerationMode.CoutEmployeur))">Coût Employeur</button>
+                    <button class="ed-toggle__btn @(_filter.Mode == RemunerationMode.RemunerationNette ? "ed-toggle__btn--active" : "")"
+                            @onclick="@(() => OnModeChanged(RemunerationMode.RemunerationNette))"
+                            disabled="@(_filter.Personnel == PersonnelType.Externe)">Rém. Nette</button>
+                </div>
+            </div>
+
+            <div class="ed-kpi-effectif" title="Total selon mode actif">
+                <div class="ed-kpi-effectif__label">Total @_filter.Annee</div>
+                <div class="ed-kpi-effectif__value">@FormatFcfa(_data?.Kpis.Total ?? 0)</div>
+                <div class="ed-kpi-effectif__date">@(_data?.Kpis.NbSalariesDistincts ?? 0) @(_filter.Personnel == PersonnelType.Externe ? "intérim." : "salariés")</div>
+            </div>
+        </div>
+
+        @* ── Ligne 2 : filtres + actions ───────────────────────────── *@
+        <div class="ed-header__row ed-header__row--filters">
+            <div class="ed-filter">
+                <label>Année</label>
+                <DxComboBox TData="int" TValue="int"
+                            Data="@_anneesDispo"
+                            Value="@_filter.Annee"
+                            ValueChanged="@((int v) => OnAnneeChanged(v))"
+                            CssClass="ed-input" />
+            </div>
+            @if (_filter.Personnel == PersonnelType.Externe)
+            {
+                @* V1.1 — Site (tous types : Stations + Siège + Dépôts)
+                   Utilise NomAvecType (avec emoji 🏪/🏢/📦) pour distinguer
+                   visuellement les types dans le dropdown. *@
+                <div class="ed-filter">
+                    <label>Site</label>
+                    <DxComboBox TData="Site" TValue="Site"
+                                Data="@_sitesV1Dispo"
+                                TextFieldName="@nameof(Site.NomAvecType)"
+                                Value="@_selectedSiteV1"
+                                ValueChanged="@((Site? s) => OnSiteV1Changed(s))"
+                                NullText="Tous"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                CssClass="ed-input" />
+                </div>
+                @* V1.1 — Unité organisationnelle (filtrée par site sélectionné) *@
+                <div class="ed-filter">
+                    <label>Unité</label>
+                    <DxComboBox TData="UniteOrganisationnelle" TValue="UniteOrganisationnelle"
+                                Data="@_unitesDispo"
+                                TextFieldName="@nameof(UniteOrganisationnelle.Nom)"
+                                Value="@_selectedUnite"
+                                ValueChanged="@((UniteOrganisationnelle? u) => OnUniteChanged(u))"
+                                NullText="Toutes"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                CssClass="ed-input" />
+                </div>
+            }
+            else
+            {
+                <div class="ed-filter">
+                    <label>Site</label>
+                    <DxComboBox TData="Site" TValue="Site"
+                                Data="@_sitesDispo"
+                                TextFieldName="@nameof(Site.Nom)"
+                                Value="@_selectedSite"
+                                ValueChanged="@((Site? s) => OnSiteChanged(s))"
+                                NullText="Tous"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                CssClass="ed-input" />
+                </div>
+                <div class="ed-filter">
+                    <label>Genre</label>
+                    <DxComboBox TData="Sexe?" TValue="Sexe?"
+                                Data="@_genresDispo"
+                                Value="@_filter.Genre"
+                                ValueChanged="@((Sexe? s) => OnGenreChanged(s))"
+                                NullText="Tous"
+                                CssClass="ed-input">
+                        <ItemTemplate>
+                            @(context is null ? "Tous" : ((Sexe)context) == Sexe.Masculin ? "Masculin" : "Féminin")
+                        </ItemTemplate>
+                    </DxComboBox>
+                </div>
+                <div class="ed-filter">
+                    <label>Segment</label>
+                    <DxComboBox TData="Departement" TValue="Departement"
+                                Data="@_departementsDispo"
+                                TextFieldName="@nameof(Departement.Nom)"
+                                Value="@_selectedDepartement"
+                                ValueChanged="@((Departement? d) => OnSegmentChanged(d))"
+                                NullText="Tous"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                CssClass="ed-input" />
+                </div>
+                <div class="ed-filter">
+                    <label>Catégorie</label>
+                    <DxComboBox TData="Categories" TValue="Categories"
+                                Data="@_categoriesDispo"
+                                TextFieldName="@nameof(Categories.Intitule)"
+                                Value="@_selectedCategorie"
+                                ValueChanged="@((Categories? c) => OnCategorieChanged(c))"
+                                NullText="Toutes"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                CssClass="ed-input" />
+                </div>
+            }
+            <div class="ed-actions">
+                <button class="ed-btn ed-btn--icon" title="Actualiser" @onclick="OnRefreshClick" disabled="@_loading">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+                <button class="ed-btn ed-btn--icon" title="Export PDF (Étape 7)" @onclick="OnExportPdfClick" disabled="@_loading">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                </button>
+                <button class="ed-btn ed-btn--icon" title="Export Excel (Étape 7)" @onclick="OnExportExcelClick" disabled="@_loading">
+                    <i class="bi bi-file-earmark-excel"></i>
+                </button>
+                <a class="ed-btn ed-btn--icon" title="Aide ce tableau" href="/help/dashboards/remuneration.html" target="_blank" rel="noopener">
+                    <i class="bi bi-question-circle"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="ed-error"><i class="bi bi-exclamation-triangle-fill"></i><strong>Erreur :</strong> @_errorMessage</div>
+    }
+
+    @if (_data != null)
+    {
+        <main class="ed-main">
+
+            @* ── 5 KPI cartes (alignées maquette PowerBI) ─────────────── *@
+            <section class="ed-section">
+                <h3 class="ed-section__title">Indicateurs clés — @_filter.Annee</h3>
+                <div class="rm-kpiboxes">
+                    <div class="rm-kpibox">
+                        <div class="rm-kpibox__icon" title="Total"><i class="bi bi-cash-coin"></i></div>
+                        <div class="rm-kpibox__body">
+                            <div class="rm-kpibox__value">@FormatFcfa(_data.Kpis.Total)</div>
+                            <div class="rm-kpibox__label">@(_filter.Mode == RemunerationMode.CoutEmployeur ? "Coût Total Employeur" : "Total Net à Payer")</div>
+                        </div>
+                    </div>
+                    <div class="rm-kpibox">
+                        <div class="rm-kpibox__icon rm-kpibox__icon--down" title="Min"><i class="bi bi-caret-down-fill"></i></div>
+                        <div class="rm-kpibox__body">
+                            <div class="rm-kpibox__value">@FormatFcfa(_data.Kpis.SalaireMin)</div>
+                            <div class="rm-kpibox__label">Salaire Min</div>
+                        </div>
+                    </div>
+                    <div class="rm-kpibox">
+                        <div class="rm-kpibox__icon rm-kpibox__icon--up" title="Max"><i class="bi bi-caret-up-fill"></i></div>
+                        <div class="rm-kpibox__body">
+                            <div class="rm-kpibox__value">@FormatFcfa(_data.Kpis.SalaireMax)</div>
+                            <div class="rm-kpibox__label">Salaire Max</div>
+                        </div>
+                    </div>
+                    <div class="rm-kpibox">
+                        <div class="rm-kpibox__icon" title="Moyen"><i class="bi bi-pin-angle-fill"></i></div>
+                        <div class="rm-kpibox__body">
+                            <div class="rm-kpibox__value">@FormatFcfa(_data.Kpis.SalaireMoyen)</div>
+                            <div class="rm-kpibox__label">Salaire Moyen</div>
+                        </div>
+                    </div>
+                    <div class="rm-kpibox">
+                        <div class="rm-kpibox__icon" title="Coût annuel par salarié"><i class="bi bi-person-fill"></i></div>
+                        <div class="rm-kpibox__body">
+                            <div class="rm-kpibox__value">@FormatFcfa(_data.Kpis.CoutMoyenSalarie)</div>
+                            <div class="rm-kpibox__label">Coût Moy. @(_filter.Personnel == PersonnelType.Externe ? "Intérim." : "Salarié")</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            @* ── Tableau « Égalité par Segment » ───────────────────────── *@
+            <section class="ed-section">
+                <h3 class="ed-section__title">
+                    Rémunération par @(_filter.Personnel == PersonnelType.Externe ? "Site" : "Segment") — Égalité des salaires
+                </h3>
+                @if (_data.ParSegment.Count == 0)
+                {
+                    <div class="ed-empty">Pas de données.</div>
+                }
+                else
+                {
+                    var maxTotalSeg = _data.ParSegment.Max(r => r.Total);
+                    <table class="rm-table">
+                        <thead>
+                            <tr>
+                                <th class="rm-th-left">@(_filter.Personnel == PersonnelType.Externe ? "Site" : "Segment")</th>
+                                <th>Rémun. totale</th>
+                                <th class="rm-th-num">Coût Moy. Salarié</th>
+                                <th class="rm-th-num">Min</th>
+                                <th class="rm-th-num">Max</th>
+                                <th class="rm-th-num">Moyenne</th>
+                                <th class="rm-th-num"><i class="bi bi-gender-female"></i> Moy. ♀</th>
+                                <th class="rm-th-num"><i class="bi bi-gender-male"></i> Moy. ♂</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in _data.ParSegment)
+                            {
+                                var w = maxTotalSeg > 0 ? (decimal)r.Total * 100m / maxTotalSeg : 0m;
+                                <tr>
+                                    <td class="rm-td-left">@r.Libelle</td>
+                                    <td class="rm-td-bar">
+                                        <div class="rm-bar-cell">
+                                            <span class="rm-bar-num">@FormatFcfa(r.Total)</span>
+                                            <div class="rm-bar-track">
+                                                <div class="rm-bar-fill" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="rm-td-num">@FormatFcfa(r.CoutMoyen)</td>
+                                    <td class="rm-td-num">@FormatFcfa(r.Min)</td>
+                                    <td class="rm-td-num">@FormatFcfa(r.Max)</td>
+                                    <td class="rm-td-num">@FormatFcfa(r.Moyenne)</td>
+                                    <td class="rm-td-num">@(r.MoyFemme.HasValue ? FormatFcfa(r.MoyFemme.Value) : "—")</td>
+                                    <td class="rm-td-num">@(r.MoyHomme.HasValue ? FormatFcfa(r.MoyHomme.Value) : "—")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </section>
+
+            @* ── Tableau « Égalité par Catégorie » ─────────────────────── *@
+            <section class="ed-section">
+                <h3 class="ed-section__title">
+                    Rémunération par @(_filter.Personnel == PersonnelType.Externe ? "Unité (BU / Département / Segment)" : "Catégorie professionnelle") — Égalité des salaires
+                </h3>
+                @if (_data.ParCategorie.Count == 0)
+                {
+                    <div class="ed-empty">Pas de données.</div>
+                }
+                else
+                {
+                    var maxTotalCat = _data.ParCategorie.Max(r => r.Total);
+                    <table class="rm-table">
+                        <thead>
+                            <tr>
+                                <th class="rm-th-left">@(_filter.Personnel == PersonnelType.Externe ? "Unité" : "Catégorie pro")</th>
+                                <th>Rémun. totale</th>
+                                <th class="rm-th-num">Coût Moy. Salarié</th>
+                                <th class="rm-th-num">Min</th>
+                                <th class="rm-th-num">Max</th>
+                                <th class="rm-th-num">Moyenne</th>
+                                <th class="rm-th-num"><i class="bi bi-gender-female"></i> Moy. ♀</th>
+                                <th class="rm-th-num"><i class="bi bi-gender-male"></i> Moy. ♂</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in _data.ParCategorie)
+                            {
+                                var w = maxTotalCat > 0 ? (decimal)r.Total * 100m / maxTotalCat : 0m;
+                                <tr>
+                                    <td class="rm-td-left">@r.Libelle</td>
+                                    <td class="rm-td-bar">
+                                        <div class="rm-bar-cell">
+                                            <span class="rm-bar-num">@FormatFcfa(r.Total)</span>
+                                            <div class="rm-bar-track">
+                                                <div class="rm-bar-fill" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="rm-td-num">@FormatFcfa(r.CoutMoyen)</td>
+                                    <td class="rm-td-num">@FormatFcfa(r.Min)</td>
+                                    <td class="rm-td-num">@FormatFcfa(r.Max)</td>
+                                    <td class="rm-td-num">@FormatFcfa(r.Moyenne)</td>
+                                    <td class="rm-td-num">@(r.MoyFemme.HasValue ? FormatFcfa(r.MoyFemme.Value) : "—")</td>
+                                    <td class="rm-td-num">@(r.MoyHomme.HasValue ? FormatFcfa(r.MoyHomme.Value) : "—")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </section>
+
+            @* ── Évolution mensuelle 12 mois (bar chart) ───────────────── *@
+            <section class="ed-section">
+                <h3 class="ed-section__title">Évolution masse mensuelle — @_filter.Annee</h3>
+                @if (_data.EvolutionMensuelle.All(m => m.Masse == 0))
+                {
+                    <div class="ed-empty">Aucune donnée mensuelle.</div>
+                }
+                else
+                {
+                    var maxMois = _data.EvolutionMensuelle.Max(m => m.Masse);
+                    <div class="ed-vbar-chart" style="grid-template-columns: repeat(12, 1fr); height: 220px;">
+                        @foreach (var m in _data.EvolutionMensuelle)
+                        {
+                            var h = maxMois > 0 ? m.Masse * 100m / maxMois : 0m;
+                            <div class="ed-vbar">
+                                <div class="ed-vbar__value">@FormatFcfaShort(m.Masse)</div>
+                                <div class="ed-vbar__col rm-vbar__col" style="@($"height:{h.ToString("0.00", InvCulture)}%")"></div>
+                                <div class="ed-vbar__label">@m.Libelle</div>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+
+            @* ── Décomposition par famille de rubrique (INTERNE only) ──── *@
+            @if (_filter.Personnel == PersonnelType.Interne && _data.ParFamilleRubrique.Count > 0)
+            {
+                <section class="ed-section">
+                    <h3 class="ed-section__title">Décomposition par famille de rubrique</h3>
+                    <table class="rm-table">
+                        <thead>
+                            <tr>
+                                <th class="rm-th-left">Famille</th>
+                                <th class="rm-th-num">Total Salarial</th>
+                                <th class="rm-th-num">Total Employeur</th>
+                                <th class="rm-th-num">Total Combiné</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var d in _data.ParFamilleRubrique)
+                            {
+                                <tr>
+                                    <td class="rm-td-left">@d.FamilleMacro</td>
+                                    <td class="rm-td-num">@FormatFcfa(d.TotalSalarial)</td>
+                                    <td class="rm-td-num">@FormatFcfa(d.TotalEmployeur)</td>
+                                    <td class="rm-td-num"><strong>@FormatFcfa(d.TotalCombined)</strong></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </section>
+            }
+
+            <footer class="ed-footer">
+                <span><i class="bi bi-clock-history"></i> Données calculées le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
+                <span class="sep">·</span>
+                <span>
+                    Source @(_filter.Personnel == PersonnelType.Externe
+                        ? "ContratInterim (TauxJournalier × 22j × NbMois)"
+                        : "Bulletin (BrutFiscal + BulletinLigne.MontantEmployeur)")
+                </span>
+                <span class="sep">·</span>
+                <span>Format FCFA</span>
+            </footer>
+        </main>
+    }
+}
+
+@* ── Styles propres au Tableau N°4 (compléments du CSS partagé) ────── *@
+<style>
+    .ed-h1-sub { font-weight: 400; opacity: 0.75; font-size: 0.85em; }
+
+    /* ───── 5 KPI cartes alignées en ligne ───── */
+    .rm-kpiboxes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.75rem;
+    }
+    .rm-kpibox {
+        display: flex; align-items: center; gap: 0.75rem;
+        background: var(--ed-card, #fff);
+        border: 1px solid var(--ed-border, #E5E7EB);
+        border-left: 4px solid var(--ed-bg-dark-2, #142E4D);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .rm-kpibox__icon {
+        width: 44px; height: 44px;
+        background: var(--ed-bg-dark-2, #142E4D);
+        color: #fff;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+    .rm-kpibox__icon--up   { background: var(--ed-up,   #2EA75B); }
+    .rm-kpibox__icon--down { background: var(--ed-down, #E63946); }
+    .rm-kpibox__value {
+        font-size: 1.35rem; font-weight: 700;
+        color: var(--ed-text, #142E4D);
+        font-variant-numeric: tabular-nums;
+        line-height: 1.1;
+    }
+    .rm-kpibox__label {
+        font-size: 0.75rem; color: var(--ed-text-soft, #5C6679);
+        text-transform: uppercase; letter-spacing: 0.04em;
+        margin-top: 0.15rem;
+    }
+
+    /* ───── Tableau Égalité ───── */
+    .rm-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+    .rm-table thead th {
+        background: var(--ed-bg-dark-2, #142E4D);
+        color: #fff;
+        font-weight: 600;
+        text-align: right;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+    }
+    .rm-table thead .rm-th-left { text-align: left; }
+    .rm-table thead .rm-th-num  { text-align: right; }
+    .rm-table tbody tr {
+        border-bottom: 1px solid var(--ed-border, #E5E7EB);
+    }
+    .rm-table tbody tr:nth-child(even) { background: rgba(20, 46, 77, 0.025); }
+    .rm-table tbody tr:hover           { background: var(--ed-orange-soft, rgba(241,138,28,.08)); }
+    .rm-table td {
+        padding: 0.55rem 0.75rem;
+        font-variant-numeric: tabular-nums;
+    }
+    .rm-td-left { text-align: left; font-weight: 600; color: var(--ed-text, #142E4D); }
+    .rm-td-num  { text-align: right; }
+
+    /* Cellule avec barre de progression (% de la masse) */
+    .rm-td-bar { padding: 0.4rem 0.75rem; min-width: 200px; }
+    .rm-bar-cell {
+        display: flex; flex-direction: column; gap: 0.2rem;
+    }
+    .rm-bar-num {
+        font-weight: 600; font-size: 0.85rem;
+        color: var(--ed-text, #142E4D);
+        text-align: right;
+    }
+    .rm-bar-track {
+        height: 6px;
+        background: var(--ed-gray-track, #E5E9EE);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .rm-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--ed-orange, #F18A1C) 0%, #FFB347 100%);
+    }
+
+    /* Bar chart mensuel */
+    .rm-vbar__col {
+        background: linear-gradient(180deg, var(--ed-bg-dark-2, #142E4D) 0%, var(--ed-bg-dark-3, #1F4376) 100%) !important;
+    }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture  = CultureInfo.GetCultureInfo("fr-FR");
+    private static readonly CultureInfo InvCulture = CultureInfo.InvariantCulture;
+    /// <summary>Format FCFA avec séparateur d'espace pour les milliers.</summary>
+    private static readonly NumberFormatInfo FcfaFmt = new()
+    {
+        NumberGroupSeparator = " ",
+        NumberDecimalSeparator = ",",
+        NumberDecimalDigits = 0
+    };
+
+    private bool _loading = false;
+    private string? _errorMessage = null;
+    private RemunerationDto? _data;
+
+    private RemunerationFilterModel _filter = new();
+    private List<int> _anneesDispo = new();
+    private List<Site> _sitesDispo = new();
+    private List<StationService> _stationsDispo = new();          // legacy, conservé pour compat
+    // V1.1 — Sites (tous types) + Unités filtrées par site
+    private List<Site> _sitesV1Dispo = new();
+    private List<UniteOrganisationnelle> _unitesDispo = new();
+    private Site? _selectedSiteV1;
+    private UniteOrganisationnelle? _selectedUnite;
+    private List<Departement> _departementsDispo = new();
+    private List<Categories> _categoriesDispo = new();
+    private List<PosteInterimaire> _postesDispo = new();
+    private Site? _selectedSite;
+    private StationService? _selectedStation;
+    private Departement? _selectedDepartement;
+    private Categories? _selectedCategorie;
+    private PosteInterimaire? _selectedPoste;
+
+    private readonly List<Sexe?> _genresDispo = new() { null, Sexe.Masculin, Sexe.Feminin };
+
+    protected override void OnInitialized()
+    {
+        if (!Services.DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
+        LoadLookups();
+        LoadData();
+    }
+
+    private IObjectSpace CreateOs() =>
+        ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Salarie));
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = CreateOs();
+            _anneesDispo       = Service.GetAnneesDisponibles(os);
+            _sitesDispo        = Service.GetSitesActifs(os);
+            _stationsDispo     = Service.GetStationsServiceActives(os);
+            _sitesV1Dispo      = Service.GetSitesActifs(os);
+            _unitesDispo       = Service.GetUnitesPourSite(os, null); // toutes au départ
+            _departementsDispo = Service.GetDepartements(os);
+            _categoriesDispo   = Service.GetCategories(os);
+            _postesDispo       = Service.GetPostesInterimaire(os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Chargement des filtres : {ex.Message}";
+        }
+    }
+
+    private void LoadData()
+    {
+        _loading = true;
+        _errorMessage = null;
+        try
+        {
+            using var os = CreateOs();
+            _data = Service.GetData(_filter, os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Calcul du tableau : {ex.Message}";
+            _data = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private Task OnPersonnelChanged(PersonnelType p)
+    {
+        _filter.Personnel = p;
+        // Reset filtres divergents Interne/Externe
+        _selectedSite = null; _selectedStation = null; _filter.SiteOid = null;
+        _selectedSiteV1 = null; _selectedUnite = null;
+        _selectedDepartement = null; _filter.Segment = null;
+        _selectedCategorie = null; _selectedPoste = null; _filter.CategorieOid = null;
+        _filter.Genre = null;
+        // Mode Rémunération Nette n'a pas de sens en EXTERNE
+        if (p == PersonnelType.Externe) _filter.Mode = RemunerationMode.CoutEmployeur;
+        LoadData();
+        return Task.CompletedTask;
+    }
+    private Task OnModeChanged(RemunerationMode m)        { _filter.Mode = m; LoadData(); return Task.CompletedTask; }
+    private Task OnAnneeChanged(int a)                    { _filter.Annee = a; LoadData(); return Task.CompletedTask; }
+    private Task OnSiteChanged(Site? s)                   { _selectedSite = s; _filter.SiteOid = s?.Oid; LoadData(); return Task.CompletedTask; }
+    private Task OnStationChanged(StationService? s)      { _selectedStation = s; _filter.SiteOid = s?.Oid; LoadData(); return Task.CompletedTask; }
+    private Task OnGenreChanged(Sexe? g)                  { _filter.Genre = g; LoadData(); return Task.CompletedTask; }
+    private Task OnSegmentChanged(Departement? d)         { _selectedDepartement = d; _filter.Segment = d?.Nom; LoadData(); return Task.CompletedTask; }
+    private Task OnCategorieChanged(Categories? c)        { _selectedCategorie = c; _filter.CategorieOid = c?.Oid; LoadData(); return Task.CompletedTask; }
+    private Task OnPosteChanged(PosteInterimaire? p)      { _selectedPoste = p; _filter.CategorieOid = p?.Oid; LoadData(); return Task.CompletedTask; }
+
+    // ── V1.1 — Filtres EXTERNE Site/Unité (remplace Station/Poste) ──
+    private Task OnSiteV1Changed(Site? s)
+    {
+        _selectedSiteV1 = s;
+        _filter.SiteOid = s?.Oid;
+        // Reset l'unité si elle ne correspond plus au site sélectionné
+        _selectedUnite = null;
+        // Recharger les unités filtrées
+        try
+        {
+            using var os = CreateOs();
+            _unitesDispo = Service.GetUnitesPourSite(os, s?.Oid);
+        }
+        catch { _unitesDispo = new(); }
+        _filter.CategorieOid = null;
+        LoadData();
+        return Task.CompletedTask;
+    }
+    private Task OnUniteChanged(UniteOrganisationnelle? u)
+    {
+        _selectedUnite = u;
+        _filter.CategorieOid = u?.Oid;   // CategorieOid réutilisé pour porter Unité.Oid
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private Task OnRefreshClick()
+    {
+        Service.InvalidateCache(_filter);
+        LoadData();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnExportPdfClick()
+    {
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = PdfExport.ExportRemuneration(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName, "application/pdf", Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export PDF : {ex.Message}"; }
+    }
+    private async Task OnExportExcelClick()
+    {
+        if (_data == null) return;
+        try
+        {
+            var (bytes, fileName) = ExcelExport.ExportRemuneration(_data, _filter);
+            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                Convert.ToBase64String(bytes));
+        }
+        catch (Exception ex) { _errorMessage = $"Export Excel : {ex.Message}"; }
+    }
+
+    private static string FormatFcfa(decimal v) =>
+        Math.Round(v, 0).ToString("#,##0", FcfaFmt);
+
+    /// <summary>Format compact pour les bar charts mensuels (k / M).</summary>
+    private static string FormatFcfaShort(decimal v)
+    {
+        var abs = Math.Abs(v);
+        if (abs >= 1_000_000m) return (v / 1_000_000m).ToString("0.#", FrCulture) + "M";
+        if (abs >= 1_000m)     return (v / 1_000m).ToString("0", FrCulture) + "k";
+        return v.ToString("0", FrCulture);
+    }
+}

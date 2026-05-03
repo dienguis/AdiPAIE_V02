@@ -3,273 +3,344 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conges et absences — SunuPaie</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
-        h2 { color: #0F6E56; margin-top: 25px; }
-        h3 { color: #555; }
-        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
-        .bouton strong { color: #0F6E56; }
-        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .role-tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; margin-left: 8px; }
-        .role-rh { background: #e3f2fd; color: #1565c0; }
-        .role-emp { background: #e8f5e9; color: #2e7d32; }
-        .role-n1 { background: #fff3e0; color: #e65100; }
-        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
-        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
-        nav a:hover { text-decoration: underline; }
-        .workflow { background: #f3e5f5; border-left: 4px solid #7b1fa2; padding: 15px; border-radius: 4px; margin: 15px 0; font-family: monospace; font-size: 13px; line-height: 1.8; }
-    </style>
+    <title>SunuPaie — Congés et absences (Guide complet)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/periodes.html">Periodes</a>
-        <a href="/help/prets.html">Prets</a>
-        <a href="/help/salaries.html">Salaries</a>
-        <a href="/help/conges.html">Conges</a>
+        <a href="/help/periodes.html">Périodes</a>
+        <a href="/help/prets.html">Prêts</a>
+        <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/interimaires.html">Intérimaires</a>
+        <a href="/help/conges.html" class="active">Congés</a>
         <a href="/help/missions.html">Missions</a>
-        <a href="/help/formations.html">Formations</a>
-        <a href="/help/evaluations.html">Evaluations</a>
-        <a href="/help/parametrage.html">Parametrage</a>
-        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
-        <a href="/help/offboarding.html">Offboarding</a>
-        <a href="/help/disciplinaire.html">Disciplinaire</a>
-        <a href="/help/audit.html">Audit</a>
-        <a href="/help/import-salaries.html">Import</a>
-        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>Conges et absences</h1>
+    <h1>🏖️ Congés et absences — Guide complet</h1>
+    <p>Ce module gère les demandes de congés (annuels, maladie, maternité,
+    événement familial, sans solde, récupération), leur validation
+    hiérarchique à 2 niveaux, et le suivi des soldes par type de congé.</p>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!--  WORKFLOW COMPLET                          -->
-    <!-- ══════════════════════════════════════════ -->
-
-    <h2>Workflow complet d'une demande de conge</h2>
-    <div class="workflow">
-        Brouillon <span class="role-tag role-emp">Salarie</span><br>
-        &nbsp;&nbsp;↓ Soumettre<br>
-        En attente N+1 <span class="role-tag role-n1">N+1</span><br>
-        &nbsp;&nbsp;├→ Valider → En attente N+2 (si N+2 existe) <span class="role-tag role-n1">N+2</span><br>
-        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└→ Valider → Soumise <span class="role-tag role-rh">RH</span><br>
-        &nbsp;&nbsp;├→ Valider → Soumise (si pas de N+2) <span class="role-tag role-rh">RH</span><br>
-        &nbsp;&nbsp;└→ Rejeter → Brouillon<br>
-        Soumise <span class="role-tag role-rh">RH</span><br>
-        &nbsp;&nbsp;├→ Accorder → Accordee (solde debite)<br>
-        &nbsp;&nbsp;├→ Refuser → Refusee<br>
-        &nbsp;&nbsp;└→ Modifier les dates → Brouillon<br>
-        Accordee <span class="role-tag role-rh">RH</span><br>
-        &nbsp;&nbsp;└→ Annuler → Annulee
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  FLUX SALARIE                              -->
-    <!-- ══════════════════════════════════════════ -->
-
-    <h2>Flux demande de conge <span class="role-tag role-emp">Salarie</span></h2>
-    <div class="flux">
+    <div class="toc">
+        <strong>📑 Étapes du processus</strong>
         <ol>
-            <li>Mon espace → Mes conges → Nouvelle demande</li>
-            <li>Choisir type de conge, dates debut/fin, justificatif si necessaire</li>
-            <li>Le champ Salarie et ValideurN1 sont pre-remplis automatiquement</li>
-            <li>Cliquer <strong>Soumettre</strong> → le N+1 recoit une notification par email</li>
-            <li>Suivre le statut dans "Mes conges" (En attente N+1 → Soumise → Accordee)</li>
-            <li>Le solde est automatiquement debite a l'accord</li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du workflow d'approbation</a></li>
+            <li><a href="#etape1">Étape 1 — Salarié : créer une demande</a></li>
+            <li><a href="#etape2">Étape 2 — Salarié : soumettre</a></li>
+            <li><a href="#etape3">Étape 3 — N+1 / N+2 : valider hiérarchie</a></li>
+            <li><a href="#etape4">Étape 4 — RH : accorder ou refuser</a></li>
+            <li><a href="#etape5">Étape 5 — Suivi du solde de congés</a></li>
+            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
+            <li><a href="#regles">Règles métier et notifications</a></li>
+            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
         </ol>
     </div>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!--  BOUTONS DEMANDE DE CONGE                  -->
-    <!-- ══════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="vue-ensemble">📋 Vue d'ensemble du workflow d'approbation</h2>
 
-    <h2>Boutons — Demande de conge</h2>
-
-    <h3>Actions du salarie</h3>
-    <div class="bouton">
-        <strong>Soumettre</strong> <span class="role-tag role-emp">Salarie</span><br>
-        Soumet la demande pour validation hierarchique. Disponible uniquement si le statut est <em>Brouillon</em>.
-        Le N+1 (ou le manager) recoit une notification par email.
-        Disponible en ListView et en DetailView.
-    </div>
-
-    <h3>Actions du N+1 / N+2 (validation hierarchique)</h3>
-    <div class="bouton">
-        <strong>Valider (hierarchie)</strong> <span class="role-tag role-n1">N+1 / N+2</span><br>
-        Valide la demande et la transmet au niveau suivant.
-        Si statut = <em>En attente N+1</em> : passe en <em>En attente N+2</em> (si N+2 existe) ou directement en <em>Soumise</em> (pour le RH).
-        Si statut = <em>En attente N+2</em> : passe en <em>Soumise</em>.
-        Le bouton n'est visible que pour le valideur concerne (comparaison par Oid du salarie connecte).
-    </div>
-    <div class="bouton">
-        <strong>Rejeter (hierarchie)</strong> <span class="role-tag role-n1">N+1 / N+2</span><br>
-        Rejette la demande et la repasse en <em>Brouillon</em>. Le salarie peut modifier ses dates et resoumettre.
-        La reservation de solde est liberee. Le salarie est notifie par email.
+    <div class="workflow">
+        <div class="box">📝 Brouillon</div>
+        <span class="arrow">→</span>
+        <div class="box">⏳ Attente N+1</div>
+        <span class="arrow">→</span>
+        <div class="box">⏳ Attente N+2</div>
+        <span class="arrow">→</span>
+        <div class="box">📨 Soumise (RH)</div>
+        <span class="arrow">→</span>
+        <div class="box">✅ Accordée</div>
     </div>
 
-    <h3>Actions RH</h3>
-    <div class="bouton">
-        <strong>Accorder</strong> <span class="role-tag role-rh">RH</span><br>
-        Accorde le conge. Disponible quand le statut est <em>Soumise</em>.
-        En DetailView, vous devez d'abord renseigner la <strong>date de reprise</strong> (obligatoire, doit etre apres la date de fin).
-        Le solde de conge est automatiquement debite. Si le type de conge est "Impaye", une retenue sur salaire est creee automatiquement.
-        Le planning est mis a jour et le salarie est notifie.
-    </div>
-    <div class="bouton">
-        <strong>Refuser</strong> <span class="role-tag role-rh">RH</span><br>
-        Refuse la demande. Le statut passe a <em>Refusee</em>. La reservation de solde est liberee.
-        Le salarie est notifie par email.
-    </div>
-    <div class="bouton">
-        <strong>Modifier les dates</strong> <span class="role-tag role-rh">RH</span><br>
-        Repasse la demande en <em>Brouillon</em> pour permettre au salarie de modifier les dates.
-        Toutes les validations hierarchiques sont reinitialises (ValideurN1, ValideurN2, dates de validation).
-        Le salarie devra resoumettre apres modification.
-    </div>
-    <div class="bouton">
-        <strong>Annuler le conge</strong> <span class="role-tag role-rh">RH</span><br>
-        Annule un conge deja accorde. Disponible uniquement quand le statut est <em>Accordee</em>.
-        Le statut passe a <em>Annulee</em>. Le salarie est notifie.
-    </div>
+    <p>Branches alternatives à chaque étape : <strong>Refuser</strong> ou
+    <strong>Modifier les dates</strong> → repasse en Brouillon.</p>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!--  SOLDE DE CONGES                           -->
-    <!-- ══════════════════════════════════════════ -->
-
-    <h2>Solde de conges</h2>
-    <p>Chaque salarie a un solde par type de conge et par annee. La formule est :<br>
-    <strong>Solde disponible = Jours acquis + Jours reportes - Jours pris</strong></p>
-
-    <h3>Boutons sur la fiche SoldeConge (DetailView)</h3>
-    <div class="bouton">
-        <strong>Ajustement manuel</strong> <span class="role-tag role-rh">RH</span><br>
-        Saisissez une quantite dans le champ (ex: <code>+5</code> pour crediter, <code>-3</code> pour debiter) puis appuyez sur Entree.
-        Un mouvement de type "AjustementManuel" est enregistre avec le nom de l'utilisateur.
-        Masque pour les employes (consultation seule).
-    </div>
-    <div class="bouton">
-        <strong>Acquerir mois courant</strong> <span class="role-tag role-rh">RH</span><br>
-        Credite les jours acquis pour le mois en cours sur ce solde specifique.
-        Utile pour une acquisition individuelle (un seul salarie / un seul type de conge).
-        Masque pour les employes.
-    </div>
-
-    <h3>Boutons sur la liste SoldeConge (ListView)</h3>
-    <div class="bouton">
-        <strong>Lancer acquisition mensuelle</strong> <span class="role-tag role-rh">RH</span><br>
-        Operation batch : credite les jours acquis du mois en cours pour <strong>TOUS les salaries actifs</strong>.
-        A lancer une fois par mois en debut de periode. Un message de confirmation est demande.
-        Masque pour les employes.
-    </div>
-    <div class="bouton">
-        <strong>Reporter exercice N → N+1</strong> <span class="role-tag role-rh">RH</span><br>
-        Operation batch de fin d'annee : reporte les soldes de l'annee precedente vers l'annee en cours,
-        dans la limite des plafonds configures par type de conge.
-        A lancer une fois par an en debut d'exercice. Un message de confirmation est demande.
-        Masque pour les employes.
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  PLANNING                                  -->
-    <!-- ══════════════════════════════════════════ -->
-
-    <h2>Planning des conges</h2>
-    <div class="bouton">
-        <strong>Synchroniser le planning</strong> <span class="role-tag role-rh">RH</span><br>
-        Regenere tous les evenements du calendrier a partir des demandes de conge.
-        Les evenements existants sont mis a jour (pas de doublons).
-    </div>
-    <div class="bouton">
-        <strong>Conges accordes</strong> — Filtre le planning pour n'afficher que les conges approuves.
-    </div>
-    <div class="bouton">
-        <strong>Tous les conges</strong> — Affiche tous les conges, quel que soit le statut.
-    </div>
-    <div class="bouton">
-        <strong>Filtrer par departement</strong> — Liste deroulante pour filtrer par departement.
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  TYPES DE CONGES                           -->
-    <!-- ══════════════════════════════════════════ -->
-
-    <h2>Types de conges (configurables)</h2>
+    <h3>Statuts détaillés</h3>
     <table>
-        <thead>
-            <tr><th>Type</th><th>Droit</th><th>Remarque</th></tr>
-        </thead>
+        <thead><tr><th>Statut</th><th>Code</th><th>Qui agit</th><th>Action possible</th></tr></thead>
         <tbody>
-            <tr><td>Conge annuel</td><td>2,5 jours/mois</td><td>Droit senegalais</td></tr>
-            <tr><td>Conge maladie</td><td>Sur justificatif</td><td>Certificat medical obligatoire</td></tr>
-            <tr><td>Conge maternite</td><td>14 semaines</td><td>Droit senegalais</td></tr>
-            <tr><td>Conge impaye</td><td>Variable</td><td>Retenue automatique sur le bulletin</td></tr>
-            <tr><td>Autres</td><td>Configurables</td><td>Parametrage → Types de conge</td></tr>
+            <tr><td>Brouillon</td><td>0</td><td><span class="badge badge-rh">Salarié</span></td><td>Modifier ou Soumettre</td></tr>
+            <tr><td>En attente N+1</td><td>1</td><td><span class="badge badge-rh">N+1</span></td><td>Valider ou Rejeter</td></tr>
+            <tr><td>En attente N+2</td><td>2</td><td><span class="badge badge-rh">N+2</span></td><td>Valider ou Rejeter</td></tr>
+            <tr><td>Soumise</td><td>10</td><td><span class="badge badge-rh">RH</span></td><td>Accorder / Refuser / Modifier dates</td></tr>
+            <tr><td>Accordée</td><td>20</td><td><span class="badge badge-rh">RH</span></td><td>Annuler (si nécessaire)</td></tr>
+            <tr><td>Refusée</td><td>30</td><td>—</td><td>Final</td></tr>
+            <tr><td>Annulée</td><td>40</td><td>—</td><td>Final</td></tr>
         </tbody>
     </table>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!--  REGLES                                    -->
-    <!-- ══════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape1">📝 Étape 1 — Salarié : créer une demande</h2>
 
-    <h2>Regles — Droit social senegalais</h2>
+    <div class="step">
+        <h3><span class="num">1</span>Naviguer vers Mes congés</h3>
+        <p>Menu <strong>Mon espace</strong> → <strong>Mes congés</strong> →
+        <kbd>Nouvelle demande</kbd>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Renseigner la demande</h3>
+        <div class="field-list">
+            <dl>
+                <dt>Salarié *</dt><dd>Pré-rempli automatiquement (vous-même)</dd>
+                <dt>Type de congé *</dt><dd>Annuel / Maladie / Maternité / Événement familial / Sans solde / Récupération</dd>
+                <dt>Date de début *</dt><dd>JJ/MM/AAAA</dd>
+                <dt>Date de fin *</dt><dd>JJ/MM/AAAA — calculée automatiquement selon les jours ouvrés</dd>
+                <dt>Durée (jours)</dt><dd>Auto-calculée selon configuration du type (jours ouvrables ou calendaires)</dd>
+                <dt>Motif</dt><dd>Texte libre (recommandé pour traçabilité)</dd>
+                <dt>Justificatif</dt><dd>Fichier PDF (obligatoire pour Maladie/Maternité)</dd>
+                <dt>Valideur N+1</dt><dd>Pré-rempli depuis le manager direct (modifiable si délégation)</dd>
+                <dt>Valideur N+2</dt><dd>Optionnel (manager du manager)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple :</strong> Demande de congé annuel<br>
+        - Type : <code>Congé annuel</code><br>
+        - Du <code>15/07/2026</code> au <code>30/07/2026</code> (16 jours calendaires)<br>
+        - Durée : <strong>12 jours ouvrables</strong> (auto-calculé)<br>
+        - Motif : <code>Vacances famille</code><br>
+        - Valideur N+1 : <code>Mme NDIAYE Fatou</code> (manager)<br>
+        - Solde disponible auto-vérifié : 18 jours → OK
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape2">📤 Étape 2 — Salarié : soumettre</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer Soumettre</h3>
+        <p>Sur la fiche → bouton <kbd>Soumettre</kbd>. Statut Brouillon → <strong>En attente N+1</strong>.</p>
+    </div>
+
+    <div class="info">
+        <strong>📧 Email automatique</strong> envoyé au valideur N+1 avec un lien direct vers la demande.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape3">✅ Étape 3 — N+1 / N+2 : valider hiérarchie</h2>
+
+    <div class="step">
+        <h3><span class="num">A</span>N+1 ouvre la demande reçue par email</h3>
+        <p>Menu <strong>Mon équipe</strong> → <strong>Demandes en attente</strong>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">B</span>Décision N+1</h3>
+        <ul>
+            <li><kbd>Valider</kbd> : si N+2 existe → passe en <strong>En attente N+2</strong>. Sinon → <strong>Soumise</strong> (transmis au RH).</li>
+            <li><kbd>Rejeter</kbd> : retour en <strong>Brouillon</strong>, salarié notifié, peut modifier et resoumettre.</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">C</span>N+2 (si présent) reçoit notification et fait le même choix</h3>
+        <p>Si validé → <strong>Soumise</strong> (RH).</p>
+    </div>
+
+    <div class="alerte">
+        <strong>⚠️ Boutons visibles uniquement pour le valideur concerné</strong>
+        (comparaison par Oid du salarié connecté). Un autre N+1 ne pourra pas
+        valider la demande à la place.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape4">🎯 Étape 4 — RH : accorder ou refuser</h2>
+
+    <div class="step">
+        <h3><span class="num">A</span>RH ouvre les demandes Soumises</h3>
+        <p>Menu <strong>GRH</strong> → <strong>Demandes de congé</strong> →
+        filtre rapide « Soumises ».</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">B</span>Accorder</h3>
+        <p>Renseigner d'abord la <strong>Date de reprise</strong> (obligatoire,
+        doit être après la date de fin).</p>
+        <p>Cliquer <kbd>Accorder</kbd>.</p>
+        <ul>
+            <li>Statut → <strong>Accordée</strong></li>
+            <li>Solde de congé du salarié <strong>débité automatiquement</strong></li>
+            <li>Si type = « Impayé » → retenue sur salaire créée automatiquement (visible sur le bulletin du mois)</li>
+            <li>Planning de l'équipe mis à jour</li>
+            <li>Salarié notifié par email avec confirmation</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">C</span>Refuser</h3>
+        <p>Cliquer <kbd>Refuser</kbd> avec motif. Statut → <strong>Refusée</strong>.
+        La réservation de solde est libérée. Salarié notifié.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">D</span>Modifier les dates (alternative)</h3>
+        <p>Si les dates ne conviennent pas mais le principe est OK : RH clique
+        <kbd>Modifier les dates</kbd>. Demande repasse en <strong>Brouillon</strong>,
+        toutes les validations hiérarchiques sont réinitialisées.
+        Le salarié devra modifier puis resoumettre.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape5">📊 Étape 5 — Suivi du solde de congés</h2>
+
+    <p>Chaque salarié a un solde par type de congé, mis à jour mensuellement
+    par acquisition automatique.</p>
+
+    <h3>Acquisition mensuelle</h3>
+    <table>
+        <thead><tr><th>Type de congé</th><th>Acquisition / mois</th><th>Plafond annuel</th></tr></thead>
+        <tbody>
+            <tr><td>Congé annuel</td><td>2,5 jours ouvrables</td><td>30 jours/an</td></tr>
+            <tr><td>Maladie</td><td>Selon convention</td><td>Variable</td></tr>
+            <tr><td>Maternité</td><td>—</td><td>14 semaines (légales)</td></tr>
+            <tr><td>Événement familial</td><td>—</td><td>3 jours / événement</td></tr>
+            <tr><td>Récupération</td><td>—</td><td>Selon heures sup. accumulées</td></tr>
+        </tbody>
+    </table>
+
+    <div class="info">
+        <strong>📌 Voir son solde</strong> : Menu Mon espace → <strong>Mon solde de congés</strong>.
+        Liste des soldes par type avec : Acquis, Pris, Disponible, Reportés N-1.
+    </div>
+
+    <h3>Report annuel</h3>
+    <div class="alerte">
+        Au 31 décembre, les jours non pris sont reportés sur N+1 jusqu'à
+        un plafond configurable (par défaut 10 jours pour le congé annuel).
+        Le surplus est perdu. Configurable dans <code>Paramétrage → Types de congés</code>.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="cas-usage">💼 Cas d'usage concrets</h2>
+
+    <h3>Cas 1 — Congé annuel standard</h3>
+    <ol>
+        <li>Mamadou (Salarié) demande 12 jours ouvrables en juillet</li>
+        <li>Soumet → notification au manager Awa (N+1)</li>
+        <li>Awa valide → si pas de N+2, passe en Soumise</li>
+        <li>RH accorde, solde débité de 12 jours</li>
+        <li>Le mois suivant : pas d'impact bulletin (congé payé)</li>
+    </ol>
+
+    <h3>Cas 2 — Congé sans solde</h3>
+    <ol>
+        <li>Salarié demande 1 mois de Sans solde pour raisons personnelles</li>
+        <li>Workflow normal (N+1 → RH)</li>
+        <li>RH accorde → retenue automatique créée sur le bulletin du mois</li>
+        <li>Le bulletin du mois affiche : Salaire base proratisé + ligne « Retenue congé sans solde »</li>
+    </ol>
+
+    <h3>Cas 3 — Maladie avec justificatif</h3>
+    <ol>
+        <li>Salarié de retour d'arrêt maladie de 5 jours</li>
+        <li>Saisit demande type « Maladie » avec dates rétroactives + scan certificat médical</li>
+        <li>N+1 valide (souvent informé par téléphone avant)</li>
+        <li>RH accorde, débite le solde Maladie (pas le solde Annuel)</li>
+        <li>Pas de retenue (maladie payée selon convention)</li>
+    </ol>
+
+    <h3>Cas 4 — Refus pour incompatibilité de planning</h3>
+    <ol>
+        <li>Salarié demande congé en juillet (haute saison Boutique)</li>
+        <li>Manager regarde le planning équipe → trop de monde absent</li>
+        <li>Manager rejette avec motif → demande repasse en Brouillon</li>
+        <li>Salarié resoumet sur août</li>
+    </ol>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="regles">📜 Règles métier et notifications</h2>
+
+    <h3>Règles métier</h3>
     <div class="alerte">
         <ul>
-            <li>Conge annuel legal : <strong>2,5 jours ouvrables</strong> par mois de travail effectif</li>
-            <li>Droit ouvert apres <strong>1 an d'anciennete</strong> minimum</li>
-            <li>Report possible selon parametrage du type de conge (plafond configurable)</li>
-            <li>Conge maternite : <strong>14 semaines</strong> (6 avant, 8 apres l'accouchement)</li>
-            <li>Le salarie et le N+1 sont pre-remplis automatiquement a la creation</li>
+            <li>Date de fin ≥ Date de début (contrôle XPO)</li>
+            <li>Date de reprise &gt; Date de fin (saisie au moment de l'accord)</li>
+            <li>Solde disponible vérifié avant Soumission (warning si dépassé)</li>
+            <li>Pour Maladie/Maternité : justificatif obligatoire à l'accord RH</li>
+            <li>Annulation possible uniquement par RH après accord (pas par le salarié)</li>
+            <li>Validations hiérarchiques par Oid : un autre N+1 ne peut pas valider à votre place</li>
         </ul>
     </div>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!--  ERREURS FREQUENTES                        -->
-    <!-- ══════════════════════════════════════════ -->
-
-    <h2>Erreurs frequentes</h2>
-    <div class="erreur">
-        <ul>
-            <li><strong>Solde insuffisant</strong> → verifier le solde dans "Mon solde de conges". Si necessaire, le RH peut faire un ajustement manuel.</li>
-            <li><strong>Bouton Soumettre invisible</strong> → la demande n'est pas en statut <em>Brouillon</em>, ou le champ Salarie n'est pas renseigne.</li>
-            <li><strong>N+1 ne voit pas le bouton Valider</strong> → verifier que le ValideurN1 sur la demande correspond bien au salarie du N+1 connecte.</li>
-            <li><strong>Date de reprise obligatoire (Accorder)</strong> → en DetailView, renseigner la date de reprise avant de cliquer Accorder. Elle doit etre apres la date de fin.</li>
-            <li><strong>Solde non debite apres accord</strong> → verifier que le type de conge a un solde actif pour l'annee en cours.</li>
-            <li><strong>3 lignes identiques dans Mon solde de conges</strong> → il peut y avoir des doublons. Le RH peut verifier et supprimer les doublons depuis la vue complete.</li>
-        </ul>
-    </div>
-
-    <!-- ══════════════════════════════════════════ -->
-    <!--  RESUME DES BOUTONS                        -->
-    <!-- ══════════════════════════════════════════ -->
-
-    <h2>Resume : tous les boutons</h2>
+    <h3>📧 Notifications email</h3>
     <table>
-        <thead>
-            <tr><th>Bouton</th><th>Qui</th><th>Ou</th><th>Statut requis</th></tr>
-        </thead>
+        <thead><tr><th>Événement</th><th>Destinataire</th></tr></thead>
         <tbody>
-            <tr><td>Soumettre</td><td>Salarie</td><td>Liste / Fiche conge</td><td>Brouillon</td></tr>
-            <tr><td>Valider (hierarchie)</td><td>N+1 / N+2</td><td>Liste conges</td><td>En attente N+1 / N+2</td></tr>
-            <tr><td>Rejeter (hierarchie)</td><td>N+1 / N+2</td><td>Liste conges</td><td>En attente N+1 / N+2</td></tr>
-            <tr><td>Accorder</td><td>RH</td><td>Liste / Fiche conge</td><td>Soumise</td></tr>
-            <tr><td>Refuser</td><td>RH</td><td>Liste conges</td><td>Soumise</td></tr>
-            <tr><td>Modifier les dates</td><td>RH</td><td>Liste conges</td><td>Soumise</td></tr>
-            <tr><td>Annuler le conge</td><td>RH</td><td>Liste conges</td><td>Accordee</td></tr>
-            <tr><td>Ajustement manuel</td><td>RH</td><td>Fiche solde conge</td><td>—</td></tr>
-            <tr><td>Acquerir mois courant</td><td>RH</td><td>Fiche solde conge</td><td>—</td></tr>
-            <tr><td>Lancer acquisition mensuelle</td><td>RH</td><td>Liste soldes conge</td><td>—</td></tr>
-            <tr><td>Reporter exercice N → N+1</td><td>RH</td><td>Liste soldes conge</td><td>—</td></tr>
-            <tr><td>Synchroniser le planning</td><td>RH</td><td>Planning conges</td><td>—</td></tr>
+            <tr><td>Demande Soumise par salarié</td><td>Valideur N+1</td></tr>
+            <tr><td>Validée N+1 (avec N+2)</td><td>Valideur N+2</td></tr>
+            <tr><td>Validée N+1 (sans N+2) ou N+2</td><td>RH (groupe)</td></tr>
+            <tr><td>Rejetée par N+1 / N+2</td><td>Salarié</td></tr>
+            <tr><td>Accordée par RH</td><td>Salarié + N+1</td></tr>
+            <tr><td>Refusée par RH</td><td>Salarié + N+1</td></tr>
+            <tr><td>Annulée par RH</td><td>Salarié + N+1</td></tr>
         </tbody>
     </table>
 
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+
+    <h3>Q : Le bouton « Soumettre » est grisé</h3>
+    <div class="erreur">
+        <strong>Causes :</strong> dates manquantes, type de congé non sélectionné,
+        solde insuffisant (avec alerte), justificatif manquant pour
+        Maladie/Maternité.
+    </div>
+
+    <h3>Q : Mon manager ne voit pas le bouton « Valider »</h3>
+    <div class="info">
+        Le bouton n'est visible que pour le ValideurN1 désigné sur la demande.
+        Vérifier que le manager actuel est bien le N+1 (pas un ancien manager
+        ayant changé de poste). Si nécessaire, le RH peut « Modifier les dates »
+        pour réinitialiser les valideurs.
+    </div>
+
+    <h3>Q : Le solde de congé n'est pas débité après accord</h3>
+    <div class="erreur">
+        Vérifier dans Mon solde de congé que la ligne SoldeConge correspond bien
+        au type accordé. Si le SoldeConge est en statut « Suspendu », le débit
+        est bloqué. Contacter le RH pour réactiver.
+    </div>
+
+    <h3>Q : Comment annuler un congé déjà accordé ?</h3>
+    <div class="info">
+        Seul le RH peut annuler après accord. Le salarié doit faire une demande
+        écrite. Le RH ouvre la demande → bouton <kbd>Annuler le congé</kbd>.
+        Le solde est <strong>recrédité</strong> automatiquement.
+    </div>
+
+    <h3>Q : Un de mes congés apparaît dans le tableau N°5 mais pas l'autre</h3>
+    <div class="info">
+        Le <a href="/help/dashboards/suivi-absences.html">tableau Suivi des Absences</a>
+        affiche par défaut UNIQUEMENT les congés au statut <strong>Accordée</strong>.
+        Toggle « + En attente » pour voir aussi les Soumises et En attente N+1/N+2.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+
+    <h3>Côté Salarié</h3>
+    <div class="bouton"><strong>Soumettre :</strong> envoie la demande pour validation. Brouillon → En attente N+1.</div>
+
+    <h3>Côté N+1 / N+2</h3>
+    <div class="bouton"><strong>Valider (hiérarchie) :</strong> approuve le niveau actuel et passe au suivant.</div>
+    <div class="bouton"><strong>Rejeter (hiérarchie) :</strong> retour en Brouillon. Le salarié peut modifier et resoumettre.</div>
+
+    <h3>Côté RH</h3>
+    <div class="bouton"><strong>Accorder :</strong> Soumise → Accordée. Solde débité, retenue auto si Sans solde.</div>
+    <div class="bouton"><strong>Refuser :</strong> Soumise → Refusée. Réservation libérée. Salarié notifié.</div>
+    <div class="bouton"><strong>Modifier les dates :</strong> repasse en Brouillon. Réinitialise les validations hiérarchiques.</div>
+    <div class="bouton"><strong>Annuler le congé :</strong> Accordée → Annulée. Solde recrédité.</div>
+
+    <div class="footer-help">
+        ELTON Oil Company / SunuPaie · Congés et absences · Guide v1.1 (mai 2026)<br>
+        Voir aussi : <a href="/help/salaries.html">Salariés</a> ·
+        <a href="/help/bulletins.html">Bulletins</a> ·
+        <a href="/help/dashboards/suivi-absences.html">Tableau Suivi Absences</a>
+    </div>
 </body>
 </html>

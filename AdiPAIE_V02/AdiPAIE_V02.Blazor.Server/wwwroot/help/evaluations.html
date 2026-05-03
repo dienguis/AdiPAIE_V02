@@ -3,70 +3,379 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entretiens annuels — SunuPaie</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        h1 { color: #0F6E56; border-bottom: 3px solid #0F6E56; padding-bottom: 10px; }
-        h2 { color: #0F6E56; margin-top: 25px; }
-        h3 { color: #555; }
-        .flux { background: #e8f5e9; border-left: 4px solid #0F6E56; padding: 15px; border-radius: 4px; margin: 15px 0; }
-        .bouton { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin: 5px 0; }
-        .bouton strong { color: #0F6E56; }
-        .alerte { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        .erreur { background: #fce4ec; border-left: 4px solid #f44336; padding: 10px; border-radius: 4px; margin: 10px 0; }
-        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-        th { background: #0F6E56; color: white; padding: 8px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        nav { background: #0F6E56; padding: 10px 20px; margin: -20px -20px 20px; }
-        nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px; }
-        nav a:hover { text-decoration: underline; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
-        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-decoration: none; color: #333; transition: box-shadow 0.2s; }
-        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .card h3 { color: #0F6E56; margin-top: 0; }
-    </style>
+    <title>SunuPaie — Entretiens annuels (Guide complet)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/periodes.html">Periodes</a>
-        <a href="/help/prets.html">Prets</a>
-        <a href="/help/salaries.html">Salaries</a>
-        <a href="/help/conges.html">Conges</a>
+        <a href="/help/periodes.html">Périodes</a>
+        <a href="/help/prets.html">Prêts</a>
+        <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/interimaires.html">Intérimaires</a>
+        <a href="/help/conges.html">Congés</a>
         <a href="/help/missions.html">Missions</a>
-        <a href="/help/formations.html">Formations</a>
-        <a href="/help/evaluations.html">Evaluations</a>
-        <a href="/help/parametrage.html">Parametrage</a>
-        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
-        <a href="/help/offboarding.html">Offboarding</a>
-        <a href="/help/disciplinaire.html">Disciplinaire</a>
-        <a href="/help/audit.html">Audit</a>
-        <a href="/help/import-salaries.html">Import</a>
-        <a href="/help/livre-de-paye.html">Livre de Paie</a>
+        <a href="/help/evaluations.html" class="active">Évaluations</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>Entretiens annuels</h1>
+    <h1>📝 Entretiens annuels — Guide complet</h1>
+    <p>Ce module pilote la <strong>campagne d'entretiens annuels</strong> :
+    création, génération automatique des entretiens individuels,
+    auto-évaluation du salarié, évaluation du N+1, validation N+2, clôture
+    RH, avec un score global pondéré sur les critères paramétrés.</p>
 
-    <h2>Flux</h2>
-    <div class="flux">
+    <div class="toc">
+        <strong>📑 Étapes du processus</strong>
         <ol>
-            <li>RH cree une campagne d'evaluation (annee)</li>
-            <li>RH genere les entretiens pour tous les salaries</li>
-            <li>N+1 remplit l'evaluation</li>
-            <li>Salarie remplit ses observations</li>
-            <li>N+1 valide → N+2 valide → RH cloture</li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du cycle annuel</a></li>
+            <li><a href="#etape1">Étape 1 — RH : créer la campagne d'évaluation</a></li>
+            <li><a href="#etape2">Étape 2 — RH : générer les entretiens</a></li>
+            <li><a href="#etape3">Étape 3 — N+1 : compléter l'évaluation</a></li>
+            <li><a href="#etape4">Étape 4 — Salarié : auto-évaluation et observations</a></li>
+            <li><a href="#etape5">Étape 5 — Validation N+2</a></li>
+            <li><a href="#etape6">Étape 6 — Clôture RH</a></li>
+            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
+            <li><a href="#regles">Règles métier</a></li>
+            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
         </ol>
     </div>
 
-    <h2>Regles</h2>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="vue-ensemble">📋 Vue d'ensemble du cycle annuel</h2>
+
+    <div class="workflow">
+        <div class="box">📅 Campagne</div>
+        <span class="arrow">→</span>
+        <div class="box">📋 Entretiens générés</div>
+        <span class="arrow">→</span>
+        <div class="box">📝 N+1 évalue</div>
+        <span class="arrow">→</span>
+        <div class="box">🤝 Auto-éval salarié</div>
+        <span class="arrow">→</span>
+        <div class="box">✅ N+2 valide</div>
+        <span class="arrow">→</span>
+        <div class="box">🔒 RH clôture</div>
+    </div>
+
+    <h3>Statuts d'un entretien</h3>
+    <table>
+        <thead><tr><th>Statut</th><th>Qui agit</th><th>Action possible</th></tr></thead>
+        <tbody>
+            <tr><td>À planifier</td><td><span class="badge badge-rh">N+1</span></td><td>Convoquer le salarié + démarrer l'évaluation</td></tr>
+            <tr><td>En cours</td><td><span class="badge badge-rh">N+1</span></td><td>Saisir les notes par critère</td></tr>
+            <tr><td>Soumis salarié</td><td><span class="badge badge-rh">Salarié</span></td><td>Auto-évaluation + observations + signature</td></tr>
+            <tr><td>En attente N+2</td><td><span class="badge badge-rh">N+2</span></td><td>Valider ou retourner pour rectification</td></tr>
+            <tr><td>Clôturé</td><td><span class="badge badge-rh">RH</span></td><td>Lecture seule, archivage légal</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape1">📅 Étape 1 — RH : créer la campagne d'évaluation</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Aller dans Évaluations → Campagnes → Nouvelle</h3>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Renseigner la campagne</h3>
+        <dl class="field-list">
+            <dt>Année</dt>
+            <dd>Exercice évalué (ex. 2026).</dd>
+            <dt>Date d'ouverture</dt>
+            <dd>Début de la campagne (typiquement décembre N pour évaluer
+                l'année écoulée).</dd>
+            <dt>Date limite N+1</dt>
+            <dd>Date à laquelle tous les N+1 doivent avoir saisi leur évaluation.</dd>
+            <dt>Date limite salarié</dt>
+            <dd>Date limite pour l'auto-évaluation et la signature du salarié.</dd>
+            <dt>Date limite N+2 / Clôture RH</dt>
+            <dd>Bornes finales du cycle.</dd>
+            <dt>Grille de critères</dt>
+            <dd>Sélectionner la grille (ex. <em>Grille Cadres</em>,
+                <em>Grille Non-Cadres</em>, <em>Grille Direction</em>).</dd>
+            <dt>Périmètre</dt>
+            <dd>Tous / par site / par catégorie / par contrat (CDI seulement, etc.).</dd>
+        </dl>
+    </div>
+
+    <div class="exemple">
+        <strong>Exemple — Campagne ELTON 2026 :</strong> ouverture 01/12/2026,
+        N+1 jusqu'au 15/01/2027, auto-éval jusqu'au 25/01, N+2 jusqu'au 05/02,
+        clôture RH le 15/02. Grille : <em>Cadres</em>. Périmètre :
+        tous les CDI hors période d'essai.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape2">📋 Étape 2 — RH : générer les entretiens</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Cliquer sur Générer les entretiens</h3>
+        <p>Depuis la fiche campagne, le RH clique sur
+        <strong>📋 Générer les entretiens</strong>. Le système crée
+        automatiquement <strong>un entretien par salarié éligible</strong>
+        au statut <em>À planifier</em>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Notifications automatiques</h3>
+        <p>Chaque N+1 reçoit un email listant les évaluations à mener avec
+        un lien direct. Chaque salarié reçoit un email d'information sur
+        l'ouverture de la campagne.</p>
+    </div>
+
+    <div class="info">
+        💡 La génération est <strong>idempotente</strong> : si un nouveau
+        salarié arrive pendant la campagne, le RH peut relancer la génération
+        et seul son entretien sera créé (pas de doublon).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape3">📝 Étape 3 — N+1 : compléter l'évaluation</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Ouvrir l'entretien depuis Mon équipe</h3>
+        <p>Menu : <strong>Mon espace → Mon équipe → Entretiens à mener</strong>.
+        Cliquer sur le salarié.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Convoquer le salarié</h3>
+        <p>Bouton <strong>📅 Programmer l'entretien</strong> : choisir la date
+        et l'heure → email automatique au salarié + invitation calendrier (.ics).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3</span>Saisir les notes par critère</h3>
+        <p>Pour chaque critère de la grille, le N+1 attribue une note
+        (typiquement 1 à 5) et un commentaire qualitatif.</p>
+        <table>
+            <thead><tr><th>Critère</th><th>Pondération</th><th>Note (1-5)</th><th>Commentaire</th></tr></thead>
+            <tbody>
+                <tr><td>Maîtrise technique</td><td>25 %</td><td>4</td><td>Excellente expertise SAP</td></tr>
+                <tr><td>Esprit d'équipe</td><td>20 %</td><td>5</td><td>Mentor naturel</td></tr>
+                <tr><td>Atteinte objectifs</td><td>30 %</td><td>4</td><td>2/3 objectifs atteints</td></tr>
+                <tr><td>Initiative</td><td>15 %</td><td>3</td><td>À encourager davantage</td></tr>
+                <tr><td>Respect procédures</td><td>10 %</td><td>5</td><td>Sans faille</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4</span>Définir les objectifs N+1 pour l'année suivante</h3>
+        <p>Saisir 3 à 5 objectifs SMART (Spécifique, Mesurable, Atteignable,
+        Réaliste, Temporel) pour l'année à venir. Ces objectifs servent de
+        base à l'évaluation suivante.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5</span>Soumettre au salarié</h3>
+        <p>Bouton <strong>📨 Soumettre au salarié</strong>. L'entretien passe
+        à <em>Soumis salarié</em>.</p>
+    </div>
+
+    <div class="formule">
+        <strong>Calcul du score global :</strong><br>
+        Score = Σ (Note critère × Pondération) / 100<br>
+        <em>Exemple ci-dessus : (4×25 + 5×20 + 4×30 + 3×15 + 5×10) / 100 = 4,15 / 5</em>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape4">🤝 Étape 4 — Salarié : auto-évaluation et observations</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Notification au salarié</h3>
+        <p>Email automatique avec lien vers la fiche entretien.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Compléter l'auto-évaluation</h3>
+        <p>Le salarié saisit sa propre note pour chaque critère ainsi que
+        ses commentaires. Il peut aussi proposer des objectifs personnels.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3</span>Observations qualitatives</h3>
+        <p>Champ texte libre pour les remarques générales : <em>"Je souhaite
+        évoluer vers un poste à responsabilité…"</em>, <em>"Je demande une
+        formation X…"</em>, etc.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4</span>Signer électroniquement</h3>
+        <p>Bouton <strong>✍️ Signer et soumettre au N+2</strong>. La signature
+        électronique horodatée est enregistrée. L'entretien passe à
+        <em>En attente N+2</em>.</p>
+    </div>
+
     <div class="alerte">
+        ⚠️ Le salarié <strong>ne peut pas modifier</strong> les notes du N+1.
+        Il peut seulement saisir <strong>ses propres notes</strong> et
+        observations dans une colonne séparée.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape5">✅ Étape 5 — Validation N+2</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>Le N+2 reçoit une notification</h3>
+        <p>Email avec récapitulatif des entretiens à valider pour son périmètre.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Examen et arbitrage</h3>
+        <p>Le N+2 visualise les notes N+1 ET salarié côte-à-côte. Il peut :</p>
         <ul>
-            <li>Un seul entretien par salarie par campagne</li>
-            <li>Lecture seule apres cloture</li>
-            <li>Score calcule automatiquement selon les ponderations des criteres</li>
+            <li><strong>✅ Valider</strong> : entretien clôturé pour le N+2</li>
+            <li><strong>↩️ Renvoyer au N+1</strong> avec commentaire (rectification)</li>
+            <li><strong>📝 Ajouter une note synthèse</strong> du N+2</li>
         </ul>
     </div>
+
+    <div class="exemple">
+        <strong>Exemple :</strong> Le DAF (N+2) constate un écart important
+        entre N+1 (4,5/5) et auto-évaluation salarié (2,8/5) → renvoie au N+1
+        pour qu'il échange avec le salarié sur cet écart de perception.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="etape6">🔒 Étape 6 — Clôture RH</h2>
+
+    <div class="step">
+        <h3><span class="num">1</span>RH valide en masse</h3>
+        <p>Une fois la date limite atteinte, le RH ouvre la campagne et
+        clique sur <strong>🔒 Clôturer la campagne</strong>. Tous les
+        entretiens validés N+2 passent en <em>Clôturé</em>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2</span>Génération du PDF officiel</h3>
+        <p>Pour chaque entretien clôturé, un PDF est généré avec :</p>
+        <ul>
+            <li>Notes N+1 et auto-évaluation côte-à-côte</li>
+            <li>Score global pondéré</li>
+            <li>Objectifs année N+1</li>
+            <li>Observations salarié + N+2</li>
+            <li>Signatures électroniques (N+1, salarié, N+2, RH)</li>
+        </ul>
+    </div>
+
+    <div class="ok">
+        ✅ Le PDF est attaché à la fiche du salarié et conservé
+        <strong>pendant toute la durée du contrat + 5 ans</strong>
+        (obligation légale).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
+
+    <h3>Cas 1 — Entretien standard (cadre confirmé)</h3>
+    <div class="exemple">
+        <strong>Modou (Chef de projet DSI)</strong>. Le N+1 (DSI) saisit
+        des notes globalement bonnes (4/5 moyenne). Modou s'auto-évalue
+        de manière similaire (3,9/5). Le DAF valide sans modification.
+        Score final = 4,02/5.
+    </div>
+
+    <h3>Cas 2 — Entretien avec écart fort</h3>
+    <div class="exemple">
+        <strong>Coumba (Caissière)</strong> : son N+1 lui met une note de
+        2,5/5 (problèmes répétés de pointage). Coumba s'auto-évalue à 4/5.
+        Le N+2 renvoie l'entretien pour qu'un échange ait lieu et que
+        les écarts soient documentés.
+    </div>
+
+    <h3>Cas 3 — Entretien d'un salarié en période d'essai</h3>
+    <div class="exemple">
+        Le RH a configuré le périmètre de la campagne pour <strong>exclure
+        les salariés en période d'essai</strong>. Ils ne sont donc pas
+        générés dans la campagne et auront un <em>entretien d'essai</em>
+        séparé géré dans le module dédié.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="regles">📜 Règles métier</h2>
+
+    <table>
+        <thead><tr><th>Règle</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td>Un seul entretien par salarié/campagne</td><td>Pas de doublon possible.</td></tr>
+            <tr><td>Lecture seule après clôture</td><td>Aucune modification possible une fois clôturé par le RH.</td></tr>
+            <tr><td>Score = pondération critères</td><td>Calculé automatiquement à partir des notes et coefficients.</td></tr>
+            <tr><td>Signature obligatoire</td><td>L'entretien ne peut être soumis au N+2 sans signature électronique du salarié.</td></tr>
+            <tr><td>Délais</td><td>Si une date limite est dépassée, l'entretien apparaît en <em>retard</em> dans le tableau de bord RH.</td></tr>
+            <tr><td>Confidentialité</td><td>Les entretiens d'autres équipes ne sont pas visibles par les N+1 hors périmètre.</td></tr>
+            <tr><td>Conservation</td><td>Durée du contrat + 5 ans (obligation légale Sénégal).</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+
+    <div class="erreur">
+        <strong>"Aucune grille de critères disponible"</strong><br>
+        → Le RH doit en créer une dans <em>Paramétrage → Grilles d'évaluation</em>
+        avec les critères et leurs pondérations (somme = 100 %).
+    </div>
+
+    <div class="erreur">
+        <strong>"Score affiché en N/A"</strong><br>
+        → Vérifier que toutes les notes critères ont été saisies (aucune
+        case vide). Le score n'est calculé que si toute la grille est complète.
+    </div>
+
+    <div class="erreur">
+        <strong>"Le salarié ne peut pas signer"</strong><br>
+        → Vérifier que son compte utilisateur est bien actif et associé à
+        sa fiche salarié (champ <em>Compte utilisateur</em>).
+    </div>
+
+    <div class="info">
+        💡 <strong>Comment relancer un N+1 retardataire ?</strong>
+        Menu <em>Évaluations → Campagne → Tableau de bord</em> →
+        bouton <strong>📧 Relancer les retardataires</strong>. Email
+        de rappel automatique avec liste des entretiens en attente.
+    </div>
+
+    <div class="info">
+        💡 <strong>Anonymisation des résultats ?</strong> Pour les exports
+        statistiques (rapport Direction), une option <em>Anonymiser</em>
+        masque les noms et ne conserve que matricule + score + service.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+
+    <div class="bouton">
+        <strong>📅 Nouvelle campagne :</strong> ouvre une campagne annuelle.
+    </div>
+    <div class="bouton">
+        <strong>📋 Générer les entretiens :</strong> crée un entretien par salarié éligible (RH).
+    </div>
+    <div class="bouton">
+        <strong>📝 Saisir l'évaluation :</strong> formulaire de notation par critère (N+1).
+    </div>
+    <div class="bouton">
+        <strong>📨 Soumettre au salarié :</strong> envoie au salarié pour auto-évaluation.
+    </div>
+    <div class="bouton">
+        <strong>✍️ Signer et soumettre au N+2 :</strong> signature électronique du salarié + transition.
+    </div>
+    <div class="bouton">
+        <strong>↩️ Renvoyer au N+1 :</strong> action N+2 quand rectification nécessaire.
+    </div>
+    <div class="bouton">
+        <strong>🔒 Clôturer la campagne :</strong> action RH finale, lecture seule + génération PDF.
+    </div>
+    <div class="bouton">
+        <strong>📧 Relancer retardataires :</strong> emails automatiques aux N+1/salariés en retard.
+    </div>
+
+    <p class="footer-help">
+        SunuPaie v1.1 — Module Évaluations annuelles — Mise à jour mai 2026
+    </p>
 </body>
 </html>

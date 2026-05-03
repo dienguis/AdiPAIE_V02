@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilan Social Mensuel — Aide Tableau N°6</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html" class="active">N°6 Bilan Social</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°6</div>
+        <h1>Bilan Social Mensuel</h1>
+        <p class="lead">Synthèse 12 mois × indicateurs clés, formatée pour préparer le formulaire
+        DTSS (Direction du Travail et de la Sécurité Sociale du Sénégal).</p>
+
+        <h2>Périmètre</h2>
+        <p><strong>INTERNE uniquement</strong> par défaut (formulaire DTSS officiel concerne les
+        salariés permanents). Une ligne complémentaire « dont Intérimaires » sera affichée en
+        bas du tableau pour information managériale, sans contaminer le calcul DTSS officiel.</p>
+
+        <h2>Lecture du tableau mensuel</h2>
+        <table>
+            <thead><tr><th>Colonne</th><th>Source / Calcul</th></tr></thead>
+            <tbody>
+                <tr><td>Mois</td><td>Janv. → Déc., puis ligne <strong>TOTAL</strong> en queue (fond navy + bordure orange)</td></tr>
+                <tr><td>Effectif fin</td><td>Salariés actifs au dernier jour du mois</td></tr>
+                <tr><td>Embauches</td><td><code>Salarie.DateEmbauche</code> dans le mois (texte bleu)</td></tr>
+                <tr><td>Départs</td><td><code>Salarie.DateSortie</code> dans le mois (texte rouge)</td></tr>
+                <tr><td>Masse Salariale</td><td><code>SUM(Bulletin.BrutFiscal)</code> du mois</td></tr>
+                <tr><td>Charges Patronales</td><td><code>SUM(BulletinLigne.MontantEmployeur)</code> du mois</td></tr>
+                <tr><td>Coût Employeur</td><td>Masse + Charges (texte orange)</td></tr>
+                <tr><td>Employés Absents</td><td>Distinct des salariés ayant un congé Accordé recouvrant le mois</td></tr>
+                <tr><td>Jours Absence</td><td>Σ <code>DureeJours</code> au prorata du recouvrement avec le mois</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Lecture des 5 KPI annuels</h2>
+        <ul>
+            <li><strong>Effectif moyen</strong> — moyenne arrondie sur les 12 mois</li>
+            <li><strong>Embauches</strong> / <strong>Départs</strong> — totaux année</li>
+            <li><strong>Coût Employeur</strong> — masse + charges patronales</li>
+            <li><strong>% Absentéisme</strong> — Σ jours absence / (Effectif × 264 j) × 100</li>
+        </ul>
+
+        <h2>Indicateurs DTSS non encore disponibles</h2>
+        <p>Le formulaire officiel DTSS demande aussi :</p>
+        <div class="todo">
+            <strong>À implémenter en évolution future</strong> (entités à créer dans le modèle) :
+            <ul>
+                <li>Mouvements emplois (mutations internes)</li>
+                <li>Mesures disciplinaires</li>
+                <li>Accidents du travail / Accidents de trajet / Maladies professionnelles</li>
+                <li>Budget formation, Heures formation, Employés formés</li>
+            </ul>
+            Ces colonnes affichent « — » dans le tableau actuel. La page indique la
+            <strong>complétude données</strong> en bas (% de cellules renseignées sur
+            les 5 indicateurs principaux × 12 mois).
+        </div>
+
+        <h2>Filtres</h2>
+        <p>Année (slicer) · Site (optionnel — filtre transversal sur Salarie+Bulletin+Conge).</p>
+
+        <div class="info">
+            <strong>Astuce export :</strong> le bouton 📊 Excel produit un fichier directement
+            collable dans le formulaire DTSS officiel. Le bouton 📄 PDF produit une version
+            imprimable (A4 paysage, en-tête ELTON).
+        </div>
+
+        <div class="footer">ELTON Oil · Tableau N°6 · Étape 4.6</div>
+    </main>
+</body>
+</html>

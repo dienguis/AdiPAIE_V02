@@ -78,14 +78,30 @@ namespace AdiPAIE_V02.Module.Controllers
 
             // Fallback IObjectSpace (passe par la sécurité, mais au pire
             // retourne null — même comportement que l'ancien code qui faisait
-            // "return null" quand l'ObjectSpace n'était pas un XPObjectSpace)
-            return objectSpace.FindObject<ApplicationUser>(
-                CriteriaOperator.Parse("UserName = ?", userName));
+            // "return null" quand l'ObjectSpace n'était pas un XPObjectSpace).
+            //
+            // try/catch défensif : si l'ObjectSpace est de type
+            // NonPersistentObjectSpace ou CompositeObjectSpace sans
+            // ApplicationUser dans son AdditionalObjectSpaces, FindObject
+            // throw ArgumentException. On respecte alors le contrat de
+            // « retourner null » documenté ci-dessus.
+            try
+            {
+                return objectSpace.FindObject<ApplicationUser>(
+                    CriteriaOperator.Parse("UserName = ?", userName));
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
         }
 
         /// <summary>
         /// Recherche un Salarie par critère.
         /// Utilise la Session XPO si disponible, sinon fallback sur IObjectSpace.FindObject.
+        /// Retourne null si l'ObjectSpace ne sait pas gérer le type Salarie
+        /// (ex. NonPersistentObjectSpace) — comportement défensif aligné sur
+        /// FindUserByName.
         /// </summary>
         private static Salarie FindSalarieByCriteria(
             IObjectSpace objectSpace, CriteriaOperator criteria)
@@ -96,7 +112,20 @@ namespace AdiPAIE_V02.Module.Controllers
                 return session.FindObject<Salarie>(criteria);
             }
 
-            return objectSpace.FindObject<Salarie>(criteria);
+            // try/catch défensif : si l'ObjectSpace n'embarque pas le type
+            // Salarie dans son AdditionalObjectSpaces (cas des
+            // NonPersistentObjectSpace pour les classes non-persistantes
+            // comme DashboardsRHMenu), FindObject throw ArgumentException.
+            // On retourne null pour que les contrôleurs appelants puissent
+            // simplement « ne rien faire » sur ce type de view.
+            try
+            {
+                return objectSpace.FindObject<Salarie>(criteria);
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
         }
 
 

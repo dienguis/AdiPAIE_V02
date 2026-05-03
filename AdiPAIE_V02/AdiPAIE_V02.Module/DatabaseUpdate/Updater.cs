@@ -1,6 +1,7 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
 using AdiPAIE_V02.Module.Domain;
+using AdiPAIE_V02.Module.NonPersistent;
 using AdiPAIE_V02.Module.Properties;
 using AdiPAIE_V02.Module.Reports;
 using AdiPAIE_V02.Module.Services;
@@ -302,6 +303,129 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 {
                     if (userRH.Roles.Contains(roleDefault))
                         userRH.Roles.Remove(roleDefault);
+                }
+            }
+
+            ObjectSpace.CommitChanges();
+
+            // ═══════════════════════════════════════════════════════
+            // Rôle RH_Manager — Accès lecture aux Tableaux de Bord RH
+            // (Module Dashboards — Étape 2 / squelette).
+            // Permissions étendues progressivement aux Tableaux 1 → 6
+            // (Étape 4). Idempotent : crée ou met à jour, fusionne les
+            // doublons éventuels.
+            // ═══════════════════════════════════════════════════════
+            var allRolesRHM = ObjectSpace.GetObjectsQuery<PermissionPolicyRole>()
+                .Where(r => r.Name == "RH_Manager")
+                .ToList();
+
+            PermissionPolicyRole roleRHM;
+            if (allRolesRHM.Count == 0)
+            {
+                roleRHM = ObjectSpace.CreateObject<PermissionPolicyRole>();
+                roleRHM.Name = "RH_Manager";
+            }
+            else
+            {
+                roleRHM = allRolesRHM[0];
+                for (int i = 1; i < allRolesRHM.Count; i++)
+                {
+                    var duplicate = allRolesRHM[i];
+                    var usersOnDup = ObjectSpace.GetObjectsQuery<ApplicationUser>()
+                        .Where(u => u.Roles.Any(r => r.Oid == duplicate.Oid))
+                        .ToList();
+                    foreach (var u in usersOnDup)
+                    {
+                        if (!u.Roles.Contains(roleRHM))
+                            u.Roles.Add(roleRHM);
+                        u.Roles.Remove(duplicate);
+                    }
+                    ObjectSpace.Delete(duplicate);
+                }
+            }
+            roleRHM.IsAdministrative = false;
+            roleRHM.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
+
+            // Reset idempotent des permissions pour éviter les doublons à
+            // chaque démarrage de l'application.
+            while (roleRHM.TypePermissions.Count > 0)
+                roleRHM.TypePermissions.Remove(roleRHM.TypePermissions[0]);
+            while (roleRHM.NavigationPermissions.Count > 0)
+                roleRHM.NavigationPermissions.Remove(roleRHM.NavigationPermissions[0]);
+
+            const string NavRead_RHM =
+                SecurityOperations.Navigate + ";" + SecurityOperations.Read;
+
+            // ── Entrée de menu « Tableaux de Bord RH » (DashboardsRHMenu) ──
+            roleRHM.AddTypePermissionsRecursively<DashboardsRHMenu>(
+                NavRead_RHM, SecurityPermissionState.Allow);
+
+            // ── Entités sources des dashboards (lecture seule) ──
+            //    Les permissions seront étendues étape 4.1 → 4.6 selon les
+            //    besoins précis de chaque tableau (filtres sur sites,
+            //    départements, périodes, etc.).
+            roleRHM.AddTypePermissionsRecursively<Salarie>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<ContratSalarie>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Interimaire>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<ContratInterim>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<MouvementInterimaire>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Departement>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Categories>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Fonction>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Echelons>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Site>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<StationService>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<Bulletin>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<BulletinLigne>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<PeriodePaie>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<CongeDemande>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<CongeType>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<SoldeConge>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<DossierOffboarding>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<HistoriquePoste>(NavRead_RHM, SecurityPermissionState.Allow);
+            roleRHM.AddTypePermissionsRecursively<DossierDisciplinaire>(NavRead_RHM, SecurityPermissionState.Allow);
+
+            // ── ApplicationUser (lecture pour la jointure salarié ↔ user) ──
+            roleRHM.AddTypePermissionsRecursively<ApplicationUser>(
+                SecurityOperations.Read, SecurityPermissionState.Allow);
+
+            // ═══════════════════════════════════════════════════════════════
+            //  Étendre l'accès aux dashboards aux rôles RH et DAF (Étape 7.SEC)
+            //  Pour le rôle RH (AllowAllByDefault) : les permissions sont déjà
+            //  ouvertes mais on ajoute explicitement le menu pour la clarté.
+            //  Pour DAF (créé par InitialiserRolesGRHController) : on ajoute
+            //  les permissions Read sur les sources des dashboards.
+            // ═══════════════════════════════════════════════════════════════
+            GrantDashboardAccessToExistingRole("RH");
+            GrantDashboardAccessToExistingRole("DAF");
+
+            // ═══════════════════════════════════════════════════════════════
+            //  V1.1 Sprint 1D — Permissions Read sur UniteOrganisationnelle
+            //  uniquement (BusinessUnitType est DEPRECATED — plus de seed
+            //  ni de migration ni de permission). Voir CHANGELOG Sprint 1D.
+            // ═══════════════════════════════════════════════════════════════
+            GrantUniteOrganisationnelleReadAccess();
+
+            // ═══════════════════════════════════════════════════════════════
+            //  V1.1 Sprint 1B — Seed démo COMPLET pour tester les dashboards
+            //  Appel conditionné par appsettings.json :
+            //    "Dashboards": { "SeedDemoData": true }
+            //  Par défaut TRUE en dev, à passer à FALSE en prod après wipe.
+            //  Le seeder est idempotent (ne recrée pas ce qui existe déjà).
+            //  Tous les codes/matricules sont préfixés "DEMO_" → suppression
+            //  ciblée via le Controller "Vider données démo" sans risque
+            //  pour les seeds réels (rubriques de paie, paramètres, etc.).
+            // ═══════════════════════════════════════════════════════════════
+            if (IsDemoSeedEnabled())
+            {
+                try
+                {
+                    DemoDataSeeder.EnsureAll(ObjectSpace);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[DemoDataSeeder] Échec non bloquant : {ex.Message}");
                 }
             }
 
@@ -983,6 +1107,223 @@ string adminUserName = "Admin";
         //    IObjectSpace os, string code, string libelle, RubriqueTypeRef typeRef,
         //    int ordre, RubriqueCanonique? canon = null)
         //    => EnsureRubrique(os, code, libelle, typeRef, ordre, canon); // [DEPRECATED]
+
+        // ===========================
+        // RBAC Dashboards (Étape 7.SEC)
+        // ===========================
+        /// <summary>
+        /// Étend les permissions d'un rôle existant (RH, DAF) pour qu'il
+        /// puisse accéder au module Tableaux de Bord RH. Idempotent : si
+        /// le rôle n'existe pas, ne fait rien (sera traité au prochain
+        /// démarrage si l'utilisateur l'a créé entre temps).
+        ///
+        /// Permissions ajoutées :
+        ///   - Navigate + Read sur DashboardsRHMenu (l'entrée de menu)
+        ///   - Read sur les entités sources des 6 dashboards
+        /// </summary>
+        private void GrantDashboardAccessToExistingRole(string roleName)
+        {
+            var role = ObjectSpace.GetObjectsQuery<PermissionPolicyRole>()
+                .Where(r => r.Name == roleName)
+                .FirstOrDefault();
+            if (role == null) return;   // rôle pas encore créé : skip
+
+            const string NavRead =
+                SecurityOperations.Navigate + ";" + SecurityOperations.Read;
+
+            // Menu d'entrée (toujours utile, même si AllowAllByDefault)
+            role.AddTypePermissionsRecursively<DashboardsRHMenu>(
+                NavRead, SecurityPermissionState.Allow);
+
+            // Entités sources (Read) — utilisées par les services dashboards
+            role.AddTypePermissionsRecursively<Salarie>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<ContratSalarie>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<Interimaire>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<ContratInterim>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<MouvementInterimaire>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<Departement>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<Categories>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<Site>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<StationService>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<Bulletin>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<BulletinLigne>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<CongeDemande>(NavRead, SecurityPermissionState.Allow);
+            role.AddTypePermissionsRecursively<CongeType>(NavRead, SecurityPermissionState.Allow);
+        }
+
+        // ===========================
+        // V1.1 — Lecture du flag SeedDemoData (sans dépendance NuGet)
+        // ===========================
+        /// <summary>
+        /// Détermine si le seed démo doit être créé au démarrage.
+        /// Sources lues dans cet ordre (priorité décroissante) :
+        ///   1. Variable d'environnement <c>DASHBOARDS_SEED_DEMO</c>
+        ///   2. Bloc "Dashboards":"SeedDemoData" dans appsettings.json (parse simple)
+        ///   3. Défaut : TRUE (utile en dev)
+        /// En prod : positionner DASHBOARDS_SEED_DEMO=false dans les variables
+        /// système OU mettre <c>"SeedDemoData": false</c> dans appsettings.json.
+        /// Pas de dépendance Microsoft.Extensions.Configuration → évite d'ajouter
+        /// un nouveau package NuGet au projet Module.
+        /// </summary>
+        private static bool IsDemoSeedEnabled()
+        {
+            try
+            {
+                // Priorité 1 : variable d'environnement
+                var env = Environment.GetEnvironmentVariable("DASHBOARDS_SEED_DEMO");
+                if (!string.IsNullOrWhiteSpace(env))
+                    return env.Equals("true", StringComparison.OrdinalIgnoreCase);
+
+                // Priorité 2 : appsettings.json (parsing simple par regex)
+                var basePath = System.IO.Directory.GetCurrentDirectory();
+                var path     = System.IO.Path.Combine(basePath, "appsettings.json");
+                if (System.IO.File.Exists(path))
+                {
+                    var content = System.IO.File.ReadAllText(path);
+                    // Recherche tolérante : "SeedDemoData": false (avec/sans espaces)
+                    if (System.Text.RegularExpressions.Regex.IsMatch(
+                            content,
+                            @"""SeedDemoData""\s*:\s*false",
+                            System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                        return false;
+                }
+
+                // Défaut
+                return true;
+            }
+            catch { return true; }   // fail open en dev
+        }
+
+        // ===========================
+        // V1.1 — Référentiel BusinessUnitType
+        // ===========================
+
+        /// <summary>
+        /// Définition des 4 types initiaux. La métier peut en ajouter
+        /// d'autres via l'écran XAF — cette liste sert uniquement au seed
+        /// du premier démarrage. Les modifications manuelles ne sont PAS
+        /// écrasées (idempotent : on ne crée que ce qui manque).
+        /// </summary>
+        private static readonly (string Code, string Libelle, CouleurPalette Palette, int Ordre)[] BUTypeSeeds =
+        {
+            ("BOUTIQUE",     "Boutique",     CouleurPalette.OrangeElton, 0),
+            ("PISTE",        "Piste",        CouleurPalette.NavyElton,   1),
+            ("E_SERVICE",    "E-Service",    CouleurPalette.BleuClair,   2),
+            ("ESPACE_AUTO",  "Espace Auto",  CouleurPalette.Vert,        3)
+        };
+
+        /// <summary>
+        /// Idempotent — crée les 4 types initiaux s'ils n'existent pas.
+        /// Ne touche pas aux types ajoutés manuellement par le métier.
+        /// </summary>
+        private void EnsureBusinessUnitTypesSeed()
+        {
+            foreach (var seed in BUTypeSeeds)
+            {
+                var existing = ObjectSpace.GetObjectsQuery<BusinessUnitType>()
+                    .Where(t => t.Code == seed.Code)
+                    .FirstOrDefault();
+                if (existing == null)
+                {
+                    var t = ObjectSpace.CreateObject<BusinessUnitType>();
+                    t.Code    = seed.Code;
+                    t.Libelle = seed.Libelle;
+                    t.Palette = seed.Palette;
+                    t.Ordre   = seed.Ordre;
+                    t.Actif   = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Migration douce — pour chaque BusinessUnitStation sans Type,
+        /// lui assigne le bon Type en matchant son Libelle (case-insensitive,
+        /// trim). Si aucun Type ne matche, laisse Type=null (à corriger
+        /// manuellement par le métier ensuite).
+        /// </summary>
+        private void MigrateBUsToTypes()
+        {
+            var allTypes = ObjectSpace.GetObjectsQuery<BusinessUnitType>().ToList();
+            if (allTypes.Count == 0) return;
+
+            var bus = ObjectSpace.GetObjectsQuery<BusinessUnitStation>()
+                .Where(b => b.Type == null)
+                .ToList();
+
+            foreach (var bu in bus)
+            {
+                if (string.IsNullOrWhiteSpace(bu.Libelle)) continue;
+
+                var libelleNormalise = bu.Libelle.Trim();
+
+                // Match exact insensible à la casse sur le Libelle
+                var match = allTypes.FirstOrDefault(t =>
+                    string.Equals(t.Libelle, libelleNormalise,
+                        StringComparison.OrdinalIgnoreCase));
+
+                // Fallback : match insensible à la casse + variantes "espace auto" / "espaceauto"
+                if (match == null)
+                {
+                    var libelleSansEspace = libelleNormalise.Replace(" ", "");
+                    match = allTypes.FirstOrDefault(t =>
+                        string.Equals(t.Libelle.Replace(" ", ""), libelleSansEspace,
+                            StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(t.Code.Replace("_", ""), libelleSansEspace,
+                            StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (match != null) bu.Type = match;
+            }
+        }
+
+        /// <summary>
+        /// V1.1 Sprint 1D — Étend les permissions des rôles dashboards
+        /// pour lire UniteOrganisationnelle (nouveau modèle).
+        /// </summary>
+        private void GrantUniteOrganisationnelleReadAccess()
+        {
+            const string NavRead =
+                SecurityOperations.Navigate + ";" + SecurityOperations.Read;
+
+            foreach (var roleName in new[] { "RH_Manager", "RH", "DAF" })
+            {
+                var role = ObjectSpace.GetObjectsQuery<PermissionPolicyRole>()
+                    .Where(r => r.Name == roleName)
+                    .FirstOrDefault();
+                if (role == null) continue;
+
+                role.AddTypePermissionsRecursively<UniteOrganisationnelle>(
+                    NavRead, SecurityPermissionState.Allow);
+            }
+        }
+
+        /// <summary>
+        /// [DEPRECATED V1.1 Sprint 1D] Conservée pour ne pas casser le code
+        /// si elle est appelée ailleurs. N'est plus invoquée par défaut au
+        /// démarrage. Sera supprimée définitivement quand le BO BusinessUnitType
+        /// sera retiré.
+        /// </summary>
+        [System.Obsolete("Remplacée par GrantUniteOrganisationnelleReadAccess en V1.1 Sprint 1D")]
+        private void GrantBusinessUnitTypeReadAccess()
+        {
+            const string NavRead =
+                SecurityOperations.Navigate + ";" + SecurityOperations.Read;
+
+            foreach (var roleName in new[] { "RH_Manager", "RH", "DAF" })
+            {
+                var role = ObjectSpace.GetObjectsQuery<PermissionPolicyRole>()
+                    .Where(r => r.Name == roleName)
+                    .FirstOrDefault();
+                if (role == null) continue;
+
+                role.AddTypePermissionsRecursively<BusinessUnitType>(
+                    NavRead, SecurityPermissionState.Allow);
+
+                // V1.1 Sprint 1B — RBAC sur la nouvelle entité UniteOrganisationnelle
+                role.AddTypePermissionsRecursively<UniteOrganisationnelle>(
+                    NavRead, SecurityPermissionState.Allow);
+            }
+        }
 
         // ===========================
         // SEEDs spécifiques

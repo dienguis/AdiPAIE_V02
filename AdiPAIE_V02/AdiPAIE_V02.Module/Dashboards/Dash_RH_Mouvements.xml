@@ -1,0 +1,169 @@
+<Dashboard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.devexpress.com/dashboard/2016/dashboard">
+	<Title Text="RH — Mouvements du Personnel" />
+	<DataSources>
+		<ObjectDataSource ComponentName="odsSalarie" Name="Salarie" DataSource="AdiPAIE_V02.Module.BusinessObjects.Salarie, AdiPAIE_V02.Module">
+			<CalculatedFields>
+				<CalculatedField Name="EmbaucheAnnee" DataType="Int32" Expression="GetYear([DateEmbauche])" />
+				<CalculatedField Name="EmbaucheMois" DataType="Int32" Expression="GetMonth([DateEmbauche])" />
+				<CalculatedField Name="DepartAnnee" DataType="Int32" Expression="Iif([DateSortie] = #01/01/0001#, 0, GetYear([DateSortie]))" />
+				<CalculatedField Name="DepartMois" DataType="Int32" Expression="Iif([DateSortie] = #01/01/0001#, 0, GetMonth([DateSortie]))" />
+				<CalculatedField Name="EstDepart" DataType="Boolean" Expression="Not [DateSortie] = #01/01/0001#" />
+			</CalculatedFields>
+		</ObjectDataSource>
+	</DataSources>
+
+	<Parameters>
+		<Parameter Name="pAnnee" Description="Année" Type="System.Int32" Value="2025" />
+	</Parameters>
+
+	<Items>
+		<!-- ═══ KPI Embauches ═══ -->
+		<Cards ComponentName="cardEmbauches" Name="Embauches" DataSource="odsSalarie">
+			<FilterString>[EmbaucheAnnee] = ?pAnnee</FilterString>
+			<DataItems>
+				<Measure DataMember="Oid" SummaryType="Count" UniqueName="mEmb" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="mEmb" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+
+		<!-- ═══ KPI Départs ═══ -->
+		<Cards ComponentName="cardDeparts" Name="Départs" DataSource="odsSalarie">
+			<FilterString>[DepartAnnee] = ?pAnnee</FilterString>
+			<DataItems>
+				<Measure DataMember="Oid" SummaryType="Count" UniqueName="mDep" />
+			</DataItems>
+			<CardsLayout TemplateId="Compact" />
+			<Cards>
+				<Card>
+					<ActualValue UniqueName="mDep" />
+					<CardLayoutTemplate>Compact</CardLayoutTemplate>
+					<CardDeltaOptions ResultIndicationMode="NoIndicator" />
+					<CardSparklineOptions SparklineVisible="False" />
+				</Card>
+			</Cards>
+		</Cards>
+
+		<!-- ═══ Embauches par mois ═══ -->
+		<Chart ComponentName="chartEmbMois" Name="Embauches par mois" DataSource="odsSalarie">
+			<FilterString>[EmbaucheAnnee] = ?pAnnee</FilterString>
+			<Arguments>
+				<Dimension DataMember="EmbaucheMois" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="Bar">
+							<Value>
+								<Measure DataMember="Oid" SummaryType="Count" />
+							</Value>
+							<Name>Embauches</Name>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="false" />
+		</Chart>
+
+		<!-- ═══ Départs par mois ═══ -->
+		<Chart ComponentName="chartDepMois" Name="Départs par mois" DataSource="odsSalarie">
+			<FilterString>[DepartAnnee] = ?pAnnee</FilterString>
+			<Arguments>
+				<Dimension DataMember="DepartMois" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="Bar">
+							<Value>
+								<Measure DataMember="Oid" SummaryType="Count" />
+							</Value>
+							<Name>Départs</Name>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="false" />
+		</Chart>
+
+		<!-- ═══ Embauches par département ═══ -->
+		<Chart ComponentName="chartEmbDept" Name="Embauches par département" DataSource="odsSalarie">
+			<FilterString>[EmbaucheAnnee] = ?pAnnee</FilterString>
+			<Arguments>
+				<Dimension DataMember="Departement.Libelle" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="Bar">
+							<Value>
+								<Measure DataMember="Oid" SummaryType="Count" />
+							</Value>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="false" />
+		</Chart>
+
+		<!-- ═══ Départs par motif ═══ -->
+		<Chart ComponentName="chartDepMotif" Name="Départs par motif" DataSource="odsSalarie">
+			<FilterString>[DepartAnnee] = ?pAnnee</FilterString>
+			<Arguments>
+				<Dimension DataMember="MotifDepart" />
+			</Arguments>
+			<Panes>
+				<Pane Name="Pane 1">
+					<Series>
+						<Simple SeriesType="Bar">
+							<Value>
+								<Measure DataMember="Oid" SummaryType="Count" />
+							</Value>
+						</Simple>
+					</Series>
+				</Pane>
+			</Panes>
+			<Legend Visible="false" />
+		</Chart>
+
+		<!-- ═══ Embauches par sexe (Pie) ═══ -->
+		<Pie ComponentName="pieEmbSexe" Name="Embauches H/F" DataSource="odsSalarie">
+			<FilterString>[EmbaucheAnnee] = ?pAnnee</FilterString>
+			<Arguments>
+				<Dimension DataMember="Sexe" />
+			</Arguments>
+			<Values>
+				<Measure DataMember="Oid" SummaryType="Count" />
+			</Values>
+			<Legend Visible="true" />
+		</Pie>
+	</Items>
+
+	<LayoutTree>
+		<LayoutGroup Orientation="Vertical">
+			<!-- KPIs -->
+			<LayoutGroup Orientation="Horizontal" Weight="12">
+				<LayoutItem DashboardItem="cardEmbauches" Weight="50" />
+				<LayoutItem DashboardItem="cardDeparts"   Weight="50" />
+			</LayoutGroup>
+			<!-- Graphiques mensuels -->
+			<LayoutGroup Orientation="Horizontal" Weight="38">
+				<LayoutItem DashboardItem="chartEmbMois" Weight="50" />
+				<LayoutItem DashboardItem="chartDepMois" Weight="50" />
+			</LayoutGroup>
+			<!-- Détail -->
+			<LayoutGroup Orientation="Horizontal" Weight="38">
+				<LayoutItem DashboardItem="chartEmbDept"  Weight="30" />
+				<LayoutItem DashboardItem="chartDepMotif"  Weight="40" />
+				<LayoutItem DashboardItem="pieEmbSexe"     Weight="30" />
+			</LayoutGroup>
+		</LayoutGroup>
+	</LayoutTree>
+</Dashboard>
