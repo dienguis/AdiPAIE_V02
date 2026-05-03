@@ -25,6 +25,103 @@ Chaque entrée précise :
 
 ---
 
+## [V1.1 — Sprint 1B] 2026-05-03 1130 — Seed démo COMPLET + Controller wipe + flag appsettings + RBAC
+
+**Objet** : créer un jeu de données de démonstration COMPLET pour tester
+les 6 dashboards EXTERNE (Mouvements, Rémunération, Bilan Social ligne
+intérim) sans dépendre de données réelles.
+
+### Fichiers créés (2)
+
+| Fichier | Lignes | Nature |
+|---|---|---|
+| `Module/DatabaseUpdate/DemoDataSeeder.cs` | ~340 | Seeder + Wiper. 2 classes statiques `DemoDataSeeder.EnsureAll()` et `DemoDataWipe.WipeAll()` |
+| `Module/Controllers/RH/DemoDataWipeController.cs` | ~70 | SimpleAction XAF « Vider données démo » sur fiche ApplicationUser, avec popup de confirmation |
+
+### Fichiers modifiés (3)
+
+| Fichier | Nature |
+|---|---|
+| `Module/DatabaseUpdate/Updater.cs` | + appel conditionné `DemoDataSeeder.EnsureAll()` au démarrage (lecture flag appsettings) + RBAC sur `UniteOrganisationnelle` |
+| `Blazor.Server/appsettings.json` | + bloc `Dashboards:SeedDemoData = true` (à passer false en prod) |
+| `docs/dashboards/CHANGELOG.md` | cette entrée |
+
+### Volumes seedés
+
+| Entité | Quantité | Détails |
+|---|---|---|
+| Sites | 6 | 3 stations (BANDIA, CDB, MERMOZ) + 1 siège + 2 dépôts (Dakar, Thiès) |
+| Unités organisationnelles | 19 | 12 BU (4 par station) + 4 départements siège (DSI, Commerciale, Admin&Fin, RH) + 3 segments commerciaux (Consommateurs, BTP, Mines) |
+| Société d'intérim | 1 | DEMO_SEN_INTERIM |
+| Postes intérimaires | 8 | Caissier, Pompiste, Laveur, Technicien, Chef Boutique, Magasinier, Comptable Aux., Assistant RH |
+| Intérimaires | 25 | Noms sénégalais cohérents, dates de naissance variées (23-56 ans) |
+| Contrats intérim | ~40 | Répartis 2024-2026, mix Site=Station/Siège/Dépôt, mix Statut (EnCours/Termine/Resilie), TauxJournalier 15k-80k FCFA, multi-affectation pour 30% des contrats commerciaux |
+| Mouvements intérimaires | 10 | Mouvements aléatoires entre sites sur les 12 derniers mois, 80% validés |
+
+### Convention de naming
+
+Tous les enregistrements seedés ont :
+- **Code** préfixé `DEMO_` (Sites, Unités)
+- **Matricule** préfixé `DEMO_` (Intérimaires : `DEMO_INT-0001`, `DEMO_INT-0002`...)
+- **Libellé** préfixé `DEMO ` (Postes : `DEMO Caissier`, `DEMO Pompiste`...)
+- **RaisonSociale** préfixée `DEMO_` (Société intérim)
+- **Motif** contient `DEMO` pour les Contrats et Mouvements
+
+### Contrôle activation/désactivation
+
+3 sources lues dans l'ordre (priorité décroissante) — sans dépendance NuGet
+supplémentaire :
+
+1. **Variable d'environnement** `DASHBOARDS_SEED_DEMO=false`
+   (set par script de déploiement / CI/CD)
+2. **appsettings.json** :
+   ```json
+   "Dashboards": {
+     "SeedDemoData": false
+   }
+   ```
+3. **Défaut** : `true` (utile en dev sans config)
+
+Lecture côté Updater via `Environment.GetEnvironmentVariable` + regex sur le
+fichier appsettings.json (pas besoin du package NuGet
+`Microsoft.Extensions.Configuration.Json` qui n'est pas référencé par le
+projet Module).
+
+### Hot-fix CS0234 (2026-05-03 1145)
+
+Première version du flag utilisait `ConfigurationBuilder` qui n'est pas
+disponible dans le projet Module. Switché vers la lecture par regex
++ variable d'environnement → 0 dépendance NuGet ajoutée.
+
+### Suppression sécurisée des données démo
+
+Bouton XAF « Vider les données démo » sur la fiche utilisateur → exécute
+`DemoDataWipe.WipeAll()` avec :
+- Popup de confirmation
+- Suppression dans l'ordre des dépendances FK (Mouvements → Contrats →
+  Intérimaires → Postes → Sociétés → Unités → Sites)
+- Filtre exclusivement sur Code/Matricule/Libellé `StartsWith("DEMO_")`
+- Toast résumé : `5 sites · 19 unités · 40 contrats · 10 mouvements supprimés`
+
+### ⚠️ Garantie seeds réels NON impactés
+
+Les seeds existants (rubriques de paie, paramètres, catégories) ont des
+codes métier réels (BRUT_BASE, IPRES_RG, CAT_CADRE…) qui **ne commencent
+JAMAIS par `DEMO_`** — ils sont donc invisibles au wiper. Garantie
+mathématique, pas conventionnelle.
+
+### Test post-build attendu
+
+1. Lancer l'app → l'Updater seed les 100+ enregistrements démo (1ʳᵉ exécution)
+2. Aller dans **GRH - Administration → Sites** → voir les 6 sites avec leur Type
+3. Aller dans **Unités organisationnelles** → voir les 19 unités hiérarchisées
+4. Aller dans **Intérimaires** → voir les 25 fiches `DEMO_INT-XXXX`
+5. Aller dans **Contrats Intérim** → voir les ~40 contrats avec leur Site/Unités
+6. Tester un dashboard EXTERNE (ex: Mouvements 2024 ou Rémunération 2025) → données affichées
+7. Tester le bouton **« Vider données démo »** → popup confirm → suppression complète
+
+---
+
 ## [V1.1 — Sprint 1A.2] 2026-05-03 1015 — Vues XAF pour Site + garanties anti-suppression seeds réels
 
 ### Hot-fix UI — colonne Type invisible

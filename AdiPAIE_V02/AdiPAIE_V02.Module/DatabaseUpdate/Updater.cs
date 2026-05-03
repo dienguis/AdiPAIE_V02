@@ -399,6 +399,39 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             GrantDashboardAccessToExistingRole("RH");
             GrantDashboardAccessToExistingRole("DAF");
 
+            // ═══════════════════════════════════════════════════════════════
+            //  V1.1 — Référentiel BusinessUnitType (Étape Phase 1)
+            //  Crée les 4 types initiaux (Boutique, Piste, E-Service,
+            //  Espace Auto) puis migre les BusinessUnitStation existants
+            //  vers le bon Type en matchant leur Libelle. Idempotent.
+            // ═══════════════════════════════════════════════════════════════
+            EnsureBusinessUnitTypesSeed();
+            MigrateBUsToTypes();
+            GrantBusinessUnitTypeReadAccess();
+
+            // ═══════════════════════════════════════════════════════════════
+            //  V1.1 Sprint 1B — Seed démo COMPLET pour tester les dashboards
+            //  Appel conditionné par appsettings.json :
+            //    "Dashboards": { "SeedDemoData": true }
+            //  Par défaut TRUE en dev, à passer à FALSE en prod après wipe.
+            //  Le seeder est idempotent (ne recrée pas ce qui existe déjà).
+            //  Tous les codes/matricules sont préfixés "DEMO_" → suppression
+            //  ciblée via le Controller "Vider données démo" sans risque
+            //  pour les seeds réels (rubriques de paie, paramètres, etc.).
+            // ═══════════════════════════════════════════════════════════════
+            if (IsDemoSeedEnabled())
+            {
+                try
+                {
+                    DemoDataSeeder.EnsureAll(ObjectSpace);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[DemoDataSeeder] Échec non bloquant : {ex.Message}");
+                }
+            }
+
             ObjectSpace.CommitChanges();
 
             // ═══════════════════════════════════════════════════════
@@ -1119,6 +1152,157 @@ string adminUserName = "Admin";
             role.AddTypePermissionsRecursively<BulletinLigne>(NavRead, SecurityPermissionState.Allow);
             role.AddTypePermissionsRecursively<CongeDemande>(NavRead, SecurityPermissionState.Allow);
             role.AddTypePermissionsRecursively<CongeType>(NavRead, SecurityPermissionState.Allow);
+        }
+
+        // ===========================
+        // V1.1 — Lecture du flag SeedDemoData (sans dépendance NuGet)
+        // ===========================
+        /// <summary>
+        /// Détermine si le seed démo doit être créé au démarrage.
+        /// Sources lues dans cet ordre (priorité décroissante) :
+        ///   1. Variable d'environnement <c>DASHBOARDS_SEED_DEMO</c>
+        ///   2. Bloc "Dashboards":"SeedDemoData" dans appsettings.json (parse simple)
+        ///   3. Défaut : TRUE (utile en dev)
+        /// En prod : positionner DASHBOARDS_SEED_DEMO=false dans les variables
+        /// système OU mettre <c>"SeedDemoData": false</c> dans appsettings.json.
+        /// Pas de dépendance Microsoft.Extensions.Configuration → évite d'ajouter
+        /// un nouveau package NuGet au projet Module.
+        /// </summary>
+        private static bool IsDemoSeedEnabled()
+        {
+            try
+            {
+                // Priorité 1 : variable d'environnement
+                var env = Environment.GetEnvironmentVariable("DASHBOARDS_SEED_DEMO");
+                if (!string.IsNullOrWhiteSpace(env))
+                    return env.Equals("true", StringComparison.OrdinalIgnoreCase);
+
+                // Priorité 2 : appsettings.json (parsing simple par regex)
+                var basePath = System.IO.Directory.GetCurrentDirectory();
+                var path     = System.IO.Path.Combine(basePath, "appsettings.json");
+                if (System.IO.File.Exists(path))
+                {
+                    var content = System.IO.File.ReadAllText(path);
+                    // Recherche tolérante : "SeedDemoData": false (avec/sans espaces)
+                    if (System.Text.RegularExpressions.Regex.IsMatch(
+                            content,
+                            @"""SeedDemoData""\s*:\s*false",
+                            System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                        return false;
+                }
+
+                // Défaut
+                return true;
+            }
+            catch { return true; }   // fail open en dev
+        }
+
+        // ===========================
+        // V1.1 — Référentiel BusinessUnitType
+        // ===========================
+
+        /// <summary>
+        /// Définition des 4 types initiaux. La métier peut en ajouter
+        /// d'autres via l'écran XAF — cette liste sert uniquement au seed
+        /// du premier démarrage. Les modifications manuelles ne sont PAS
+        /// écrasées (idempotent : on ne crée que ce qui manque).
+        /// </summary>
+        private static readonly (string Code, string Libelle, CouleurPalette Palette, int Ordre)[] BUTypeSeeds =
+        {
+            ("BOUTIQUE",     "Boutique",     CouleurPalette.OrangeElton, 0),
+            ("PISTE",        "Piste",        CouleurPalette.NavyElton,   1),
+            ("E_SERVICE",    "E-Service",    CouleurPalette.BleuClair,   2),
+            ("ESPACE_AUTO",  "Espace Auto",  CouleurPalette.Vert,        3)
+        };
+
+        /// <summary>
+        /// Idempotent — crée les 4 types initiaux s'ils n'existent pas.
+        /// Ne touche pas aux types ajoutés manuellement par le métier.
+        /// </summary>
+        private void EnsureBusinessUnitTypesSeed()
+        {
+            foreach (var seed in BUTypeSeeds)
+            {
+                var existing = ObjectSpace.GetObjectsQuery<BusinessUnitType>()
+                    .Where(t => t.Code == seed.Code)
+                    .FirstOrDefault();
+                if (existing == null)
+                {
+                    var t = ObjectSpace.CreateObject<BusinessUnitType>();
+                    t.Code    = seed.Code;
+                    t.Libelle = seed.Libelle;
+                    t.Palette = seed.Palette;
+                    t.Ordre   = seed.Ordre;
+                    t.Actif   = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Migration douce — pour chaque BusinessUnitStation sans Type,
+        /// lui assigne le bon Type en matchant son Libelle (case-insensitive,
+        /// trim). Si aucun Type ne matche, laisse Type=null (à corriger
+        /// manuellement par le métier ensuite).
+        /// </summary>
+        private void MigrateBUsToTypes()
+        {
+            var allTypes = ObjectSpace.GetObjectsQuery<BusinessUnitType>().ToList();
+            if (allTypes.Count == 0) return;
+
+            var bus = ObjectSpace.GetObjectsQuery<BusinessUnitStation>()
+                .Where(b => b.Type == null)
+                .ToList();
+
+            foreach (var bu in bus)
+            {
+                if (string.IsNullOrWhiteSpace(bu.Libelle)) continue;
+
+                var libelleNormalise = bu.Libelle.Trim();
+
+                // Match exact insensible à la casse sur le Libelle
+                var match = allTypes.FirstOrDefault(t =>
+                    string.Equals(t.Libelle, libelleNormalise,
+                        StringComparison.OrdinalIgnoreCase));
+
+                // Fallback : match insensible à la casse + variantes "espace auto" / "espaceauto"
+                if (match == null)
+                {
+                    var libelleSansEspace = libelleNormalise.Replace(" ", "");
+                    match = allTypes.FirstOrDefault(t =>
+                        string.Equals(t.Libelle.Replace(" ", ""), libelleSansEspace,
+                            StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(t.Code.Replace("_", ""), libelleSansEspace,
+                            StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (match != null) bu.Type = match;
+            }
+        }
+
+        /// <summary>
+        /// Étend les permissions des rôles RH_Manager / RH / DAF pour
+        /// lire le nouveau référentiel BusinessUnitType (sinon les
+        /// dashboards ne pourront pas filtrer par Type BU).
+        /// </summary>
+        private void GrantBusinessUnitTypeReadAccess()
+        {
+            const string NavRead =
+                SecurityOperations.Navigate + ";" + SecurityOperations.Read;
+
+            foreach (var roleName in new[] { "RH_Manager", "RH", "DAF" })
+            {
+                var role = ObjectSpace.GetObjectsQuery<PermissionPolicyRole>()
+                    .Where(r => r.Name == roleName)
+                    .FirstOrDefault();
+                if (role == null) continue;
+
+                role.AddTypePermissionsRecursively<BusinessUnitType>(
+                    NavRead, SecurityPermissionState.Allow);
+
+                // V1.1 Sprint 1B — RBAC sur la nouvelle entité UniteOrganisationnelle
+                role.AddTypePermissionsRecursively<UniteOrganisationnelle>(
+                    NavRead, SecurityPermissionState.Allow);
+            }
         }
 
         // ===========================
