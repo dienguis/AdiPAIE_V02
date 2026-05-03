@@ -94,7 +94,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         string nom;
 
-        [RuleRequiredField]
+        // V1.1 : enum TypeUnite (value type) → pas besoin de [RuleRequiredField]
+        // (XAF0009 : un enum a TOUJOURS une valeur, défaut TypeUnite.BU ci-dessous).
+        // Si on veut quand même forcer un choix conscient à la création :
+        // utiliser un TypeUnite? nullable + [RuleRequiredField], puis gérer le null
+        // dans le code consommateur. Choix actuel : value type avec défaut BU.
         [XafDisplayName("Type d'unité")]
         public TypeUnite TypeUnite
         {
