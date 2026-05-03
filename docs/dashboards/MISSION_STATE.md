@@ -40,9 +40,9 @@
 | 7.SEC | Guard d'authentification (faille critique) + Bootstrap Icons CDN | ✅ done | _commit pending_ | 2026-05-03 |
 | 7.SEC RBAC | RBAC complet (Administrators / RH_Manager / RH / DAF) + helper partagé | ✅ done | `b7815bb` | 2026-05-03 |
 | 7.UX | Nettoyage 3 menus « Tableaux de bord » legacy en doublon | ✅ done | `ce1d7af` | 2026-05-03 |
-| Final | Livrables : README + install.sql | ✅ done | _commit pending_ | 2026-05-03 |
+| Final | Livrables : README + install.sql | ✅ done | `8680d001` | 2026-05-03 |
 
-## ⭐ MISSION TERMINÉE ⭐
+## ⭐ MISSION TERMINÉE — HEAD = `8680d001` ⭐
 
 Tous les livrables sont produits. Pour merger `feature/dashboards-rh` →
 `main` : valider 1-2 jours en environnement réel, puis :

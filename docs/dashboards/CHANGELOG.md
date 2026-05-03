@@ -75,7 +75,7 @@ Chaque entrée précise :
 | 7.SEC | Hot-fix nouvel onglet + lisibilité boutons + Bootstrap Icons | `6faecfc` | 2026-05-03 |
 | 7.SEC RBAC | RBAC complet 4 rôles + helper partagé | `b7815bb` | 2026-05-03 |
 | 7.UX | Nettoyage 3 menus legacy en doublon | `ce1d7af` | 2026-05-03 |
-| FINAL | Livrables README + install.sql | _commit pending_ | 2026-05-03 |
+| FINAL | Livrables README + install.sql | `8680d001` | 2026-05-03 |
 
 ### Statistiques
 
@@ -91,8 +91,11 @@ Chaque entrée précise :
 ### Mission TERMINÉE ✅
 
 Cette entrée clôt formellement la mission « Tableaux de Bord RH » sur la
-branche `feature/dashboards-rh`. Pour merger sur `main` : voir README §
-« Maintenance / contact ».
+branche `feature/dashboards-rh`.
+
+**HEAD final** : `8680d0011e8566cf01013c6da81a59e86ed08e59`
+
+Pour merger sur `main` : voir README § « Maintenance / contact ».
 
 ---
 
