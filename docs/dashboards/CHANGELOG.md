@@ -25,6 +25,145 @@ Chaque entrée précise :
 
 ---
 
+## [V1.1 — Sprint 1C.2 fix2] 2026-05-03 1545 — DOUBLE fix Tab 3 : filtre Site sur contrats + ratio direct
+
+**Constat utilisateur (2 bugs)** :
+1. Filtre Site = « Siège ELTON » MAIS bar charts montrent BANDIA, Boutique,
+   MERMOZ etc. → le filtre ne s'appliquait PAS aux contrats.
+2. Pourcentages toujours à 366,7 % et 133,3 % malgré le fix précédent
+   (le dénominateur retournait toujours 3 contrats moyens au siège).
+
+**Causes racines** :
+
+### Bug 1 — Filtre Site ignoré pour les contrats
+```csharp
+// Avant (FAUX)
+var contratsAnnee = os.GetObjectsQuery<ContratInterim>().ToList();
+// ❌ Pas de filtre par filter.SiteOid sur cette ligne !
+```
+Du coup `nouveauxContrats` et `contratsClotures` remontaient TOUS les
+contrats du système. Seule la liste `mouvements` était filtrée par site.
+
+### Bug 2 — Dénominateur "ETP contrats moyens" inadapté
+Au siège, les contrats sont courts (~1 mois) et se succèdent rapidement
+sur les 3 places. Le dénominateur "moyenne pondérée 13 dates" donne 3,
+pas 11. Mathématiquement exact mais inutilisable visuellement.
+
+**Correctifs unifiés** :
+
+```csharp
+// Après (BON)
+var contratsAnnee = os.GetObjectsQuery<ContratInterim>().ToList();
+if (filter.SiteOid.HasValue)
+{
+    contratsAnnee = contratsAnnee
+        .Where(c => c.Site?.Oid == filter.SiteOid.Value)
+        .ToList();   // ← FILTRE APPLIQUÉ
+}
+
+// Et le dénominateur devient simplement le nb de contrats touchés sur l'année
+int nbContratsAnnee   = CountContratsActifsDansAnnee(os, debut, fin, filter);
+decimal effectifMoyen = nbContratsAnnee;   // direct, pas de Max
+```
+
+### Sémantique finale (interprétable)
+
+- **% Renouvellement** = `nouveaux contrats / nb total contrats touchés année`
+  → naturellement plafonné à 100 % (un contrat est soit nouveau soit pas)
+  → 100 % = renouvellement complet (tous nouveaux), 0 % = aucun nouveau
+- **% Sortie contrats** = `contrats clos / nb total contrats touchés année`
+  → 0 % à 100 %
+
+### Effet attendu sur Siège ELTON 2026
+
+Avant : 11/3 = 366,7 % (Renouvellement) et 4/3 = 133,3 % (Sortie)
+Après : 11/11 = **100 %** (Renouvellement complet) et 4/11 = **36,4 %** (Sortie)
+
+Les bar charts ne montreront PLUS que les contrats du siège (DSI,
+Direction Commerciale, etc.) — pas BANDIA/Boutique/MERMOZ.
+
+### Fichiers modifiés (2)
+
+| Fichier | Nature |
+|---|---|
+| `MouvementsDashboardService.cs` | + filtre `c.Site?.Oid == filter.SiteOid.Value` sur contratsAnnee ; dénominateur = nbContratsAnnee direct |
+| `docs/dashboards/CHANGELOG.md` | cette entrée |
+
+---
+
+## [V1.1 — Sprint 1C.2 fix] 2026-05-03 1500 — Fix taux Arrivées/Départs aberrants Tab 3 Mouvements
+
+**Constat utilisateur** : sur Tab 3 EXTERNE 2026 filtré sur 🏢 Siège ELTON :
+- 11 arrivées, 4 départs, Effectif Fin = 2
+- **% Arrivées = 366,7 %** ❌ (impossible métier)
+- **% Départs = 133,3 %** ❌
+
+**Cause racine** : mismatch sémantique du dénominateur.
+- Numérateur : nb de **contrats** nouveaux/clos (11 ou 4)
+- Dénominateur : nb d'**intérimaires distincts** (3 personnes ont fait
+  les 11 contrats successifs)
+- → 11 / 3 = 366 % aberrant
+
+Au siège, peu d'intérimaires font beaucoup de contrats successifs (CDD
+courts, remplacements). C'était le cas d'usage qui faisait exploser la
+formule.
+
+**Correctif** : passer le dénominateur en **NB de CONTRATS moyens
+actifs pondéré** (au lieu de nb d'intérimaires distincts). Cohérent
+sémantiquement avec le numérateur.
+
+### Nouveau code dans MouvementsDashboardService.cs
+
+```csharp
+// Avant
+decimal etpPondere     = ComputeEffectifMoyenPondere(...);   // intérimaires
+int     nbInterimsAnnee = CountInterimsAyantContratDansAnnee(...);  // intérimaires
+decimal denominateur    = Math.Max(etpPondere, (decimal)nbInterimsAnnee);
+
+// Après
+decimal contratsMoyens     = ComputeContratsMoyensPondere(...);   // CONTRATS
+int     nbContratsAnnee    = CountContratsActifsDansAnnee(...);    // CONTRATS
+decimal denominateur       = Math.Max(contratsMoyens, (decimal)nbContratsAnnee);
+```
+
+### Nouveaux helpers
+
+| Méthode | Comptait avant | Compte maintenant |
+|---|---|---|
+| `ComputeContratsMoyensPondere(...)` | (n'existait pas) | NB CONTRATS actifs sur 13 dates clés |
+| `CountContratsActifsDansAnnee(...)` | (n'existait pas) | NB CONTRATS distincts sur l'année |
+
+`ComputeEffectifMoyenPondere` (intérimaires) **est conservée** pour les
+KPI Effectif Début/Fin qui restent en personnes physiques (cohérent).
+
+### Renommage des KPI dans le razor
+
+| Avant | Après | Tooltip |
+|---|---|---|
+| « % Arrivées » | « % Renouvellement » | Nouveaux contrats / Nb contrats moyens actifs |
+| « % Départs » | « % Sortie contrats » | Contrats clos / Nb contrats moyens actifs |
+
+Sous-titres également ajustés : « arrivées / contrats moy. » et
+« départs / contrats moy. ».
+
+### Effet attendu sur ton cas test (Siège 2026)
+
+Avant : 11/3 = 366,7 % et 4/3 = 133,3 %
+Après : 11/~6 = ~183 % et 4/~6 = ~67 % (selon contrats actifs moyens
+réels — ratio acceptable car turnover élevé au siège).
+
+Si tous les 11 contrats sont actifs en moyenne sur l'année, on aurait
+11/11 = 100 % (renouvellement total).
+
+### Fichier modifié
+
+| Fichier | Nature |
+|---|---|
+| `MouvementsDashboardService.cs` | + `ComputeContratsMoyensPondere` + `CountContratsActifsDansAnnee` ; ComputeForExterne utilise ces helpers |
+| `MouvementsDashboard.razor` | Labels/sous-titres KPI clarifiés (% Renouvellement / % Sortie contrats) |
+
+---
+
 ## [V1.1 — Sprint 1B.2] 2026-05-03 1230 — Hot-fix duplication grille Unités sur Site_DetailView
 
 **Constat utilisateur (screenshot)** : sur la fiche d'un site (BANDIA), la

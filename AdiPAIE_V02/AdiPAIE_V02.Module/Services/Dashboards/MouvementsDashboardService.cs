@@ -145,24 +145,26 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 .Where(m => m.DateMouvement >= debutAnnee && m.DateMouvement <= finAnnee)
                 .ToList();
 
-            // Filtre Site (StationService) — on filtre par StationDestination ET StationOrigine
+            // V1.1 Sprint 1C.2 — Filtre Site (V1.1) sur SiteOrigineV1 OU SiteDestinationV1
             if (filter.SiteOid.HasValue)
             {
                 mouvements = mouvements.Where(m =>
-                    m.StationDestination?.Oid == filter.SiteOid.Value ||
-                    m.StationOrigine?.Oid == filter.SiteOid.Value).ToList();
+                    m.SiteDestinationV1?.Oid == filter.SiteOid.Value ||
+                    m.SiteOrigineV1?.Oid == filter.SiteOid.Value).ToList();
             }
 
-            // Heuristique : on classe en arrivée vs départ via TypeMouvement.ToString()
-            //   - Si "Affect", "Arriv", "Embauche" → arrivée
-            //   - Si "Depart", "Sortie", "Fin"     → départ
-            //   - Sinon : on les met en départ par défaut (mouvement quelconque)
-            //
-            // Cas des CONTRATS : on ajoute aussi
-            //   - Arrivée  = ContratInterim.DateDebut dans l'année
-            //   - Départ   = ContratInterim.Statut Resilie/Termine + DateFinReelle dans l'année
-            var contratsAnnee = os.GetObjectsQuery<ContratInterim>()
-                .ToList();
+            // ── V1.1 Sprint 1C.2 fix2 : FILTRER LES CONTRATS PAR SITE ───────
+            //   Bug précédent : contratsAnnee n'était PAS filtré par filter.SiteOid
+            //   → les bar charts "par Site" / "par Poste" remontaient TOUS les
+            //   contrats (Boutique BANDIA, etc.) même si on filtrait sur Siège.
+            //   Maintenant on applique le filtre Site dès la lecture.
+            var contratsAnnee = os.GetObjectsQuery<ContratInterim>().ToList();
+            if (filter.SiteOid.HasValue)
+            {
+                contratsAnnee = contratsAnnee
+                    .Where(c => c.Site?.Oid == filter.SiteOid.Value)
+                    .ToList();
+            }
 
             var nouveauxContrats = contratsAnnee
                 .Where(c => c.DateDebut >= debutAnnee && c.DateDebut <= finAnnee)
@@ -179,21 +181,22 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             int effectifDebut = CountInterimsActifs(os, debutAnnee, filter);
             int effectifFin   = CountInterimsActifs(os, finAnnee, filter);
 
-            // ── Dénominateur des taux EXTERNE (logique anti-aberration) ──────
-            //   1) ETP pondéré : moyenne sur 13 dates (1er du mois + 31/12).
-            //      Donne le bon KPI quand la population est stable.
-            //   2) Nb distinct d'intérimaires ayant eu au moins un contrat
-            //      actif pendant l'année : « taille effective » de l'équipe
-            //      au sens « combien de personnes différentes sont passées ».
+            // ── Dénominateur des taux EXTERNE (V1.1 Sprint 1C.2 fix2) ───────
+            //   On utilise désormais le NB DE CONTRATS DISTINCTS TOUCHÉS DANS
+            //   L'ANNÉE (= nbContratsAnnee filtré par site). C'est le total
+            //   des contrats actifs à un moment quelconque de l'année.
             //
-            //   On prend le MAX des deux : pour une année de ramp-up où tous
-            //   les contrats démarrent en cours d'année (effectif au 01/01 = 0),
-            //   l'ETP pondéré est artificiellement bas et fait exploser le taux.
-            //   Le « nb distinct » sert alors de plancher cohérent (taux ≈ 100 %
-            //   = « renouvellement total de l'équipe »).
-            decimal etpPondere     = ComputeEffectifMoyenPondere(os, filter.Annee, filter);
-            int     nbInterimsAnnee = CountInterimsAyantContratDansAnnee(os, debutAnnee, finAnnee, filter);
-            decimal effectifMoyen   = Math.Max(etpPondere, (decimal)nbInterimsAnnee);
+            //   Avantages :
+            //   - Sémantiquement cohérent avec le numérateur (contrats)
+            //   - Naturellement plafonné à 100% (un contrat est soit nouveau,
+            //     soit pas — il ne peut pas être nouveau "plus de 100%")
+            //   - Lecture simple : "11 nouveaux sur 11 contrats actifs cette
+            //     année = 100% renouvellement complet de l'activité"
+            //
+            //   La méthode pondérée ETP est conservée pour le futur si besoin
+            //   (calcul d'ETP "moyen" en personnes-mois).
+            int nbContratsAnnee     = CountContratsActifsDansAnnee(os, debutAnnee, finAnnee, filter);
+            decimal effectifMoyen   = nbContratsAnnee;   // dénominateur direct, pas de Max
 
             var kpis = new KpiMouvementsDto
             {
@@ -210,11 +213,12 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             var arrivParMois  = ComputeParMois(nouveauxContrats, c => c.DateDebut);
             var departsParMois = ComputeParMois(contratsClotures, c => c.DateFinReelle ?? c.DateFin);
 
-            var arrivParSite      = ComputeBar(nouveauxContrats, c => c.Station?.Nom ?? "(Non renseigné)");
-            var arrivParCategorie = ComputeBar(nouveauxContrats, c => c.PosteOccupe?.Libelle ?? "(Non renseigné)");
+            // V1.1 Sprint 1C.2 — Site (V1.1) avec emoji typé + Unités (multi-affectation explose)
+            var arrivParSite      = ComputeBar(nouveauxContrats, c => SiteLibelle(c.Site));
+            var arrivParCategorie = ComputeBarUnites(nouveauxContrats);
 
-            var departsParSite      = ComputeBar(contratsClotures, c => c.Station?.Nom ?? "(Non renseigné)");
-            var departsParCategorie = ComputeBar(contratsClotures, c => c.PosteOccupe?.Libelle ?? "(Non renseigné)");
+            var departsParSite      = ComputeBar(contratsClotures, c => SiteLibelle(c.Site));
+            var departsParCategorie = ComputeBarUnites(contratsClotures);
 
             // Pour les motifs : on récupère MouvementInterimaire de type "Départ" et leur Motif
             //   (texte libre). À défaut on regroupe par Statut du contrat clôturé.
@@ -245,7 +249,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                         c.DateDebut > SortieSentinelle &&
                         c.DateDebut <= atDate &&
                         (c.DateFin < SortieSentinelle || c.DateFin > atDate) &&
-                        (!filter.SiteOid.HasValue || c.Station?.Oid == filter.SiteOid.Value));
+                        (!filter.SiteOid.HasValue || c.Site?.Oid == filter.SiteOid.Value));
                 }
                 catch { return false; }
             });
@@ -270,7 +274,58 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                         c.DateDebut > SortieSentinelle &&
                         c.DateDebut <= fin &&
                         (c.DateFin < SortieSentinelle || c.DateFin >= debut) &&
-                        (!filter.SiteOid.HasValue || c.Station?.Oid == filter.SiteOid.Value));
+                        (!filter.SiteOid.HasValue || c.Site?.Oid == filter.SiteOid.Value));
+                }
+                catch { return false; }
+            });
+        }
+
+        /// <summary>
+        /// <summary>
+        /// V1.1 Sprint 1C.2 — Nb de CONTRATS moyens actifs pondéré sur 13 dates
+        /// (1er de chaque mois + 31/12). Sert de dénominateur aux taux
+        /// d'arrivées/départs (cohérent avec le numérateur = nb contrats).
+        /// </summary>
+        private static decimal ComputeContratsMoyensPondere(IObjectSpace os, int annee, MouvementsFilterModel filter)
+        {
+            var dates = new List<DateTime>(13);
+            for (int m = 1; m <= 12; m++) dates.Add(new DateTime(annee, m, 1));
+            dates.Add(new DateTime(annee, 12, 31));
+
+            var allContrats = os.GetObjectsQuery<ContratInterim>().ToList();
+            int total = 0;
+            foreach (var d in dates)
+            {
+                total += allContrats.Count(c =>
+                {
+                    try
+                    {
+                        return c.DateDebut > SortieSentinelle &&
+                               c.DateDebut <= d &&
+                               (c.DateFin < SortieSentinelle || c.DateFin > d) &&
+                               (!filter.SiteOid.HasValue || c.Site?.Oid == filter.SiteOid.Value);
+                    }
+                    catch { return false; }
+                });
+            }
+            return (decimal)total / dates.Count;
+        }
+
+        /// <summary>
+        /// V1.1 Sprint 1C.2 — Nb de CONTRATS distincts actifs sur l'année
+        /// (intersection [debut, fin]). Sert de plancher au dénominateur des taux.
+        /// </summary>
+        private static int CountContratsActifsDansAnnee(IObjectSpace os, DateTime debut, DateTime fin, MouvementsFilterModel filter)
+        {
+            var allContrats = os.GetObjectsQuery<ContratInterim>().ToList();
+            return allContrats.Count(c =>
+            {
+                try
+                {
+                    return c.DateDebut > SortieSentinelle &&
+                           c.DateDebut <= fin &&
+                           (c.DateFin < SortieSentinelle || c.DateFin >= debut) &&
+                           (!filter.SiteOid.HasValue || c.Site?.Oid == filter.SiteOid.Value);
                 }
                 catch { return false; }
             });
@@ -280,6 +335,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         /// Effectif moyen EXTERNE pondéré sur 13 dates clés (1er de chaque mois +
         /// 31/12). Approxime l'« ETP intérimaires » sur l'année — beaucoup plus
         /// fiable que (debut+fin)/2 quand la population varie fortement.
+        /// CONSERVÉE pour les autres usages (effectifs en personnes physiques).
         /// </summary>
         private static decimal ComputeEffectifMoyenPondere(IObjectSpace os, int annee, MouvementsFilterModel filter)
         {
@@ -301,7 +357,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                             c.DateDebut > SortieSentinelle &&
                             c.DateDebut <= d &&
                             (c.DateFin < SortieSentinelle || c.DateFin > d) &&
-                            (!filter.SiteOid.HasValue || c.Station?.Oid == filter.SiteOid.Value));
+                            (!filter.SiteOid.HasValue || c.Site?.Oid == filter.SiteOid.Value));
                     }
                     catch { return false; }
                 });
@@ -351,6 +407,47 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                     Pourcentage = total > 0 ? Round1((decimal)g.Count() * 100m / total) : 0m
                 })
                 .ToList();
+        }
+
+        /// <summary>
+        /// V1.1 Sprint 1C.2 — Bar charts par Unité organisationnelle.
+        /// Multi-affectation : un contrat sur N unités est compté N fois.
+        /// </summary>
+        private static List<BarItemDto> ComputeBarUnites(IList<ContratInterim> contrats)
+        {
+            var rows = contrats
+                .SelectMany(c =>
+                {
+                    if (c.Unites == null || c.Unites.Count == 0)
+                        return new[] { "(Non renseignée)" };
+                    return c.Unites.Select(u => u.Nom);
+                })
+                .ToList();
+            int total = rows.Count;
+            return rows
+                .GroupBy(l => l)
+                .OrderByDescending(g => g.Count())
+                .Select(g => new BarItemDto
+                {
+                    Libelle     = g.Key,
+                    Valeur      = g.Count(),
+                    Pourcentage = total > 0 ? Round1((decimal)g.Count() * 100m / total) : 0m
+                })
+                .ToList();
+        }
+
+        /// <summary>Libellé site avec emoji typé (cf. RemunerationDashboardService).</summary>
+        private static string SiteLibelle(Site site)
+        {
+            if (site == null) return "(Non renseigné)";
+            string emoji = site.Type switch
+            {
+                TypeSite.StationService => "🏪",
+                TypeSite.Siege          => "🏢",
+                TypeSite.Depot          => "📦",
+                _                       => "🏭"
+            };
+            return $"{emoji} {site.Nom}";
         }
 
         private static string GetMotifDepartLibelle(MotifDepart? m) => m switch
