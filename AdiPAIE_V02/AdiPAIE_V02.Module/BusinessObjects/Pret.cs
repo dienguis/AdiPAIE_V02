@@ -24,11 +24,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     {
         public Pret(Session s) : base(s) { }
 
-        // ---------- Helpers ----------
-        private static decimal N(decimal? v) => v ?? 0m;
-
         // ---------- Identité ----------
         [Association("Salarie-Prets"), RuleRequiredField]
+        [XafDisplayName("Salarié")]
         public Salarie Salarie
         {
             get => salarie;
@@ -37,6 +35,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         private Salarie salarie;
 
         [Size(60)]
+        [XafDisplayName("Référence")]
         public string Reference
         {
             get => reference;
@@ -45,6 +44,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         private string reference;
 
         [Size(120)]
+        [XafDisplayName("Intitulé")]
         public string Intitule
         {
             get => intitule;
@@ -52,8 +52,26 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         private string intitule;
 
-        [PersistentAlias("Iif(IsNull(Intitule) Or Len(Intitule)=0, Concat('Prêt ', ToStr(Oid)), Intitule)")]
-        public string DisplayName => (string)EvaluateAlias(nameof(DisplayName));
+        // V1.1 — DisplayName humain : Intitulé OU "Salarié — Nature Montant FCFA (Réf)"
+        // Avant : utilisait l'Oid (Guid) en fallback ce qui affichait un identifiant moche
+        // dans les list views.
+        [NonPersistent]
+        [XafDisplayName("Affichage")]
+        public string DisplayName
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(Intitule))
+                    return Intitule;
+
+                var sal  = Salarie?.FullName ?? "(sans salarié)";
+                var nat  = Nature == PretNature.AvanceSalaire ? "Avance" : "Prêt";
+                var mtnt = MontantPrincipal.ToString("N0");
+                return string.IsNullOrWhiteSpace(Reference)
+                    ? $"{sal} — {nat} {mtnt} FCFA"
+                    : $"{sal} — {nat} {mtnt} FCFA ({Reference})";
+            }
+        }
 
         // ---------- Paramètres financiers ----------
         [DbType("decimal(18,0)"), ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
@@ -75,6 +93,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         private decimal? tauxAnnuel;
 
         [RuleRange(1, 480)]
+        [XafDisplayName("Durée (mois)")]
         public int DureeMois
         {
             get => duree;
@@ -82,6 +101,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         private int duree;
 
+        [XafDisplayName("Mode d'amortissement")]
         public PretAmortissement ModeAmortissement
         {
             get => mode;
@@ -89,6 +109,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         private PretAmortissement mode = PretAmortissement.PrincipalConstant;
 
+        [XafDisplayName("Date de début")]
         public DateTime DateDebut
         {
             get => d0;
@@ -97,6 +118,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         private DateTime d0 = DateTime.Today;
 
         // ---------- Suivi / Statut ----------
+        [XafDisplayName("Statut")]
         public PretStatut Statut
         {
             get => statut;
@@ -104,6 +126,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         private PretStatut statut = PretStatut.Brouillon;
 
+        [XafDisplayName("Nature")]
         public PretNature Nature
         {
             get => nature;
@@ -147,6 +170,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [Association("PretType-Prets")]
         [RuleRequiredField(CustomMessageTemplate = "Le type de prêt est obligatoire.")]
+        [XafDisplayName("Type de prêt")]
         public PretType TypePret
         {
             get => type; set => SetPropertyValue(nameof(TypePret), ref type, value);
@@ -155,6 +179,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // (facultatif) garde la possibilité d'override au niveau du prêt
         [RuleRequiredField(CustomMessageTemplate = "La rubrique de retenue est obligatoire.")]
+        [XafDisplayName("Rubrique de retenue")]
         public Rubrique RubriqueRetenue
         {
             get => rub; set => SetPropertyValue(nameof(RubriqueRetenue), ref rub, value);

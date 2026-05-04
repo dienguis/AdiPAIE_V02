@@ -343,6 +343,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         //   doivent PLUS être saisies. Utilisez Site (V1.1) + Unites à la place.
         //   Les dashboards V1.1 lisent uniquement Site/Unites.
 
+        [VisibleInListView(false)]
         [XafDisplayName("[Legacy] Direction Générale")]
         [ImmediatePostData]
         public bool EstDG
@@ -360,6 +361,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         bool estDG;
 
+        [VisibleInListView(false)]
         [Association("Station-Contrats")]
         [XafDisplayName("[Legacy] Station de service")]
         [DataSourceCriteria("Actif = true")]
@@ -377,6 +379,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         StationService station;
 
+        [VisibleInListView(false)]
         [Association("BU-Contrats")]
         [XafDisplayName("[Legacy] Business Unit")]
         [DataSourceCriteria("Actif = true AND Station.Oid = '@This.Station.Oid'")]
@@ -428,6 +431,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         PosteInterimaire posteOccupe;
 
+        [VisibleInListView(false)]
         [Size(300)]
         [RuleRequiredField]
         [XafDisplayName("Motif du recours")]
@@ -457,6 +461,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         DateTime dateFin;
 
+        [VisibleInListView(false)]
         [XafDisplayName("Date fin réelle")]
         public DateTime? DateFinReelle
         {
@@ -483,6 +488,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             TauxJournalier * Math.Max(0, (DateFin - DateDebut).Days);
 
         // ── Référence contrat société d'intérim ───────────────────────
+        [VisibleInListView(false)]
         [Size(50)]
         [XafDisplayName("Réf. contrat société intérim")]
         public string Reference
@@ -492,6 +498,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         string reference;
 
+        [VisibleInListView(false)]
         [FieldSize(FieldSizeAttribute.Unlimited)]
         [XafDisplayName("Observations")]
         public string Observations
@@ -502,6 +509,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         string observations;
 
         // ── Renouvellement ────────────────────────────────────────────
+        [VisibleInListView(false)]
         [XafDisplayName("Contrat précédent (renouvellement)")]
         [Association("ContratPrecedent-Renouvellements")]
         public ContratInterim ContratPrecedent
@@ -530,10 +538,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             }
         }
 
+        [VisibleInListView(false)]
         [NonPersistent]
         [XafDisplayName("Jours restants")]
         public int JoursRestants => Math.Max(0, (DateFin - DateTime.Today).Days);
 
+        [VisibleInListView(false)]
         [NonPersistent]
         [XafDisplayName("Durée (jours)")]
         public int DureeJours => Math.Max(0, (DateFin - DateDebut).Days);

@@ -96,6 +96,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         Salarie evaluateur;
 
 
+        [VisibleInListView(false)]
         [XafDisplayName("Valideur N+2")]
         [ModelDefault("AllowEdit", "False")]
         public Salarie ValideurN2
@@ -106,6 +107,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         Salarie valideurN2;
 
 
+        [VisibleInListView(false)]
         [XafDisplayName("Date validation N+1")]
         [ModelDefault("AllowEdit", "False")]
         public DateTime? DateValidationN1
@@ -115,6 +117,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         DateTime? dateValidationN1;
 
+        [VisibleInListView(false)]
         [XafDisplayName("Date validation N+2")]
         [ModelDefault("AllowEdit", "False")]
         public DateTime? DateValidationN2
@@ -124,6 +127,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         DateTime? dateValidationN2;
 
+        [VisibleInListView(false)]
         [Size(100)]
         [XafDisplayName("Rejeté par")]
         [ModelDefault("AllowEdit", "False")]
@@ -134,6 +138,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         string rejeteParNom;
 
+        [VisibleInListView(false)]
         [Size(500)]
         [XafDisplayName("Motif de rejet N+2")]
         [ModelDefault("AllowEdit", "False")]
@@ -166,6 +171,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         DateTime? dateRealisation;
 
+        [VisibleInListView(false)]
         [XafDisplayName("Durée (minutes)")]
         public int DureeMinutes
         {
@@ -186,6 +192,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         // ── Commentaires ──────────────────────────────────────────
         string commentaireSalarie;
+        [VisibleInListView(false)]
         [Size(4096)]
         [XafDisplayName("Auto-évaluation (commentaire salarié)")]
         [EditorAlias(EditorAliases.RichTextPropertyEditor)]
@@ -196,6 +203,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         string commentaireManager;
+        [VisibleInListView(false)]
         [Size(4096)]
         [XafDisplayName("Commentaire du manager")]
         [EditorAlias(EditorAliases.RichTextPropertyEditor)]
@@ -206,6 +214,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         string conclusionGenerale;
+        [VisibleInListView(false)]
         [Size(2048)]
         [XafDisplayName("Conclusion générale")]
         public string ConclusionGenerale
@@ -216,6 +225,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         // ── Mobilité / décisions RH ───────────────────────────────
         bool promotionProposee;
+        [VisibleInListView(false)]
         [XafDisplayName("Promotion proposée")]
         public bool PromotionProposee
         {
@@ -224,6 +234,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         bool augmentationProposee;
+        [VisibleInListView(false)]
         [XafDisplayName("Augmentation proposée")]
         public bool AugmentationProposee
         {
@@ -232,6 +243,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         bool formationIdentifiee;
+        [VisibleInListView(false)]
         [XafDisplayName("Formation identifiée")]
         public bool FormationIdentifiee
         {
@@ -240,6 +252,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         string notesDecisionRH;
+        [VisibleInListView(false)]
         [Size(1024)]
         [XafDisplayName("Notes décision RH (confidentiel)")]
         public string NotesDecisionRH
@@ -274,6 +287,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         public XPCollection<ObjectifAnnuel> Objectifs => GetCollection<ObjectifAnnuel>(nameof(Objectifs));
 
         // ── Traçabilité ───────────────────────────────────────────
+        [VisibleInListView(false)]
         [ModelDefault("AllowEdit", "False")]
         [System.ComponentModel.ReadOnly(true)]
         public DateTime DateCreation
@@ -283,6 +297,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         DateTime dateCreation;
 
+        [VisibleInListView(false)]
         [ModelDefault("AllowEdit", "False")]
         [System.ComponentModel.ReadOnly(true)]
         [Size(50)]
@@ -294,6 +309,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         string creePar;
 
         DateTime? dateCloture;
+        [VisibleInListView(false)]
         [ModelDefault("AllowEdit", "False")]
         [XafDisplayName("Date de clôture")]
         public DateTime? DateCloture
@@ -303,6 +319,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         string cloturePar;
+        [VisibleInListView(false)]
         [Size(50)]
         [ModelDefault("AllowEdit", "False")]
         [XafDisplayName("Clôturé par")]
@@ -439,6 +456,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Partie 0 : Identification ─────────────────────────────
 
         string niveauInstruction;
+        [VisibleInListView(false)]
         [Size(500)]
         [XafDisplayName("Niveau d'instruction / formations complémentaires")]
         public string NiveauInstruction
@@ -450,6 +468,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Partie SYNTHESE : Notes globales ──────────────────────
 
         NoteGlobale? noteGlobaleManager;
+        [VisibleInListView(false)]
         [XafDisplayName("Note globale manager (A+ à F)")]
         [ToolTip("Note attribuée par le manager sur l'ensemble de la période.")]
         public NoteGlobale? NoteGlobaleManager
@@ -459,6 +478,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         NoteGlobale? noteGlobaleService;
+        [VisibleInListView(false)]
         [XafDisplayName("Note globale service (A+ à F)")]
         [ToolTip("Note attribuée par le directeur de département sur les objectifs du service.")]
         public NoteGlobale? NoteGlobaleService
@@ -468,6 +488,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         string commentairesHierarchie;
+        [VisibleInListView(false)]
         [Size(4096)]
         [XafDisplayName("Commentaires de la hiérarchie")]
         [EditorAlias(DevExpress.ExpressApp.Editors.EditorAliases.RichTextPropertyEditor)]
@@ -478,6 +499,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         string commentairesCollaborateur;
+        [VisibleInListView(false)]
         [Size(4096)]
         [XafDisplayName("Commentaires du collaborateur")]
         [EditorAlias(DevExpress.ExpressApp.Editors.EditorAliases.RichTextPropertyEditor)]
@@ -490,6 +512,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Partie II : Projet professionnel ──────────────────────
 
         string evolutionSouhaitee;
+        [VisibleInListView(false)]
         [Size(2048)]
         [XafDisplayName("Évolution souhaitée par le collaborateur")]
         public string EvolutionSouhaitee
@@ -501,6 +524,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Partie III : Management ────────────────────────────────
 
         bool estEnSituationEncadrement;
+        [VisibleInListView(false)]
         [XafDisplayName("En situation d'encadrement")]
         [ImmediatePostData]
         [ToolTip("Cocher si ce salarié encadre d'autres collaborateurs. Active la Partie III.")]

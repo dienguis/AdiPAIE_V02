@@ -145,6 +145,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(Matricule), ref matricule, value);
         }
 
+        [VisibleInListView(false)]
         [XafDisplayName("Civilité")]
         public Civilite Civilite
         {
@@ -157,6 +158,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             }
         }
 
+        [VisibleInListView(false)]
         [Size(50)]
         public string Nationalite
         {
@@ -164,6 +166,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(Nationalite), ref nationalite, value);
         }
 
+        [VisibleInListView(false)]
         [Size(200)]
         [Category("Identité")]
         [XafDisplayName("Fils / Fille de")]
@@ -173,6 +176,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(FilsDe), ref filsDe, value?.Trim());
         }
 
+        [VisibleInListView(false)]
         [ImmediatePostData]
         public SituationMaritale SatutMarital
         {
@@ -180,6 +184,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(SatutMarital), ref satutMarital, value);
         }
 
+        [VisibleInListView(false)]
         [RuleRange(0, int.MaxValue)]
         [XafDisplayName("Nombre d'enfants")]
         public int NombreEnfant
@@ -194,6 +199,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(DateEmbauche), ref dateEmbauche, value);
         }
 
+        [VisibleInListView(false)]
         [ImmediatePostData]
         public DateTime DateSortie
         {
@@ -201,6 +207,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(DateSortie), ref dateSortie, value);
         }
 
+        [VisibleInListView(false)]
         [XafDisplayName("Motif de départ")]
         public MotifDepart? MotifDepart
         {
@@ -224,6 +231,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public void Desactive() => IsActif = false;
 
         // ── État civil complet ────────────────────────────────
+        [VisibleInListView(false)]
         [Size(100)]
         [XafDisplayName("Lieu de naissance")]
         public string LieuNaissance
@@ -232,6 +240,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(LieuNaissance), ref lieuNaissance, value?.Trim());
         }
 
+        [VisibleInListView(false)]
         [Size(60)]
         [XafDisplayName("Pays de naissance")]
         public string PaysNaissance
@@ -241,6 +250,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // ── Pièces d'identité ─────────────────────────────────
+        [VisibleInListView(false)]
         [Size(50)]
         public string NumeroCNI
         {
@@ -248,6 +258,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(NumeroCNI), ref numeroCNI, value?.Trim());
         }
 
+        [VisibleInListView(false)]
         [XafDisplayName("Date expiration CNI")]
         public DateTime? DateExpirationCNI
         {
@@ -255,6 +266,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(DateExpirationCNI), ref dateExpirationCNI, value);
         }
 
+        [VisibleInListView(false)]
         [Size(30)]
         [XafDisplayName("Numéro passeport")]
         public string NumeroPasseport
@@ -263,6 +275,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(NumeroPasseport), ref numeroPasseport, value?.Trim());
         }
 
+        [VisibleInListView(false)]
         [XafDisplayName("Date expiration passeport")]
         public DateTime? DateExpirationPasseport
         {
@@ -270,6 +283,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(DateExpirationPasseport), ref dateExpirationPasseport, value);
         }
 
+        [VisibleInListView(false)]
         [Size(50)]
         public string NumeroIPRESS
         {
@@ -277,6 +291,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(NumeroIPRESS), ref numeroIPRESS, value?.Trim());
         }
 
+        [VisibleInListView(false)]
         [Size(50)]
         public string CaisseSecurite
         {
@@ -285,6 +300,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // ── Contrat ───────────────────────────────────────────
+        [VisibleInListView(false)]
         [XafDisplayName("Date de confirmation")]
         [ToolTip("Fin de période d'essai")]
         public DateTime? DateConfirmation
@@ -294,6 +310,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // ── Contact d'urgence ─────────────────────────────────
+        [VisibleInListView(false)]
         [Size(100)]
         [XafDisplayName("Contact urgence (nom)")]
         public string ContactUrgenceNom
@@ -302,6 +319,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(ContactUrgenceNom), ref contactUrgenceNom, value?.Trim());
         }
 
+        [VisibleInListView(false)]
         [Size(20)]
         [XafDisplayName("Contact urgence (tél.)")]
         public string ContactUrgenceTel
@@ -310,6 +328,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(ContactUrgenceTel), ref contactUrgenceTel, value?.Trim());
         }
 
+        [VisibleInListView(false)]
         [Size(50)]
         [XafDisplayName("Contact urgence (lien)")]
         [ToolTip("Ex: Épouse, Père, Mère, Frère...")]
@@ -320,6 +339,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // ── Informations complémentaires ──────────────────────
+        [VisibleInListView(false)]
         [Size(5)]
         [XafDisplayName("Groupe sanguin")]
         [ToolTip("Ex: A+, O-, B+...")]
@@ -330,6 +350,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 value?.Trim()?.ToUpperInvariant());
         }
 
+        [VisibleInListView(false)]
         [Size(30)]
         [XafDisplayName("Permis de conduire")]
         [ToolTip("Ex: B, D, BCDE...")]
@@ -344,6 +365,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [NonPersistent]
         public int Anciennete => AncienneteHelper.NombreAnnee(DateEmbauche, DateTime.Today);
 
+        [VisibleInListView(false)]
         [Appearance("Salaire_ReadOnly_When_EchelonSet",
             Criteria = "Not IsNull(Echelon)", Enabled = false, TargetItems = nameof(SalaireBase))]
         [Appearance("Indem_ReadOnly_When_EchelonSet",
@@ -355,6 +377,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(SalaireBase), ref salaireBase, value);
         }
 
+        [VisibleInListView(false)]
         [DbType("decimal(18,0)")]
         public decimal IndemniteLogement
         {
@@ -362,12 +385,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(IndemniteLogement), ref indemniteLogement, value);
         }
 
+        [VisibleInListView(false)]
         public int Base30Jour
         {
             get => base30Jour;
             set => SetPropertyValue(nameof(Base30Jour), ref base30Jour, value);
         }
 
+        [VisibleInListView(false)]
         [Category("Rémunération"), XafDisplayName("Sursalaire")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
@@ -378,6 +403,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal sursalaire;
 
+        [VisibleInListView(false)]
         [Category("Rémunération"), XafDisplayName("Prime de transport")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
@@ -388,6 +414,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal primeTransport;
 
+        [VisibleInListView(false)]
         [Category("Rémunération"), XafDisplayName("Avantage en nature - Véhicule")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
@@ -398,6 +425,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal avantageVehicule;
 
+        [VisibleInListView(false)]
         [ModelDefault("Caption", "Possède un véhicule")]
         [ModelDefault("ImmediatePostData", "True")]
         public bool PossedeVehicule
@@ -413,6 +441,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // ── Notes ─────────────────────────────────────────────
         private string notes;
+        [VisibleInListView(false)]
         [Size(4096)]
         public string Notes
         {
@@ -421,6 +450,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // ── Audit ─────────────────────────────────────────────
+        [VisibleInListView(false)]
         [ModelDefault("AllowEdit", "False")]
         [System.ComponentModel.ReadOnly(true)]
         public DateTime DateCreation
@@ -429,6 +459,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(DateCreation), ref dateCreation, value);
         }
 
+        [VisibleInListView(false)]
         [ModelDefault("AllowEdit", "False")]
         [System.ComponentModel.ReadOnly(true)]
         [Size(50)]
@@ -473,6 +504,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(Categories), ref categories, value);
         }
 
+        [VisibleInListView(false)]
         [ModelDefault("AllowEdit", "False")]
         [System.ComponentModel.ReadOnly(true)]
         [Appearance("Convention_AlwaysReadOnly", Criteria = "True",
@@ -518,6 +550,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         private Site site;
 
         // ── Manager hiérarchique (N+1) ────────────────────────
+        [VisibleInListView(false)]
         [XafDisplayName("Responsable hiérarchique (N+1)")]
         [DataSourceCriteria("IsActif = true")]
         public Salarie Manager
@@ -528,8 +561,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         Salarie manager;
 
         // ── Sécurité bulletins ────────────────────────────────
+        [VisibleInListView(false)]
         [Size(2048)]
         public string PayslipKeyEnc { get; set; }
+        [VisibleInListView(false)]
         public DateTime? PayslipKeyAssignedOn { get; set; }
 
         // ── Collections ───────────────────────────────────────

@@ -308,3 +308,262 @@ sont commitées et poussées. Sprint 1F (cleanup dead code) reporté._
 - **Ne PAS coller des paths au format markdown** (`[CHANGELOG.md](http://CHANGELOG.md)`) → l'autolink du terminal Claude transforme `.md` en lien et le user copie-colle ça par erreur.
   → **Toujours fournir les commandes git en bloc <code> brut, en lignes individuelles, sans markdown.**
 - Préférer **plusieurs `git add` séparés** ou **`git add docs/dashboards/`** par dossier plutôt qu'une longue commande multi-ligne.
+
+---
+
+## 🚀 V1.2 — Roadmap Pilotage Stratégique DAF + DRH (cadrage 2026-05-04)
+
+> **Origine** : revue stratégique post-CODIR. Les 6 dashboards V1.0 couvrent
+> le bilan social classique. Pour transformer AdiPAIE en outil de pilotage,
+> il manque les rapports financiers (DAF) et stratégiques RH (DRH).
+>
+> **Cible** : V1.2 = 4 rapports prioritaires (quick wins). V1.3 = 4 rapports
+> avancés (R&D nécessaire). Les autres = V2.0 / backlog.
+
+### 9.1 Module **Budget RH** (prérequis V1.2)
+
+**Pourquoi** : sans budget saisi, pas de Budget vs Réalisé. Module socle.
+
+**Entité nouvelle** : `BudgetMasseSalariale`
+```
+Année (int)              -- 2026
+Mois (int 1-12)          -- 1..12
+Site (FK Site, nullable) -- NULL = budget global non ventilé
+Rubrique (enum)          -- SalairesBase / Primes / TreiziemeMois /
+                            Gratifications / Indemnites / ChargesPatronales /
+                            AvantagesNature / Formation / Recrutement
+Montant (decimal)        -- en FCFA
+Source (enum)            -- SaisieManuelle / ImportExcel / RecopieN1 /
+                            AutoMensualise
+Commentaire (string?)
+```
+
+**Écran XAF** : *Paramétrage > Budget RH*
+- Bouton "Saisir budget annuel" (formulaire 8 rubriques × 1 montant annuel,
+  avec règle de mensualisation par rubrique)
+- Bouton "Importer Excel" (template à télécharger : rubrique × mois × site)
+- Bouton "Recopier N-1 + inflation %" (gain de temps année 2+)
+- Vue tableau croisé mois × rubrique × site (relecture)
+
+**Règles de mensualisation** (auto par défaut, surchargeable) :
+- SalairesBase, Indemnites, AvantagesNature → /12 linéaire
+- TreiziemeMois → 100 % en décembre
+- Gratifications → 50 % juin + 50 % décembre (paramétrable)
+- ChargesPatronales → calculé à partir du brut budgété × taux moyen patronal
+- Formation, Recrutement → libre, à saisir au mois
+
+**RBAC** : seul DAF + RH_Manager peuvent saisir/importer. RH lecture seule.
+
+**Effort estimé** : 3-4 jours dev + 1 jour test.
+
+---
+
+### 9.2 Dashboard **Budget vs Réalisé Masse Salariale** ⭐ V1.2 — Priorité #1
+
+**Pour qui** : DAF (principal), DG, Contrôle de gestion.
+**Quand** : revue mensuelle de gestion.
+
+**KPIs principaux** :
+- Budget mois M (FCFA) | Réalisé mois M (FCFA) | Écart valeur | Écart %
+- Budget cumulé YTD | Réalisé cumulé YTD | Écart cumulé
+- Projection annuelle (réalisé YTD + budget restant) vs Budget annuel
+- Top 3 rubriques en dépassement | Top 3 rubriques en sous-consommation
+- Ventilation par site (carte de chaleur si écart > seuil)
+
+**Visualisations** :
+- Barres groupées Budget/Réalisé par mois (12 mois)
+- Tableau écart par rubrique × mois (rouge si > +5 %, vert si < -5 %)
+- Graphique cumul YTD (courbe budget vs courbe réalisé)
+- Donut écart par site
+
+**Données sources** :
+- Réalisé : `Bulletin.BrutFiscal` + `BulletinLigne.MontantEmployeur` (groupé année/mois/site)
+- Budget : nouvelle entité `BudgetMasseSalariale`
+
+**Filtres** : Année, Site, Unité organisationnelle, Rubrique.
+**Exports** : Excel (template DAF avec mise en forme conditionnelle), PDF (synthèse 1 page).
+**RBAC** : DAF + DG uniquement (info sensible).
+
+**Effort estimé** : 5 jours dev (backend + frontend + tests).
+
+---
+
+### 9.3 Dashboard **Provisions Sociales (IDR + Congés Payés)** ⭐ V1.2 — Priorité #2
+
+**Pour qui** : DAF (clôture comptable), Commissaire aux comptes, Audit.
+**Quand** : trimestriel obligatoire (clôtures), mensuel idéal.
+
+**Pourquoi critique** : obligation **SYSCOHADA** + **IFRS** (IAS 19 si filiale
+groupe coté). Aujourd'hui calculé manuellement en fin d'année → mauvaise
+surprise du CAC garantie.
+
+**KPIs** :
+- Provision IDR totale au [date] (FCFA)
+- Détail par salarié (ancienneté × salaire × barème conventionnel SN)
+- Évolution provision IDR mois par mois (12 mois glissants)
+- Provision congés payés acquis non pris (FCFA)
+- Provision gratifications proratisées (FCFA)
+- Top 10 salariés à plus forte provision IDR
+
+**Calcul IDR Sénégal** (Convention Collective Interprofessionnelle) :
+```
+< 5 ans   : 25 % du salaire mensuel × ancienneté en années
+5-10 ans  : 30 % du salaire mensuel × ancienneté en années
+> 10 ans  : 40 % du salaire mensuel × ancienneté en années
+(plafonné selon CCI applicable)
+```
+
+**Calcul Congés Payés** :
+```
+Solde acquis non pris × (Salaire mensuel / 22 jours)
+```
+
+**Données sources** :
+- `Salarie.DateEmbauche` (ancienneté)
+- `Bulletin.BrutFiscal` (salaire de référence, moyenne 12 derniers mois)
+- `SoldeConge` (solde acquis - solde pris)
+- Paramètre Société : barème IDR par tranche d'ancienneté (paramétrable)
+
+**Exports** : Excel détaillé par salarié (pour CAC), PDF synthèse.
+**RBAC** : DAF + RH_Manager.
+
+**Effort estimé** : 4 jours dev (calcul barème CCI complexe).
+
+---
+
+### 9.4 Dashboard **Coût Complet par Salarié (Fully Loaded Cost)** ⭐ V1.2 — Priorité #3
+
+**Pour qui** : DAF, DRH, Managers (business case embauche).
+
+**Pourquoi** : aujourd'hui personne ne sait ce que coûte vraiment un salarié.
+Un Brut de 500 000 FCFA = ~720 000 FCFA en coût complet (charges + avantages).
+
+**KPIs par salarié** :
+- Salaire brut moyen mensuel
+- Charges patronales (IPRES + CSS + IPM + FPS + autres)
+- Avantages en nature évalués (logement, véhicule, téléphone, carburant)
+- Formation N (montant)
+- Total **Coût Employeur Annuel**
+- Ratio Coût Total / Salaire Net (le multiplicateur magique)
+
+**KPIs agrégés** :
+- Coût moyen ETP par catégorie pro (Cadre / Maîtrise / Employé / Ouvrier)
+- Coût moyen par site / unité
+- Top 10 coûts les plus élevés (avec contexte poste/ancienneté)
+
+**Visualisations** :
+- Donut décomposition coût (Salaire net | Cotisations salariales | Charges patronales | Avantages | Formation)
+- Boxplot coût par catégorie pro
+- Tableau Top 10 + Bottom 10
+
+**Données sources** :
+- `Bulletin.BrutFiscal`, `Bulletin.NetAPayer`
+- `BulletinLigne.MontantEmployeur` (toutes les charges)
+- `BulletinLigne` famille AV_NATURE_* (avantages nature)
+- `Formation.CoutTotal` (à créer ou récupérer si existe)
+
+**Filtres** : Année, Site, Unité, Catégorie pro, Sexe.
+**Exports** : Excel (1 ligne / salarié pour analyses RH).
+**RBAC** : DAF + RH_Manager + DG.
+
+**Effort estimé** : 4 jours dev.
+
+---
+
+### 9.5 Dashboard **Conformité Sénégal** ⭐ V1.2 — Priorité #4
+
+**Pour qui** : DRH, DAF, Audit interne, Inspection du Travail.
+
+**Pourquoi** : un seul écran qui dit "êtes-vous audit-ready ?".
+
+**Indicateurs OK/KO (feux tricolores)** :
+- ✅/❌ Tous les salariés au-dessus du SMIG (60 000 FCFA actuel)
+- ✅/❌ Toutes les déclarations IPRES du trimestre faites
+- ✅/❌ Toutes les déclarations CSS du trimestre faites
+- ✅/❌ Toutes les déclarations IPM/Mutuelle santé faites
+- ⚠️ Salariés avec > 30 jours de congés acquis (risque légal)
+- ⚠️ CDD au-delà de 2 ans (requalification CDI possible)
+- ⚠️ Heures supplémentaires > seuil mensuel légal (15h/sem)
+- ⚠️ Salariés sans contrat scanné dans le SI
+- ⚠️ Stagiaires au-delà de 6 mois (transformation obligatoire)
+
+**Visualisations** : tableau de bord type "checklist" avec compteurs et liens
+vers la liste détaillée des cas non conformes.
+
+**Données sources** : transverse (Salarie, Bulletin, ContratSalarie, SoldeConge,
+MouvementHeuresSup, ParametresPaie pour les seuils).
+
+**RBAC** : DAF + RH_Manager + DRH.
+
+**Effort estimé** : 3 jours dev (peu de calcul, beaucoup de jointures).
+
+---
+
+### 9.6 Roadmap V1.3 (R&D nécessaire)
+
+| # | Rapport | Pourquoi V1.3 (pas V1.2) | Effort |
+|---|---|---|---|
+| 9.7 | **GPEC / Skill Matrix** | Nécessite refonte modèle Compétences (entité absente aujourd'hui) | 7 j |
+| 9.8 | **Plan de relève (Succession Planning)** | Nouveau workflow : identifier postes critiques + 2 successeurs avec readiness | 5 j |
+| 9.9 | **Pay Equity Gap H/F** | Méthodologie à définir avec RH (poste équivalent ?), sensible juridiquement | 4 j |
+| 9.10 | **Suivi entretiens annuels** | EntretienAnnuel existe mais workflow incomplet (objectifs N+1, plan d'action) | 4 j |
+
+### 9.7 Backlog V2.0 (long terme)
+
+- **Performance par station-service** (effectif/CA, masse salariale/CA) → nécessite intégration avec ERP commercial Fafadie
+- **HSE / AT-MP** → nécessite module Sécurité (entités absentes)
+- **Coût caché Turnover & Absentéisme** → calculs OK mais valeur ajoutée moindre que les 4 prioritaires
+- **Climat social / NPS interne** → nécessite module Enquêtes/Sondages (R&D)
+
+### 9.8 Synthèse priorisation V1.2
+
+| # | Dashboard | DAF | DRH | Effort | ROI |
+|---|---|:-:|:-:|:-:|:-:|
+| 9.1 | Module Budget RH (socle) | ⭐⭐⭐ | ⭐ | 4 j | Prérequis 9.2 |
+| 9.2 | Budget vs Réalisé MS | ⭐⭐⭐ | ⭐⭐ | 5 j | 🔥 Très fort |
+| 9.3 | Provisions IDR + CP | ⭐⭐⭐ | ⭐ | 4 j | 🔥 Obligation comptable |
+| 9.4 | Coût Complet Salarié | ⭐⭐⭐ | ⭐⭐⭐ | 4 j | 🔥 Argument différenciant |
+| 9.5 | Conformité Sénégal | ⭐⭐ | ⭐⭐⭐ | 3 j | Audit-ready |
+
+**Total V1.2** : ~20 jours dev (≈ 4-5 semaines avec validations métier).
+
+**Workflow recommandé** :
+1. **Semaine 1** : présenter cette roadmap au CODIR (DAF + DRH) → arbitrage ordre/scope
+2. **Semaine 2-3** : Module Budget RH (socle) + Conformité Sénégal (parallèle, équipes différentes possibles)
+3. **Semaine 4** : Budget vs Réalisé (dépend du module Budget)
+4. **Semaine 5** : Provisions Sociales + Coût Complet
+5. **Semaine 6** : tests UAT + ajustements + livraison V1.2
+
+### 9.9 Pré-requis métier à valider AVANT dev
+
+À soumettre au DAF :
+- [ ] Liste des rubriques budget (alignée sur le PCS comptable ?)
+- [ ] Règles de mensualisation par rubrique (saisonnalité primes/gratifications)
+- [ ] Barème IDR applicable à ELTON (CCI standard ou avenant spécifique ?)
+- [ ] Seuils d'alerte budget vs réalisé (5 % ? 10 % ?)
+- [ ] Méthodo valorisation avantages nature (forfait fiscal ou réel ?)
+
+À soumettre au DRH :
+- [ ] Définition "poste équivalent" pour Pay Equity (V1.3)
+- [ ] Liste des postes critiques pour Plan de relève (V1.3)
+- [ ] Référentiel compétences pour GPEC (V1.3)
+- [ ] Seuil heures sup mensuel selon convention collective applicable
+
+---
+
+## ⭐ NOTES POST-V1.1 (mai 2026)
+
+- **Pyramide des âges H/F** : ajoutée au dashboard Effectif détaillé
+  (style PPT slide 15, barres divergentes, tranches 55+ → <25). Code agrégé
+  côté Razor à partir de `BarStackHommesFemmes` existant — pas de modif service.
+- **Rapport CEO masqué** (V1.1) : l'action XAF `GenererRapportCEO`, les 4
+  paramètres ParametresPaie (EmailCEO, SeuilTurnoverPct, SeuilAbsenteismePct,
+  SeuilMasseSalariale) et le LayoutGroup `Tab_RapportCEO` sont désactivés via
+  `[Browsable(false)]` + `IsVisible="False"` + `Active.SetItemValue(...)`. Code
+  conservé pour éviter régression. Suppression définitive à prévoir dans un
+  Sprint cleanup ultérieur (probablement post-V1.2).
+- **DPAPI password** : depuis 2026-05-03, `dbconfig.json` est dans
+  `C:\ProgramData\AdiPAIE_V02\` et le password SQL est chiffré DPAPI scope
+  LocalMachine. **Ne JAMAIS faire `dotnet clean`** sans avoir vérifié que
+  ProgramData contient bien le fichier (sinon perte connection string).
+

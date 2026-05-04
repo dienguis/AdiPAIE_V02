@@ -359,6 +359,80 @@ else
             </section>
         </div>
 
+        @* ── Pyramide des âges H/F (style PPT slide 15) ─────────────── *@
+        <section class="ed-section ed-section--pyramide">
+            <h3 class="ed-section__title">Pyramide des âges Hommes / Femmes</h3>
+            @{
+                // Agrégation des points BarStackHommesFemmes par tranche d'âge
+                var pyramide = _data.BarStackHommesFemmes
+                    .GroupBy(p => p.Tranche)
+                    .Select(g => new
+                    {
+                        Tranche = g.Key,
+                        Hommes  = g.Sum(x => x.Hommes),
+                        Femmes  = g.Sum(x => x.Femmes)
+                    })
+                    .OrderByDescending(p => p.Tranche)   // 55+ en haut, <25 en bas
+                    .ToList();
+
+                int maxVal = 1;
+                int totalH = 0;
+                int totalF = 0;
+                if (pyramide.Count > 0)
+                {
+                    maxVal = Math.Max(1, Math.Max(
+                        pyramide.Max(p => p.Hommes),
+                        pyramide.Max(p => p.Femmes)));
+                    totalH = pyramide.Sum(p => p.Hommes);
+                    totalF = pyramide.Sum(p => p.Femmes);
+                }
+            }
+            @if (pyramide.Count == 0 || (totalH == 0 && totalF == 0))
+            {
+                <div class="ed-empty">Pas de données.</div>
+            }
+            else
+            {
+                <div class="ed-pyramide">
+                    <div class="ed-pyramide__legend">
+                        <span class="legend-item"><span class="dot dot-pyr-h"></span>Hommes (@totalH)</span>
+                        <span class="legend-item"><span class="dot dot-pyr-f"></span>Femmes (@totalF)</span>
+                        <span class="ed-pyramide__hint">Lecture : longueur de barre = effectif. Mêmes échelles à gauche et à droite.</span>
+                    </div>
+
+                    @foreach (var p in pyramide)
+                    {
+                        var pctH = (decimal)p.Hommes * 100m / maxVal;
+                        var pctF = (decimal)p.Femmes * 100m / maxVal;
+
+                        <div class="ed-pyramide__row">
+                            <div class="ed-pyramide__side ed-pyramide__side--left">
+                                @if (p.Hommes > 0)
+                                {
+                                    <div class="ed-pyramide__bar ed-pyramide__bar--hommes"
+                                         style="@($"width:{pctH.ToString("0.00", InvCulture)}%")"
+                                         title="@($"Hommes {AgeBucketHelper.GetLibelle(p.Tranche)} : {p.Hommes}")">
+                                        <span>@p.Hommes</span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="ed-pyramide__label">@AgeBucketHelper.GetLibelle(p.Tranche)</div>
+                            <div class="ed-pyramide__side ed-pyramide__side--right">
+                                @if (p.Femmes > 0)
+                                {
+                                    <div class="ed-pyramide__bar ed-pyramide__bar--femmes"
+                                         style="@($"width:{pctF.ToString("0.00", InvCulture)}%")"
+                                         title="@($"Femmes {AgeBucketHelper.GetLibelle(p.Tranche)} : {p.Femmes}")">
+                                        <span>@p.Femmes</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+
         @* ── Footer ─────────────────────────────────────────────────── *@
         <footer class="ed-footer">
             <span><i class="bi bi-clock-history"></i> Données calculées le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
@@ -734,6 +808,106 @@ else
     }
 
     .ed-empty { color: var(--ed-text-muted); padding: 1rem; text-align: center; font-style: italic; }
+
+    /* ────────────────────────────── PYRAMIDE DES ÂGES ──────────────── */
+    .ed-section--pyramide {
+        background: var(--ed-card);
+        border: 1px solid var(--ed-border);
+        border-radius: 8px;
+        padding: 1rem 1.25rem 1.1rem;
+        margin-top: 1rem;
+        box-shadow: 0 1px 2px rgba(20, 46, 77, 0.04);
+    }
+
+    .ed-pyramide {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        margin-top: 0.6rem;
+    }
+
+    .ed-pyramide__legend {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.25rem;
+        margin-bottom: 0.6rem;
+        padding-bottom: 0.55rem;
+        border-bottom: 1px dashed var(--ed-border);
+        font-size: 0.78rem;
+        color: var(--ed-text-soft);
+    }
+    .ed-pyramide__legend .legend-item { display: inline-flex; align-items: center; font-weight: 600; }
+    .ed-pyramide__legend .dot {
+        display: inline-block; width: 11px; height: 11px;
+        border-radius: 2px; margin-right: 0.4rem; vertical-align: middle;
+    }
+    .ed-pyramide__legend .dot-pyr-h { background: #4DA3FF; }
+    .ed-pyramide__legend .dot-pyr-f { background: #FF6FB5; }
+    .ed-pyramide__hint {
+        margin-left: auto;
+        font-size: 0.72rem;
+        font-style: italic;
+        color: var(--ed-text-muted);
+    }
+
+    .ed-pyramide__row {
+        display: grid;
+        grid-template-columns: 1fr 90px 1fr;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 26px;
+    }
+
+    .ed-pyramide__side {
+        display: flex;
+        align-items: center;
+        height: 22px;
+        background: var(--ed-gray-track);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .ed-pyramide__side--left  { justify-content: flex-end; }
+    .ed-pyramide__side--right { justify-content: flex-start; }
+
+    .ed-pyramide__bar {
+        height: 22px;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0 0.5rem;
+        transition: width 0.35s ease;
+        font-variant-numeric: tabular-nums;
+    }
+    .ed-pyramide__bar--hommes {
+        background: linear-gradient(90deg, #2E86E0 0%, #4DA3FF 100%);
+        justify-content: flex-end;          /* valeur collée au centre */
+        border-radius: 3px 0 0 3px;
+    }
+    .ed-pyramide__bar--femmes {
+        background: linear-gradient(90deg, #FF6FB5 0%, #E64A98 100%);
+        justify-content: flex-start;        /* valeur collée au centre */
+        border-radius: 0 3px 3px 0;
+    }
+
+    .ed-pyramide__label {
+        text-align: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--ed-text);
+        background: var(--ed-bg-light);
+        padding: 0.22rem 0.5rem;
+        border-radius: 4px;
+        border: 1px solid var(--ed-border);
+        white-space: nowrap;
+    }
+
+    @@media (max-width: 720px) {
+        .ed-pyramide__row { grid-template-columns: 1fr 70px 1fr; }
+        .ed-pyramide__label { font-size: 0.75rem; padding: 0.18rem 0.35rem; }
+    }
 
     /* ────────────────────────────── FOOTER ─────────────────────────── */
     .ed-footer {
