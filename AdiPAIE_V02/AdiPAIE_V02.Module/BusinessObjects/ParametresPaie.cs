@@ -955,11 +955,20 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         string geoNamesUsername;
 
         // ── RAPPORT CEO ──────────────────────────────────────────
+        // ⚠️ V1.1 (mai 2026) — DÉPRÉCIÉ
+        // Ces 4 paramètres alimentaient le Rapport CEO mensuel automatique,
+        // remplacé par les 6 dashboards RH analytiques (route /dashboards).
+        // Les colonnes restent en BDD pour ne pas casser les données existantes,
+        // mais elles sont MASQUÉES de l'UI XAF (Browsable=false + VisibleIn*=false).
+        // Réactivation possible en supprimant les 3 attributs ci-dessous.
 
-        [Category("GRH - Rapport CEO")]
-        [XafDisplayName("Email CEO")]
+        [Browsable(false)]
+        [VisibleInDetailView(false)]
+        [VisibleInListView(false)]
+        [Category("GRH - Rapport CEO [Deprecated]")]
+        [XafDisplayName("[Deprecated] Email CEO")]
         [Size(300)]
-        [ToolTip("Adresse email du CEO / Directeur Général pour l'envoi du rapport exécutif.")]
+        [ToolTip("DÉPRÉCIÉ : remplacé par les dashboards RH (/dashboards). Conservé pour rétro-compat.")]
         public string EmailCEO
         {
             get => emailCEO;
@@ -967,9 +976,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         string emailCEO;
 
-        [Category("GRH - Rapport CEO")]
-        [XafDisplayName("Seuil turnover (%)")]
-        [ToolTip("Seuil d'alerte du taux de turnover mensuel (défaut : 15%).")]
+        [Browsable(false)]
+        [VisibleInDetailView(false)]
+        [VisibleInListView(false)]
+        [Category("GRH - Rapport CEO [Deprecated]")]
+        [XafDisplayName("[Deprecated] Seuil turnover (%)")]
+        [ToolTip("DÉPRÉCIÉ : seuil utilisé par le Rapport CEO supprimé.")]
         public decimal? SeuilTurnoverPct
         {
             get => seuilTurnoverPct;
@@ -977,9 +989,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal? seuilTurnoverPct;
 
-        [Category("GRH - Rapport CEO")]
-        [XafDisplayName("Seuil absentéisme (%)")]
-        [ToolTip("Seuil d'alerte du taux d'absentéisme (défaut : 5%).")]
+        [Browsable(false)]
+        [VisibleInDetailView(false)]
+        [VisibleInListView(false)]
+        [Category("GRH - Rapport CEO [Deprecated]")]
+        [XafDisplayName("[Deprecated] Seuil absentéisme (%)")]
+        [ToolTip("DÉPRÉCIÉ : seuil utilisé par le Rapport CEO supprimé.")]
         public decimal? SeuilAbsenteismePct
         {
             get => seuilAbsenteismePct;
@@ -987,9 +1002,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         decimal? seuilAbsenteismePct;
 
-        [Category("GRH - Rapport CEO")]
-        [XafDisplayName("Seuil masse salariale (FCFA)")]
-        [ToolTip("Seuil budgétaire de la masse salariale brute mensuelle. Alerte si dépassé.")]
+        [Browsable(false)]
+        [VisibleInDetailView(false)]
+        [VisibleInListView(false)]
+        [Category("GRH - Rapport CEO [Deprecated]")]
+        [XafDisplayName("[Deprecated] Seuil masse salariale (FCFA)")]
+        [ToolTip("DÉPRÉCIÉ : seuil utilisé par le Rapport CEO supprimé.")]
         public decimal? SeuilMasseSalariale
         {
             get => seuilMasseSalariale;

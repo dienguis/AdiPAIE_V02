@@ -15,14 +15,19 @@ namespace AdiPAIE_V02.Module.Controllers
     /// <summary>
     /// WindowController global avec PopupWindowShowAction pour le Rapport CEO.
     ///
-    /// Le bouton est MASQUÉ sur toutes les ListViews pour ne pas surcharger
-    /// les barres d'actions des écrans d'édition. Il reste accessible :
-    ///   - Sur les DetailViews (ex: ParametresPaie, fiches RH)
-    ///   - Via la navigation (ex: GRH → Tableaux de bord) si configuré
+    /// ⚠️ V1.1 (mai 2026) — DÉPRÉCIÉ
+    /// Cette fonctionnalité est REMPLACÉE par les 6 dashboards RH analytiques
+    /// (cf. Module Tableaux de Bord RH, route /dashboards). L'action est
+    /// masquée partout (Active = false via clé "Deprecated_ReplacedByDashboards")
+    /// mais le code est CONSERVÉ pour éviter toute régression et permettre
+    /// une éventuelle réactivation future.
+    /// Suppression définitive prévue dans un Sprint cleanup ultérieur.
     /// </summary>
     public class RapportCEOController : WindowController
     {
         private const string HideKey = "RapportCEO_HiddenOnListViews";
+        // V1.1 — clé pour signaler la dépréciation et masquer partout
+        private const string DeprecatedKey = "Deprecated_ReplacedByDashboards";
 
         private PopupWindowShowAction _rapportAction;
 
@@ -43,16 +48,22 @@ namespace AdiPAIE_V02.Module.Controllers
         protected override void OnActivated()
         {
             base.OnActivated();
-            if (Frame != null)
-            {
-                Frame.ViewChanged += OnFrameViewChanged;
-                UpdateActiveState(Frame.View);
-            }
+            // V1.1 — Action désactivée partout (remplacée par les dashboards RH)
+            // Le code reste fonctionnel mais l'action XAF n'apparaît plus en UI.
+            if (_rapportAction != null)
+                _rapportAction.Active.SetItemValue(DeprecatedKey, false);
+
+            // Code legacy conservé (ne s'exécute plus car action désactivée) :
+            // if (Frame != null)
+            // {
+            //     Frame.ViewChanged += OnFrameViewChanged;
+            //     UpdateActiveState(Frame.View);
+            // }
         }
 
         protected override void OnDeactivated()
         {
-            if (Frame != null) Frame.ViewChanged -= OnFrameViewChanged;
+            // if (Frame != null) Frame.ViewChanged -= OnFrameViewChanged;
             base.OnDeactivated();
         }
 
@@ -61,7 +72,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
         private void UpdateActiveState(View view)
         {
-            // Masqué sur toutes les ListView, visible ailleurs
+            // Masqué sur toutes les ListView, visible ailleurs (legacy V1.0)
             bool isListView = view is ListView;
             _rapportAction.Active.SetItemValue(HideKey, !isListView);
         }

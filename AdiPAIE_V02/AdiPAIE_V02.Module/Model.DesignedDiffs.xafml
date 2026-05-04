@@ -800,7 +800,7 @@
                 <LayoutItem Id="RubriqueRetenuePretDefaut" ViewItem="RubriqueRetenuePretDefaut" RelativeSize="50" Index="1" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_RapportCEO" ShowCaption="True" Caption="Rapport CEO" RelativeSize="100" Index="7" IsNewNode="True">
+            <LayoutGroup Id="Tab_RapportCEO" ShowCaption="True" Caption="Rapport CEO [Deprecated]" RelativeSize="100" Index="7" IsNewNode="True" IsVisible="False">
               <LayoutGroup Id="CEO_Config" ShowCaption="True" Caption="Configuration" Direction="Horizontal" RelativeSize="50" Index="0" IsNewNode="True">
                 <LayoutItem Id="EmailCEO" ViewItem="EmailCEO" RelativeSize="100" Index="0" IsNewNode="True" />
               </LayoutGroup>
