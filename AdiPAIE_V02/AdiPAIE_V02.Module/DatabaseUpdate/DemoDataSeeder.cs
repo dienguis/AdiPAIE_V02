@@ -381,75 +381,61 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        //  V1.2 — BUDGET MASSE SALARIALE (DÉMO 2025 + 2026)
+        //  V1.2.1 — BUDGET MASSE SALARIALE (DÉMO 2024 + 2025 + 2026)
         //
-        //  Génère 2 années de budgets pour permettre le comparatif N-1 :
-        //    - 2025 (année N-1)  : budget de base
-        //    - 2026 (année N)    : budget +5 % (inflation)
+        //  REFONTE annuelle :
+        //    Plus de granularité mensuelle ni de rubriques. On saisit
+        //    UNE seule valeur de brut annuel par couple (Année, Site).
         //
-        //  Pour chaque année : 12 mois × 9 rubriques :
-        //    - 1 ligne globale par mois × rubrique (Site=NULL) → 108 lignes/an
-        //    - + ventilation par site sur 3 stations principales pour
-        //      Salaires de base + Charges patronales              →  72 lignes/an
+        //  Stratégie démo : 3 années glissantes pour avoir de l'historique
+        //  visible dans le tableau "Évolution sur 5 années" du dashboard :
+        //    - 2024 (N-2)  : budget de base
+        //    - 2025 (N-1)  : +5 % (inflation)
+        //    - 2026 (N)    : +5 % supplémentaire
         //
-        //  Volumes : ~360 lignes (180 par année).
+        //  Pour chaque année : 4 lignes
+        //    - 1 ligne globale (Site=NULL)              → 1 ligne
+        //    - + 3 lignes ventilées (Bandia / CDB / Mermoz) → 3 lignes
+        //
+        //  Volumes : 12 lignes au total (3 années × 4 lignes).
         //  Tous les Commentaire commencent par "DEMO_BUDGET_" pour le wipe.
         //
-        //  Hypothèses budget annuel ELTON 2025 (env. 250 salariés, 480k brut moyen) :
-        //    - Salaires base       : 1 050 000 000 FCFA   (52 %)
-        //    - Charges patronales  :   380 000 000 FCFA   (19 %)
-        //    - Primes              :   190 000 000 FCFA
-        //    - 13e mois            :    95 000 000 FCFA   (100 % décembre)
-        //    - Indemnités          :    75 000 000 FCFA
-        //    - Avantages nature    :    95 000 000 FCFA
-        //    - Gratifications      :    47 000 000 FCFA   (50 % juin + 50 % décembre)
-        //    - Formation           :    28 000 000 FCFA
-        //    - Recrutement         :    19 000 000 FCFA
-        //    Total 2025 ≈ 1 979 000 000 FCFA
-        //  Hypothèse 2026 : tous les montants × 1,05 (inflation 5 %)
-        //    Total 2026 ≈ 2 078 000 000 FCFA
+        //  Budget brut annuel ELTON 2024 (env. 250 salariés, 460k brut moyen) :
+        //    - Brut annuel total : 1 380 000 000 FCFA
+        //  Budget 2025 : × 1,05 → 1 449 000 000 FCFA
+        //  Budget 2026 : × 1,05 → 1 521 450 000 FCFA
         // ═════════════════════════════════════════════════════════════════════
         private static void EnsureBudgetMasseSalariale(
             IObjectSpace os,
             (Site bandia, Site cdb, Site mermoz, Site siege, Site depotDakar, Site depotThies) sites)
         {
             int anneeCourante = DateTime.Today.Year;
-            int anneePrecedente = anneeCourante - 1;
 
-            // ── Budget annuel de référence (base = année N-1) ─────────────
-            var totauxBaseAnneeNm1 = new (BudgetRubrique R, decimal Annuel)[]
-            {
-                (BudgetRubrique.SalairesBase,        1_050_000_000m),
-                (BudgetRubrique.ChargesPatronales,     380_000_000m),
-                (BudgetRubrique.Primes,                190_000_000m),
-                (BudgetRubrique.TreiziemeMois,          95_000_000m),
-                (BudgetRubrique.Indemnites,             75_000_000m),
-                (BudgetRubrique.AvantagesNature,        95_000_000m),
-                (BudgetRubrique.Gratifications,         47_000_000m),
-                (BudgetRubrique.Formation,              28_000_000m),
-                (BudgetRubrique.Recrutement,            19_000_000m),
-            };
-
-            // Coefficient d'inflation appliqué à chaque année par rapport à N-1
+            // Budget brut annuel de base (N-2)
+            const decimal BrutAnnuelN2 = 1_380_000_000m;
             const decimal CoefInflationParAn = 1.05m;
 
-            // Seeder pour 2 années consécutives
-            SeederBudgetAnnee(os, sites, anneePrecedente, totauxBaseAnneeNm1, multiplicateur: 1.00m);
-            SeederBudgetAnnee(os, sites, anneeCourante,   totauxBaseAnneeNm1, multiplicateur: CoefInflationParAn);
+            // Calcul des montants pour les 3 années
+            decimal brutN2 = BrutAnnuelN2;
+            decimal brutN1 = Math.Round(brutN2 * CoefInflationParAn, 0);
+            decimal brutN  = Math.Round(brutN1 * CoefInflationParAn, 0);
+
+            SeederBudgetAnnee(os, sites, anneeCourante - 2, brutN2);
+            SeederBudgetAnnee(os, sites, anneeCourante - 1, brutN1);
+            SeederBudgetAnnee(os, sites, anneeCourante,     brutN);
         }
 
         /// <summary>
-        /// Génère les ~180 lignes de budget pour une année donnée :
-        ///   - 108 lignes globales (Site=NULL) × 9 rubriques × 12 mois
-        ///   -  72 lignes ventilées par site (3 sites × 2 rubriques × 12 mois)
+        /// Génère 4 lignes de budget pour une année donnée :
+        ///   - 1 ligne globale (Site=NULL) = montant total
+        ///   - 3 lignes ventilées (Bandia + CDB + Mermoz à 33 % chacune)
         /// Idempotent par année grâce au check sur Annee + préfixe Commentaire.
         /// </summary>
         private static void SeederBudgetAnnee(
             IObjectSpace os,
             (Site bandia, Site cdb, Site mermoz, Site siege, Site depotDakar, Site depotThies) sites,
             int annee,
-            (BudgetRubrique R, decimal Annuel)[] totauxBase,
-            decimal multiplicateur)
+            decimal brutAnnuelTotal)
         {
             // Idempotence par année — si on trouve déjà un budget DEMO sur cette année, on skip
             bool dejaExistant = os.GetObjectsQuery<BudgetMasseSalariale>()
@@ -459,93 +445,28 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                        && b.Commentaire.StartsWith("DEMO_BUDGET_"));
             if (dejaExistant) return;
 
-            // Application du multiplicateur d'inflation
-            var totauxAnnee = totauxBase
-                .Select(t => (t.R, Annuel: Math.Round(t.Annuel * multiplicateur, 0)))
-                .ToArray();
+            // ── 1. Ligne globale (Site=NULL) ──────────────────────────────
+            //   Représente le budget consolidé saisi en CODIR (toutes affectations).
+            var bGlobal = os.CreateObject<BudgetMasseSalariale>();
+            bGlobal.Annee = annee;
+            bGlobal.Site = null;
+            bGlobal.MontantBrutAnnuel = brutAnnuelTotal;
+            bGlobal.Source = BudgetSource.Demo;
+            bGlobal.Commentaire = $"DEMO_BUDGET_GLOBAL_{annee}";
 
-            // ── 1. Lignes globales (Site=NULL) — mensualisation auto ──────
-            foreach (var (rubrique, annuel) in totauxAnnee)
-            {
-                for (int mois = 1; mois <= 12; mois++)
-                {
-                    decimal montantMois = MensualiserBudget(rubrique, annuel, mois);
-                    if (montantMois <= 0) continue;
-
-                    var b = os.CreateObject<BudgetMasseSalariale>();
-                    b.Annee = annee;
-                    b.Mois = mois;
-                    b.Site = null;          // Budget global non ventilé
-                    b.Rubrique = rubrique;
-                    b.Montant = montantMois;
-                    b.Source = BudgetSource.AutoMensualise;
-                    b.Commentaire = $"DEMO_BUDGET_GLOBAL_{annee}";
-                }
-            }
-
-            // ── 2. Ventilation par site — Salaires + Charges seulement ────
-            //   On répartit le budget annuel sur 3 sites principaux à 33 % chacun
-            //   (Bandia + CDB + Mermoz). Le siège et les dépôts seront couverts
-            //   en V1.2.1 quand le DAF affinera la ventilation.
+            // ── 2. Ventilation par site (3 stations principales à 33 %) ──
+            //   Le DAF peut affiner la ventilation manuellement après seed.
             var sitesVentiles = new[] { sites.bandia, sites.cdb, sites.mermoz };
-            var rubriquesVentilees = new[]
+            decimal partSite = Math.Round(brutAnnuelTotal / sitesVentiles.Length, 0);
+
+            foreach (var site in sitesVentiles)
             {
-                BudgetRubrique.SalairesBase,
-                BudgetRubrique.ChargesPatronales
-            };
-
-            foreach (var rub in rubriquesVentilees)
-            {
-                decimal annuel = totauxAnnee.First(t => t.R == rub).Annuel;
-                decimal partSiteAnnuel = Math.Round(annuel / sitesVentiles.Length, 0);
-
-                foreach (var site in sitesVentiles)
-                {
-                    for (int mois = 1; mois <= 12; mois++)
-                    {
-                        decimal montantMoisSite = MensualiserBudget(rub, partSiteAnnuel, mois);
-                        if (montantMoisSite <= 0) continue;
-
-                        var b = os.CreateObject<BudgetMasseSalariale>();
-                        b.Annee = annee;
-                        b.Mois = mois;
-                        b.Site = site;
-                        b.Rubrique = rub;
-                        b.Montant = montantMoisSite;
-                        b.Source = BudgetSource.AutoMensualise;
-                        b.Commentaire = $"DEMO_BUDGET_SITE_{site.Code}_{annee}";
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Applique la règle de mensualisation propre à chaque rubrique :
-        ///   - 13e mois        → 100 % en décembre
-        ///   - Gratifications  → 50 % en juin + 50 % en décembre
-        ///   - Recrutement     → concentré 1er semestre (60 % S1)
-        ///   - Autres          → mensualisation linéaire /12
-        /// </summary>
-        private static decimal MensualiserBudget(BudgetRubrique rubrique, decimal annuel, int mois)
-        {
-            switch (rubrique)
-            {
-                case BudgetRubrique.TreiziemeMois:
-                    return mois == 12 ? annuel : 0m;
-
-                case BudgetRubrique.Gratifications:
-                    if (mois == 6) return Math.Round(annuel / 2m, 0);
-                    if (mois == 12) return Math.Round(annuel / 2m, 0);
-                    return 0m;
-
-                case BudgetRubrique.Recrutement:
-                    // 60 % en S1, 40 % en S2
-                    decimal s1 = Math.Round(annuel * 0.60m / 6m, 0);
-                    decimal s2 = Math.Round(annuel * 0.40m / 6m, 0);
-                    return mois <= 6 ? s1 : s2;
-
-                default:
-                    return Math.Round(annuel / 12m, 0);
+                var b = os.CreateObject<BudgetMasseSalariale>();
+                b.Annee = annee;
+                b.Site = site;
+                b.MontantBrutAnnuel = partSite;
+                b.Source = BudgetSource.Demo;
+                b.Commentaire = $"DEMO_BUDGET_SITE_{site.Code}_{annee}";
             }
         }
     }

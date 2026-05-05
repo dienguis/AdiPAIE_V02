@@ -501,12 +501,165 @@ MouvementHeuresSup, ParametresPaie pour les seuils).
 
 ### 9.6 Roadmap V1.3 (R&D nécessaire)
 
-| # | Rapport | Pourquoi V1.3 (pas V1.2) | Effort |
-|---|---|---|---|
-| 9.7 | **GPEC / Skill Matrix** | Nécessite refonte modèle Compétences (entité absente aujourd'hui) | 7 j |
-| 9.8 | **Plan de relève (Succession Planning)** | Nouveau workflow : identifier postes critiques + 2 successeurs avec readiness | 5 j |
-| 9.9 | **Pay Equity Gap H/F** | Méthodologie à définir avec RH (poste équivalent ?), sensible juridiquement | 4 j |
-| 9.10 | **Suivi entretiens annuels** | EntretienAnnuel existe mais workflow incomplet (objectifs N+1, plan d'action) | 4 j |
+| # | Rapport | Pourquoi V1.3 (pas V1.2) | Effort | Priorité |
+|---|---|---|---|---|
+| **9.6.0** | **🔥 Coût Réel Intérimaires (Import facture société d'intérim)** | Nouveau modèle de données (BulletinInterim + ImportBatch), import Excel mensuel, écart vs contrat | 8 j | ⭐⭐⭐ #1 |
+| 9.7 | **GPEC / Skill Matrix** | Nécessite refonte modèle Compétences (entité absente aujourd'hui) | 7 j | #2 |
+| 9.8 | **Plan de relève (Succession Planning)** | Nouveau workflow : identifier postes critiques + 2 successeurs avec readiness | 5 j | #3 |
+| 9.9 | **Pay Equity Gap H/F** | Méthodologie à définir avec RH (poste équivalent ?), sensible juridiquement | 4 j | #4 |
+| 9.10 | **Suivi entretiens annuels** | EntretienAnnuel existe mais workflow incomplet (objectifs N+1, plan d'action) | 4 j | #5 |
+
+### 9.6.0 Détail — Coût Réel Intérimaires (cadrage 2026-05-05)
+
+**Origine** : revue avec Abdoulaye 2026-05-05. Le coût intérim actuel est
+théorique (`TauxJournalier × 22 × N mois`) alors que la VRAIE dépense ELTON
+est le TTC de la facture envoyée par chaque société d'intérim chaque mois.
+
+**Fichier source** : `LIVRE DE PAIE interimaire.xlsx` analysé — structure
+type 254 intérimaires × 53 colonnes. Colonnes critiques :
+- col 49 **Débours** : ce que la société d'intérim a payé (brut + charges + indemnités)
+- col 50 **Commissions agence** : la marge de la société d'intérim (~9 %)
+- col 51 **Montant HT** = Débours + Commissions
+- col 52 **TVA** (18 %)
+- col 53 **TTC** = HT + TVA = **coût réel ELTON**
+
+**Ordre de grandeur observé** (mars 2026) :
+- 254 intérimaires
+- Brut imposable total : 33,8 M FCFA
+- TTC total facturé : **63,1 M FCFA**
+- Multiplicateur Brut → TTC : **×1,87**
+- Annualisé : ~757 M FCFA / an (chiffre majeur non visible aujourd'hui)
+
+**Modèle de données proposé** :
+
+```csharp
+// 1 ligne = 1 intérimaire × 1 mois × 1 société émettrice
+public class BulletinInterim : BaseObject
+{
+    public int Annee, Mois;
+    public SocieteInterim SocieteEmettrice;
+    public Interimaire Interimaire;          // FK lookup par Matricule
+    public string MatriculeOriginal;          // Conserve "PRESTATAIRE" si non matché
+    public string NomComplet, Fonction, Site; // Snapshot fichier
+    public decimal Trentieme;                 // Présence (0..30)
+
+    // Éléments salaire
+    public decimal SalaireBase, BrutImposable, NetAPayer;
+    public decimal IpresSal, IpresPat, CssAll, CssAcc, IpmSal, IpmPat;
+    public decimal CFCE, RetenueIR, RetenueTRIMF;
+    public decimal PrimeTransport, PrimePanier, IndemnitesDiverses;
+
+    // BLOC FACTURATION (cœur métier)
+    public decimal Debours;
+    public decimal CommissionAgence;
+    public decimal MontantHT;
+    public decimal TVA;
+    public decimal TTC;                       // Coût réel pour ELTON
+
+    // Traçabilité import
+    public DateTime DateImport;
+    public string FichierSource, ImportePar;
+    public Guid ImportBatchId;
+}
+
+// Audit/grouping
+public class ImportBulletinInterimBatch : BaseObject
+{
+    public DateTime DateImport;
+    public SocieteInterim Societe;
+    public int Annee, Mois;
+    public string FichierSource, ImportePar;
+    public int NbLignesImportees;
+    public decimal TotalTTC;
+    public string Notes;
+}
+```
+
+**Workflow utilisateur** :
+1. Société d'intérim envoie facture mensuelle (Excel)
+2. RH/DAF clique *Intérim → Charger livre de paie*
+3. Wizard 4 étapes : Année/Mois/Société → Upload → Preview + mapping → Confirm
+4. Système crée 1 `ImportBulletinInterimBatch` + N `BulletinInterim`
+5. Idempotence : si batch existant pour (Année, Mois, Société) → confirm écraser
+6. Dashboard N°11 affiche le coût réel + écart vs contrat
+
+**Dashboard N°11 — Coût Réel Intérimaires** :
+- 4 KPIs : TTC mois, TTC YTD, Coût moyen par intérimaire, Multiplicateur Brut→TTC
+- Décomposition donut : Brut / Charges pat / Commission agence / TVA
+- Top 10 intérimaires les plus coûteux (TTC)
+- Comparaison **Contrat (TauxJournalier×22×mois) vs TTC réel** par intérimaire (écart valeur + %)
+- Évolution mensuelle 12 mois TTC
+- Filtres : Année, Mois, Site, Société d'intérim
+
+**Bénéfices attendus** :
+- Validation factures société d'intérim avant paiement
+- Détection intérimaires "fantômes" (TTC élevé + 30ème faible)
+- Comparaison sociétés d'intérim (commission agence à renégocier)
+- Bilan social externe avec coût réel (au lieu du théorique actuel)
+- Argument différenciant fort vs Fafadie Paie
+
+**Edge cases identifiés** :
+- Matricule `PRESTATAIRE` (1 ligne sur 254) — pas de lookup Intérimaire possible
+- Matricules orphelins (le fichier facture peut contenir des intérimaires non encore créés dans le SI) → option "Créer auto" ou "Skip avec warning"
+- Mapping colonnes : titre des colonnes est stable mais attention aux variations ("Débours" vs "Debours")
+- Lignes vides, totaux en bas du fichier → détecter et ignorer
+
+**Effort total** : 8 jours dev + 1 jour UAT = ~2 semaines.
+
+#### Décisions métier validées (2026-05-05) — réponses Abdoulaye
+
+1. **Sociétés d'intérim multiples** : ELTON travaille avec PLUSIEURS sociétés
+   d'intérim simultanément. Chaque facture est liée à une société émettrice
+   précise via la FK `BulletinInterim.SocieteEmettrice`.
+
+2. **Création automatique d'Intérimaire si non existant** : si le matricule
+   du fichier importé ne correspond à aucun `Interimaire` existant en base,
+   on **crée automatiquement la fiche** avec le minimum (Nom, Prénom,
+   Matricule, Sexe, Fonction). Un **rapport post-import** liste les fiches
+   créées automatiquement → le RH doit ensuite **compléter ces fiches +
+   créer le contrat correspondant**. Status d'import à prévoir :
+     - `Importé OK` (fiche existante, contrat existant)
+     - `Fiche créée auto` (fiche créée, contrat manquant — alerte RH)
+     - `Prestataire` (cas spécifique, cf. point 3)
+
+3. **Cas "PRESTATAIRE"** (ligne du fichier où Matricule = "PRESTATAIRE") :
+   il s'agit d'un **prestataire indépendant mis à disposition par la société
+   d'intérim**. Pas de fiche Interimaire à créer. Le coût TTC est compté
+   dans les totaux mais flaggé comme prestataire :
+     - `BulletinInterim.IsPrestataire = true`
+     - `BulletinInterim.Interimaire = null`
+     - `BulletinInterim.MatriculeOriginal = "PRESTATAIRE"`
+   Dans le dashboard N°11, prévoir un toggle "Inclure prestataires" ou une
+   ligne séparée pour distinguer.
+
+4. **Conservation historique** : **TOUS** les `BulletinInterim` sont
+   conservés ad vitam. Pas de purge automatique. Permet l'analyse
+   historique sur 5+ ans (utile pour bilan social externe consolidé,
+   benchmarks vs N-1/N-2).
+
+#### Pipeline d'import (workflow détaillé)
+
+```
+1. Wizard étape 1 : choix Année + Mois + Société émettrice (FK)
+2. Wizard étape 2 : upload fichier .xlsx
+3. Côté serveur :
+   a. Parser le fichier (entête ligne 10, données à partir ligne 11)
+   b. Pour chaque ligne :
+      - Lookup Interimaire by Matricule
+      - Si Matricule == "PRESTATAIRE" → flag IsPrestataire = true
+      - Sinon si non trouvé → CREATE_AUTO (Nom, Prénom, Matricule, Sexe, Fonction)
+      - Créer BulletinInterim avec tous les champs (TTC, débours, commission, etc.)
+   c. Idempotence : si batch (Année, Mois, Société) existe déjà → demander écraser
+   d. Créer 1 ImportBulletinInterimBatch avec stats (NbLignes, TotalTTC, NbCreees)
+4. Wizard étape 3 : preview résultat
+   - X bulletins OK
+   - Y fiches Interimaire créées auto (à compléter par RH)
+   - Z lignes Prestataire
+   - Total TTC = M FCFA
+5. Wizard étape 4 : confirmation utilisateur → commit
+6. Notification RH automatique pour les Y fiches créées (workflow d'alerte
+   à brancher sur AlerteInterimaireService existant)
+```
 
 ### 9.7 Backlog V2.0 (long terme)
 
@@ -548,6 +701,40 @@ MouvementHeuresSup, ParametresPaie pour les seuils).
 - [ ] Liste des postes critiques pour Plan de relève (V1.3)
 - [ ] Référentiel compétences pour GPEC (V1.3)
 - [ ] Seuil heures sup mensuel selon convention collective applicable
+
+---
+
+## ✅ V1.2.1 — REFONTE BUDGET ANNUEL (2026-05-05) — BUILD OK
+
+> **Décision DAF** : passage à un modèle simplifié sur demande métier.
+> AVANT : saisie mensuelle × 9 rubriques × site (~180 lignes/an)
+> APRÈS : saisie ANNUELLE sur le BRUT × site (1-N lignes/an)
+>
+> Le DAF saisit une enveloppe brute annuelle validée en CODIR. La comparaison
+> avec le réalisé se fait au global (annuel), pas mensuellement.
+
+### Refonte appliquée
+
+| Composant | Changement |
+|---|---|
+| `BudgetMasseSalariale` (entité) | Suppression de `Mois`, `Rubrique`. Renommage `Montant` → `MontantBrutAnnuel`. Ajout index unique `(Annee, Site)`. `BudgetSource.AutoMensualise` remplacé par `Demo`. |
+| `BudgetVsRealiseDto` | Suppression `Mensuel`, `CumulYtd`, `ParRubrique`. Conservation `Kpis`, `ParSite`. Ajout `Evolution` (5 ans glissants). |
+| `BudgetVsRealiseFilterModel` | Suppression `SeuilAlertePct`. Conservation `Annee`, `SiteOid`. |
+| `BudgetVsRealiseDashboardService` | Refonte calcul : 4 KPIs annuels + 5 années glissants + ventilation site. Plus de mensualisation. |
+| `BudgetVsRealiseDashboard.razor` | Plus de tableau mensuel ni cumul YTD. Focus sur tableau "Évolution 5 ans" + tableau "Ventilation par site". |
+| `DemoDataSeeder` | 12 lignes (3 années × 4 lignes : 1 global + 3 sites). Plus de méthode `MensualiserBudget`. |
+| `budget-vs-realise.html` (help) | Mise à jour complète : saisie annuelle, formules KPI, FAQ. |
+
+### Migration DB
+
+L'entité a été modifiée (suppression de colonnes). Au prochain `UpdateSchema()` :
+- Les colonnes `Mois`, `Rubrique`, `Montant` seront supprimées
+- La colonne `MontantBrutAnnuel` sera créée
+- L'index `IX_BudgetMS_Annee_Mois_Site_Rubrique` sera supprimé
+- L'index unique `UX_BudgetMS_Annee_Site` sera créé
+
+⚠️ **Les données seedées V1.2 seront perdues** au passage. Re-lancer "Charger
+données démo" après le rebuild pour avoir les 12 nouvelles lignes seedées.
 
 ---
 

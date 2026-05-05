@@ -1,14 +1,13 @@
 @* =====================================================================
-    BudgetVsRealiseDashboard.razor — V1.2 Sprint 2
+    BudgetVsRealiseDashboard.razor — V1.2.1 (mai 2026)
     URL : /dashboards/budget-vs-realise
     Périmètre : Pilotage stratégique DAF + Direction Générale
-    Source de données : BudgetMasseSalariale (saisi) vs Bulletin (réalisé)
 
-    Couleurs ELTON Oil :
-      - Header navy : #142E4D
-      - Orange : #F18A1C
-      - Vert (sous-conso) : #2EA75B
-      - Rouge (dépassement) : #E63946
+    REFONTE annuelle :
+      - Plus de tableau mensuel ni de cumul YTD
+      - 4 KPI annuels (Budget brut / Réalisé brut / Écart / Écart %)
+      - Évolution 5 années glissantes
+      - Ventilation par site
    ===================================================================== *@
 
 @page "/dashboards/budget-vs-realise"
@@ -47,7 +46,7 @@ else if (_data != null)
                 <i class="bi bi-arrow-left-circle"></i>
             </button>
             <div>
-                <div class="bvr-header__perimetre">Pilotage DAF · Tableau N°7</div>
+                <div class="bvr-header__perimetre">Pilotage DAF · Tableau N°7 · Vue annuelle</div>
                 <h1 class="bvr-header__h1">Budget vs Réalisé Masse Salariale</h1>
             </div>
         </div>
@@ -75,229 +74,133 @@ else if (_data != null)
                     }
                 </select>
             </label>
-            <label>
-                <span>Seuil alerte (%)</span>
-                <input type="number" min="0" max="100" step="1"
-                       value="@_filter.SeuilAlertePct" @onchange="OnSeuilChanged" />
-            </label>
         </div>
     </header>
 
-    @* ── KPI Tiles ────────────────────────────────────────────────── *@
+    @* ── KPI Tiles (annuels) ─────────────────────────────────────── *@
     <section class="bvr-kpis">
         <div class="bvr-kpi bvr-kpi--budget">
-            <div class="bvr-kpi__head"><i class="bi bi-bullseye"></i> Budget annuel</div>
-            <div class="bvr-kpi__value">@FormatFcfa(_data.Kpis.BudgetAnnuel)</div>
-            <div class="bvr-kpi__sub">Année @_data.Annee</div>
+            <div class="bvr-kpi__head"><i class="bi bi-bullseye"></i> Budget brut annuel</div>
+            <div class="bvr-kpi__value">@FormatFcfa(_data.Kpis.BudgetBrutAnnuel)</div>
+            <div class="bvr-kpi__sub">Année @_data.Annee · @_data.Kpis.NbSitesBudgetes site(s) budgété(s)</div>
         </div>
 
-        <div class="bvr-kpi bvr-kpi--ytd">
-            <div class="bvr-kpi__head"><i class="bi bi-cash-coin"></i> Réalisé YTD</div>
-            <div class="bvr-kpi__value">@FormatFcfa(_data.Kpis.RealiseYtd)</div>
-            <div class="bvr-kpi__sub">Budget YTD : @FormatFcfa(_data.Kpis.BudgetYtd)</div>
+        <div class="bvr-kpi bvr-kpi--realise">
+            <div class="bvr-kpi__head"><i class="bi bi-cash-coin"></i> Réalisé brut annuel</div>
+            <div class="bvr-kpi__value">@FormatFcfa(_data.Kpis.RealiseBrutAnnuel)</div>
+            <div class="bvr-kpi__sub">Σ BrutFiscal des bulletins @_data.Annee</div>
         </div>
 
-        <div class="bvr-kpi @CssEcart(_data.Kpis.EcartYtd)">
-            <div class="bvr-kpi__head"><i class="bi bi-graph-up-arrow"></i> Écart YTD</div>
-            <div class="bvr-kpi__value">@FormatEcart(_data.Kpis.EcartYtd)</div>
-            <div class="bvr-kpi__sub">@FormatPct(_data.Kpis.EcartYtdPct)</div>
+        <div class="bvr-kpi @CssEcart(_data.Kpis.Ecart)">
+            <div class="bvr-kpi__head"><i class="bi bi-graph-up-arrow"></i> Écart annuel</div>
+            <div class="bvr-kpi__value">@FormatEcart(_data.Kpis.Ecart)</div>
+            <div class="bvr-kpi__sub">@FormatPct(_data.Kpis.EcartPct)</div>
         </div>
 
-        <div class="bvr-kpi @CssEcart(_data.Kpis.EcartProjection)">
-            <div class="bvr-kpi__head"><i class="bi bi-rocket-takeoff"></i> Projection annuelle</div>
-            <div class="bvr-kpi__value">@FormatFcfa(_data.Kpis.ProjectionAnnuelle)</div>
-            <div class="bvr-kpi__sub">Écart : @FormatEcart(_data.Kpis.EcartProjection) (@FormatPct(_data.Kpis.EcartProjectionPct))</div>
+        <div class="bvr-kpi @CssEcart(_data.Kpis.Ecart)">
+            <div class="bvr-kpi__head"><i class="bi bi-bar-chart-line"></i> Sites en dépassement</div>
+            <div class="bvr-kpi__value">@_data.Kpis.NbSitesEnDepassement</div>
+            <div class="bvr-kpi__sub">Au-dessus du seuil de tolérance (5 %)</div>
         </div>
     </section>
 
-    @* ── Alertes synthèse ────────────────────────────────────────── *@
-    <section class="bvr-alerts">
-        @if (_data.Kpis.NombreRubriquesEnDepassement > 0)
-        {
-            <div class="bvr-alert bvr-alert--warn">
-                <i class="bi bi-exclamation-triangle"></i>
-                <strong>@_data.Kpis.NombreRubriquesEnDepassement</strong>
-                rubrique(s) au-dessus du seuil de @_filter.SeuilAlertePct.ToString("0", FrCulture)%.
-            </div>
-        }
-        @if (_data.Kpis.NombreSitesEnDepassement > 0)
-        {
-            <div class="bvr-alert bvr-alert--warn">
-                <i class="bi bi-geo-alt"></i>
-                <strong>@_data.Kpis.NombreSitesEnDepassement</strong>
-                site(s) au-dessus du seuil.
-            </div>
-        }
-        @if (_data.Kpis.NombreRubriquesEnDepassement == 0 && _data.Kpis.NombreSitesEnDepassement == 0)
-        {
-            <div class="bvr-alert bvr-alert--ok">
-                <i class="bi bi-check-circle"></i> Tous les indicateurs sont dans les seuils tolérés.
-            </div>
-        }
-    </section>
-
-    @* ── Tableau mensuel ─────────────────────────────────────────── *@
+    @* ── Évolution 5 années glissantes ────────────────────────────── *@
     <section class="bvr-section">
-        <h3 class="bvr-section__title">Évolution mensuelle Budget vs Réalisé</h3>
-        @{
-            var maxMensuel = _data.Mensuel.Count > 0
-                ? Math.Max(1m, Math.Max(_data.Mensuel.Max(m => m.Budget), _data.Mensuel.Max(m => m.Realise)))
-                : 1m;
+        <h3 class="bvr-section__title">Évolution sur 5 années glissantes</h3>
+        @if (_data.Evolution.Count == 0 || _data.Evolution.All(e => e.Budget == 0 && e.Realise == 0))
+        {
+            <div class="bvr-empty">Aucun budget ni bulletin sur la période.</div>
         }
-        <table class="bvr-table">
-            <thead>
-                <tr>
-                    <th>Mois</th>
-                    <th class="num">Budget</th>
-                    <th class="num">Réalisé</th>
-                    <th class="num">Écart</th>
-                    <th class="num">Écart %</th>
-                    <th class="bar">Comparaison</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var m in _data.Mensuel)
-                {
-                    var pctB = (decimal)m.Budget * 100m / maxMensuel;
-                    var pctR = (decimal)m.Realise * 100m / maxMensuel;
-                    var cssRow = !m.RealiseDisponible ? "bvr-row--future" : "";
-                    <tr class="@cssRow">
-                        <td>@m.MoisLibelle</td>
-                        <td class="num">@FormatFcfa(m.Budget)</td>
-                        <td class="num">
-                            @if (m.RealiseDisponible) { @FormatFcfa(m.Realise) }
-                            else { <span class="bvr-na">—</span> }
-                        </td>
-                        <td class="num @CssEcart(m.Ecart)">
-                            @if (m.RealiseDisponible) { @FormatEcart(m.Ecart) }
-                            else { <span class="bvr-na">—</span> }
-                        </td>
-                        <td class="num @CssEcart(m.Ecart)">
-                            @if (m.RealiseDisponible) { @FormatPct(m.EcartPct) }
-                            else { <span class="bvr-na">—</span> }
-                        </td>
-                        <td class="bar">
-                            <div class="bvr-doublebar">
-                                <div class="bvr-doublebar__b" style="@($"width:{pctB.ToString("0.00", InvCulture)}%")" title="Budget"></div>
-                                @if (m.RealiseDisponible)
-                                {
-                                    <div class="bvr-doublebar__r" style="@($"width:{pctR.ToString("0.00", InvCulture)}%")" title="Réalisé"></div>
-                                }
-                            </div>
-                        </td>
+        else
+        {
+            var maxAnnee = _data.Evolution.Count > 0
+                ? Math.Max(1m, _data.Evolution.Max(e => Math.Max(e.Budget, e.Realise)))
+                : 1m;
+
+            <table class="bvr-table">
+                <thead>
+                    <tr>
+                        <th>Année</th>
+                        <th class="num">Budget brut</th>
+                        <th class="num">Réalisé brut</th>
+                        <th class="num">Écart</th>
+                        <th class="num">Écart %</th>
+                        <th class="bar">Comparaison</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-        <div class="bvr-legend">
-            <span><span class="dot dot-budget"></span>Budget</span>
-            <span><span class="dot dot-realise"></span>Réalisé</span>
-            <span class="bvr-hint">Lignes grisées = mois sans réalisé encore disponible.</span>
-        </div>
-    </section>
-
-    @* ── Cumul YTD ───────────────────────────────────────────────── *@
-    <section class="bvr-section">
-        <h3 class="bvr-section__title">Cumul YTD — Budget vs Réalisé</h3>
-        @{
-            var maxCumul = _data.CumulYtd.Count > 0
-                ? Math.Max(1m, _data.CumulYtd.Max(c => Math.Max(c.BudgetCumule, c.RealiseCumule)))
-                : 1m;
+                </thead>
+                <tbody>
+                    @foreach (var e in _data.Evolution)
+                    {
+                        var pctB = (decimal)e.Budget * 100m / maxAnnee;
+                        var pctR = (decimal)e.Realise * 100m / maxAnnee;
+                        var cssRow = e.Annee == _data.Annee ? "bvr-row--current" : "";
+                        <tr class="@cssRow">
+                            <td><strong>@e.Annee</strong></td>
+                            <td class="num">@FormatFcfa(e.Budget)</td>
+                            <td class="num">@FormatFcfa(e.Realise)</td>
+                            <td class="num @CssEcart(e.Ecart)">@FormatEcart(e.Ecart)</td>
+                            <td class="num @CssEcart(e.Ecart)">@FormatPct(e.EcartPct)</td>
+                            <td class="bar">
+                                <div class="bvr-doublebar">
+                                    <div class="bvr-doublebar__b"
+                                         style="@($"width:{pctB.ToString("0.00", InvCulture)}%")"
+                                         title="@($"Budget : {FormatFcfa(e.Budget)}")"></div>
+                                    <div class="bvr-doublebar__r"
+                                         style="@($"width:{pctR.ToString("0.00", InvCulture)}%")"
+                                         title="@($"Réalisé : {FormatFcfa(e.Realise)}")"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="bvr-legend">
+                <span><span class="dot dot-budget"></span>Budget</span>
+                <span><span class="dot dot-realise"></span>Réalisé</span>
+                <span class="bvr-hint">La ligne grasse identifie l'année sélectionnée.</span>
+            </div>
         }
-        <div class="bvr-cumul">
-            @foreach (var c in _data.CumulYtd)
-            {
-                var pctB = (decimal)c.BudgetCumule * 100m / maxCumul;
-                var pctR = (decimal)c.RealiseCumule * 100m / maxCumul;
-                <div class="bvr-cumul__row">
-                    <div class="bvr-cumul__label">@c.MoisLibelle.Substring(0, Math.Min(3, c.MoisLibelle.Length))</div>
-                    <div class="bvr-cumul__bars">
-                        <div class="bvr-cumul__b" style="@($"width:{pctB.ToString("0.00", InvCulture)}%")" title="Budget cumulé">
-                            <span>@FormatFcfa(c.BudgetCumule)</span>
-                        </div>
-                        <div class="bvr-cumul__r" style="@($"width:{pctR.ToString("0.00", InvCulture)}%")" title="Réalisé cumulé">
-                            <span>@FormatFcfa(c.RealiseCumule)</span>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
     </section>
 
-    @* ── 2 colonnes : par rubrique + par site ───────────────────── *@
-    <div class="bvr-grid">
-
-        <section class="bvr-section">
-            <h3 class="bvr-section__title">Décomposition par rubrique</h3>
-            @if (_data.ParRubrique.Count == 0)
-            {
-                <div class="bvr-empty">Aucun budget saisi pour @_data.Annee.</div>
-            }
-            else
-            {
-                <table class="bvr-table">
-                    <thead>
+    @* ── Ventilation par site ────────────────────────────────────── *@
+    <section class="bvr-section">
+        <h3 class="bvr-section__title">Ventilation par site — Année @_data.Annee</h3>
+        @if (_data.ParSite.Count == 0)
+        {
+            <div class="bvr-empty">Aucun budget saisi pour @_data.Annee. Aller dans Paramétrage → Budget Masse Salariale pour saisir.</div>
+        }
+        else
+        {
+            <table class="bvr-table">
+                <thead>
+                    <tr>
+                        <th>Site</th>
+                        <th class="num">Budget brut</th>
+                        <th class="num">Réalisé brut</th>
+                        <th class="num">Écart</th>
+                        <th class="num">Écart %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in _data.ParSite)
+                    {
                         <tr>
-                            <th>Rubrique</th>
-                            <th class="num">Budget</th>
-                            <th class="num">Réalisé*</th>
-                            <th class="num">Écart %</th>
+                            <td>@s.SiteNom</td>
+                            <td class="num">@FormatFcfa(s.Budget)</td>
+                            <td class="num">@FormatFcfa(s.Realise)</td>
+                            <td class="num @CssEcart(s.Ecart)">@FormatEcart(s.Ecart)</td>
+                            <td class="num @CssEcart(s.Ecart)">@FormatPct(s.EcartPct)</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var r in _data.ParRubrique)
-                        {
-                            <tr>
-                                <td>@r.RubriqueLibelle</td>
-                                <td class="num">@FormatFcfa(r.Budget)</td>
-                                <td class="num">@FormatFcfa(r.Realise)</td>
-                                <td class="num @CssEcart(r.Ecart)">@FormatPct(r.EcartPct)</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-                <div class="bvr-note">* Réalisé ventilé au prorata du budget (V1.2). Mapping rubrique réelle prévu V1.3.</div>
-            }
-        </section>
-
-        <section class="bvr-section">
-            <h3 class="bvr-section__title">Écart par site</h3>
-            @if (_data.ParSite.Count == 0)
-            {
-                <div class="bvr-empty">Aucune ventilation site disponible.</div>
-            }
-            else
-            {
-                <table class="bvr-table">
-                    <thead>
-                        <tr>
-                            <th>Site</th>
-                            <th class="num">Budget</th>
-                            <th class="num">Réalisé</th>
-                            <th class="num">Écart %</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var s in _data.ParSite)
-                        {
-                            <tr>
-                                <td>@s.SiteNom</td>
-                                <td class="num">@FormatFcfa(s.Budget)</td>
-                                <td class="num">@FormatFcfa(s.Realise)</td>
-                                <td class="num @CssEcart(s.Ecart)">@FormatPct(s.EcartPct)</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            }
-        </section>
-
-    </div>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
 
     <footer class="bvr-footer">
         <span><i class="bi bi-clock-history"></i> Calculé le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
         <span class="sep">·</span>
-        <span>Année @_data.Annee · Mois courant : @(_data.MoisCourant?.ToString("D2") ?? "—")</span>
+        <span>Année cible : @_data.Annee · Saisie annuelle sur le brut</span>
     </footer>
 }
 
@@ -340,23 +243,20 @@ else if (_data != null)
         font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
         color: var(--bvr-orange); font-weight: 600;
     }
-
-    .bvr-filters { display: flex; gap: 0.85rem; flex-wrap: wrap; }
+    .bvr-filters { display: flex; gap: 0.85rem; flex-wrap: wrap; align-items: flex-end; }
     .bvr-filters label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.72rem; }
     .bvr-filters label span { color: #B7C2D5; text-transform: uppercase; letter-spacing: 0.04em; }
-    .bvr-filters select, .bvr-filters input {
+    .bvr-filters select {
         padding: 0.35rem 0.55rem; border: 1px solid var(--bvr-navy-light);
         background: rgba(255,255,255,0.08); color: #fff; border-radius: 4px;
         font-size: 0.85rem; min-width: 120px;
     }
     .bvr-filters select option { color: var(--bvr-text); }
-
     .bvr-help {
         display: inline-flex; align-items: center; justify-content: center;
         width: 36px; height: 36px; border-radius: 50%;
         background: rgba(255,255,255,0.1); color: #fff;
         text-decoration: none; font-size: 1.1rem;
-        align-self: flex-end;
         transition: background 0.15s ease;
     }
     .bvr-help:hover { background: var(--bvr-orange); color: #fff; }
@@ -372,7 +272,7 @@ else if (_data != null)
         border-left: 4px solid var(--bvr-navy);
     }
     .bvr-kpi--budget { border-left-color: var(--bvr-blue); }
-    .bvr-kpi--ytd { border-left-color: var(--bvr-orange); }
+    .bvr-kpi--realise { border-left-color: var(--bvr-orange); }
     .bvr-kpi--ok { border-left-color: var(--bvr-green); }
     .bvr-kpi--ko { border-left-color: var(--bvr-red); }
     .bvr-kpi--neutral { border-left-color: var(--bvr-soft); }
@@ -386,14 +286,6 @@ else if (_data != null)
         font-variant-numeric: tabular-nums;
     }
     .bvr-kpi__sub { font-size: 0.75rem; color: var(--bvr-muted); margin-top: 0.25rem; }
-
-    .bvr-alerts { padding: 0 1.5rem 0.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
-    .bvr-alert {
-        padding: 0.55rem 0.9rem; border-radius: 6px; font-size: 0.85rem;
-        display: inline-flex; align-items: center; gap: 0.5rem;
-    }
-    .bvr-alert--ok   { background: #E8F5EE; color: #1F6E3F; border: 1px solid #B7E0C5; }
-    .bvr-alert--warn { background: #FEF3E2; color: #8A4F00; border: 1px solid #F8C77E; }
 
     .bvr-section {
         background: #fff; border: 1px solid var(--bvr-border);
@@ -410,7 +302,7 @@ else if (_data != null)
 
     .bvr-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
     .bvr-table th, .bvr-table td {
-        padding: 0.45rem 0.65rem; border-bottom: 1px solid var(--bvr-border);
+        padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--bvr-border);
         text-align: left; font-variant-numeric: tabular-nums;
     }
     .bvr-table th {
@@ -419,8 +311,13 @@ else if (_data != null)
     }
     .bvr-table .num { text-align: right; }
     .bvr-table .bar { width: 28%; }
-    .bvr-row--future td { color: var(--bvr-muted); background: rgba(0,0,0,0.015); }
-    .bvr-na { color: var(--bvr-muted); font-style: italic; }
+    .bvr-row--current td {
+        background: rgba(241, 138, 28, 0.08);
+        font-weight: 600;
+    }
+    .bvr-row--current td:first-child {
+        border-left: 3px solid var(--bvr-orange);
+    }
 
     .ec-pos { color: var(--bvr-red); font-weight: 700; }
     .ec-neg { color: var(--bvr-green); font-weight: 700; }
@@ -446,24 +343,7 @@ else if (_data != null)
     .bvr-legend .dot-realise { background: var(--bvr-orange); }
     .bvr-hint { margin-left: auto; font-style: italic; color: var(--bvr-muted); }
 
-    .bvr-cumul { display: flex; flex-direction: column; gap: 0.4rem; }
-    .bvr-cumul__row { display: grid; grid-template-columns: 50px 1fr; gap: 0.5rem; align-items: center; }
-    .bvr-cumul__label { font-size: 0.78rem; color: var(--bvr-soft); font-weight: 600; }
-    .bvr-cumul__bars { display: flex; flex-direction: column; gap: 2px; }
-    .bvr-cumul__b, .bvr-cumul__r {
-        height: 18px; display: flex; align-items: center; padding: 0 0.45rem;
-        color: #fff; font-size: 0.7rem; font-weight: 600; border-radius: 3px;
-        font-variant-numeric: tabular-nums; transition: width 0.35s ease;
-        white-space: nowrap; overflow: hidden;
-    }
-    .bvr-cumul__b { background: var(--bvr-blue); }
-    .bvr-cumul__r { background: var(--bvr-orange); }
-
-    .bvr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-    @@media (max-width: 1100px) { .bvr-grid { grid-template-columns: 1fr; } }
-
     .bvr-empty { color: var(--bvr-muted); padding: 1rem; font-style: italic; text-align: center; }
-    .bvr-note { font-size: 0.72rem; color: var(--bvr-muted); margin-top: 0.5rem; font-style: italic; }
 
     .bvr-footer {
         margin: 1rem 1.5rem; padding: 0.6rem 0; font-size: 0.72rem;
@@ -498,10 +378,7 @@ else if (_data != null)
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            await LoadDataAsync();
-        }
+        if (firstRender) await LoadDataAsync();
     }
 
     private void LoadLookups()
@@ -510,20 +387,13 @@ else if (_data != null)
         {
             using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Bulletin));
 
-            // Années : extraites des bulletins existants + année courante + N+1
-            var annees = os.GetObjectsQuery<Bulletin>()
-                .ToList()
-                .Select(b => b.Annee)
-                .Distinct()
-                .ToList();
+            var annees = os.GetObjectsQuery<Bulletin>().ToList()
+                .Select(b => b.Annee).Distinct().ToList();
             annees.Add(DateTime.Today.Year);
             annees.Add(DateTime.Today.Year + 1);
             _anneesDispo = annees.Distinct().OrderByDescending(y => y).ToList();
 
-            _sitesDispo = os.GetObjectsQuery<Site>()
-                .ToList()
-                .OrderBy(s => s.Nom)
-                .ToList();
+            _sitesDispo = os.GetObjectsQuery<Site>().ToList().OrderBy(s => s.Nom).ToList();
         }
         catch (Exception ex)
         {
@@ -533,9 +403,7 @@ else if (_data != null)
 
     private async Task LoadDataAsync()
     {
-        _loading = true;
-        _errorMessage = null;
-        StateHasChanged();
+        _loading = true; _errorMessage = null; StateHasChanged();
         try
         {
             await Task.Run(() =>
@@ -544,37 +412,16 @@ else if (_data != null)
                 _data = Service.GetData(_filter, os);
             });
         }
-        catch (Exception ex)
-        {
-            _errorMessage = $"Erreur de calcul : {ex.Message}";
-        }
-        finally
-        {
-            _loading = false;
-            StateHasChanged();
-        }
+        catch (Exception ex) { _errorMessage = $"Erreur de calcul : {ex.Message}"; }
+        finally { _loading = false; StateHasChanged(); }
     }
 
     private async Task OnSiteChanged()
     {
-        if (Guid.TryParse(_selectedSiteOid, out var oid))
-            _filter.SiteOid = oid;
-        else
-            _filter.SiteOid = null;
+        _filter.SiteOid = Guid.TryParse(_selectedSiteOid, out var oid) ? oid : null;
         await LoadDataAsync();
     }
 
-    private async Task OnSeuilChanged(ChangeEventArgs e)
-    {
-        if (decimal.TryParse(e.Value?.ToString(), NumberStyles.Any, FrCulture, out var v) ||
-            decimal.TryParse(e.Value?.ToString(), NumberStyles.Any, InvCulture, out v))
-        {
-            _filter.SeuilAlertePct = v;
-            await LoadDataAsync();
-        }
-    }
-
-    // ── Helpers d'affichage ─────────────────────────────────────────
     private string FormatFcfa(decimal v) => $"{v.ToString("N0", FrCulture)} FCFA";
     private string FormatEcart(decimal v) => (v >= 0 ? "+" : "") + FormatFcfa(v);
     private string FormatPct(decimal v) => (v >= 0 ? "+" : "") + v.ToString("0.00", FrCulture) + "%";

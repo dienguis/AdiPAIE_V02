@@ -24,105 +24,115 @@
         <a href="/help/dashboards/conformite-senegal.html">N°10 Conformité</a>
     </nav>
     <main>
-        <div class="num">Tableau N°7 · V1.2</div>
+        <div class="num">Tableau N°7 · V1.2.1 · Vue annuelle</div>
         <h1>Budget vs Réalisé Masse Salariale</h1>
-        <p class="lead">Pilotage mensuel et annuel de l'écart entre le budget de masse salariale validé en CODIR et le réalisé effectif (bulletins + charges patronales).</p>
+        <p class="lead">Pilotage annuel de l'écart entre le budget brut validé en CODIR et le réalisé effectif (somme du brut fiscal des bulletins). Vue simplifiée à grains larges, alignée sur la pratique du DAF.</p>
 
         <h2>À quoi sert ce tableau</h2>
         <p>Permet au DAF de répondre instantanément à 3 questions critiques :</p>
         <ul>
-            <li><strong>Suis-je dans le budget ce mois-ci ?</strong> (écart mensuel valeur + %)</li>
-            <li><strong>Suis-je dans le budget cumul YTD ?</strong> (écart cumulé depuis janvier)</li>
-            <li><strong>Vais-je tenir le budget annuel ?</strong> (projection = YTD réalisé + budget restant)</li>
+            <li><strong>Suis-je dans le budget cette année ?</strong> (écart valeur + %)</li>
+            <li><strong>Comment l'écart évolue-t-il sur les 5 dernières années ?</strong> (tendance)</li>
+            <li><strong>Quel site est en dépassement ?</strong> (ventilation par station / siège / dépôt)</li>
         </ul>
 
         <h2>Pour qui</h2>
         <ul>
-            <li><strong>DAF + Contrôle de gestion</strong> : revue mensuelle obligatoire.</li>
-            <li><strong>DG / DAF</strong> : arbitrage des dépassements (recrutements à différer, primes à ajuster).</li>
-            <li><strong>RH Manager</strong> : visibilité sur l'enveloppe RH disponible avant nouveau recrutement.</li>
+            <li><strong>DAF + Contrôle de gestion</strong> : revue annuelle ou trimestrielle (avec écart YTD pré-calculé).</li>
+            <li><strong>DG / DAF</strong> : arbitrage des dépassements (recrutements à différer, gel de primes).</li>
+            <li><strong>RH Manager</strong> : visibilité sur l'enveloppe RH disponible.</li>
         </ul>
 
-        <h2 id="prerequis">Prérequis : Module Budget RH</h2>
-        <p>Ce dashboard <strong>nécessite que le budget ait été saisi</strong> dans le module Budget RH (menu <em>Paramétrage → Budget Masse Salariale</em>). Sans budget saisi, les écarts seront affichés à 100 % de dépassement.</p>
+        <h2 id="prerequis">Prérequis : saisir le budget annuel</h2>
+        <p>Ce dashboard nécessite que le budget ait été saisi dans <em>Paramétrage → Budget Masse Salariale</em>. La saisie est <strong>simple et annuelle</strong> :</p>
 
-        <p>Le budget se saisit avec une granularité <strong>Année × Mois × Site × Rubrique</strong> :</p>
-        <ul>
-            <li><strong>9 rubriques</strong> : Salaires de base, Primes, 13e mois, Gratifications, Indemnités, Charges patronales, Avantages en nature, Formation, Recrutement.</li>
-            <li><strong>Site nullable</strong> : un budget peut être global (Site=NULL) ou ventilé par station/dépôt.</li>
-        </ul>
+        <table>
+            <thead>
+                <tr><th>Champ</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Année</strong></td><td>Année du budget (ex : 2026).</td></tr>
+                <tr><td><strong>Site</strong></td><td>Optionnel. Laisser vide pour un budget global non ventilé. Sinon, saisir 1 ligne par site.</td></tr>
+                <tr><td><strong>Montant brut annuel (FCFA)</strong></td><td>Enveloppe brute validée en CODIR (avant charges patronales).</td></tr>
+                <tr><td><strong>Source</strong></td><td>Saisie manuelle, Import Excel, Recopie N-1, Données de démo.</td></tr>
+                <tr><td><strong>Commentaire</strong></td><td>Libre, optionnel.</td></tr>
+            </tbody>
+        </table>
 
-        <h2>Lecture des KPI (cartes du haut)</h2>
+        <div class="info" style="background:#E8F1FB;border-left:4px solid #1A73B5;padding:0.7rem 1rem;border-radius:4px;">
+            <strong>💡 Bonne pratique :</strong> Saisir 1 ligne globale (Site=vide) pour le total CODIR, puis éventuellement des lignes par site pour la ventilation analytique. L'index unique <code>(Année, Site)</code> empêche les doublons.
+        </div>
+
+        <h2 id="kpis">Lecture des 4 KPI (cartes du haut)</h2>
         <table>
             <thead><tr><th>KPI</th><th>Calcul</th></tr></thead>
             <tbody>
-                <tr><td><strong>Budget annuel</strong></td><td>Somme de toutes les lignes budgétaires de l'année sélectionnée.</td></tr>
-                <tr><td><strong>Réalisé YTD</strong></td><td>Somme des bulletins (BrutFiscal) + charges patronales (BulletinLigne.MontantEmployeur), de janvier au mois courant.</td></tr>
-                <tr><td><strong>Écart YTD</strong></td><td>Réalisé YTD − Budget YTD. Affiché en valeur et % avec code couleur (rouge = dépassement, vert = sous-conso).</td></tr>
-                <tr><td><strong>Projection annuelle</strong></td><td><code>Réalisé YTD + Σ Budget des mois restants</code>. Donne une estimation du coût à fin d'année si la tendance se poursuit.</td></tr>
+                <tr><td><strong>Budget brut annuel</strong></td><td><code>Σ MontantBrutAnnuel</code> de l'entité Budget pour l'année sélectionnée (toutes lignes confondues, site et global).</td></tr>
+                <tr><td><strong>Réalisé brut annuel</strong></td><td><code>Σ Bulletin.BrutFiscal</code> sur tous les bulletins de l'année sélectionnée.</td></tr>
+                <tr><td><strong>Écart annuel</strong></td><td>Réalisé − Budget. Affiché en valeur et % avec code couleur (rouge = dépassement, vert = sous-consommation).</td></tr>
+                <tr><td><strong>Sites en dépassement</strong></td><td>Nombre de sites dont l'écart dépasse 5 % du budget.</td></tr>
             </tbody>
         </table>
 
         <h2>Sections du tableau</h2>
 
-        <h3>Évolution mensuelle Budget vs Réalisé</h3>
-        <p>Tableau 12 lignes (janvier → décembre) avec :</p>
+        <h3>Évolution sur 5 années glissantes</h3>
+        <p>Tableau de 5 lignes (année N-4 → N) avec :</p>
         <ul>
-            <li>Budget mensuel</li>
-            <li>Réalisé mensuel (— pour les mois sans bulletin)</li>
-            <li>Écart valeur + écart %</li>
+            <li>Budget brut annuel</li>
+            <li>Réalisé brut annuel</li>
+            <li>Écart valeur + %</li>
             <li>Mini-barres comparatives Budget (bleu) vs Réalisé (orange)</li>
         </ul>
+        <p>L'année sélectionnée dans le filtre apparaît en surbrillance (gras + bord orange à gauche).</p>
 
-        <h3>Cumul YTD</h3>
-        <p>Vue glissante sur les 12 mois : pour chaque mois, le budget cumulé depuis janvier vs le réalisé cumulé. Permet de voir si le décalage est conjoncturel (1 mois) ou structurel (qui s'accentue chaque mois).</p>
-
-        <h3>Décomposition par rubrique</h3>
-        <p>Chaque rubrique budgétaire avec son budget annuel et son réalisé estimé.</p>
-        <div class="alerte" style="background:#FEF3E2;border-left:4px solid #F0AD4E;padding:0.7rem 1rem;border-radius:4px;">
-            <strong>⚠️ Note V1.2 :</strong> Le réalisé par rubrique est ventilé au prorata du budget de chaque rubrique sur le total budgété (heuristique). Le mapping exact <code>BudgetRubrique ↔ RubriqueTypeRef</code> sera implémenté en V1.3 pour une ventilation rigoureuse.
-        </div>
-
-        <h3>Écart par site</h3>
-        <p>Pour chaque site ayant un budget saisi : budget annuel, réalisé estimé (au prorata du brut imputé au site), écart %.</p>
+        <h3>Ventilation par site — Année cible</h3>
+        <p>Pour chaque site ayant un budget saisi sur l'année cible :</p>
+        <ul>
+            <li>Budget brut</li>
+            <li>Réalisé brut (somme du brut des salariés affectés à ce site)</li>
+            <li>Écart valeur + %</li>
+        </ul>
+        <p>Si des budgets globaux (Site=NULL) existent, ils apparaissent dans une ligne <em>Global (non ventilé)</em>.</p>
 
         <h2>Filtres disponibles</h2>
         <ul>
-            <li><strong>Année</strong> : sélection de l'année à analyser (par défaut année courante).</li>
-            <li><strong>Site</strong> : focus sur un site précis ou tous les sites.</li>
-            <li><strong>Seuil alerte (%)</strong> : seuil de tolérance au-dessus duquel un écart est considéré comme "à risque" (5 % par défaut).</li>
+            <li><strong>Année</strong> : sélection de l'année (par défaut année courante).</li>
+            <li><strong>Site</strong> : focus sur un site précis (le filtre conserve aussi les budgets globaux pour cohérence).</li>
         </ul>
 
         <h2>Cas d'usage typiques</h2>
         <table>
             <thead><tr><th>Quand</th><th>Action attendue</th></tr></thead>
             <tbody>
-                <tr><td><strong>Revue mensuelle DAF</strong> (1er ou 5 du mois)</td><td>Ouvrir le dashboard, lire l'écart YTD, identifier les rubriques en dépassement.</td></tr>
-                <tr><td><strong>Avant un recrutement</strong></td><td>Vérifier qu'il y a du budget restant sur la rubrique "Recrutement" et "Salaires de base".</td></tr>
-                <tr><td><strong>Revue trimestrielle CODIR</strong></td><td>Présenter la projection annuelle et les actions correctives proposées.</td></tr>
-                <tr><td><strong>Préparation budget N+1</strong></td><td>Comparer Réalisé N avec Budget N → calibrer Budget N+1 par rubrique.</td></tr>
+                <tr><td><strong>Revue annuelle DAF</strong> (janvier N+1)</td><td>Sélectionner l'année N, comparer avec N-1, identifier les sites en dépassement.</td></tr>
+                <tr><td><strong>Avant un recrutement</strong></td><td>Vérifier que le réalisé YTD reste sous le budget annuel.</td></tr>
+                <tr><td><strong>Préparation budget N+1</strong></td><td>Lire la tendance 5 ans + ajustement inflation pour calibrer N+1.</td></tr>
+                <tr><td><strong>Reporting CODIR trimestriel</strong></td><td>Présenter l'évolution + ventilation site avec commentaires d'écart.</td></tr>
             </tbody>
         </table>
 
-        <h2>Limites connues V1.2</h2>
+        <h2>Limites connues V1.2.1</h2>
         <ul>
-            <li>Ventilation du réalisé par rubrique au prorata (V1.3 : mapping rubrique réelle).</li>
-            <li>Ventilation par site faite au prorata du brut imputé au site (approximatif si plusieurs sites partagent un budget global).</li>
-            <li>Pas encore d'export Excel (à venir en V1.2.1).</li>
+            <li>Pas encore d'export Excel (à venir en V1.2.2).</li>
+            <li>Pas de granularité trimestrielle ni mensuelle (par choix : la consultation est annuelle).</li>
+            <li>Pas de granularité par rubrique (Salaires base / Primes / Charges patronales). On suit le brut consolidé.</li>
+            <li>Le réalisé inclut tous les bulletins (CDI + CDD + Stage). Pas de filtre par type de contrat pour le moment.</li>
         </ul>
 
         <h2>Questions fréquentes</h2>
         <table>
             <thead><tr><th>Question</th><th>Réponse</th></tr></thead>
             <tbody>
-                <tr><td>Mon écart est de +100 % partout, pourquoi ?</td><td>Aucun budget n'est saisi pour l'année. Aller dans <em>Paramétrage → Budget Masse Salariale</em>.</td></tr>
-                <tr><td>Mon écart paraît énorme en décembre ?</td><td>Si vous avez budgété le 13e mois en janvier (linéaire /12) au lieu de décembre, c'est un effet de mensualisation. Saisir le budget 13e mois 100 % en décembre.</td></tr>
-                <tr><td>Quel seuil d'alerte recommander ?</td><td>5 % est standard pour une masse salariale stable. 3 % pour une vigilance accrue, 10 % si le budget est volontairement large.</td></tr>
-                <tr><td>Le budget peut être saisi en bloc annuel et mensualisé auto ?</td><td>Oui — fonctionnalité prévue dans le module Budget RH (V1.2.1). En V1.2 initiale, saisie ligne par ligne.</td></tr>
+                <tr><td>Mon écart est de +100 % partout, pourquoi ?</td><td>Aucun budget saisi pour l'année. Aller dans <em>Paramétrage → Budget Masse Salariale</em>.</td></tr>
+                <tr><td>Le budget global et les budgets par site se cumulent ?</td><td>Oui — le KPI "Budget brut annuel" est la somme de toutes les lignes (globales + par site). Idéalement, choisis un seul mode (global OU ventilé) pour éviter le double comptage.</td></tr>
+                <tr><td>Comment recopier le budget N vers N+1 ?</td><td>En V1.2.1 : duplication manuelle ligne par ligne (clic droit "Cloner" sur la ligne). En V1.2.2, un bouton "Recopier N-1 + inflation %" sera ajouté.</td></tr>
+                <tr><td>Pourquoi l'évolution montre 5 ans alors que je n'ai que 3 ans de seed ?</td><td>Les années sans budget ni bulletin apparaissent à 0. C'est normal.</td></tr>
+                <tr><td>Le budget peut-il être négatif ?</td><td>Non — la règle de validation refuse les montants négatifs au save.</td></tr>
             </tbody>
         </table>
 
-        <p class="footer-help">SunuPaie — V1.2 (mai 2026) — Tableau N°7 Budget vs Réalisé</p>
+        <p class="footer-help">SunuPaie — V1.2.1 (mai 2026) — Tableau N°7 Budget vs Réalisé · Vue annuelle</p>
     </main>
 </body>
 </html>

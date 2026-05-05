@@ -1,5 +1,8 @@
 // =============================================================================
-//  BudgetVsRealiseFilterModel.cs — V1.2 (mai 2026)
+//  BudgetVsRealiseFilterModel.cs — V1.2.1 (mai 2026)
+//
+//  Filtre simplifié : Année + (optionnel) Site.
+//  Plus de filtre Mois ni Seuil — la consultation est annuelle.
 // =============================================================================
 
 using System;
@@ -14,10 +17,7 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         /// <summary>Filtre site (null = tous sites confondus).</summary>
         public Guid? SiteOid { get; set; }
 
-        /// <summary>Seuil d'alerte écart (%) pour les rubriques. Défaut 5 %.</summary>
-        public decimal SeuilAlertePct { get; set; } = 5m;
-
         public string ToCacheKey() =>
-            $"budget-vs-realise|y={Annee}|s={SiteOid}|seuil={SeuilAlertePct}";
+            $"budget-vs-realise|y={Annee}|s={SiteOid}";
     }
 }
