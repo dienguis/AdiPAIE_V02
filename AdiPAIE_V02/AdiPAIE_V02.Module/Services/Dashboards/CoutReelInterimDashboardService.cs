@@ -66,9 +66,17 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
             if (filter.SiteOid.HasValue)
             {
-                allBulletins = allBulletins
-                    .Where(b => b.Interimaire?.Site?.Oid == filter.SiteOid.Value)   // Site via Interimaire
-                    .ToList();
+                // Interimaire n'a pas de FK Site directe (le Site est sur ContratInterim).
+                // On filtre via SiteAffectation (string snapshot du fichier Excel)
+                // en comparant au Nom du Site sélectionné.
+                var siteRef = os.GetObjectByKey<Site>(filter.SiteOid.Value);
+                var siteNom = siteRef?.Nom?.Trim().ToUpperInvariant() ?? "";
+                if (!string.IsNullOrEmpty(siteNom))
+                {
+                    allBulletins = allBulletins
+                        .Where(b => (b.SiteAffectation ?? "").Trim().ToUpperInvariant() == siteNom)
+                        .ToList();
+                }
             }
             if (filter.SocieteInterimOid.HasValue)
             {
