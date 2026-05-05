@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coût Complet par Salarié — Aide Tableau N°9</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+        <a href="/help/dashboards/budget-vs-realise.html">N°7 Budget</a>
+        <a href="/help/dashboards/provisions-sociales.html">N°8 Provisions</a>
+        <a href="/help/dashboards/cout-complet.html" class="active">N°9 Coût Complet</a>
+        <a href="/help/dashboards/conformite-senegal.html">N°10 Conformité</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°9 · V1.2</div>
+        <h1>Coût Complet par Salarié (Fully Loaded Cost)</h1>
+        <p class="lead">Coût réel d'un salarié pour l'employeur — au-delà du salaire brut, intégrant charges patronales, avantages en nature et formation.</p>
+
+        <h2>À quoi sert ce tableau</h2>
+        <p>Quand on dit qu'un salarié "coûte 500 000 FCFA", on parle généralement de son brut. Le <strong>coût employeur réel</strong> est typiquement <strong>40 à 50 % plus élevé</strong> au Sénégal une fois les cotisations IPRES, CSS, IPM, FPS, les avantages (logement, transport, téléphone) et la formation ajoutés.</p>
+        <p>Ce tableau donne le <strong>multiplicateur magique</strong> pour chaque salarié : combien coûte 1 FCFA versé en net.</p>
+
+        <h2>Pour qui</h2>
+        <ul>
+            <li><strong>DAF</strong> : analyses de coût par poste, business cases d'embauche.</li>
+            <li><strong>DRH</strong> : positionnement salarial, cohérence de la grille.</li>
+            <li><strong>Managers</strong> : justification d'un budget RH pour une nouvelle équipe.</li>
+            <li><strong>DG</strong> : comparaison productivité (CA / ETP) en coût complet vs concurrents.</li>
+        </ul>
+
+        <h2 id="formule">Formule du Coût Complet</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Composante</th>
+                    <th>Source de données</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>① Salaire net annuel</td><td><code>SUM(Bulletin.NetAPayer)</code> sur l'année</td></tr>
+                <tr><td>② Cotisations salariales</td><td><code>BrutFiscal − NetAPayer</code> (IPRES, CSS, IR, etc. retenus sur la fiche)</td></tr>
+                <tr><td>③ Charges patronales</td><td><code>SUM(BulletinLigne.MontantEmployeur)</code> sur l'année</td></tr>
+                <tr><td>④ Avantages en nature</td><td><code>SUM(BulletinLigne.Montant)</code> où <code>RubriqueTypeRef.Code</code> commence par <code>AV_NATURE</code></td></tr>
+                <tr><td>⑤ Formation</td><td>0 (à brancher en V1.2.1 sur l'entité Formation)</td></tr>
+            </tbody>
+        </table>
+
+        <p><strong>Coût total annuel = ① + ② + ③ + ④ + ⑤</strong> = <em>Brut fiscal + charges patronales + avantages nature + formation</em></p>
+
+        <p><strong>Multiplicateur magique</strong> = <code>Coût total / Salaire net</code>. Typiquement 1,40 à 1,60 au Sénégal.</p>
+
+        <h3>Exemple de calcul</h3>
+        <div class="exemple">
+            <p><strong>Cas Mamadou Sow</strong> (matricule SLR-0017, cadre commercial) :</p>
+            <ul>
+                <li>Salaire brut annuel : 8 400 000 FCFA (700 000 / mois × 12)</li>
+                <li>Salaire net annuel : 6 720 000 FCFA</li>
+                <li>Cotisations salariales : 1 680 000 FCFA</li>
+                <li>Charges patronales : 1 932 000 FCFA (≈ 23 % du brut)</li>
+                <li>Avantages nature (téléphone + carburant) : 360 000 FCFA</li>
+                <li>Formation N : 0 FCFA</li>
+            </ul>
+            <p><strong>Coût total annuel</strong> = 8 400 000 + 1 932 000 + 360 000 + 0 = <strong>10 692 000 FCFA</strong></p>
+            <p><strong>Multiplicateur</strong> = 10 692 000 / 6 720 000 = <strong>×1,59</strong></p>
+            <p>Lecture : « Pour chaque 1 FCFA versé en net à Mamadou, l'entreprise dépense 1,59 FCFA au total. »</p>
+        </div>
+
+        <h2>Lecture des KPI (cartes du haut)</h2>
+        <table>
+            <thead><tr><th>KPI</th><th>Calcul</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Coût total annuel</strong></td><td>Somme des coûts totaux de tous les salariés ayant un bulletin sur l'année.</td></tr>
+                <tr><td><strong>Coût moyen par salarié</strong></td><td>Coût total ÷ nombre de salariés.</td></tr>
+                <tr><td><strong>Taux charges patronales</strong></td><td>Charges patronales totales ÷ Brut total × 100. Indicateur de la pression sociale.</td></tr>
+                <tr><td><strong>Multiplicateur Net → Total</strong></td><td>Coût total ÷ Net total. Le "vrai prix" d'1 FCFA versé.</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Sections du tableau</h2>
+
+        <h3>Décomposition du coût total (barres horizontales)</h3>
+        <p>Visualise les 5 composantes (Net / Cotisations sal. / Charges pat. / Avantages / Formation) avec leur montant et leur poids en % du total. Identifie immédiatement les postes les plus lourds.</p>
+
+        <h3>Coût moyen par catégorie professionnelle</h3>
+        <p>Cadres / Maîtrise / Employés / Ouvriers — avec le coût moyen et le brut moyen de chaque catégorie. Permet de vérifier la cohérence des grilles salariales.</p>
+
+        <h3>Coût total par site</h3>
+        <p>Comparaison stations-service / siège / dépôts. Utile pour ELTON (multi-sites) — identifier les sites où le coût/ETP est anormalement élevé.</p>
+
+        <h3>Top 10 — Coût employeur le plus élevé</h3>
+        <p>Liste des 10 salariés au coût total annuel le plus haut. Affiche le multiplicateur pour chacun. Permet d'identifier les "high cost" qui méritent une analyse de valeur ajoutée.</p>
+
+        <h2>Filtres disponibles</h2>
+        <ul>
+            <li><strong>Année</strong> : sélection de l'année (par défaut année courante).</li>
+            <li><strong>Site</strong> : focus sur un site précis.</li>
+        </ul>
+
+        <h2>Cas d'usage typiques</h2>
+        <table>
+            <thead><tr><th>Quand</th><th>Action attendue</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Business case embauche</strong></td><td>Avant de proposer 600 000 FCFA brut pour un poste, chiffrer le coût total = brut × 1,40 → 840 000 FCFA réel.</td></tr>
+                <tr><td><strong>Préparation budget N+1</strong></td><td>Multiplier le brut budgété par le multiplicateur moyen → estimation du coût employeur total.</td></tr>
+                <tr><td><strong>Audit interne</strong></td><td>Vérifier que le taux charges patronales est cohérent avec les déclarations IPRES/CSS officielles.</td></tr>
+                <tr><td><strong>Revue stratégique</strong></td><td>Comparer Coût/ETP par site → identifier les sites en sur-coût.</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Limites connues V1.2</h2>
+        <ul>
+            <li><strong>Formation à 0</strong> : l'entité Formation n'est pas encore connectée au calcul. Sera intégrée en V1.2.1.</li>
+            <li><strong>Avantages nature</strong> : détectés via <code>RubriqueTypeRef.Code</code> commençant par "AV_NATURE". Si vos rubriques utilisent un préfixe différent, ils seront comptés à 0.</li>
+            <li><strong>Pas d'export Excel</strong> en V1.2 initiale (la liste détaillée par salarié est lisible uniquement à l'écran).</li>
+        </ul>
+
+        <h2>Questions fréquentes</h2>
+        <table>
+            <thead><tr><th>Question</th><th>Réponse</th></tr></thead>
+            <tbody>
+                <tr><td>Pourquoi mon multiplicateur paraît bas (×1,2) ?</td><td>Charges patronales sous-déclarées dans BulletinLigne, ou avantages non affectés à des rubriques type AV_NATURE.</td></tr>
+                <tr><td>Le coût total est inférieur au brut ?</td><td>Bug de données — vérifier que les BulletinLigne sont bien associées aux Bulletins (pas de FK orpheline).</td></tr>
+                <tr><td>Comment ajouter le coût télétravail / repas ?</td><td>Créer une rubrique <code>AV_NATURE_REPAS</code> ou <code>AV_NATURE_TT</code>, ses montants seront automatiquement intégrés.</td></tr>
+            </tbody>
+        </table>
+
+        <p class="footer-help">SunuPaie — V1.2 (mai 2026) — Tableau N°9 Coût Complet par Salarié</p>
+    </main>
+</body>
+</html>

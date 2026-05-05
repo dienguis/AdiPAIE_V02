@@ -1,0 +1,586 @@
+@* =====================================================================
+    BudgetVsRealiseDashboard.razor — V1.2 Sprint 2
+    URL : /dashboards/budget-vs-realise
+    Périmètre : Pilotage stratégique DAF + Direction Générale
+    Source de données : BudgetMasseSalariale (saisi) vs Bulletin (réalisé)
+
+    Couleurs ELTON Oil :
+      - Header navy : #142E4D
+      - Orange : #F18A1C
+      - Vert (sous-conso) : #2EA75B
+      - Rouge (dépassement) : #E63946
+   ===================================================================== *@
+
+@page "/dashboards/budget-vs-realise"
+@attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.BusinessObjects.Budget
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+
+@inject IBudgetVsRealiseDashboardService Service
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
+
+<PageTitle>Budget vs Réalisé — Tableaux de Bord RH</PageTitle>
+
+@if (_loading)
+{
+    <div class="bvr-loading">
+        <DxLoadingPanel Text="Chargement…" Visible="true" />
+    </div>
+}
+else if (_errorMessage != null)
+{
+    <div class="bvr-error">@_errorMessage</div>
+}
+else if (_data != null)
+{
+    <header class="bvr-header">
+        <div class="bvr-header__title">
+            <button class="bvr-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
+                <i class="bi bi-arrow-left-circle"></i>
+            </button>
+            <div>
+                <div class="bvr-header__perimetre">Pilotage DAF · Tableau N°7</div>
+                <h1 class="bvr-header__h1">Budget vs Réalisé Masse Salariale</h1>
+            </div>
+        </div>
+
+        <div class="bvr-filters">
+            <a class="bvr-help" title="Aide ce tableau" href="/help/dashboards/budget-vs-realise.html" target="_blank" rel="noopener">
+                <i class="bi bi-question-circle"></i>
+            </a>
+            <label>
+                <span>Année</span>
+                <select @bind="_filter.Annee" @bind:after="LoadDataAsync">
+                    @foreach (var y in _anneesDispo)
+                    {
+                        <option value="@y">@y</option>
+                    }
+                </select>
+            </label>
+            <label>
+                <span>Site</span>
+                <select @bind="_selectedSiteOid" @bind:after="OnSiteChanged">
+                    <option value="">Tous</option>
+                    @foreach (var s in _sitesDispo)
+                    {
+                        <option value="@s.Oid">@s.Nom</option>
+                    }
+                </select>
+            </label>
+            <label>
+                <span>Seuil alerte (%)</span>
+                <input type="number" min="0" max="100" step="1"
+                       value="@_filter.SeuilAlertePct" @onchange="OnSeuilChanged" />
+            </label>
+        </div>
+    </header>
+
+    @* ── KPI Tiles ────────────────────────────────────────────────── *@
+    <section class="bvr-kpis">
+        <div class="bvr-kpi bvr-kpi--budget">
+            <div class="bvr-kpi__head"><i class="bi bi-bullseye"></i> Budget annuel</div>
+            <div class="bvr-kpi__value">@FormatFcfa(_data.Kpis.BudgetAnnuel)</div>
+            <div class="bvr-kpi__sub">Année @_data.Annee</div>
+        </div>
+
+        <div class="bvr-kpi bvr-kpi--ytd">
+            <div class="bvr-kpi__head"><i class="bi bi-cash-coin"></i> Réalisé YTD</div>
+            <div class="bvr-kpi__value">@FormatFcfa(_data.Kpis.RealiseYtd)</div>
+            <div class="bvr-kpi__sub">Budget YTD : @FormatFcfa(_data.Kpis.BudgetYtd)</div>
+        </div>
+
+        <div class="bvr-kpi @CssEcart(_data.Kpis.EcartYtd)">
+            <div class="bvr-kpi__head"><i class="bi bi-graph-up-arrow"></i> Écart YTD</div>
+            <div class="bvr-kpi__value">@FormatEcart(_data.Kpis.EcartYtd)</div>
+            <div class="bvr-kpi__sub">@FormatPct(_data.Kpis.EcartYtdPct)</div>
+        </div>
+
+        <div class="bvr-kpi @CssEcart(_data.Kpis.EcartProjection)">
+            <div class="bvr-kpi__head"><i class="bi bi-rocket-takeoff"></i> Projection annuelle</div>
+            <div class="bvr-kpi__value">@FormatFcfa(_data.Kpis.ProjectionAnnuelle)</div>
+            <div class="bvr-kpi__sub">Écart : @FormatEcart(_data.Kpis.EcartProjection) (@FormatPct(_data.Kpis.EcartProjectionPct))</div>
+        </div>
+    </section>
+
+    @* ── Alertes synthèse ────────────────────────────────────────── *@
+    <section class="bvr-alerts">
+        @if (_data.Kpis.NombreRubriquesEnDepassement > 0)
+        {
+            <div class="bvr-alert bvr-alert--warn">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>@_data.Kpis.NombreRubriquesEnDepassement</strong>
+                rubrique(s) au-dessus du seuil de @_filter.SeuilAlertePct.ToString("0", FrCulture)%.
+            </div>
+        }
+        @if (_data.Kpis.NombreSitesEnDepassement > 0)
+        {
+            <div class="bvr-alert bvr-alert--warn">
+                <i class="bi bi-geo-alt"></i>
+                <strong>@_data.Kpis.NombreSitesEnDepassement</strong>
+                site(s) au-dessus du seuil.
+            </div>
+        }
+        @if (_data.Kpis.NombreRubriquesEnDepassement == 0 && _data.Kpis.NombreSitesEnDepassement == 0)
+        {
+            <div class="bvr-alert bvr-alert--ok">
+                <i class="bi bi-check-circle"></i> Tous les indicateurs sont dans les seuils tolérés.
+            </div>
+        }
+    </section>
+
+    @* ── Tableau mensuel ─────────────────────────────────────────── *@
+    <section class="bvr-section">
+        <h3 class="bvr-section__title">Évolution mensuelle Budget vs Réalisé</h3>
+        @{
+            var maxMensuel = _data.Mensuel.Count > 0
+                ? Math.Max(1m, Math.Max(_data.Mensuel.Max(m => m.Budget), _data.Mensuel.Max(m => m.Realise)))
+                : 1m;
+        }
+        <table class="bvr-table">
+            <thead>
+                <tr>
+                    <th>Mois</th>
+                    <th class="num">Budget</th>
+                    <th class="num">Réalisé</th>
+                    <th class="num">Écart</th>
+                    <th class="num">Écart %</th>
+                    <th class="bar">Comparaison</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in _data.Mensuel)
+                {
+                    var pctB = (decimal)m.Budget * 100m / maxMensuel;
+                    var pctR = (decimal)m.Realise * 100m / maxMensuel;
+                    var cssRow = !m.RealiseDisponible ? "bvr-row--future" : "";
+                    <tr class="@cssRow">
+                        <td>@m.MoisLibelle</td>
+                        <td class="num">@FormatFcfa(m.Budget)</td>
+                        <td class="num">
+                            @if (m.RealiseDisponible) { @FormatFcfa(m.Realise) }
+                            else { <span class="bvr-na">—</span> }
+                        </td>
+                        <td class="num @CssEcart(m.Ecart)">
+                            @if (m.RealiseDisponible) { @FormatEcart(m.Ecart) }
+                            else { <span class="bvr-na">—</span> }
+                        </td>
+                        <td class="num @CssEcart(m.Ecart)">
+                            @if (m.RealiseDisponible) { @FormatPct(m.EcartPct) }
+                            else { <span class="bvr-na">—</span> }
+                        </td>
+                        <td class="bar">
+                            <div class="bvr-doublebar">
+                                <div class="bvr-doublebar__b" style="@($"width:{pctB.ToString("0.00", InvCulture)}%")" title="Budget"></div>
+                                @if (m.RealiseDisponible)
+                                {
+                                    <div class="bvr-doublebar__r" style="@($"width:{pctR.ToString("0.00", InvCulture)}%")" title="Réalisé"></div>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="bvr-legend">
+            <span><span class="dot dot-budget"></span>Budget</span>
+            <span><span class="dot dot-realise"></span>Réalisé</span>
+            <span class="bvr-hint">Lignes grisées = mois sans réalisé encore disponible.</span>
+        </div>
+    </section>
+
+    @* ── Cumul YTD ───────────────────────────────────────────────── *@
+    <section class="bvr-section">
+        <h3 class="bvr-section__title">Cumul YTD — Budget vs Réalisé</h3>
+        @{
+            var maxCumul = _data.CumulYtd.Count > 0
+                ? Math.Max(1m, _data.CumulYtd.Max(c => Math.Max(c.BudgetCumule, c.RealiseCumule)))
+                : 1m;
+        }
+        <div class="bvr-cumul">
+            @foreach (var c in _data.CumulYtd)
+            {
+                var pctB = (decimal)c.BudgetCumule * 100m / maxCumul;
+                var pctR = (decimal)c.RealiseCumule * 100m / maxCumul;
+                <div class="bvr-cumul__row">
+                    <div class="bvr-cumul__label">@c.MoisLibelle.Substring(0, Math.Min(3, c.MoisLibelle.Length))</div>
+                    <div class="bvr-cumul__bars">
+                        <div class="bvr-cumul__b" style="@($"width:{pctB.ToString("0.00", InvCulture)}%")" title="Budget cumulé">
+                            <span>@FormatFcfa(c.BudgetCumule)</span>
+                        </div>
+                        <div class="bvr-cumul__r" style="@($"width:{pctR.ToString("0.00", InvCulture)}%")" title="Réalisé cumulé">
+                            <span>@FormatFcfa(c.RealiseCumule)</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    @* ── 2 colonnes : par rubrique + par site ───────────────────── *@
+    <div class="bvr-grid">
+
+        <section class="bvr-section">
+            <h3 class="bvr-section__title">Décomposition par rubrique</h3>
+            @if (_data.ParRubrique.Count == 0)
+            {
+                <div class="bvr-empty">Aucun budget saisi pour @_data.Annee.</div>
+            }
+            else
+            {
+                <table class="bvr-table">
+                    <thead>
+                        <tr>
+                            <th>Rubrique</th>
+                            <th class="num">Budget</th>
+                            <th class="num">Réalisé*</th>
+                            <th class="num">Écart %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in _data.ParRubrique)
+                        {
+                            <tr>
+                                <td>@r.RubriqueLibelle</td>
+                                <td class="num">@FormatFcfa(r.Budget)</td>
+                                <td class="num">@FormatFcfa(r.Realise)</td>
+                                <td class="num @CssEcart(r.Ecart)">@FormatPct(r.EcartPct)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="bvr-note">* Réalisé ventilé au prorata du budget (V1.2). Mapping rubrique réelle prévu V1.3.</div>
+            }
+        </section>
+
+        <section class="bvr-section">
+            <h3 class="bvr-section__title">Écart par site</h3>
+            @if (_data.ParSite.Count == 0)
+            {
+                <div class="bvr-empty">Aucune ventilation site disponible.</div>
+            }
+            else
+            {
+                <table class="bvr-table">
+                    <thead>
+                        <tr>
+                            <th>Site</th>
+                            <th class="num">Budget</th>
+                            <th class="num">Réalisé</th>
+                            <th class="num">Écart %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in _data.ParSite)
+                        {
+                            <tr>
+                                <td>@s.SiteNom</td>
+                                <td class="num">@FormatFcfa(s.Budget)</td>
+                                <td class="num">@FormatFcfa(s.Realise)</td>
+                                <td class="num @CssEcart(s.Ecart)">@FormatPct(s.EcartPct)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </section>
+
+    </div>
+
+    <footer class="bvr-footer">
+        <span><i class="bi bi-clock-history"></i> Calculé le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
+        <span class="sep">·</span>
+        <span>Année @_data.Annee · Mois courant : @(_data.MoisCourant?.ToString("D2") ?? "—")</span>
+    </footer>
+}
+
+<style>
+    :root {
+        --bvr-navy: #142E4D;
+        --bvr-navy-light: #1F4376;
+        --bvr-orange: #F18A1C;
+        --bvr-blue: #1A73B5;
+        --bvr-red: #E63946;
+        --bvr-green: #2EA75B;
+        --bvr-text: #142E4D;
+        --bvr-soft: #5C6679;
+        --bvr-muted: #94A3BC;
+        --bvr-bg: #F6F7F9;
+        --bvr-border: #E5E7EB;
+        --bvr-track: #E5E9EE;
+    }
+
+    .bvr-loading, .bvr-error { padding: 2rem; }
+    .bvr-error { color: var(--bvr-red); font-weight: 600; }
+
+    .bvr-header {
+        background: linear-gradient(135deg, var(--bvr-navy) 0%, var(--bvr-navy-light) 100%);
+        color: #E6EAF1;
+        padding: 1.1rem 1.5rem;
+        display: flex; flex-wrap: wrap; gap: 1.25rem;
+        align-items: center; justify-content: space-between;
+        border-bottom: 3px solid var(--bvr-orange);
+    }
+    .bvr-header__title { display: flex; align-items: center; gap: 0.75rem; }
+    .bvr-back {
+        background: var(--bvr-navy-light); border: none; color: #fff;
+        width: 38px; height: 38px; border-radius: 50%;
+        font-size: 1.25rem; cursor: pointer;
+    }
+    .bvr-back:hover { background: var(--bvr-orange); }
+    .bvr-header__h1 { font-size: 1.55rem; font-weight: 700; margin: 0; color: #fff; }
+    .bvr-header__perimetre {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--bvr-orange); font-weight: 600;
+    }
+
+    .bvr-filters { display: flex; gap: 0.85rem; flex-wrap: wrap; }
+    .bvr-filters label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.72rem; }
+    .bvr-filters label span { color: #B7C2D5; text-transform: uppercase; letter-spacing: 0.04em; }
+    .bvr-filters select, .bvr-filters input {
+        padding: 0.35rem 0.55rem; border: 1px solid var(--bvr-navy-light);
+        background: rgba(255,255,255,0.08); color: #fff; border-radius: 4px;
+        font-size: 0.85rem; min-width: 120px;
+    }
+    .bvr-filters select option { color: var(--bvr-text); }
+
+    .bvr-help {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px; border-radius: 50%;
+        background: rgba(255,255,255,0.1); color: #fff;
+        text-decoration: none; font-size: 1.1rem;
+        align-self: flex-end;
+        transition: background 0.15s ease;
+    }
+    .bvr-help:hover { background: var(--bvr-orange); color: #fff; }
+
+    .bvr-kpis {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.85rem; padding: 1rem 1.5rem;
+    }
+    .bvr-kpi {
+        background: #fff; border: 1px solid var(--bvr-border);
+        border-radius: 8px; padding: 0.95rem 1.1rem;
+        box-shadow: 0 1px 2px rgba(20, 46, 77, 0.04);
+        border-left: 4px solid var(--bvr-navy);
+    }
+    .bvr-kpi--budget { border-left-color: var(--bvr-blue); }
+    .bvr-kpi--ytd { border-left-color: var(--bvr-orange); }
+    .bvr-kpi--ok { border-left-color: var(--bvr-green); }
+    .bvr-kpi--ko { border-left-color: var(--bvr-red); }
+    .bvr-kpi--neutral { border-left-color: var(--bvr-soft); }
+    .bvr-kpi__head {
+        font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+        color: var(--bvr-soft); font-weight: 600; margin-bottom: 0.4rem;
+    }
+    .bvr-kpi__head i { margin-right: 0.3rem; }
+    .bvr-kpi__value {
+        font-size: 1.55rem; font-weight: 700; color: var(--bvr-text);
+        font-variant-numeric: tabular-nums;
+    }
+    .bvr-kpi__sub { font-size: 0.75rem; color: var(--bvr-muted); margin-top: 0.25rem; }
+
+    .bvr-alerts { padding: 0 1.5rem 0.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .bvr-alert {
+        padding: 0.55rem 0.9rem; border-radius: 6px; font-size: 0.85rem;
+        display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .bvr-alert--ok   { background: #E8F5EE; color: #1F6E3F; border: 1px solid #B7E0C5; }
+    .bvr-alert--warn { background: #FEF3E2; color: #8A4F00; border: 1px solid #F8C77E; }
+
+    .bvr-section {
+        background: #fff; border: 1px solid var(--bvr-border);
+        border-radius: 8px; padding: 1rem 1.25rem 1.1rem;
+        margin: 0.85rem 1.5rem;
+        box-shadow: 0 1px 2px rgba(20, 46, 77, 0.04);
+    }
+    .bvr-section__title {
+        font-size: 0.95rem; font-weight: 700; color: var(--bvr-text);
+        margin: 0 0 0.7rem 0; padding-bottom: 0.45rem;
+        border-bottom: 2px solid var(--bvr-orange);
+        display: inline-block;
+    }
+
+    .bvr-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .bvr-table th, .bvr-table td {
+        padding: 0.45rem 0.65rem; border-bottom: 1px solid var(--bvr-border);
+        text-align: left; font-variant-numeric: tabular-nums;
+    }
+    .bvr-table th {
+        background: var(--bvr-bg); color: var(--bvr-soft); font-weight: 600;
+        text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.04em;
+    }
+    .bvr-table .num { text-align: right; }
+    .bvr-table .bar { width: 28%; }
+    .bvr-row--future td { color: var(--bvr-muted); background: rgba(0,0,0,0.015); }
+    .bvr-na { color: var(--bvr-muted); font-style: italic; }
+
+    .ec-pos { color: var(--bvr-red); font-weight: 700; }
+    .ec-neg { color: var(--bvr-green); font-weight: 700; }
+    .ec-neutral { color: var(--bvr-soft); }
+
+    .bvr-doublebar {
+        display: flex; flex-direction: column; gap: 2px;
+        background: var(--bvr-track); border-radius: 3px; overflow: hidden;
+        height: 18px; padding: 1px 0;
+    }
+    .bvr-doublebar__b { height: 7px; background: var(--bvr-blue); border-radius: 2px; transition: width 0.3s ease; }
+    .bvr-doublebar__r { height: 7px; background: var(--bvr-orange); border-radius: 2px; transition: width 0.3s ease; }
+
+    .bvr-legend {
+        margin-top: 0.6rem; font-size: 0.75rem; color: var(--bvr-soft);
+        display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap;
+    }
+    .bvr-legend .dot {
+        display: inline-block; width: 11px; height: 11px;
+        border-radius: 2px; margin-right: 0.35rem; vertical-align: middle;
+    }
+    .bvr-legend .dot-budget { background: var(--bvr-blue); }
+    .bvr-legend .dot-realise { background: var(--bvr-orange); }
+    .bvr-hint { margin-left: auto; font-style: italic; color: var(--bvr-muted); }
+
+    .bvr-cumul { display: flex; flex-direction: column; gap: 0.4rem; }
+    .bvr-cumul__row { display: grid; grid-template-columns: 50px 1fr; gap: 0.5rem; align-items: center; }
+    .bvr-cumul__label { font-size: 0.78rem; color: var(--bvr-soft); font-weight: 600; }
+    .bvr-cumul__bars { display: flex; flex-direction: column; gap: 2px; }
+    .bvr-cumul__b, .bvr-cumul__r {
+        height: 18px; display: flex; align-items: center; padding: 0 0.45rem;
+        color: #fff; font-size: 0.7rem; font-weight: 600; border-radius: 3px;
+        font-variant-numeric: tabular-nums; transition: width 0.35s ease;
+        white-space: nowrap; overflow: hidden;
+    }
+    .bvr-cumul__b { background: var(--bvr-blue); }
+    .bvr-cumul__r { background: var(--bvr-orange); }
+
+    .bvr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    @@media (max-width: 1100px) { .bvr-grid { grid-template-columns: 1fr; } }
+
+    .bvr-empty { color: var(--bvr-muted); padding: 1rem; font-style: italic; text-align: center; }
+    .bvr-note { font-size: 0.72rem; color: var(--bvr-muted); margin-top: 0.5rem; font-style: italic; }
+
+    .bvr-footer {
+        margin: 1rem 1.5rem; padding: 0.6rem 0; font-size: 0.72rem;
+        color: var(--bvr-muted); text-align: center;
+    }
+    .bvr-footer .sep { margin: 0 0.5rem; opacity: 0.5; }
+    .bvr-footer i { margin-right: 0.3rem; }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture = CultureInfo.GetCultureInfo("fr-FR");
+    private static readonly CultureInfo InvCulture = CultureInfo.InvariantCulture;
+
+    private bool _loading = true;
+    private string? _errorMessage;
+    private BudgetVsRealiseDto? _data;
+
+    private BudgetVsRealiseFilterModel _filter = new();
+    private List<int> _anneesDispo = new();
+    private List<Site> _sitesDispo = new();
+    private string _selectedSiteOid = "";
+
+    protected override void OnInitialized()
+    {
+        if (!DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
+        LoadLookups();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadDataAsync();
+        }
+    }
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Bulletin));
+
+            // Années : extraites des bulletins existants + année courante + N+1
+            var annees = os.GetObjectsQuery<Bulletin>()
+                .ToList()
+                .Select(b => b.Annee)
+                .Distinct()
+                .ToList();
+            annees.Add(DateTime.Today.Year);
+            annees.Add(DateTime.Today.Year + 1);
+            _anneesDispo = annees.Distinct().OrderByDescending(y => y).ToList();
+
+            _sitesDispo = os.GetObjectsQuery<Site>()
+                .ToList()
+                .OrderBy(s => s.Nom)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erreur chargement référentiels : {ex.Message}";
+        }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _loading = true;
+        _errorMessage = null;
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() =>
+            {
+                using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(BudgetMasseSalariale));
+                _data = Service.GetData(_filter, os);
+            });
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erreur de calcul : {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnSiteChanged()
+    {
+        if (Guid.TryParse(_selectedSiteOid, out var oid))
+            _filter.SiteOid = oid;
+        else
+            _filter.SiteOid = null;
+        await LoadDataAsync();
+    }
+
+    private async Task OnSeuilChanged(ChangeEventArgs e)
+    {
+        if (decimal.TryParse(e.Value?.ToString(), NumberStyles.Any, FrCulture, out var v) ||
+            decimal.TryParse(e.Value?.ToString(), NumberStyles.Any, InvCulture, out v))
+        {
+            _filter.SeuilAlertePct = v;
+            await LoadDataAsync();
+        }
+    }
+
+    // ── Helpers d'affichage ─────────────────────────────────────────
+    private string FormatFcfa(decimal v) => $"{v.ToString("N0", FrCulture)} FCFA";
+    private string FormatEcart(decimal v) => (v >= 0 ? "+" : "") + FormatFcfa(v);
+    private string FormatPct(decimal v) => (v >= 0 ? "+" : "") + v.ToString("0.00", FrCulture) + "%";
+
+    private string CssEcart(decimal v) =>
+        v > 0  ? "ec-pos" :
+        v < 0  ? "ec-neg" :
+                 "ec-neutral";
+}

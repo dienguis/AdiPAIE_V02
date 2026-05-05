@@ -122,6 +122,10 @@
       <Item Id="Tableaux de Bord" Visible="False" />
       <!-- Auto-créé par BusinessObject RapportPowerBI -->
       <Item Id="Tableaux de bord" Visible="False" />
+      <!-- V1.2 (mai 2026) — Doublon legacy auto-créé par 1ère version BudgetMasseSalariale.
+           L'entité a été déplacée dans "GRH - Administration" (Caption=Paramétrage).
+           Ce groupe legacy reste masqué pour éviter toute réapparition. -->
+      <Item Id="GRH - Paramétrage" Visible="False" />
 
       <Item Id="GRH_Dashboards" Caption="Tableaux de bord" Index="36" ImageName="Action_Report" IsNewNode="True" Visible="False">
         <Items IsNewNode="True">
@@ -153,6 +157,8 @@
           <Item Id="Param_DocumentTypes" Caption="Types de document" ViewId="DocumentTypeRef_ListView" Index="10" ImageName="Document Properties" IsNewNode="True" />
           <Item Id="Param_PretTypes" Caption="Types de prêt" ViewId="PretType_ListView" Index="11" IsNewNode="True" />
           <Item Id="Param_Workflows" Caption="Diagrammes de workflow" ViewId="Workflows_View" Index="12" ImageName="Action_Debug" IsNewNode="True" />
+          <!-- V1.2 — Module Budget RH -->
+          <Item Id="Param_BudgetMS" Caption="Budget Masse Salariale" ViewId="BudgetMasseSalariale_ListView" Index="15" ImageName="BO_Money" IsNewNode="True" />
         </Items>
       </Item>
       <Item Id="Administration" Caption="Administration" Index="50" ImageName="ModelEditor_Settings" IsNewNode="True">
@@ -161,7 +167,15 @@
           <Item Id="ParametresPaie_ListView" Caption="Paramètres de paie" ViewId="ParametresPaie_ListView" Index="1" IsNewNode="True" />
         </Items>
       </Item>
-      <Item Id="Default" Index="99">
+      <!-- V1.2 (mai 2026) — Le groupe "Default" est masqué de tous les menus.
+           Toutes les entités utiles sont placées explicitement dans :
+             - GRH - Paie / Ressources humaines / GRH_Conges / GRH_Missions /
+               GRH_Evaluation / GRH_Interimaires / GRH_EspaceSalarie /
+               Comptabilite / GRH - Administration / Administration
+           Si une nouvelle entité apparaît dans Default suite à un ajout
+           non placé, on l'ajoute au groupe approprié dans ce xafml plutôt
+           que de réafficher Default. -->
+      <Item Id="Default" Index="99" Visible="False">
         <Items>
           <Item Id="BaremeTRIMF_ListView" Removed="True" />
           <Item Id="Bulletin_ListView" Removed="True" />

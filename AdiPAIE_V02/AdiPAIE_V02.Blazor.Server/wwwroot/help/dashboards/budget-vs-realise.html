@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget vs Réalisé — Aide Tableau N°7</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+        <a href="/help/dashboards/budget-vs-realise.html" class="active">N°7 Budget</a>
+        <a href="/help/dashboards/provisions-sociales.html">N°8 Provisions</a>
+        <a href="/help/dashboards/cout-complet.html">N°9 Coût Complet</a>
+        <a href="/help/dashboards/conformite-senegal.html">N°10 Conformité</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°7 · V1.2</div>
+        <h1>Budget vs Réalisé Masse Salariale</h1>
+        <p class="lead">Pilotage mensuel et annuel de l'écart entre le budget de masse salariale validé en CODIR et le réalisé effectif (bulletins + charges patronales).</p>
+
+        <h2>À quoi sert ce tableau</h2>
+        <p>Permet au DAF de répondre instantanément à 3 questions critiques :</p>
+        <ul>
+            <li><strong>Suis-je dans le budget ce mois-ci ?</strong> (écart mensuel valeur + %)</li>
+            <li><strong>Suis-je dans le budget cumul YTD ?</strong> (écart cumulé depuis janvier)</li>
+            <li><strong>Vais-je tenir le budget annuel ?</strong> (projection = YTD réalisé + budget restant)</li>
+        </ul>
+
+        <h2>Pour qui</h2>
+        <ul>
+            <li><strong>DAF + Contrôle de gestion</strong> : revue mensuelle obligatoire.</li>
+            <li><strong>DG / DAF</strong> : arbitrage des dépassements (recrutements à différer, primes à ajuster).</li>
+            <li><strong>RH Manager</strong> : visibilité sur l'enveloppe RH disponible avant nouveau recrutement.</li>
+        </ul>
+
+        <h2 id="prerequis">Prérequis : Module Budget RH</h2>
+        <p>Ce dashboard <strong>nécessite que le budget ait été saisi</strong> dans le module Budget RH (menu <em>Paramétrage → Budget Masse Salariale</em>). Sans budget saisi, les écarts seront affichés à 100 % de dépassement.</p>
+
+        <p>Le budget se saisit avec une granularité <strong>Année × Mois × Site × Rubrique</strong> :</p>
+        <ul>
+            <li><strong>9 rubriques</strong> : Salaires de base, Primes, 13e mois, Gratifications, Indemnités, Charges patronales, Avantages en nature, Formation, Recrutement.</li>
+            <li><strong>Site nullable</strong> : un budget peut être global (Site=NULL) ou ventilé par station/dépôt.</li>
+        </ul>
+
+        <h2>Lecture des KPI (cartes du haut)</h2>
+        <table>
+            <thead><tr><th>KPI</th><th>Calcul</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Budget annuel</strong></td><td>Somme de toutes les lignes budgétaires de l'année sélectionnée.</td></tr>
+                <tr><td><strong>Réalisé YTD</strong></td><td>Somme des bulletins (BrutFiscal) + charges patronales (BulletinLigne.MontantEmployeur), de janvier au mois courant.</td></tr>
+                <tr><td><strong>Écart YTD</strong></td><td>Réalisé YTD − Budget YTD. Affiché en valeur et % avec code couleur (rouge = dépassement, vert = sous-conso).</td></tr>
+                <tr><td><strong>Projection annuelle</strong></td><td><code>Réalisé YTD + Σ Budget des mois restants</code>. Donne une estimation du coût à fin d'année si la tendance se poursuit.</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Sections du tableau</h2>
+
+        <h3>Évolution mensuelle Budget vs Réalisé</h3>
+        <p>Tableau 12 lignes (janvier → décembre) avec :</p>
+        <ul>
+            <li>Budget mensuel</li>
+            <li>Réalisé mensuel (— pour les mois sans bulletin)</li>
+            <li>Écart valeur + écart %</li>
+            <li>Mini-barres comparatives Budget (bleu) vs Réalisé (orange)</li>
+        </ul>
+
+        <h3>Cumul YTD</h3>
+        <p>Vue glissante sur les 12 mois : pour chaque mois, le budget cumulé depuis janvier vs le réalisé cumulé. Permet de voir si le décalage est conjoncturel (1 mois) ou structurel (qui s'accentue chaque mois).</p>
+
+        <h3>Décomposition par rubrique</h3>
+        <p>Chaque rubrique budgétaire avec son budget annuel et son réalisé estimé.</p>
+        <div class="alerte" style="background:#FEF3E2;border-left:4px solid #F0AD4E;padding:0.7rem 1rem;border-radius:4px;">
+            <strong>⚠️ Note V1.2 :</strong> Le réalisé par rubrique est ventilé au prorata du budget de chaque rubrique sur le total budgété (heuristique). Le mapping exact <code>BudgetRubrique ↔ RubriqueTypeRef</code> sera implémenté en V1.3 pour une ventilation rigoureuse.
+        </div>
+
+        <h3>Écart par site</h3>
+        <p>Pour chaque site ayant un budget saisi : budget annuel, réalisé estimé (au prorata du brut imputé au site), écart %.</p>
+
+        <h2>Filtres disponibles</h2>
+        <ul>
+            <li><strong>Année</strong> : sélection de l'année à analyser (par défaut année courante).</li>
+            <li><strong>Site</strong> : focus sur un site précis ou tous les sites.</li>
+            <li><strong>Seuil alerte (%)</strong> : seuil de tolérance au-dessus duquel un écart est considéré comme "à risque" (5 % par défaut).</li>
+        </ul>
+
+        <h2>Cas d'usage typiques</h2>
+        <table>
+            <thead><tr><th>Quand</th><th>Action attendue</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Revue mensuelle DAF</strong> (1er ou 5 du mois)</td><td>Ouvrir le dashboard, lire l'écart YTD, identifier les rubriques en dépassement.</td></tr>
+                <tr><td><strong>Avant un recrutement</strong></td><td>Vérifier qu'il y a du budget restant sur la rubrique "Recrutement" et "Salaires de base".</td></tr>
+                <tr><td><strong>Revue trimestrielle CODIR</strong></td><td>Présenter la projection annuelle et les actions correctives proposées.</td></tr>
+                <tr><td><strong>Préparation budget N+1</strong></td><td>Comparer Réalisé N avec Budget N → calibrer Budget N+1 par rubrique.</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Limites connues V1.2</h2>
+        <ul>
+            <li>Ventilation du réalisé par rubrique au prorata (V1.3 : mapping rubrique réelle).</li>
+            <li>Ventilation par site faite au prorata du brut imputé au site (approximatif si plusieurs sites partagent un budget global).</li>
+            <li>Pas encore d'export Excel (à venir en V1.2.1).</li>
+        </ul>
+
+        <h2>Questions fréquentes</h2>
+        <table>
+            <thead><tr><th>Question</th><th>Réponse</th></tr></thead>
+            <tbody>
+                <tr><td>Mon écart est de +100 % partout, pourquoi ?</td><td>Aucun budget n'est saisi pour l'année. Aller dans <em>Paramétrage → Budget Masse Salariale</em>.</td></tr>
+                <tr><td>Mon écart paraît énorme en décembre ?</td><td>Si vous avez budgété le 13e mois en janvier (linéaire /12) au lieu de décembre, c'est un effet de mensualisation. Saisir le budget 13e mois 100 % en décembre.</td></tr>
+                <tr><td>Quel seuil d'alerte recommander ?</td><td>5 % est standard pour une masse salariale stable. 3 % pour une vigilance accrue, 10 % si le budget est volontairement large.</td></tr>
+                <tr><td>Le budget peut être saisi en bloc annuel et mensualisé auto ?</td><td>Oui — fonctionnalité prévue dans le module Budget RH (V1.2.1). En V1.2 initiale, saisie ligne par ligne.</td></tr>
+            </tbody>
+        </table>
+
+        <p class="footer-help">SunuPaie — V1.2 (mai 2026) — Tableau N°7 Budget vs Réalisé</p>
+    </main>
+</body>
+</html>

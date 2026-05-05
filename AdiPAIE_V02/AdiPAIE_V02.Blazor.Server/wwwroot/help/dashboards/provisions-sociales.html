@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provisions Sociales — Aide Tableau N°8</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+        <a href="/help/dashboards/budget-vs-realise.html">N°7 Budget</a>
+        <a href="/help/dashboards/provisions-sociales.html" class="active">N°8 Provisions</a>
+        <a href="/help/dashboards/cout-complet.html">N°9 Coût Complet</a>
+        <a href="/help/dashboards/conformite-senegal.html">N°10 Conformité</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°8 · V1.2</div>
+        <h1>Provisions Sociales (IDR + Congés Payés)</h1>
+        <p class="lead">Calcul des provisions à inscrire au bilan : Indemnité de Départ à la Retraite (IDR) selon la Convention Collective Interprofessionnelle du Sénégal, et provision congés payés acquis non pris.</p>
+
+        <h2>À quoi sert ce tableau</h2>
+        <p>Conformément aux normes <strong>SYSCOHADA</strong> (et IFRS / IAS 19 si filiale d'un groupe coté), une entreprise doit provisionner à son bilan :</p>
+        <ul>
+            <li>L'<strong>indemnité de départ à la retraite</strong> due à chaque salarié, calculée pro-rata temporis sur l'ancienneté acquise.</li>
+            <li>La <strong>valeur des congés payés acquis non pris</strong> à la date de clôture, qui constitue une dette envers les salariés.</li>
+        </ul>
+        <p>Sans ce dashboard, le calcul est typiquement fait manuellement en fin d'année par le DAF — d'où le risque de mauvaise surprise au moment de la clôture (ajustements significatifs demandés par le commissaire aux comptes).</p>
+
+        <h2>Pour qui</h2>
+        <ul>
+            <li><strong>DAF</strong> : revue trimestrielle pour anticiper la provision à passer en clôture.</li>
+            <li><strong>Commissaire aux comptes / Audit</strong> : justification du montant porté au passif du bilan (export Excel détaillé par salarié).</li>
+            <li><strong>RH Manager</strong> : visibilité sur les engagements futurs liés à l'ancienneté.</li>
+        </ul>
+
+        <h2 id="formule-idr">Formule de calcul — IDR (Indemnité Départ Retraite)</h2>
+        <p>Le barème appliqué est celui de la <strong>Convention Collective Interprofessionnelle du Sénégal</strong>, adopté par défaut dans le secteur privé. Le taux varie selon la tranche d'ancienneté :</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tranche d'ancienneté</th>
+                    <th>Taux IDR appliqué</th>
+                    <th>Formule</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Moins de 5 ans</td>
+                    <td><strong>25 %</strong></td>
+                    <td><code>Salaire mensuel × 25 % × ancienneté en années</code></td>
+                </tr>
+                <tr>
+                    <td>De 5 à 10 ans</td>
+                    <td><strong>30 %</strong></td>
+                    <td><code>Salaire mensuel × 30 % × ancienneté en années</code></td>
+                </tr>
+                <tr>
+                    <td>Plus de 10 ans</td>
+                    <td><strong>40 %</strong></td>
+                    <td><code>Salaire mensuel × 40 % × ancienneté en années</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Définitions précises</h3>
+        <ul>
+            <li><strong>Salaire mensuel de référence</strong> = moyenne du <code>BrutFiscal</code> des <strong>12 derniers bulletins</strong> précédant la date de calcul. Si moins de 12 bulletins, moyenne sur les bulletins disponibles. Si aucun bulletin, valeur 0.</li>
+            <li><strong>Ancienneté en années</strong> = <code>(DateRéférence − DateEmbauche) / 365.25 jours</code>, exprimée en décimal (ex : 7,42 ans). Aucun arrondi à l'entier.</li>
+            <li><strong>Date de référence</strong> = date saisie par l'utilisateur dans le filtre du dashboard (par défaut, aujourd'hui).</li>
+        </ul>
+
+        <h3>Exemple de calcul IDR</h3>
+        <div class="exemple">
+            <p><strong>Cas Aïssatou Diop</strong> (matricule SLR-0042) :</p>
+            <ul>
+                <li>Date d'embauche : 15 mars 2018</li>
+                <li>Date de référence : 31 mai 2026</li>
+                <li>Ancienneté = (2026-05-31 − 2018-03-15) / 365,25 = <strong>8,21 ans</strong></li>
+                <li>Salaire mensuel de référence = moyenne BrutFiscal 06/2025 → 05/2026 = <strong>620 000 FCFA</strong></li>
+                <li>Tranche : 5-10 ans → taux <strong>30 %</strong></li>
+            </ul>
+            <p><strong>Provision IDR</strong> = 620 000 × 30 % × 8,21 = <strong>1 527 060 FCFA</strong></p>
+        </div>
+
+        <h2 id="formule-cp">Formule de calcul — Congés Payés acquis non pris</h2>
+        <p>Le code du travail sénégalais accorde aux salariés <strong>2,5 jours ouvrables de congés par mois travaillé</strong> (soit 30 jours par an). À la clôture, le solde acquis non encore pris constitue une dette à provisionner.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Élément</th>
+                    <th>Calcul</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Solde de congés acquis</td>
+                    <td><code>Acquis depuis l'embauche − Pris à la date de référence</code></td>
+                </tr>
+                <tr>
+                    <td>Valeur d'un jour de congé</td>
+                    <td><code>Salaire mensuel de référence ÷ 22 jours ouvrés</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Provision CP</strong></td>
+                    <td><code>Solde × (Salaire mensuel ÷ 22)</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="alerte" style="background:#FEF3E2;border-left:4px solid #F0AD4E;padding:0.7rem 1rem;border-radius:4px;">
+            <strong>⚠️ Limite V1.2 :</strong> Le solde de congés acquis non pris est aujourd'hui <em>estimé</em> à partir de l'ancienneté (proxy théorique 2,5 j/mois). Le calcul exact (basé sur l'entité <code>SoldeConge</code> ou équivalent du module Congés) sera intégré en V1.2.1 quand l'entité sera mappée. Le résultat actuel sert d'<strong>ordre de grandeur</strong>, pas de chiffre opposable.
+        </div>
+
+        <h3>Exemple de calcul CP</h3>
+        <div class="exemple">
+            <p><strong>Cas Aïssatou Diop</strong> (suite) :</p>
+            <ul>
+                <li>Solde estimé : 23 jours acquis non pris</li>
+                <li>Valeur d'un jour : 620 000 ÷ 22 = <strong>28 182 FCFA / jour</strong></li>
+            </ul>
+            <p><strong>Provision CP</strong> = 23 × 28 182 = <strong>648 186 FCFA</strong></p>
+            <p><strong>Total à provisionner pour Aïssatou</strong> = 1 527 060 + 648 186 = <strong>2 175 246 FCFA</strong></p>
+        </div>
+
+        <h2>Lecture des KPI (cartes du haut)</h2>
+        <table>
+            <thead><tr><th>KPI</th><th>Calcul</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Provision IDR totale</strong></td><td>Somme des provisions IDR individuelles de tous les salariés actifs à la date de référence.</td></tr>
+                <tr><td><strong>Provision CP totale</strong></td><td>Somme des provisions congés payés.</td></tr>
+                <tr><td><strong>Total à provisionner</strong></td><td>Somme IDR + CP — c'est le montant à inscrire au passif du bilan.</td></tr>
+                <tr><td><strong>Moyenne IDR par salarié</strong></td><td>Provision IDR totale ÷ nombre de salariés concernés.</td></tr>
+                <tr><td><strong>Variation mois</strong></td><td>Différence entre la provision totale du mois courant et celle du mois précédent (calculée à partir de l'évolution glissante).</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Sections du tableau</h2>
+
+        <h3>Top 10 — Provision IDR la plus élevée</h3>
+        <p>Liste des 10 salariés avec la provision IDR la plus forte. Permet d'identifier les engagements concentrés (anciens salariés à fort salaire).</p>
+
+        <h3>Ventilation par tranche d'ancienneté</h3>
+        <p>Récapitule pour chaque tranche (&lt;5 ans, 5-10 ans, &gt;10 ans) :</p>
+        <ul>
+            <li>Effectif concerné</li>
+            <li>Taux IDR appliqué (25 / 30 / 40 %)</li>
+            <li>Provision totale de la tranche</li>
+            <li>Provision moyenne par salarié de la tranche</li>
+        </ul>
+
+        <h3>Évolution sur 12 mois glissants</h3>
+        <p>Histogramme empilé montrant l'évolution mois par mois de la provision IDR (bleu) et CP (orange) sur les 12 derniers mois. Permet de détecter une forte progression et anticiper le coût en clôture.</p>
+
+        <h2>Filtres disponibles</h2>
+        <ul>
+            <li><strong>Date de référence</strong> : pivote l'ensemble des calculs à cette date (utile pour clôture trimestrielle/annuelle).</li>
+            <li><strong>Site</strong> : filtre les salariés affectés au site sélectionné (ou tous sites confondus).</li>
+        </ul>
+
+        <h2>Cas d'usage typiques</h2>
+        <table>
+            <thead><tr><th>Quand</th><th>Action attendue</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Clôture trimestrielle</strong></td><td>Régler la date de référence au dernier jour du trimestre. Exporter Excel pour le commissaire aux comptes.</td></tr>
+                <tr><td><strong>Préparation budget N+1</strong></td><td>Comparer la provision à fin N avec celle de fin N-1 → prévoir la dotation N+1.</td></tr>
+                <tr><td><strong>Audit social</strong></td><td>Justifier les engagements long terme par salarié (Top 10 + ventilation par tranche).</td></tr>
+                <tr><td><strong>Départ d'un salarié</strong></td><td>Avant son départ, vérifier la provision IDR individuelle pour calibrer le solde de tout compte.</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Limites connues V1.2 (à compléter en V1.2.1)</h2>
+        <ul>
+            <li>Solde congés payés calculé sur estimation théorique (proxy 2,5 j/mois × ancienneté). À brancher sur l'entité <code>SoldeConge</code> du module Congés en V1.2.1.</li>
+            <li>Le barème IDR appliqué est celui de la CCI standard (25/30/40 %). Si ELTON applique un avenant ou une convention spécifique, il faudra paramétrer le barème dans <code>ParametresPaie</code>.</li>
+            <li>L'IDR est calculée hors plafond. Certaines CCI imposent un plafond (ex : 6 mois de salaire). À paramétrer si applicable.</li>
+        </ul>
+
+        <h2>Questions fréquentes</h2>
+        <table>
+            <thead><tr><th>Question</th><th>Réponse</th></tr></thead>
+            <tbody>
+                <tr><td>Pourquoi mon salarié a une provision IDR à 0 ?</td><td>Soit aucun bulletin disponible sur les 12 derniers mois, soit DateEmbauche dans le futur, soit le salarié est sorti avant la date de référence.</td></tr>
+                <tr><td>Pourquoi le total varie sur le même mois si je recalcule ?</td><td>Le cache TTL est de 5 minutes. Pour forcer un recalcul, attendre 5 min ou changer puis revenir sur la date.</td></tr>
+                <tr><td>Comment exporter le détail pour le CAC ?</td><td>L'export Excel détaillé par salarié arrive en V1.2.1 (ce dashboard est en lecture seule en V1.2 initiale).</td></tr>
+                <tr><td>Le barème change si la convention collective d'ELTON est différente ?</td><td>Oui — sera paramétrable via <code>ParametresPaie.BaremeIDR_*</code> en V1.2.1. Pour l'instant, valeurs en dur dans le service (cf. <code>ProvisionsSocialesDashboardService.ComputeTauxIDR</code>).</td></tr>
+            </tbody>
+        </table>
+
+        <p class="footer-help">SunuPaie — V1.2 (mai 2026) — Tableau N°8 Provisions Sociales</p>
+    </main>
+</body>
+</html>

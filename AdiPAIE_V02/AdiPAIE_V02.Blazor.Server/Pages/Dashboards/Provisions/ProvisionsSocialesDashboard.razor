@@ -1,0 +1,436 @@
+@* =====================================================================
+    ProvisionsSocialesDashboard.razor — V1.2 Sprint 3
+    URL : /dashboards/provisions-sociales
+    Périmètre : Pilotage DAF + Audit comptable (CAC)
+    Calcul IDR (CCI Sénégal) + Provision congés payés acquis non pris.
+   ===================================================================== *@
+
+@page "/dashboards/provisions-sociales"
+@attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+
+@inject IProvisionsSocialesDashboardService Service
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
+
+<PageTitle>Provisions Sociales — Tableaux de Bord RH</PageTitle>
+
+@if (_loading)
+{
+    <div class="ps-loading">
+        <DxLoadingPanel Text="Calcul des provisions…" Visible="true" />
+    </div>
+}
+else if (_errorMessage != null)
+{
+    <div class="ps-error">@_errorMessage</div>
+}
+else if (_data != null)
+{
+    <header class="ps-header">
+        <div class="ps-header__title">
+            <button class="ps-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
+                <i class="bi bi-arrow-left-circle"></i>
+            </button>
+            <div>
+                <div class="ps-header__perimetre">Pilotage DAF · Tableau N°8 · Conformité SYSCOHADA</div>
+                <h1 class="ps-header__h1">Provisions Sociales (IDR + Congés Payés)</h1>
+            </div>
+        </div>
+        <div class="ps-filters">
+            <a class="ps-help" title="Aide ce tableau" href="/help/dashboards/provisions-sociales.html" target="_blank" rel="noopener">
+                <i class="bi bi-question-circle"></i>
+            </a>
+            <label>
+                <span>Date de calcul</span>
+                <input type="date" value="@_filter.DateReference.ToString("yyyy-MM-dd")"
+                       @onchange="OnDateChanged" />
+            </label>
+            <label>
+                <span>Site</span>
+                <select @bind="_selectedSiteOid" @bind:after="OnSiteChanged">
+                    <option value="">Tous</option>
+                    @foreach (var s in _sitesDispo)
+                    {
+                        <option value="@s.Oid">@s.Nom</option>
+                    }
+                </select>
+            </label>
+        </div>
+    </header>
+
+    <section class="ps-kpis">
+        <div class="ps-kpi ps-kpi--idr">
+            <div class="ps-kpi__head"><i class="bi bi-shield-check"></i> Provision IDR totale</div>
+            <div class="ps-kpi__value">@FormatFcfa(_data.Kpis.ProvisionIDRTotale)</div>
+            <div class="ps-kpi__sub">@_data.Kpis.NombreSalariesConcernes salariés concernés</div>
+        </div>
+        <div class="ps-kpi ps-kpi--cp">
+            <div class="ps-kpi__head"><i class="bi bi-calendar-check"></i> Provision congés payés</div>
+            <div class="ps-kpi__value">@FormatFcfa(_data.Kpis.ProvisionCongesPayesTotale)</div>
+            <div class="ps-kpi__sub">@_data.Kpis.NombreJoursCongesAcquis.ToString("0", FrCulture) jours acquis non pris</div>
+        </div>
+        <div class="ps-kpi ps-kpi--total">
+            <div class="ps-kpi__head"><i class="bi bi-bank"></i> Total à provisionner</div>
+            <div class="ps-kpi__value">@FormatFcfa(_data.Kpis.ProvisionTotale)</div>
+            <div class="ps-kpi__sub">Variation mois : @FormatEcart(_data.Kpis.VariationMois) (@FormatPct(_data.Kpis.VariationMoisPct))</div>
+        </div>
+        <div class="ps-kpi ps-kpi--avg">
+            <div class="ps-kpi__head"><i class="bi bi-person-badge"></i> Moyenne IDR par salarié</div>
+            <div class="ps-kpi__value">@FormatFcfa(_data.Kpis.ProvisionIDRMoyenneParSalarie)</div>
+            <div class="ps-kpi__sub">Date réf. @_data.DateReference.ToString("dd/MM/yyyy", FrCulture)</div>
+        </div>
+    </section>
+
+    <div class="ps-grid">
+
+        <section class="ps-section">
+            <h3 class="ps-section__title">Top 10 — Provision IDR la plus élevée</h3>
+            @if (_data.TopProvisionsIDR.Count == 0)
+            {
+                <div class="ps-empty">Aucune provision à afficher.</div>
+            }
+            else
+            {
+                <table class="ps-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Matricule</th>
+                            <th>Salarié</th>
+                            <th class="num">Ancienneté</th>
+                            <th class="num">Salaire réf.</th>
+                            <th class="num">Taux</th>
+                            <th class="num">Provision IDR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ var rank = 1; }
+                        @foreach (var d in _data.TopProvisionsIDR)
+                        {
+                            <tr>
+                                <td>@rank</td>
+                                <td>@d.Matricule</td>
+                                <td>@d.NomComplet</td>
+                                <td class="num">@d.AncienneteAnnees.ToString("0.0", FrCulture) ans</td>
+                                <td class="num">@FormatFcfa(d.SalaireMensuelReference)</td>
+                                <td class="num">@(d.TauxIDR.ToString("P0", FrCulture))</td>
+                                <td class="num strong">@FormatFcfa(d.ProvisionIDR)</td>
+                            </tr>
+                            rank++;
+                        }
+                    </tbody>
+                </table>
+            }
+        </section>
+
+        <section class="ps-section">
+            <h3 class="ps-section__title">Ventilation par tranche d'ancienneté</h3>
+            <table class="ps-table">
+                <thead>
+                    <tr>
+                        <th>Tranche</th>
+                        <th class="num">Effectif</th>
+                        <th class="num">Taux IDR</th>
+                        <th class="num">Provision totale</th>
+                        <th class="num">Moyenne</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in _data.ParTrancheAnciennete)
+                    {
+                        <tr>
+                            <td>@t.Tranche</td>
+                            <td class="num">@t.NombreSalaries</td>
+                            <td class="num">@(t.TauxApplique.ToString("P0", FrCulture))</td>
+                            <td class="num strong">@FormatFcfa(t.ProvisionIDR)</td>
+                            <td class="num">@FormatFcfa(t.ProvisionMoyenne)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <section class="ps-section">
+        <h3 class="ps-section__title">Évolution provision sur 12 mois</h3>
+        @{
+            var maxEvol = _data.EvolutionIDR.Count > 0
+                ? Math.Max(1m, _data.EvolutionIDR.Max(e => e.ProvisionIDR + e.ProvisionCongesPayes))
+                : 1m;
+        }
+        <div class="ps-evol">
+            @foreach (var e in _data.EvolutionIDR)
+            {
+                var pctIDR = (decimal)e.ProvisionIDR * 100m / maxEvol;
+                var pctCP = (decimal)e.ProvisionCongesPayes * 100m / maxEvol;
+                <div class="ps-evol__row">
+                    <div class="ps-evol__lbl">@e.Libelle</div>
+                    <div class="ps-evol__bar">
+                        <div class="ps-evol__idr" style="@($"width:{pctIDR.ToString("0.00", InvCulture)}%")" title="@($"IDR : {FormatFcfa(e.ProvisionIDR)}")"></div>
+                        <div class="ps-evol__cp" style="@($"width:{pctCP.ToString("0.00", InvCulture)}%")" title="@($"CP : {FormatFcfa(e.ProvisionCongesPayes)}")"></div>
+                    </div>
+                    <div class="ps-evol__val">@FormatFcfa(e.ProvisionIDR + e.ProvisionCongesPayes)</div>
+                </div>
+            }
+        </div>
+        <div class="ps-legend">
+            <span><span class="dot dot-idr"></span>IDR</span>
+            <span><span class="dot dot-cp"></span>Congés Payés</span>
+        </div>
+    </section>
+
+    <footer class="ps-footer">
+        <span><i class="bi bi-clock-history"></i> Calculé le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
+        <span class="sep">·</span>
+        <span>Date de référence : @_data.DateReference.ToString("dd/MM/yyyy", FrCulture)</span>
+        <span class="sep">·</span>
+        <span class="ps-footer__hint">Barème IDR appliqué : 25% (&lt; 5 ans) / 30% (5-10 ans) / 40% (&gt; 10 ans) — CCI Sénégal</span>
+    </footer>
+}
+
+<style>
+    :root {
+        --ps-navy: #142E4D;
+        --ps-navy-light: #1F4376;
+        --ps-orange: #F18A1C;
+        --ps-blue: #1A73B5;
+        --ps-purple: #7B5EA7;
+        --ps-green: #2EA75B;
+        --ps-red: #E63946;
+        --ps-text: #142E4D;
+        --ps-soft: #5C6679;
+        --ps-muted: #94A3BC;
+        --ps-bg: #F6F7F9;
+        --ps-border: #E5E7EB;
+        --ps-track: #E5E9EE;
+    }
+
+    .ps-loading, .ps-error { padding: 2rem; }
+    .ps-error { color: var(--ps-red); font-weight: 600; }
+
+    .ps-header {
+        background: linear-gradient(135deg, var(--ps-navy) 0%, var(--ps-navy-light) 100%);
+        color: #E6EAF1;
+        padding: 1.1rem 1.5rem;
+        display: flex; flex-wrap: wrap; gap: 1.25rem;
+        align-items: center; justify-content: space-between;
+        border-bottom: 3px solid var(--ps-orange);
+    }
+    .ps-header__title { display: flex; align-items: center; gap: 0.75rem; }
+    .ps-back {
+        background: var(--ps-navy-light); border: none; color: #fff;
+        width: 38px; height: 38px; border-radius: 50%;
+        font-size: 1.25rem; cursor: pointer;
+    }
+    .ps-back:hover { background: var(--ps-orange); }
+    .ps-header__h1 { font-size: 1.55rem; font-weight: 700; margin: 0; color: #fff; }
+    .ps-header__perimetre {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--ps-orange); font-weight: 600;
+    }
+
+    .ps-filters { display: flex; gap: 0.85rem; flex-wrap: wrap; }
+    .ps-filters label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.72rem; }
+    .ps-filters label span { color: #B7C2D5; text-transform: uppercase; letter-spacing: 0.04em; }
+    .ps-filters select, .ps-filters input {
+        padding: 0.35rem 0.55rem; border: 1px solid var(--ps-navy-light);
+        background: rgba(255,255,255,0.08); color: #fff; border-radius: 4px;
+        font-size: 0.85rem; min-width: 140px;
+    }
+    .ps-filters select option { color: var(--ps-text); }
+
+    .ps-help {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px; border-radius: 50%;
+        background: rgba(255,255,255,0.1); color: #fff;
+        text-decoration: none; font-size: 1.1rem;
+        align-self: flex-end;
+        transition: background 0.15s ease;
+    }
+    .ps-help:hover { background: var(--ps-orange); color: #fff; }
+
+    .ps-kpis {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.85rem; padding: 1rem 1.5rem;
+    }
+    .ps-kpi {
+        background: #fff; border: 1px solid var(--ps-border);
+        border-radius: 8px; padding: 0.95rem 1.1rem;
+        box-shadow: 0 1px 2px rgba(20, 46, 77, 0.04);
+        border-left: 4px solid var(--ps-navy);
+    }
+    .ps-kpi--idr { border-left-color: var(--ps-blue); }
+    .ps-kpi--cp { border-left-color: var(--ps-orange); }
+    .ps-kpi--total { border-left-color: var(--ps-purple); }
+    .ps-kpi--avg { border-left-color: var(--ps-soft); }
+    .ps-kpi__head {
+        font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+        color: var(--ps-soft); font-weight: 600; margin-bottom: 0.4rem;
+    }
+    .ps-kpi__value {
+        font-size: 1.5rem; font-weight: 700; color: var(--ps-text);
+        font-variant-numeric: tabular-nums;
+    }
+    .ps-kpi__sub { font-size: 0.74rem; color: var(--ps-muted); margin-top: 0.25rem; }
+
+    .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    @@media (max-width: 1100px) { .ps-grid { grid-template-columns: 1fr; } }
+
+    .ps-section {
+        background: #fff; border: 1px solid var(--ps-border);
+        border-radius: 8px; padding: 1rem 1.25rem 1.1rem;
+        margin: 0.85rem 1.5rem;
+        box-shadow: 0 1px 2px rgba(20, 46, 77, 0.04);
+    }
+    .ps-section__title {
+        font-size: 0.95rem; font-weight: 700; color: var(--ps-text);
+        margin: 0 0 0.7rem 0; padding-bottom: 0.45rem;
+        border-bottom: 2px solid var(--ps-orange);
+        display: inline-block;
+    }
+
+    .ps-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .ps-table th, .ps-table td {
+        padding: 0.45rem 0.65rem; border-bottom: 1px solid var(--ps-border);
+        text-align: left; font-variant-numeric: tabular-nums;
+    }
+    .ps-table th {
+        background: var(--ps-bg); color: var(--ps-soft); font-weight: 600;
+        text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.04em;
+    }
+    .ps-table .num { text-align: right; }
+    .ps-table .strong { font-weight: 700; color: var(--ps-text); }
+
+    .ps-evol { display: flex; flex-direction: column; gap: 0.4rem; }
+    .ps-evol__row { display: grid; grid-template-columns: 80px 1fr 110px; gap: 0.5rem; align-items: center; }
+    .ps-evol__lbl { font-size: 0.78rem; color: var(--ps-soft); font-weight: 600; }
+    .ps-evol__bar {
+        display: flex; height: 18px; background: var(--ps-track);
+        border-radius: 3px; overflow: hidden;
+    }
+    .ps-evol__idr { background: var(--ps-blue); transition: width 0.35s ease; }
+    .ps-evol__cp { background: var(--ps-orange); transition: width 0.35s ease; }
+    .ps-evol__val {
+        font-size: 0.78rem; text-align: right; font-weight: 700;
+        color: var(--ps-text); font-variant-numeric: tabular-nums;
+    }
+
+    .ps-legend {
+        margin-top: 0.6rem; font-size: 0.75rem; color: var(--ps-soft);
+        display: flex; gap: 1.25rem;
+    }
+    .ps-legend .dot {
+        display: inline-block; width: 11px; height: 11px;
+        border-radius: 2px; margin-right: 0.35rem; vertical-align: middle;
+    }
+    .ps-legend .dot-idr { background: var(--ps-blue); }
+    .ps-legend .dot-cp { background: var(--ps-orange); }
+
+    .ps-empty { color: var(--ps-muted); padding: 1rem; font-style: italic; text-align: center; }
+
+    .ps-footer {
+        margin: 1rem 1.5rem; padding: 0.6rem 0; font-size: 0.72rem;
+        color: var(--ps-muted); text-align: center;
+    }
+    .ps-footer .sep { margin: 0 0.5rem; opacity: 0.5; }
+    .ps-footer__hint { font-style: italic; }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture = CultureInfo.GetCultureInfo("fr-FR");
+    private static readonly CultureInfo InvCulture = CultureInfo.InvariantCulture;
+
+    private bool _loading = true;
+    private string? _errorMessage;
+    private ProvisionsSocialesDto? _data;
+
+    private ProvisionsSocialesFilterModel _filter = new();
+    private List<Site> _sitesDispo = new();
+    private string _selectedSiteOid = "";
+
+    protected override void OnInitialized()
+    {
+        if (!DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
+        LoadLookups();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadDataAsync();
+        }
+    }
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Site));
+            _sitesDispo = os.GetObjectsQuery<Site>().ToList().OrderBy(s => s.Nom).ToList();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erreur chargement référentiels : {ex.Message}";
+        }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _loading = true;
+        _errorMessage = null;
+        StateHasChanged();
+        try
+        {
+            await Task.Run(() =>
+            {
+                using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Salarie));
+                _data = Service.GetData(_filter, os);
+            });
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erreur de calcul : {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnDateChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var d))
+        {
+            _filter.DateReference = d;
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task OnSiteChanged()
+    {
+        if (Guid.TryParse(_selectedSiteOid, out var oid))
+            _filter.SiteOid = oid;
+        else
+            _filter.SiteOid = null;
+        await LoadDataAsync();
+    }
+
+    private string FormatFcfa(decimal v) => $"{v.ToString("N0", FrCulture)} FCFA";
+    private string FormatEcart(decimal v) => (v >= 0 ? "+" : "") + FormatFcfa(v);
+    private string FormatPct(decimal v) => (v >= 0 ? "+" : "") + v.ToString("0.00", FrCulture) + "%";
+}

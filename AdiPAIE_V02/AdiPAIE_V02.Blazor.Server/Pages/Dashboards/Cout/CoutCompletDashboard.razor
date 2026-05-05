@@ -1,0 +1,439 @@
+@* =====================================================================
+    CoutCompletDashboard.razor — V1.2 Sprint 4
+    URL : /dashboards/cout-complet
+    Périmètre : Pilotage DAF + DRH + Managers (business case embauche)
+    Coût employeur réel par salarié (Fully Loaded Cost).
+   ===================================================================== *@
+
+@page "/dashboards/cout-complet"
+@attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+
+@inject ICoutCompletDashboardService Service
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
+
+<PageTitle>Coût Complet par Salarié — Tableaux de Bord RH</PageTitle>
+
+@if (_loading)
+{
+    <div class="cc-loading">
+        <DxLoadingPanel Text="Calcul du coût employeur…" Visible="true" />
+    </div>
+}
+else if (_errorMessage != null)
+{
+    <div class="cc-error">@_errorMessage</div>
+}
+else if (_data != null)
+{
+    <header class="cc-header">
+        <div class="cc-header__title">
+            <button class="cc-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
+                <i class="bi bi-arrow-left-circle"></i>
+            </button>
+            <div>
+                <div class="cc-header__perimetre">Pilotage DAF + DRH · Tableau N°9 · Fully Loaded Cost</div>
+                <h1 class="cc-header__h1">Coût Complet par Salarié</h1>
+            </div>
+        </div>
+        <div class="cc-filters">
+            <a class="cc-help" title="Aide ce tableau" href="/help/dashboards/cout-complet.html" target="_blank" rel="noopener">
+                <i class="bi bi-question-circle"></i>
+            </a>
+            <label>
+                <span>Année</span>
+                <select @bind="_filter.Annee" @bind:after="LoadDataAsync">
+                    @foreach (var y in _anneesDispo)
+                    {
+                        <option value="@y">@y</option>
+                    }
+                </select>
+            </label>
+            <label>
+                <span>Site</span>
+                <select @bind="_selectedSiteOid" @bind:after="OnSiteChanged">
+                    <option value="">Tous</option>
+                    @foreach (var s in _sitesDispo)
+                    {
+                        <option value="@s.Oid">@s.Nom</option>
+                    }
+                </select>
+            </label>
+        </div>
+    </header>
+
+    <section class="cc-kpis">
+        <div class="cc-kpi cc-kpi--total">
+            <div class="cc-kpi__head"><i class="bi bi-cash-stack"></i> Coût total annuel</div>
+            <div class="cc-kpi__value">@FormatFcfa(_data.Kpis.CoutTotalAnnuel)</div>
+            <div class="cc-kpi__sub">@_data.Kpis.NbSalaries salariés</div>
+        </div>
+        <div class="cc-kpi cc-kpi--moyen">
+            <div class="cc-kpi__head"><i class="bi bi-person-circle"></i> Coût moyen par salarié</div>
+            <div class="cc-kpi__value">@FormatFcfa(_data.Kpis.CoutMoyenSalarie)</div>
+            <div class="cc-kpi__sub">Année @_data.Annee</div>
+        </div>
+        <div class="cc-kpi cc-kpi--charges">
+            <div class="cc-kpi__head"><i class="bi bi-percent"></i> Taux charges patronales</div>
+            <div class="cc-kpi__value">@_data.Kpis.TauxChargesPatronalesPct.ToString("0.00", FrCulture)%</div>
+            <div class="cc-kpi__sub">Sur le brut total</div>
+        </div>
+        <div class="cc-kpi cc-kpi--multiplier">
+            <div class="cc-kpi__head"><i class="bi bi-magic"></i> Multiplicateur Net → Total</div>
+            <div class="cc-kpi__value">×@_data.Kpis.MultiplicateurNetVersTotal.ToString("0.00", FrCulture)</div>
+            <div class="cc-kpi__sub">1 FCFA net = @_data.Kpis.MultiplicateurNetVersTotal.ToString("0.00", FrCulture) FCFA coût</div>
+        </div>
+    </section>
+
+    <section class="cc-section">
+        <h3 class="cc-section__title">Décomposition du coût total</h3>
+        @{
+            var maxDecomp = _data.Decomposition.Count > 0
+                ? Math.Max(1m, _data.Decomposition.Max(d => d.Montant))
+                : 1m;
+        }
+        <div class="cc-decomp">
+            @foreach (var d in _data.Decomposition)
+            {
+                var pct = (decimal)d.Montant * 100m / maxDecomp;
+                <div class="cc-decomp__row">
+                    <div class="cc-decomp__lbl">@d.Composante</div>
+                    <div class="cc-decomp__bar-wrap">
+                        <div class="cc-decomp__bar"
+                             style="@($"width:{pct.ToString("0.00", InvCulture)}%;background:{d.CouleurHex}")">
+                        </div>
+                    </div>
+                    <div class="cc-decomp__val">@FormatFcfa(d.Montant) <span class="cc-decomp__pct">(@d.PourcentageDuTotal.ToString("0.0", FrCulture)%)</span></div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <div class="cc-grid">
+
+        <section class="cc-section">
+            <h3 class="cc-section__title">Coût moyen par catégorie professionnelle</h3>
+            @if (_data.ParCategorie.Count == 0)
+            {
+                <div class="cc-empty">Pas de données.</div>
+            }
+            else
+            {
+                <table class="cc-table">
+                    <thead>
+                        <tr>
+                            <th>Catégorie</th>
+                            <th class="num">Eff.</th>
+                            <th class="num">Brut moyen</th>
+                            <th class="num">Coût moyen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in _data.ParCategorie)
+                        {
+                            <tr>
+                                <td>@c.Categorie</td>
+                                <td class="num">@c.NbSalaries</td>
+                                <td class="num">@FormatFcfa(c.SalaireBrutMoyen)</td>
+                                <td class="num strong">@FormatFcfa(c.CoutMoyen)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </section>
+
+        <section class="cc-section">
+            <h3 class="cc-section__title">Coût total par site</h3>
+            @if (_data.ParSite.Count == 0)
+            {
+                <div class="cc-empty">Pas de données.</div>
+            }
+            else
+            {
+                <table class="cc-table">
+                    <thead>
+                        <tr>
+                            <th>Site</th>
+                            <th class="num">Eff.</th>
+                            <th class="num">Coût moyen</th>
+                            <th class="num">Coût total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in _data.ParSite)
+                        {
+                            <tr>
+                                <td>@s.SiteNom</td>
+                                <td class="num">@s.NbSalaries</td>
+                                <td class="num">@FormatFcfa(s.CoutMoyen)</td>
+                                <td class="num strong">@FormatFcfa(s.CoutTotal)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </section>
+
+    </div>
+
+    <section class="cc-section">
+        <h3 class="cc-section__title">Top 10 — Coût employeur le plus élevé</h3>
+        @{
+            var top10 = _data.Salaries.Take(10).ToList();
+        }
+        @if (top10.Count == 0)
+        {
+            <div class="cc-empty">Pas de données.</div>
+        }
+        else
+        {
+            <table class="cc-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Matricule</th>
+                        <th>Salarié</th>
+                        <th>Catégorie</th>
+                        <th>Site</th>
+                        <th class="num">Net annuel</th>
+                        <th class="num">Brut annuel</th>
+                        <th class="num">Charges pat.</th>
+                        <th class="num">Coût total</th>
+                        <th class="num">Mult.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ var rk = 1; }
+                    @foreach (var s in top10)
+                    {
+                        <tr>
+                            <td>@rk</td>
+                            <td>@s.Matricule</td>
+                            <td>@s.NomComplet</td>
+                            <td>@s.Categorie</td>
+                            <td>@s.Site</td>
+                            <td class="num">@FormatFcfa(s.SalaireNetAnnuel)</td>
+                            <td class="num">@FormatFcfa(s.SalaireBrutAnnuel)</td>
+                            <td class="num">@FormatFcfa(s.ChargesPatronales)</td>
+                            <td class="num strong">@FormatFcfa(s.CoutTotalAnnuel)</td>
+                            <td class="num">×@s.MultiplicateurNet.ToString("0.00", FrCulture)</td>
+                        </tr>
+                        rk++;
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
+
+    <footer class="cc-footer">
+        <span><i class="bi bi-clock-history"></i> Calculé le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
+        <span class="sep">·</span>
+        <span>Année @_data.Annee · @_data.Kpis.NbSalaries salariés analysés</span>
+    </footer>
+}
+
+<style>
+    :root {
+        --cc-navy: #142E4D;
+        --cc-navy-light: #1F4376;
+        --cc-orange: #F18A1C;
+        --cc-blue: #1A73B5;
+        --cc-purple: #7B5EA7;
+        --cc-text: #142E4D;
+        --cc-soft: #5C6679;
+        --cc-muted: #94A3BC;
+        --cc-bg: #F6F7F9;
+        --cc-border: #E5E7EB;
+        --cc-track: #E5E9EE;
+        --cc-red: #E63946;
+    }
+
+    .cc-loading, .cc-error { padding: 2rem; }
+    .cc-error { color: var(--cc-red); font-weight: 600; }
+
+    .cc-header {
+        background: linear-gradient(135deg, var(--cc-navy) 0%, var(--cc-navy-light) 100%);
+        color: #E6EAF1;
+        padding: 1.1rem 1.5rem;
+        display: flex; flex-wrap: wrap; gap: 1.25rem;
+        align-items: center; justify-content: space-between;
+        border-bottom: 3px solid var(--cc-orange);
+    }
+    .cc-header__title { display: flex; align-items: center; gap: 0.75rem; }
+    .cc-back {
+        background: var(--cc-navy-light); border: none; color: #fff;
+        width: 38px; height: 38px; border-radius: 50%;
+        font-size: 1.25rem; cursor: pointer;
+    }
+    .cc-back:hover { background: var(--cc-orange); }
+    .cc-header__h1 { font-size: 1.55rem; font-weight: 700; margin: 0; color: #fff; }
+    .cc-header__perimetre {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--cc-orange); font-weight: 600;
+    }
+
+    .cc-filters { display: flex; gap: 0.85rem; flex-wrap: wrap; }
+    .cc-filters label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.72rem; }
+    .cc-filters label span { color: #B7C2D5; text-transform: uppercase; letter-spacing: 0.04em; }
+    .cc-filters select {
+        padding: 0.35rem 0.55rem; border: 1px solid var(--cc-navy-light);
+        background: rgba(255,255,255,0.08); color: #fff; border-radius: 4px;
+        font-size: 0.85rem; min-width: 140px;
+    }
+    .cc-filters select option { color: var(--cc-text); }
+
+    .cc-help {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px; border-radius: 50%;
+        background: rgba(255,255,255,0.1); color: #fff;
+        text-decoration: none; font-size: 1.1rem;
+        align-self: flex-end;
+        transition: background 0.15s ease;
+    }
+    .cc-help:hover { background: var(--cc-orange); color: #fff; }
+
+    .cc-kpis {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.85rem; padding: 1rem 1.5rem;
+    }
+    .cc-kpi {
+        background: #fff; border: 1px solid var(--cc-border);
+        border-radius: 8px; padding: 0.95rem 1.1rem;
+        box-shadow: 0 1px 2px rgba(20, 46, 77, 0.04);
+        border-left: 4px solid var(--cc-navy);
+    }
+    .cc-kpi--total { border-left-color: var(--cc-blue); }
+    .cc-kpi--moyen { border-left-color: var(--cc-orange); }
+    .cc-kpi--charges { border-left-color: var(--cc-purple); }
+    .cc-kpi--multiplier { border-left-color: #2EA75B; }
+    .cc-kpi__head {
+        font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+        color: var(--cc-soft); font-weight: 600; margin-bottom: 0.4rem;
+    }
+    .cc-kpi__value {
+        font-size: 1.5rem; font-weight: 700; color: var(--cc-text);
+        font-variant-numeric: tabular-nums;
+    }
+    .cc-kpi__sub { font-size: 0.74rem; color: var(--cc-muted); margin-top: 0.25rem; }
+
+    .cc-section {
+        background: #fff; border: 1px solid var(--cc-border);
+        border-radius: 8px; padding: 1rem 1.25rem 1.1rem;
+        margin: 0.85rem 1.5rem;
+    }
+    .cc-section__title {
+        font-size: 0.95rem; font-weight: 700; color: var(--cc-text);
+        margin: 0 0 0.7rem 0; padding-bottom: 0.45rem;
+        border-bottom: 2px solid var(--cc-orange);
+        display: inline-block;
+    }
+
+    .cc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    @@media (max-width: 1100px) { .cc-grid { grid-template-columns: 1fr; } }
+
+    .cc-decomp { display: flex; flex-direction: column; gap: 0.45rem; }
+    .cc-decomp__row { display: grid; grid-template-columns: 180px 1fr 280px; gap: 0.7rem; align-items: center; }
+    .cc-decomp__lbl { font-size: 0.85rem; color: var(--cc-text); font-weight: 600; }
+    .cc-decomp__bar-wrap { background: var(--cc-track); border-radius: 3px; height: 22px; overflow: hidden; }
+    .cc-decomp__bar { height: 22px; transition: width 0.35s ease; border-radius: 3px; }
+    .cc-decomp__val {
+        font-size: 0.82rem; text-align: right; font-weight: 700;
+        color: var(--cc-text); font-variant-numeric: tabular-nums;
+    }
+    .cc-decomp__pct { color: var(--cc-muted); font-weight: 500; font-size: 0.75rem; }
+
+    .cc-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .cc-table th, .cc-table td {
+        padding: 0.45rem 0.65rem; border-bottom: 1px solid var(--cc-border);
+        text-align: left; font-variant-numeric: tabular-nums;
+    }
+    .cc-table th {
+        background: var(--cc-bg); color: var(--cc-soft); font-weight: 600;
+        text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.04em;
+    }
+    .cc-table .num { text-align: right; }
+    .cc-table .strong { font-weight: 700; color: var(--cc-text); }
+
+    .cc-empty { color: var(--cc-muted); padding: 1rem; font-style: italic; text-align: center; }
+
+    .cc-footer {
+        margin: 1rem 1.5rem; padding: 0.6rem 0; font-size: 0.72rem;
+        color: var(--cc-muted); text-align: center;
+    }
+    .cc-footer .sep { margin: 0 0.5rem; opacity: 0.5; }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture = CultureInfo.GetCultureInfo("fr-FR");
+    private static readonly CultureInfo InvCulture = CultureInfo.InvariantCulture;
+
+    private bool _loading = true;
+    private string? _errorMessage;
+    private CoutCompletDto? _data;
+
+    private CoutCompletFilterModel _filter = new();
+    private List<int> _anneesDispo = new();
+    private List<Site> _sitesDispo = new();
+    private string _selectedSiteOid = "";
+
+    protected override void OnInitialized()
+    {
+        if (!DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
+        LoadLookups();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await LoadDataAsync();
+    }
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Bulletin));
+            var annees = os.GetObjectsQuery<Bulletin>().ToList()
+                .Select(b => b.Annee).Distinct().ToList();
+            annees.Add(DateTime.Today.Year);
+            _anneesDispo = annees.Distinct().OrderByDescending(y => y).ToList();
+            _sitesDispo = os.GetObjectsQuery<Site>().ToList().OrderBy(s => s.Nom).ToList();
+        }
+        catch (Exception ex) { _errorMessage = $"Erreur chargement référentiels : {ex.Message}"; }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _loading = true; _errorMessage = null; StateHasChanged();
+        try
+        {
+            await Task.Run(() =>
+            {
+                using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Bulletin));
+                _data = Service.GetData(_filter, os);
+            });
+        }
+        catch (Exception ex) { _errorMessage = $"Erreur de calcul : {ex.Message}"; }
+        finally { _loading = false; StateHasChanged(); }
+    }
+
+    private async Task OnSiteChanged()
+    {
+        _filter.SiteOid = Guid.TryParse(_selectedSiteOid, out var oid) ? oid : null;
+        await LoadDataAsync();
+    }
+
+    private string FormatFcfa(decimal v) => $"{v.ToString("N0", FrCulture)} FCFA";
+}

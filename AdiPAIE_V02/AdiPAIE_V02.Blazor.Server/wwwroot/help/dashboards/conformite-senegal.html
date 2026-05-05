@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conformité Sénégal — Aide Tableau N°10</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+        <a href="/help/dashboards/budget-vs-realise.html">N°7 Budget</a>
+        <a href="/help/dashboards/provisions-sociales.html">N°8 Provisions</a>
+        <a href="/help/dashboards/cout-complet.html">N°9 Coût Complet</a>
+        <a href="/help/dashboards/conformite-senegal.html" class="active">N°10 Conformité</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°10 · V1.2</div>
+        <h1>Conformité Sénégal (audit-ready)</h1>
+        <p class="lead">9 indicateurs réglementaires sénégalais avec feux tricolores. Permet de répondre instantanément à la question : « Sommes-nous prêts en cas d'audit ou d'inspection du travail ? »</p>
+
+        <h2>À quoi sert ce tableau</h2>
+        <p>Ce tableau ne se substitue pas à un audit juridique mais offre une <strong>première ligne de défense</strong> en signalant les non-conformités les plus courantes au Sénégal :</p>
+        <ul>
+            <li>Salariés sous le SMIG</li>
+            <li>CDD trop longs (requalification CDI possible)</li>
+            <li>Stages au-delà de la durée maximale</li>
+            <li>Soldes congés excessifs</li>
+            <li>Déclarations sociales en retard (IPRES, CSS, IPM)</li>
+        </ul>
+
+        <h2>Pour qui</h2>
+        <ul>
+            <li><strong>DRH</strong> : pilotage trimestriel pour anticiper les régularisations.</li>
+            <li><strong>DAF</strong> : enjeu financier (provisions à passer si non-conformité).</li>
+            <li><strong>Audit interne</strong> : checklist avant audit externe.</li>
+            <li><strong>Inspection du Travail</strong> : présentation rapide en cas de contrôle.</li>
+        </ul>
+
+        <h2>Lecture du score global</h2>
+        <p>Le score de conformité (en haut) est calculé comme :</p>
+        <p><code>Score % = Nombre d'indicateurs CONFORMES ÷ Nombre d'indicateurs ÉVALUÉS × 100</code></p>
+        <p>Les indicateurs « Non évalués » (en gris) ne pèsent ni positivement ni négativement.</p>
+
+        <h2>Détail des 9 indicateurs</h2>
+
+        <h3>1. SMIG mensuel respecté</h3>
+        <ul>
+            <li><strong>Seuil légal Sénégal</strong> : 60 000 FCFA / mois (à actualiser si évolution réglementaire).</li>
+            <li><strong>Calcul</strong> : nombre de salariés dont le dernier <code>Bulletin.NetAPayer</code> est inférieur au SMIG.</li>
+            <li><strong>Statut</strong> : Conforme si 0 salarié sous SMIG, Non conforme sinon.</li>
+            <li><strong>Action</strong> : régulariser immédiatement (rétroactif si possible).</li>
+        </ul>
+
+        <h3>2. CDD inférieurs à 2 ans</h3>
+        <ul>
+            <li><strong>Seuil légal</strong> : un CDD ne peut excéder 2 ans (renouvellements compris).</li>
+            <li><strong>Calcul</strong> : salariés en CDD dont l'ancienneté dépasse 2 ans.</li>
+            <li><strong>Risque</strong> : requalification automatique en CDI par le tribunal du travail.</li>
+            <li><strong>Action</strong> : transformer en CDI, ou justifier un nouveau motif valide.</li>
+        </ul>
+
+        <h3>3. Stages inférieurs à 6 mois</h3>
+        <ul>
+            <li><strong>Seuil légal</strong> : 6 mois maximum pour un stage rémunéré.</li>
+            <li><strong>Calcul</strong> : salariés en Stage dont l'ancienneté dépasse 6 mois.</li>
+            <li><strong>Action</strong> : convertir en CDD ou CDI selon le besoin métier.</li>
+        </ul>
+
+        <h3>4. Soldes congés inférieurs à 30 jours</h3>
+        <ul>
+            <li><strong>Seuil recommandé</strong> : 30 jours acquis non pris (≈ 1 année de droits non utilisés).</li>
+            <li><strong>Calcul (V1.2)</strong> : estimation théorique = 2,5 j × ancienneté en mois, plafonné à 60.</li>
+            <li><strong>Risque</strong> : provision financière qui s'accumule + risque de demande de paiement à départ.</li>
+            <li><strong>Action</strong> : planifier la prise effective avec les managers.</li>
+        </ul>
+
+        <h3>5. Contrats scannés présents (V1.2.1)</h3>
+        <ul>
+            <li><strong>Statut V1.2</strong> : Non évalué (entité GED contrats à intégrer).</li>
+            <li>Sera activé en V1.2.1 dès qu'une entité <code>PieceJointeContrat</code> sera disponible.</li>
+        </ul>
+
+        <h3>6. Heures supplémentaires dans la limite légale (V1.2.1)</h3>
+        <ul>
+            <li><strong>Seuil légal</strong> : 15 heures supplémentaires par semaine au Sénégal.</li>
+            <li><strong>Statut V1.2</strong> : Non évalué.</li>
+            <li>Sera connecté à <code>MouvementHeuresSup</code> en V1.2.1.</li>
+        </ul>
+
+        <h3>7-8-9. Déclarations IPRES / CSS / IPM (V1.2.1)</h3>
+        <ul>
+            <li><strong>Statut V1.2</strong> : Non évalué.</li>
+            <li>L'entité <code>DeclarationSociale</code> ou un module dédié sera créé en V1.2.1.</li>
+            <li>En attendant, le DAF doit confirmer manuellement à chaque clôture trimestrielle.</li>
+        </ul>
+
+        <h2>Filtres disponibles</h2>
+        <ul>
+            <li><strong>Date de référence</strong> : permet de simuler la conformité à une date passée (utile en clôture).</li>
+            <li><strong>Site</strong> : focus sur un site (utile pour identifier l'origine d'une non-conformité).</li>
+        </ul>
+
+        <h2>Cas d'usage typiques</h2>
+        <table>
+            <thead><tr><th>Quand</th><th>Action attendue</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Annonce d'inspection</strong></td><td>Ouvrir le dashboard, screenshot, présenter les points conformes en réunion.</td></tr>
+                <tr><td><strong>Mois -1 avant audit</strong></td><td>Identifier les indicateurs ⚠️ ou ❌, lancer les actions correctrices.</td></tr>
+                <tr><td><strong>Préparation rapport RSE / DPM</strong></td><td>Le score global donne un indicateur de pilotage clair.</td></tr>
+                <tr><td><strong>Clôture trimestrielle</strong></td><td>Vérifier qu'aucun nouveau dossier n'est passé en non-conformité.</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Codes statut</h2>
+        <table>
+            <thead><tr><th>Statut</th><th>Signification</th><th>Couleur</th></tr></thead>
+            <tbody>
+                <tr><td>✅ Conforme</td><td>L'indicateur est respecté à 100 %</td><td>Vert</td></tr>
+                <tr><td>⚠️ Avertissement</td><td>Léger dépassement, vigilance recommandée</td><td>Orange / Ambre</td></tr>
+                <tr><td>❌ Non conforme</td><td>Action immédiate requise</td><td>Rouge</td></tr>
+                <tr><td>⚪ Non évalué</td><td>Données non disponibles en V1.2</td><td>Gris</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Limites connues V1.2</h2>
+        <ul>
+            <li>5 indicateurs sur 9 sont actifs en V1.2 (SMIG, CDD, Stages, Congés, score global). Les 4 autres apparaissent en gris (Non évalué).</li>
+            <li>Les soldes congés sont estimés théoriquement (proxy ancienneté).</li>
+            <li>Le SMIG est en dur dans le service (60 000 FCFA). Sera paramétrable via <code>ParametresPaie.SMIG</code> en V1.2.1.</li>
+        </ul>
+
+        <h2>Questions fréquentes</h2>
+        <table>
+            <thead><tr><th>Question</th><th>Réponse</th></tr></thead>
+            <tbody>
+                <tr><td>Mon score est de 100 % mais 4 indicateurs sont gris ?</td><td>Le score ne compte que les indicateurs évalués. À 100 % avec 5 évalués, vous êtes conforme sur ce qui est mesurable.</td></tr>
+                <tr><td>Le SMIG a changé, comment l'actualiser ?</td><td>En V1.2 le seuil est en dur. En attendant V1.2.1 qui le paramétrera, modifier la constante <code>SmigMensuel</code> dans <code>ConformiteSenegalDashboardService</code>.</td></tr>
+                <tr><td>Comment justifier un avertissement à l'inspection ?</td><td>Le tableau donne la recommandation d'action. Documenter la mise en œuvre (PV de réunion, courrier au salarié, planning de prise de congés…).</td></tr>
+            </tbody>
+        </table>
+
+        <p class="footer-help">SunuPaie — V1.2 (mai 2026) — Tableau N°10 Conformité Sénégal</p>
+    </main>
+</body>
+</html>

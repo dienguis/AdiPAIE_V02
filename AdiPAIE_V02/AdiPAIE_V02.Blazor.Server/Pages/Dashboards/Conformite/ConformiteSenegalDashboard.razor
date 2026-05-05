@@ -1,0 +1,390 @@
+@* =====================================================================
+    ConformiteSenegalDashboard.razor — V1.2 Sprint 5
+    URL : /dashboards/conformite-senegal
+    Périmètre : DAF + DRH + Audit interne + Inspection du Travail
+    9 indicateurs réglementaires SN avec feux tricolores.
+   ===================================================================== *@
+
+@page "/dashboards/conformite-senegal"
+@attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+
+@inject IConformiteSenegalDashboardService Service
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
+
+<PageTitle>Conformité Sénégal — Tableaux de Bord RH</PageTitle>
+
+@if (_loading)
+{
+    <div class="cn-loading"><DxLoadingPanel Text="Vérification…" Visible="true" /></div>
+}
+else if (_errorMessage != null)
+{
+    <div class="cn-error">@_errorMessage</div>
+}
+else if (_data != null)
+{
+    <header class="cn-header">
+        <div class="cn-header__title">
+            <button class="cn-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
+                <i class="bi bi-arrow-left-circle"></i>
+            </button>
+            <div>
+                <div class="cn-header__perimetre">DAF + DRH · Tableau N°10 · Audit-ready</div>
+                <h1 class="cn-header__h1">Conformité Sénégal</h1>
+            </div>
+        </div>
+        <div class="cn-filters">
+            <a class="cn-help" title="Aide ce tableau" href="/help/dashboards/conformite-senegal.html" target="_blank" rel="noopener">
+                <i class="bi bi-question-circle"></i>
+            </a>
+            <label>
+                <span>Date de référence</span>
+                <input type="date" value="@_filter.DateReference.ToString("yyyy-MM-dd")"
+                       @onchange="OnDateChanged" />
+            </label>
+            <label>
+                <span>Site</span>
+                <select @bind="_selectedSiteOid" @bind:after="OnSiteChanged">
+                    <option value="">Tous</option>
+                    @foreach (var s in _sitesDispo)
+                    {
+                        <option value="@s.Oid">@s.Nom</option>
+                    }
+                </select>
+            </label>
+        </div>
+    </header>
+
+    @* ── Score global ─────────────────────────────────────────────── *@
+    <section class="cn-score">
+        <div class="cn-score__main @CssStatutGlobal(_data.Kpis.StatutGlobal)">
+            <div class="cn-score__icon">@IconStatut(_data.Kpis.StatutGlobal)</div>
+            <div>
+                <div class="cn-score__label">Score de conformité</div>
+                <div class="cn-score__value">@_data.Kpis.ScoreConformitePct.ToString("0.0", FrCulture)%</div>
+                <div class="cn-score__sub">@_data.Kpis.NbConformes / @_data.Kpis.NbIndicateurs indicateurs conformes</div>
+            </div>
+        </div>
+        <div class="cn-counts">
+            <div class="cn-count cn-count--ok">
+                <div class="cn-count__nb">@_data.Kpis.NbConformes</div>
+                <div class="cn-count__lbl">Conformes</div>
+            </div>
+            <div class="cn-count cn-count--warn">
+                <div class="cn-count__nb">@_data.Kpis.NbAvertissements</div>
+                <div class="cn-count__lbl">Avertissements</div>
+            </div>
+            <div class="cn-count cn-count--ko">
+                <div class="cn-count__nb">@_data.Kpis.NbNonConformes</div>
+                <div class="cn-count__lbl">Non conformes</div>
+            </div>
+            <div class="cn-count cn-count--na">
+                <div class="cn-count__nb">@(_data.Kpis.NbIndicateurs - _data.Kpis.NbConformes - _data.Kpis.NbAvertissements - _data.Kpis.NbNonConformes)</div>
+                <div class="cn-count__lbl">Non évalués</div>
+            </div>
+        </div>
+    </section>
+
+    @* ── Tableau des indicateurs ─────────────────────────────────── *@
+    <section class="cn-section">
+        <h3 class="cn-section__title">Détail des indicateurs réglementaires</h3>
+        <div class="cn-list">
+            @foreach (var ind in _data.Indicateurs)
+            {
+                <div class="cn-card @CssStatut(ind.Statut)">
+                    <div class="cn-card__icon">@IconStatut(ind.Statut)</div>
+                    <div class="cn-card__main">
+                        <div class="cn-card__head">
+                            <span class="cn-card__code">@ind.Code</span>
+                            <span class="cn-card__title">@ind.Libelle</span>
+                        </div>
+                        <div class="cn-card__desc">@ind.Description</div>
+                        <div class="cn-card__meta">
+                            <span><strong>Seuil :</strong> @ind.SeuilLegal</span>
+                            <span class="sep">·</span>
+                            <span><strong>État :</strong> @ind.Valeur</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(ind.Recommandation))
+                        {
+                            <div class="cn-card__reco"><i class="bi bi-lightbulb"></i> @ind.Recommandation</div>
+                        }
+                    </div>
+                    <div class="cn-card__statut">@LibelleStatut(ind.Statut)</div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <footer class="cn-footer">
+        <span><i class="bi bi-clock-history"></i> Calculé le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
+        <span class="sep">·</span>
+        <span class="cn-footer__hint">Les indicateurs "Non évalués" seront couverts en V1.2.1 (déclarations sociales, GED contrats, heures sup détaillées).</span>
+    </footer>
+}
+
+<style>
+    :root {
+        --cn-navy: #142E4D;
+        --cn-navy-light: #1F4376;
+        --cn-orange: #F18A1C;
+        --cn-green: #2EA75B;
+        --cn-red: #E63946;
+        --cn-amber: #F0AD4E;
+        --cn-gray: #8B95A5;
+        --cn-text: #142E4D;
+        --cn-soft: #5C6679;
+        --cn-muted: #94A3BC;
+        --cn-bg: #F6F7F9;
+        --cn-border: #E5E7EB;
+    }
+
+    .cn-loading, .cn-error { padding: 2rem; }
+    .cn-error { color: var(--cn-red); font-weight: 600; }
+
+    .cn-header {
+        background: linear-gradient(135deg, var(--cn-navy) 0%, var(--cn-navy-light) 100%);
+        color: #E6EAF1;
+        padding: 1.1rem 1.5rem;
+        display: flex; flex-wrap: wrap; gap: 1.25rem;
+        align-items: center; justify-content: space-between;
+        border-bottom: 3px solid var(--cn-orange);
+    }
+    .cn-header__title { display: flex; align-items: center; gap: 0.75rem; }
+    .cn-back {
+        background: var(--cn-navy-light); border: none; color: #fff;
+        width: 38px; height: 38px; border-radius: 50%;
+        font-size: 1.25rem; cursor: pointer;
+    }
+    .cn-back:hover { background: var(--cn-orange); }
+    .cn-header__h1 { font-size: 1.55rem; font-weight: 700; margin: 0; color: #fff; }
+    .cn-header__perimetre {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--cn-orange); font-weight: 600;
+    }
+    .cn-filters { display: flex; gap: 0.85rem; flex-wrap: wrap; }
+    .cn-filters label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.72rem; }
+    .cn-filters label span { color: #B7C2D5; text-transform: uppercase; letter-spacing: 0.04em; }
+    .cn-filters select, .cn-filters input {
+        padding: 0.35rem 0.55rem; border: 1px solid var(--cn-navy-light);
+        background: rgba(255,255,255,0.08); color: #fff; border-radius: 4px;
+        font-size: 0.85rem; min-width: 140px;
+    }
+    .cn-filters select option { color: var(--cn-text); }
+
+    .cn-help {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px; border-radius: 50%;
+        background: rgba(255,255,255,0.1); color: #fff;
+        text-decoration: none; font-size: 1.1rem;
+        align-self: flex-end;
+        transition: background 0.15s ease;
+    }
+    .cn-help:hover { background: var(--cn-orange); color: #fff; }
+
+    .cn-score {
+        display: grid; grid-template-columns: 2fr 3fr; gap: 1rem;
+        padding: 1rem 1.5rem;
+    }
+    @@media (max-width: 900px) { .cn-score { grid-template-columns: 1fr; } }
+
+    .cn-score__main {
+        display: flex; align-items: center; gap: 1.1rem;
+        padding: 1.1rem 1.3rem; border-radius: 10px;
+        border-left: 6px solid var(--cn-gray);
+        background: #fff; border: 1px solid var(--cn-border);
+        box-shadow: 0 1px 2px rgba(20, 46, 77, 0.04);
+    }
+    .cn-score__main.statut-ok { border-left-color: var(--cn-green); background: #F4FBF6; }
+    .cn-score__main.statut-warn { border-left-color: var(--cn-amber); background: #FEF7EC; }
+    .cn-score__main.statut-ko { border-left-color: var(--cn-red); background: #FEF1F2; }
+    .cn-score__icon { font-size: 2.5rem; }
+    .cn-score__label {
+        font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+        color: var(--cn-soft); font-weight: 600;
+    }
+    .cn-score__value {
+        font-size: 2.2rem; font-weight: 800; color: var(--cn-text);
+        font-variant-numeric: tabular-nums; line-height: 1;
+    }
+    .cn-score__sub { font-size: 0.78rem; color: var(--cn-muted); margin-top: 0.3rem; }
+
+    .cn-counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+    .cn-count {
+        background: #fff; border: 1px solid var(--cn-border);
+        border-radius: 8px; padding: 0.7rem; text-align: center;
+        border-top: 4px solid var(--cn-gray);
+    }
+    .cn-count--ok { border-top-color: var(--cn-green); }
+    .cn-count--warn { border-top-color: var(--cn-amber); }
+    .cn-count--ko { border-top-color: var(--cn-red); }
+    .cn-count--na { border-top-color: var(--cn-gray); }
+    .cn-count__nb {
+        font-size: 1.55rem; font-weight: 800; color: var(--cn-text);
+        font-variant-numeric: tabular-nums;
+    }
+    .cn-count__lbl {
+        font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+        color: var(--cn-soft); font-weight: 600;
+    }
+
+    .cn-section {
+        background: #fff; border: 1px solid var(--cn-border);
+        border-radius: 8px; padding: 1rem 1.25rem 1.1rem;
+        margin: 0.85rem 1.5rem;
+    }
+    .cn-section__title {
+        font-size: 0.95rem; font-weight: 700; color: var(--cn-text);
+        margin: 0 0 0.7rem 0; padding-bottom: 0.45rem;
+        border-bottom: 2px solid var(--cn-orange);
+        display: inline-block;
+    }
+
+    .cn-list { display: flex; flex-direction: column; gap: 0.65rem; }
+    .cn-card {
+        display: grid; grid-template-columns: 50px 1fr 130px;
+        gap: 0.8rem; align-items: center;
+        padding: 0.85rem 1rem; border-radius: 8px;
+        background: var(--cn-bg); border-left: 5px solid var(--cn-gray);
+    }
+    .cn-card.statut-ok { border-left-color: var(--cn-green); background: #F4FBF6; }
+    .cn-card.statut-warn { border-left-color: var(--cn-amber); background: #FEF7EC; }
+    .cn-card.statut-ko { border-left-color: var(--cn-red); background: #FEF1F2; }
+    .cn-card.statut-na { border-left-color: var(--cn-gray); background: #F4F5F7; }
+
+    .cn-card__icon { font-size: 1.7rem; text-align: center; }
+    .cn-card__head {
+        display: flex; align-items: baseline; gap: 0.6rem;
+        margin-bottom: 0.25rem;
+    }
+    .cn-card__code {
+        font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.35rem;
+        background: var(--cn-navy); color: #fff; border-radius: 3px;
+        text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .cn-card__title { font-size: 0.95rem; font-weight: 700; color: var(--cn-text); }
+    .cn-card__desc { font-size: 0.78rem; color: var(--cn-soft); margin-bottom: 0.3rem; }
+    .cn-card__meta {
+        font-size: 0.75rem; color: var(--cn-soft);
+        display: flex; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .cn-card__meta .sep { opacity: 0.4; }
+    .cn-card__reco {
+        margin-top: 0.4rem; font-size: 0.78rem; font-style: italic;
+        color: var(--cn-text); padding: 0.35rem 0.5rem;
+        background: rgba(255,255,255,0.5); border-radius: 4px;
+    }
+    .cn-card__statut {
+        text-align: center; font-weight: 700; font-size: 0.78rem;
+        text-transform: uppercase; letter-spacing: 0.04em;
+    }
+
+    .cn-footer {
+        margin: 1rem 1.5rem; padding: 0.6rem 0; font-size: 0.72rem;
+        color: var(--cn-muted); text-align: center;
+    }
+    .cn-footer .sep { margin: 0 0.5rem; opacity: 0.5; }
+    .cn-footer__hint { font-style: italic; }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture = CultureInfo.GetCultureInfo("fr-FR");
+
+    private bool _loading = true;
+    private string? _errorMessage;
+    private ConformiteSenegalDto? _data;
+
+    private ConformiteSenegalFilterModel _filter = new();
+    private List<Site> _sitesDispo = new();
+    private string _selectedSiteOid = "";
+
+    protected override void OnInitialized()
+    {
+        if (!DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
+        LoadLookups();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await LoadDataAsync();
+    }
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Site));
+            _sitesDispo = os.GetObjectsQuery<Site>().ToList().OrderBy(s => s.Nom).ToList();
+        }
+        catch (Exception ex) { _errorMessage = $"Erreur chargement référentiels : {ex.Message}"; }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _loading = true; _errorMessage = null; StateHasChanged();
+        try
+        {
+            await Task.Run(() =>
+            {
+                using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Salarie));
+                _data = Service.GetData(_filter, os);
+            });
+        }
+        catch (Exception ex) { _errorMessage = $"Erreur de calcul : {ex.Message}"; }
+        finally { _loading = false; StateHasChanged(); }
+    }
+
+    private async Task OnDateChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var d))
+        {
+            _filter.DateReference = d;
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task OnSiteChanged()
+    {
+        _filter.SiteOid = Guid.TryParse(_selectedSiteOid, out var oid) ? oid : null;
+        await LoadDataAsync();
+    }
+
+    // ── Helpers d'affichage ────────────────────────────────────────
+    private MarkupString IconStatut(StatutConformite s) => new(s switch
+    {
+        StatutConformite.Conforme        => "<i class=\"bi bi-check-circle-fill\" style=\"color:#2EA75B\"></i>",
+        StatutConformite.Avertissement   => "<i class=\"bi bi-exclamation-triangle-fill\" style=\"color:#F0AD4E\"></i>",
+        StatutConformite.NonConforme     => "<i class=\"bi bi-x-circle-fill\" style=\"color:#E63946\"></i>",
+        _                                => "<i class=\"bi bi-dash-circle\" style=\"color:#8B95A5\"></i>"
+    });
+
+    private string CssStatut(StatutConformite s) => s switch
+    {
+        StatutConformite.Conforme      => "statut-ok",
+        StatutConformite.Avertissement => "statut-warn",
+        StatutConformite.NonConforme   => "statut-ko",
+        _                              => "statut-na"
+    };
+
+    private string CssStatutGlobal(StatutConformite s) => CssStatut(s);
+
+    private string LibelleStatut(StatutConformite s) => s switch
+    {
+        StatutConformite.Conforme      => "Conforme",
+        StatutConformite.Avertissement => "Avertissement",
+        StatutConformite.NonConforme   => "Non conforme",
+        _                              => "Non évalué"
+    };
+}
