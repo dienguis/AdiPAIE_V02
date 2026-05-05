@@ -112,6 +112,12 @@
           <Item Id="Cpta_Plan" Caption="Plan comptable" ViewId="PlanComptable_ListView" Index="2" IsNewNode="True" />
         </Items>
       </Item>
+      <!-- V1.2 (mai 2026) — Remonte "GRH - Tableaux de Bord" en haut du menu (Index=3,
+           juste après "Paie"). Le groupe est créé automatiquement par
+           [NavigationItem("GRH - Tableaux de Bord")] sur DashboardsRHMenu, on ne fait
+           ici que redéfinir son Index pour le positionnement. -->
+      <Item Id="GRH - Tableaux de Bord" Caption="Tableaux de Bord" Index="3" ImageName="BO_Chart" />
+
       <!-- ╔═══════════════════════════════════════════════════════════════╗
            ║  Étape 7.SEC : nettoyage doublons "Tableaux de bord"          ║
            ║  3 groupes legacy masqués (Visible="False"), à supprimer       ║
@@ -165,6 +171,13 @@
         <Items IsNewNode="True">
           <Item Id="Param_Company" Caption="Société" ViewId="Company_ListView" Index="0" ImageName="BO_Organization_32x32" IsNewNode="True" />
           <Item Id="ParametresPaie_ListView" Caption="Paramètres de paie" ViewId="ParametresPaie_ListView" Index="1" IsNewNode="True" />
+          <!-- V1.2 (mai 2026) — Sécurité utilisateurs/rôles déplacée de "Default" vers "Administration" -->
+          <Item Id="Admin_Users" Caption="Utilisateurs" ViewId="ApplicationUser_ListView" Index="10" ImageName="BO_Person" IsNewNode="True" />
+          <Item Id="Admin_Roles" Caption="Rôles et permissions" ViewId="PermissionPolicyRole_ListView" Index="11" ImageName="BO_Validation" IsNewNode="True" />
+          <Item Id="Admin_LoginInfo" Caption="Informations de connexion" ViewId="ApplicationUserLoginInfo_ListView" Index="12" ImageName="State_Validation_Skipped" IsNewNode="True" />
+          <Item Id="Admin_AuditTrail" Caption="Journal d'audit (modifications)" ViewId="AuditDataItemPersistent_ListView" Index="13" ImageName="BO_Audit" IsNewNode="True" />
+          <Item Id="Admin_ModelDifference" Caption="Personnalisations modèle" ViewId="ModelDifference_ListView" Index="14" ImageName="ModelEditor_Settings" IsNewNode="True" />
+          <Item Id="Admin_ModelDiffUser" Caption="Personnalisations utilisateur" ViewId="ModelDifferenceUser_ListView" Index="15" ImageName="ModelEditor_Settings" IsNewNode="True" />
         </Items>
       </Item>
       <!-- V1.2 (mai 2026) — Le groupe "Default" est masqué de tous les menus.

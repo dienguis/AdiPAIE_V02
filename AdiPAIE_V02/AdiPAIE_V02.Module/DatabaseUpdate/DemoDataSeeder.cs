@@ -26,6 +26,7 @@
 using System;
 using System.Linq;
 using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.BusinessObjects.Budget;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
 using DevExpress.ExpressApp;
 using DevExpress.Xpo;
@@ -53,6 +54,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             var interims   = EnsureInterimaires(os, societe);
             EnsureContrats(os, interims, sites, unites, postes);
             EnsureMouvements(os, interims, sites, unites);
+            EnsureBudgetMasseSalariale(os, sites);   // V1.2 — démo Budget vs Réalisé
         }
 
         // ═════════════════════════════════════════════════════════════════════
@@ -377,6 +379,143 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 mvt.ValideRH           = rnd.Next(0, 100) < 80; // 80% validés
             }
         }
+
+        // ═════════════════════════════════════════════════════════════════════
+        //  V1.2 — BUDGET MASSE SALARIALE (DÉMO 2026)
+        //
+        //  Génère un budget annuel cohérent ELTON :
+        //    - Année courante (2026) + 12 mois × 9 rubriques
+        //    - 1 ligne globale par mois × rubrique (Site=NULL)
+        //    - + ventilation par site sur 3 stations principales
+        //      pour Salaires de base + Charges patronales
+        //
+        //  Volumes : ~180 lignes (108 globales + 72 par site).
+        //  Tous les Commentaire commencent par "DEMO_BUDGET_" pour le wipe.
+        //
+        //  Hypothèses budget annuel ELTON (env. 250 salariés, 500k brut moyen) :
+        //    - Salaires base       : 1 100 000 000 FCFA   (52 %)
+        //    - Charges patronales  :   400 000 000 FCFA   (19 %)
+        //    - Primes              :   200 000 000 FCFA
+        //    - 13e mois            :   100 000 000 FCFA   (100 % décembre)
+        //    - Indemnités          :    80 000 000 FCFA
+        //    - Avantages nature    :   100 000 000 FCFA
+        //    - Gratifications      :    50 000 000 FCFA   (50% juin + 50% décembre)
+        //    - Formation           :    30 000 000 FCFA
+        //    - Recrutement         :    20 000 000 FCFA
+        //    Total ≈ 2 080 000 000 FCFA
+        // ═════════════════════════════════════════════════════════════════════
+        private static void EnsureBudgetMasseSalariale(
+            IObjectSpace os,
+            (Site bandia, Site cdb, Site mermoz, Site siege, Site depotDakar, Site depotThies) sites)
+        {
+            int anneeCible = DateTime.Today.Year;
+
+            // Idempotence — si on trouve déjà un budget DEMO sur l'année cible, on skip
+            bool dejaExistant = os.GetObjectsQuery<BudgetMasseSalariale>()
+                .ToList()
+                .Any(b => b.Annee == anneeCible
+                       && b.Commentaire != null
+                       && b.Commentaire.StartsWith("DEMO_BUDGET_"));
+            if (dejaExistant) return;
+
+            // ── Budget annuel par rubrique (FCFA) ─────────────────────────
+            var totauxAnnuels = new (BudgetRubrique R, decimal Annuel)[]
+            {
+                (BudgetRubrique.SalairesBase,        1_100_000_000m),
+                (BudgetRubrique.ChargesPatronales,     400_000_000m),
+                (BudgetRubrique.Primes,                200_000_000m),
+                (BudgetRubrique.TreiziemeMois,         100_000_000m),
+                (BudgetRubrique.Indemnites,             80_000_000m),
+                (BudgetRubrique.AvantagesNature,       100_000_000m),
+                (BudgetRubrique.Gratifications,         50_000_000m),
+                (BudgetRubrique.Formation,              30_000_000m),
+                (BudgetRubrique.Recrutement,            20_000_000m),
+            };
+
+            // ── 1. Lignes globales (Site=NULL) — mensualisation auto ──────
+            foreach (var (rubrique, annuel) in totauxAnnuels)
+            {
+                for (int mois = 1; mois <= 12; mois++)
+                {
+                    decimal montantMois = MensualiserBudget(rubrique, annuel, mois);
+                    if (montantMois <= 0) continue;
+
+                    var b = os.CreateObject<BudgetMasseSalariale>();
+                    b.Annee = anneeCible;
+                    b.Mois = mois;
+                    b.Site = null;          // Budget global non ventilé
+                    b.Rubrique = rubrique;
+                    b.Montant = montantMois;
+                    b.Source = BudgetSource.AutoMensualise;
+                    b.Commentaire = $"DEMO_BUDGET_GLOBAL_{anneeCible}";
+                }
+            }
+
+            // ── 2. Ventilation par site — Salaires + Charges seulement ────
+            //   On répartit le budget annuel sur 3 sites principaux à 33 % chacun
+            //   (Bandia + CDB + Mermoz). Le siège et les dépôts seront couverts
+            //   en V1.2.1 quand le DAF affinera la ventilation.
+            var sitesVentiles = new[] { sites.bandia, sites.cdb, sites.mermoz };
+            var rubriquesVentilees = new[]
+            {
+                BudgetRubrique.SalairesBase,
+                BudgetRubrique.ChargesPatronales
+            };
+
+            foreach (var rub in rubriquesVentilees)
+            {
+                decimal annuel = totauxAnnuels.First(t => t.R == rub).Annuel;
+                decimal partSiteAnnuel = Math.Round(annuel / sitesVentiles.Length, 0);
+
+                foreach (var site in sitesVentiles)
+                {
+                    for (int mois = 1; mois <= 12; mois++)
+                    {
+                        decimal montantMoisSite = MensualiserBudget(rub, partSiteAnnuel, mois);
+                        if (montantMoisSite <= 0) continue;
+
+                        var b = os.CreateObject<BudgetMasseSalariale>();
+                        b.Annee = anneeCible;
+                        b.Mois = mois;
+                        b.Site = site;
+                        b.Rubrique = rub;
+                        b.Montant = montantMoisSite;
+                        b.Source = BudgetSource.AutoMensualise;
+                        b.Commentaire = $"DEMO_BUDGET_SITE_{site.Code}";
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Applique la règle de mensualisation propre à chaque rubrique :
+        ///   - 13e mois        → 100 % en décembre
+        ///   - Gratifications  → 50 % en juin + 50 % en décembre
+        ///   - Recrutement     → concentré 1er semestre (60 % S1)
+        ///   - Autres          → mensualisation linéaire /12
+        /// </summary>
+        private static decimal MensualiserBudget(BudgetRubrique rubrique, decimal annuel, int mois)
+        {
+            switch (rubrique)
+            {
+                case BudgetRubrique.TreiziemeMois:
+                    return mois == 12 ? annuel : 0m;
+
+                case BudgetRubrique.Gratifications:
+                    if (mois == 6) return Math.Round(annuel / 2m, 0);
+                    if (mois == 12) return Math.Round(annuel / 2m, 0);
+                    return 0m;
+
+                case BudgetRubrique.Recrutement:
+                    // 60 % en S1, 40 % en S2
+                    decimal s1 = Math.Round(annuel * 0.60m / 6m, 0);
+                    decimal s2 = Math.Round(annuel * 0.40m / 6m, 0);
+                    return mois <= 6 ? s1 : s2;
+
+                default:
+                    return Math.Round(annuel / 12m, 0);
+            }
+        }
     }
 
     /// <summary>
@@ -390,6 +529,13 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             WipeAll(IObjectSpace os)
         {
             int s = 0, u = 0, c = 0, m = 0, i = 0, p = 0, sc = 0;
+
+            // V1.2 — Suppression des budgets démo (Commentaire commence par "DEMO_BUDGET_")
+            //   Avant les sites, sinon FK orpheline si Site supprimé.
+            var budgets = os.GetObjectsQuery<BudgetMasseSalariale>().ToList()
+                .Where(x => (x.Commentaire ?? "").StartsWith("DEMO_BUDGET_"))
+                .ToList();
+            foreach (var x in budgets) { os.Delete(x); }
 
             // Ordre de suppression : enfants d'abord pour éviter les violations FK
             var mouvements = os.GetObjectsQuery<MouvementInterimaire>().ToList()
