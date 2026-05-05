@@ -1,0 +1,638 @@
+@* =====================================================================
+    BulletinInterimImport.razor — V1.3 Sprint 1 (mai 2026)
+    URL : /interim/import-livre-paie
+
+    Wizard 4 étapes pour importer le fichier "Livre de Paie Intérim"
+    envoyé chaque mois par les sociétés d'intérim.
+      Étape 1 : Année / Mois / Société émettrice
+      Étape 2 : Upload du fichier .xlsx
+      Étape 3 : Preview du résultat (lignes parsées + totaux)
+      Étape 4 : Confirmation + commit + rapport
+   ===================================================================== *@
+
+@page "/interim/import-livre-paie"
+@attribute [Authorize]
+
+@using System.Globalization
+@using System.IO
+@using System.Linq
+@using AdiPAIE_V02.Module.BusinessObjects.Interim
+@using AdiPAIE_V02.Module.BusinessObjects.RH
+@using AdiPAIE_V02.Module.Models.Interim
+@using AdiPAIE_V02.Module.Services.Interim
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject IBulletinInterimImportService ImportService
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
+
+<PageTitle>Import Livre de Paie Intérim</PageTitle>
+
+<div class="bii-container">
+
+    @* ── Header ─────────────────────────────────────────────────── *@
+    <header class="bii-header">
+        <button class="bii-back" @onclick="@(() => Nav.NavigateTo("/"))" title="Retour">
+            <i class="bi bi-arrow-left-circle"></i>
+        </button>
+        <div>
+            <div class="bii-header__perimetre">Intérimaires · V1.3 · Wizard d'import</div>
+            <h1 class="bii-header__h1">Charger le Livre de Paie Intérim</h1>
+        </div>
+        <a class="bii-help" title="Aide" href="/help/import-livre-paie-interim.html" target="_blank" rel="noopener">
+            <i class="bi bi-question-circle"></i>
+        </a>
+    </header>
+
+    @* ── Stepper ────────────────────────────────────────────────── *@
+    <div class="bii-stepper">
+        <div class="bii-step @(_step >= 1 ? "active" : "") @(_step > 1 ? "done" : "")">
+            <span class="bii-step__num">1</span>
+            <span class="bii-step__lbl">Période + Société</span>
+        </div>
+        <div class="bii-step @(_step >= 2 ? "active" : "") @(_step > 2 ? "done" : "")">
+            <span class="bii-step__num">2</span>
+            <span class="bii-step__lbl">Upload fichier</span>
+        </div>
+        <div class="bii-step @(_step >= 3 ? "active" : "") @(_step > 3 ? "done" : "")">
+            <span class="bii-step__num">3</span>
+            <span class="bii-step__lbl">Preview</span>
+        </div>
+        <div class="bii-step @(_step >= 4 ? "active" : "")">
+            <span class="bii-step__num">4</span>
+            <span class="bii-step__lbl">Confirmation</span>
+        </div>
+    </div>
+
+    @if (_errorMessage != null)
+    {
+        <div class="bii-alert bii-alert--error">
+            <i class="bi bi-exclamation-triangle"></i> @_errorMessage
+        </div>
+    }
+
+    @* ─────────────────────────────────────────────────────────────
+       ÉTAPE 1 — Période + Société
+       ───────────────────────────────────────────────────────────── *@
+    @if (_step == 1)
+    {
+        <section class="bii-section">
+            <h3 class="bii-section__title">Étape 1 — Sélection de la période et de la société d'intérim</h3>
+
+            <div class="bii-form">
+                <label>
+                    <span>Année</span>
+                    <select @bind="_annee">
+                        @foreach (var y in _anneesDispo)
+                        {
+                            <option value="@y">@y</option>
+                        }
+                    </select>
+                </label>
+                <label>
+                    <span>Mois</span>
+                    <select @bind="_mois">
+                        @for (int m = 1; m <= 12; m++)
+                        {
+                            <option value="@m">@m.ToString("D2") — @FrCulture.DateTimeFormat.GetMonthName(m)</option>
+                        }
+                    </select>
+                </label>
+                <label class="bii-form__societe">
+                    <span>Société d'intérim émettrice</span>
+                    <select @bind="_societeOidStr">
+                        <option value="">— Choisir —</option>
+                        @foreach (var s in _societesDispo)
+                        {
+                            <option value="@s.Oid">@s.RaisonSociale</option>
+                        }
+                    </select>
+                </label>
+            </div>
+
+            <div class="bii-actions">
+                <button class="bii-btn bii-btn--primary" @onclick="GoToStep2" disabled="@(string.IsNullOrEmpty(_societeOidStr))">
+                    Suivant <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+    }
+
+    @* ─────────────────────────────────────────────────────────────
+       ÉTAPE 2 — Upload du fichier
+       ───────────────────────────────────────────────────────────── *@
+    @if (_step == 2)
+    {
+        <section class="bii-section">
+            <h3 class="bii-section__title">Étape 2 — Upload du fichier Excel</h3>
+
+            <div class="bii-recap">
+                <strong>Période :</strong> @_mois.ToString("D2")/@_annee
+                · <strong>Société :</strong> @(_societesDispo.FirstOrDefault(s => s.Oid.ToString() == _societeOidStr)?.RaisonSociale ?? "?")
+            </div>
+
+            <div class="bii-upload">
+                <p>
+                    <i class="bi bi-info-circle"></i>
+                    Sélectionner le fichier <code>.xlsx</code> envoyé par la société d'intérim.
+                    Le système parse le contenu et affiche un preview avant de rien enregistrer.
+                </p>
+
+                <InputFile OnChange="OnFileSelected" accept=".xlsx" class="bii-inputfile" />
+
+                @if (_uploading)
+                {
+                    <div class="bii-uploading">
+                        <i class="bi bi-arrow-repeat bii-spin"></i> Analyse du fichier en cours…
+                    </div>
+                }
+            </div>
+
+            <div class="bii-actions">
+                <button class="bii-btn bii-btn--secondary" @onclick="@(() => _step = 1)">
+                    <i class="bi bi-arrow-left"></i> Précédent
+                </button>
+            </div>
+        </section>
+    }
+
+    @* ─────────────────────────────────────────────────────────────
+       ÉTAPE 3 — Preview du résultat
+       ───────────────────────────────────────────────────────────── *@
+    @if (_step == 3 && _preview != null)
+    {
+        <section class="bii-section">
+            <h3 class="bii-section__title">Étape 3 — Preview du résultat (avant commit)</h3>
+
+            <div class="bii-recap">
+                <strong>Période :</strong> @_preview.Mois.ToString("D2")/@_preview.Annee
+                · <strong>Société :</strong> @_preview.SocieteNom
+                · <strong>Fichier :</strong> @_preview.FichierSource
+            </div>
+
+            @if (_preview.Erreurs.Count > 0)
+            {
+                <div class="bii-alert bii-alert--error">
+                    <strong>Erreurs détectées :</strong>
+                    <ul>
+                        @foreach (var er in _preview.Erreurs) { <li>@er</li> }
+                    </ul>
+                </div>
+            }
+
+            @if (_preview.Warnings.Count > 0)
+            {
+                <div class="bii-alert bii-alert--warn">
+                    <strong>Avertissements :</strong>
+                    <ul>
+                        @foreach (var w in _preview.Warnings) { <li>@w</li> }
+                    </ul>
+                </div>
+            }
+
+            @* Compteurs *@
+            <div class="bii-counters">
+                <div class="bii-counter bii-counter--ok">
+                    <div class="bii-counter__nb">@_preview.NbLignesOk</div>
+                    <div class="bii-counter__lbl">Bulletins OK<br/><small>(matricule existant)</small></div>
+                </div>
+                <div class="bii-counter bii-counter--warn">
+                    <div class="bii-counter__nb">@_preview.NbLignesACreer</div>
+                    <div class="bii-counter__lbl">Fiches à créer auto<br/><small>(matricule inconnu)</small></div>
+                </div>
+                <div class="bii-counter bii-counter--info">
+                    <div class="bii-counter__nb">@_preview.NbLignesPrestataire</div>
+                    <div class="bii-counter__lbl">Prestataires<br/><small>(hors fiche)</small></div>
+                </div>
+                <div class="bii-counter bii-counter--total">
+                    <div class="bii-counter__nb">@_preview.NbLignesTotal</div>
+                    <div class="bii-counter__lbl">Total lignes</div>
+                </div>
+            </div>
+
+            @* Totaux financiers *@
+            <h4 class="bii-h4">Totaux financiers du lot</h4>
+            <table class="bii-table">
+                <tr><td>Total brut imposable</td><td class="num">@FormatFcfa(_preview.TotalBrutImposable)</td></tr>
+                <tr><td>Total débours</td><td class="num">@FormatFcfa(_preview.TotalDebours)</td></tr>
+                <tr><td>Total commission agence</td><td class="num">@FormatFcfa(_preview.TotalCommissionAgence)</td></tr>
+                <tr><td>Total HT</td><td class="num">@FormatFcfa(_preview.TotalHT)</td></tr>
+                <tr><td>Total TVA</td><td class="num">@FormatFcfa(_preview.TotalTVA)</td></tr>
+                <tr class="bii-row--strong"><td><strong>Total TTC (coût réel ELTON)</strong></td><td class="num"><strong>@FormatFcfa(_preview.TotalTTC)</strong></td></tr>
+                <tr><td>Multiplicateur Brut → TTC</td><td class="num">×@_preview.MultiplicateurBrutTTC.ToString("0.00", FrCulture)</td></tr>
+            </table>
+
+            @* Aperçu 10 premières lignes *@
+            <h4 class="bii-h4">Aperçu — 10 premières lignes</h4>
+            <div class="bii-tablewrap">
+                <table class="bii-table bii-table--sm">
+                    <thead>
+                        <tr>
+                            <th>Statut</th>
+                            <th>Matricule</th>
+                            <th>Nom</th>
+                            <th>Fonction</th>
+                            <th>Site</th>
+                            <th class="num">Brut</th>
+                            <th class="num">TTC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var l in _preview.Lignes.Take(10))
+                        {
+                            <tr>
+                                <td>@StatutBadge(l.Statut)</td>
+                                <td>@l.MatriculeOriginal</td>
+                                <td>@l.Nom @l.Prenom</td>
+                                <td>@l.Fonction</td>
+                                <td>@l.SiteAffectation</td>
+                                <td class="num">@FormatFcfa(l.BrutImposable)</td>
+                                <td class="num">@FormatFcfa(l.TTC)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (_preview.BatchDejaExistant)
+            {
+                <div class="bii-overwrite">
+                    <label>
+                        <input type="checkbox" @bind="_ecraserBatch" />
+                        <strong>Écraser le batch existant pour @_preview.Mois.ToString("D2")/@_preview.Annee</strong>
+                        — l'ancien lot et ses bulletins seront supprimés avant de commit le nouveau.
+                    </label>
+                </div>
+            }
+
+            <div class="bii-actions">
+                <button class="bii-btn bii-btn--secondary" @onclick="@(() => _step = 2)">
+                    <i class="bi bi-arrow-left"></i> Précédent (changer fichier)
+                </button>
+                <button class="bii-btn bii-btn--primary"
+                        @onclick="GoToStep4"
+                        disabled="@(!_preview.PeutCommiter || (_preview.BatchDejaExistant && !_ecraserBatch))">
+                    Confirmer l'import <i class="bi bi-check-circle"></i>
+                </button>
+            </div>
+        </section>
+    }
+
+    @* ─────────────────────────────────────────────────────────────
+       ÉTAPE 4 — Résultat du commit
+       ───────────────────────────────────────────────────────────── *@
+    @if (_step == 4 && _result != null)
+    {
+        <section class="bii-section">
+            <h3 class="bii-section__title">Étape 4 — Import effectué ✅</h3>
+
+            <div class="bii-alert bii-alert--success">
+                <i class="bi bi-check-circle-fill"></i>
+                <strong>L'import a été enregistré.</strong>
+                @if (_result.BatchEcrase)
+                {
+                    <span> Ancien batch écrasé (@_result.NbBulletinsAnciensSupprimes lignes supprimées).</span>
+                }
+            </div>
+
+            <table class="bii-table">
+                <tr><td>Lot d'import (Batch)</td><td><code>@_result.BatchOid</code></td></tr>
+                <tr><td>Bulletins créés</td><td>@_result.NbBulletinsCrees</td></tr>
+                <tr><td>Fiches Intérimaire créées auto</td><td>@_result.NbInterimairesCreesAuto</td></tr>
+                <tr><td>Prestataires</td><td>@_result.NbPrestataires</td></tr>
+                <tr class="bii-row--strong"><td><strong>Total TTC</strong></td><td><strong>@FormatFcfa(_result.TotalTTC)</strong></td></tr>
+            </table>
+
+            @if (_result.NbInterimairesCreesAuto > 0)
+            {
+                <div class="bii-alert bii-alert--warn">
+                    <strong>⚠️ Action RH à faire :</strong>
+                    @_result.NbInterimairesCreesAuto fiche(s) Intérimaire ont été créées automatiquement.
+                    Vous devez les compléter (Date naissance, CNI, Adresse, etc.) <strong>et créer
+                    leurs contrats</strong> avant le prochain import.
+                    <details>
+                        <summary>Liste des fiches créées</summary>
+                        <ul>
+                            @foreach (var n in _result.InterimairesCreesNoms) { <li>@n</li> }
+                        </ul>
+                    </details>
+                </div>
+            }
+
+            <div class="bii-actions">
+                <button class="bii-btn bii-btn--secondary" @onclick="ResetWizard">
+                    <i class="bi bi-arrow-clockwise"></i> Nouvel import
+                </button>
+                <a class="bii-btn bii-btn--primary" href="/dashboards">
+                    Voir le dashboard <i class="bi bi-bar-chart"></i>
+                </a>
+            </div>
+        </section>
+    }
+
+</div>
+
+<style>
+    .bii-container { padding: 0; }
+
+    .bii-header {
+        background: linear-gradient(135deg, #142E4D 0%, #1F4376 100%);
+        color: #E6EAF1;
+        padding: 1.1rem 1.5rem;
+        display: flex; align-items: center; gap: 1rem;
+        border-bottom: 3px solid #F18A1C;
+    }
+    .bii-back, .bii-help {
+        background: #1F4376; border: none; color: #fff;
+        width: 38px; height: 38px; border-radius: 50%;
+        font-size: 1.25rem; cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center;
+        text-decoration: none;
+        transition: background 0.15s ease;
+    }
+    .bii-back:hover, .bii-help:hover { background: #F18A1C; }
+    .bii-help { margin-left: auto; }
+    .bii-header__h1 { font-size: 1.5rem; font-weight: 700; margin: 0; color: #fff; }
+    .bii-header__perimetre {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+        color: #F18A1C; font-weight: 600;
+    }
+
+    .bii-stepper {
+        display: flex; gap: 0.5rem; padding: 1rem 1.5rem;
+        background: #F6F7F9; border-bottom: 1px solid #E5E7EB;
+        flex-wrap: wrap;
+    }
+    .bii-step {
+        flex: 1; min-width: 140px;
+        display: flex; align-items: center; gap: 0.5rem;
+        padding: 0.5rem 0.8rem; border-radius: 6px;
+        background: #fff; border: 1px solid #E5E7EB;
+        opacity: 0.55;
+    }
+    .bii-step.active { opacity: 1; border-color: #F18A1C; background: #FEF3E2; }
+    .bii-step.done { opacity: 0.85; border-color: #2EA75B; background: #E8F5EE; }
+    .bii-step__num {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 26px; height: 26px; border-radius: 50%;
+        background: #142E4D; color: #fff; font-weight: 700; font-size: 0.85rem;
+    }
+    .bii-step.done .bii-step__num { background: #2EA75B; }
+    .bii-step.active .bii-step__num { background: #F18A1C; }
+    .bii-step__lbl { font-size: 0.85rem; color: #142E4D; font-weight: 600; }
+
+    .bii-section {
+        background: #fff; border: 1px solid #E5E7EB;
+        border-radius: 8px; padding: 1.2rem 1.4rem;
+        margin: 1rem 1.5rem;
+        box-shadow: 0 1px 2px rgba(20, 46, 77, 0.04);
+    }
+    .bii-section__title {
+        font-size: 1rem; font-weight: 700; color: #142E4D;
+        margin: 0 0 1rem 0; padding-bottom: 0.45rem;
+        border-bottom: 2px solid #F18A1C; display: inline-block;
+    }
+    .bii-h4 { font-size: 0.9rem; color: #5C6679; margin-top: 1.2rem; margin-bottom: 0.5rem; font-weight: 600; }
+
+    .bii-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.2rem; }
+    .bii-form__societe { grid-column: 1 / -1; }
+    .bii-form label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; }
+    .bii-form label > span { color: #5C6679; font-weight: 600; font-size: 0.78rem; }
+    .bii-form select, .bii-form input {
+        padding: 0.5rem 0.75rem; border: 1px solid #D1D5DB;
+        border-radius: 4px; font-size: 0.9rem;
+    }
+
+    .bii-recap {
+        background: #F6F7F9; padding: 0.7rem 1rem; border-radius: 6px;
+        margin-bottom: 1rem; font-size: 0.88rem; color: #142E4D;
+        border-left: 3px solid #F18A1C;
+    }
+
+    .bii-upload p { color: #5C6679; }
+    .bii-inputfile {
+        padding: 0.6rem; border: 2px dashed #1A73B5; border-radius: 6px;
+        background: #F0F8FF; cursor: pointer; width: 100%;
+    }
+    .bii-uploading {
+        margin-top: 1rem; color: #1A73B5; font-weight: 600;
+    }
+    .bii-spin {
+        display: inline-block;
+        animation: bii-spin 1s linear infinite;
+    }
+    @@keyframes bii-spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
+
+    .bii-counters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; margin: 1rem 0; }
+    .bii-counter {
+        background: #fff; border: 1px solid #E5E7EB; border-top: 4px solid #8B95A5;
+        border-radius: 6px; padding: 0.7rem; text-align: center;
+    }
+    .bii-counter--ok { border-top-color: #2EA75B; }
+    .bii-counter--warn { border-top-color: #F0AD4E; }
+    .bii-counter--info { border-top-color: #1A73B5; }
+    .bii-counter--total { border-top-color: #142E4D; }
+    .bii-counter__nb { font-size: 1.6rem; font-weight: 800; color: #142E4D; }
+    .bii-counter__lbl { font-size: 0.74rem; color: #5C6679; font-weight: 600; }
+
+    .bii-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.5rem 0; }
+    .bii-table th, .bii-table td {
+        padding: 0.45rem 0.7rem; border-bottom: 1px solid #E5E7EB;
+        text-align: left; font-variant-numeric: tabular-nums;
+    }
+    .bii-table th {
+        background: #F6F7F9; color: #5C6679; font-weight: 600;
+        text-transform: uppercase; font-size: 0.72rem;
+    }
+    .bii-table .num { text-align: right; }
+    .bii-table .bii-row--strong td { background: #FEF3E2; }
+    .bii-table--sm { font-size: 0.78rem; }
+    .bii-tablewrap { max-height: 360px; overflow-y: auto; border: 1px solid #E5E7EB; border-radius: 6px; }
+
+    .bii-overwrite {
+        margin: 1rem 0; padding: 0.7rem 1rem;
+        background: #FEF3E2; border-left: 4px solid #F0AD4E; border-radius: 4px;
+        font-size: 0.88rem;
+    }
+    .bii-overwrite label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+
+    .bii-actions {
+        display: flex; gap: 0.6rem; justify-content: flex-end;
+        margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid #E5E7EB;
+    }
+    .bii-btn {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        padding: 0.6rem 1.1rem; border-radius: 6px; cursor: pointer;
+        font-weight: 600; font-size: 0.9rem; border: none;
+        text-decoration: none;
+    }
+    .bii-btn--primary { background: #F18A1C; color: #fff; }
+    .bii-btn--primary:hover:not(:disabled) { background: #D9741A; }
+    .bii-btn--primary:disabled { background: #BFC8D6; cursor: not-allowed; }
+    .bii-btn--secondary { background: #E5E7EB; color: #142E4D; }
+    .bii-btn--secondary:hover { background: #D1D5DB; }
+
+    .bii-alert {
+        margin: 1rem 1.5rem; padding: 0.7rem 1rem; border-radius: 6px;
+        font-size: 0.88rem;
+    }
+    .bii-alert--error { background: #FEF1F2; color: #8A1F2C; border-left: 4px solid #E63946; }
+    .bii-alert--warn { background: #FEF3E2; color: #8A4F00; border-left: 4px solid #F0AD4E; }
+    .bii-alert--success { background: #E8F5EE; color: #1F6E3F; border-left: 4px solid #2EA75B; }
+    .bii-alert ul { margin: 0.5rem 0 0 1.2rem; }
+
+    .bii-statut {
+        display: inline-block; padding: 0.15rem 0.4rem; border-radius: 3px;
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    }
+    .bii-statut--ok { background: #E8F5EE; color: #1F6E3F; }
+    .bii-statut--acreer { background: #FEF3E2; color: #8A4F00; }
+    .bii-statut--prest { background: #E8F1FB; color: #1A73B5; }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture = CultureInfo.GetCultureInfo("fr-FR");
+
+    private int _step = 1;
+    private string? _errorMessage;
+
+    // Étape 1 : sélection
+    private int _annee = DateTime.Today.Year;
+    private int _mois = DateTime.Today.Month;
+    private string _societeOidStr = "";
+    private List<int> _anneesDispo = new();
+    private List<SocieteInterim> _societesDispo = new();
+
+    // Étape 2 : upload
+    private bool _uploading = false;
+    private byte[]? _fileBytes;
+    private string _fileName = "";
+
+    // Étape 3 : preview
+    private ImportPreviewDto? _preview;
+    private bool _ecraserBatch = false;
+
+    // Étape 4 : résultat
+    private ImportResultDto? _result;
+
+    protected override void OnInitialized()
+    {
+        if (!DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
+        LoadLookups();
+    }
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(SocieteInterim));
+            _anneesDispo = Enumerable.Range(DateTime.Today.Year - 5, 7).ToList();
+            _societesDispo = os.GetObjectsQuery<SocieteInterim>().ToList()
+                .OrderBy(s => s.RaisonSociale).ToList();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erreur chargement référentiels : {ex.Message}";
+        }
+    }
+
+    private void GoToStep2()
+    {
+        _errorMessage = null;
+        if (string.IsNullOrEmpty(_societeOidStr))
+        {
+            _errorMessage = "Choisir une société d'intérim émettrice.";
+            return;
+        }
+        _step = 2;
+    }
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        _errorMessage = null;
+        _uploading = true;
+        StateHasChanged();
+        try
+        {
+            const long MaxSize = 10 * 1024 * 1024; // 10 MB
+            using var ms = new MemoryStream();
+            await e.File.OpenReadStream(MaxSize).CopyToAsync(ms);
+            _fileBytes = ms.ToArray();
+            _fileName = e.File.Name;
+
+            if (!Guid.TryParse(_societeOidStr, out var societeOid))
+            {
+                _errorMessage = "Société invalide.";
+                _uploading = false;
+                return;
+            }
+
+            // Parse via le service
+            await Task.Run(() =>
+            {
+                using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(BulletinInterim));
+                _preview = ImportService.Preview(_fileBytes, _fileName, _annee, _mois, societeOid, os);
+            });
+
+            _step = 3;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erreur lors de l'analyse : {ex.Message}";
+        }
+        finally
+        {
+            _uploading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task GoToStep4()
+    {
+        if (_preview == null) return;
+        _errorMessage = null;
+        try
+        {
+            await Task.Run(() =>
+            {
+                using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(BulletinInterim));
+                var userName = HttpCtx?.HttpContext?.User?.Identity?.Name ?? "(?)";
+                _result = ImportService.Commit(_preview, userName, _ecraserBatch, os);
+            });
+            _step = 4;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erreur lors du commit : {ex.Message}";
+        }
+        StateHasChanged();
+    }
+
+    private void ResetWizard()
+    {
+        _step = 1;
+        _preview = null;
+        _result = null;
+        _fileBytes = null;
+        _fileName = "";
+        _ecraserBatch = false;
+        _errorMessage = null;
+    }
+
+    private string FormatFcfa(decimal v) => $"{v.ToString("N0", FrCulture)} FCFA";
+
+    private MarkupString StatutBadge(LignePreviewStatut s) => new(s switch
+    {
+        LignePreviewStatut.OK => "<span class=\"bii-statut bii-statut--ok\">OK</span>",
+        LignePreviewStatut.ACreer => "<span class=\"bii-statut bii-statut--acreer\">À créer</span>",
+        LignePreviewStatut.Prestataire => "<span class=\"bii-statut bii-statut--prest\">Prestataire</span>",
+        _ => "<span class=\"bii-statut\">Erreur</span>"
+    });
+}

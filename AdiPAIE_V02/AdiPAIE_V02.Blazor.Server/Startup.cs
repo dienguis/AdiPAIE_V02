@@ -91,6 +91,12 @@ namespace AdiPAIE_V02.Blazor.Server
                 AdiPAIE_V02.Module.Services.Dashboards.IConformiteSenegalDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.ConformiteSenegalDashboardService>();
 
+            // ─── V1.3 Sprint 1 — Coût Réel Intérimaires ───────────────────
+            // Service d'import du livre de paie intérim (parsing xlsx + matching)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Interim.IBulletinInterimImportService,
+                AdiPAIE_V02.Module.Services.Interim.BulletinInterimImportService>();
+
             // Export Excel partagé pour les 6 tableaux (Étape 7.2)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IDashboardExcelExportService,
