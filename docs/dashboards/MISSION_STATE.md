@@ -704,6 +704,55 @@ public class ImportBulletinInterimBatch : BaseObject
 
 ---
 
+## ✅ V1.3 SPRINT 1 — COÛT RÉEL INTÉRIMAIRES (2026-05-05) — CODE IMPLÉMENTÉ
+
+> Status : code complet pour les 5 étapes (entités, service import, wizard,
+> dashboard, help). Build à valider par le user.
+
+### Fichiers créés / modifiés
+
+| Étape | Fichier | Rôle |
+|---|---|---|
+| 1 | `BusinessObjects/Interim/BulletinInterim.cs` | Entité 30+ champs avec bloc facturation Débours/Commission/HT/TVA/TTC, statut import |
+| 1 | `BusinessObjects/Interim/ImportBulletinInterimBatch.cs` | Audit batch 1 par triplet (Année, Mois, Société) |
+| 2 | `Models/Interim/ImportBulletinInterimDtos.cs` | DTOs preview/result du wizard |
+| 2 | `Services/Interim/IBulletinInterimImportService.cs` + impl | Parser ClosedXML fuzzy, lookup matricule, création auto, idempotence |
+| 3 | `Pages/Interim/BulletinInterimImport.razor` | Wizard 4 étapes (route `/interim/import-livre-paie`) |
+| 3 | `Controllers/BulletinInterimImportController.cs` | Bouton "Charger livre de paie" sur ListView batch |
+| 4 | `Models/Dashboards/CoutReelInterimDto.cs` | DTO dashboard + sub-DTOs (KPI, Top10, Évolution, Écart, Société) |
+| 4 | `Services/Dashboards/ICoutReelInterimDashboardService.cs` + impl | Calcul KPIs annuels/mensuels + comparaison contrat vs réel |
+| 4 | `Pages/Dashboards/CoutReelInterim/CoutReelInterimDashboard.razor` | Dashboard route `/dashboards/cout-reel-interim` |
+| 5 | `wwwroot/help/Modele_LivrePaieInterim.xlsx` | Template Excel 53 colonnes (généré via openpyxl) |
+| 5 | `wwwroot/help/import-livre-paie-interim.html` | Help d'import (workflow 5 étapes + lien template) |
+| 5 | `wwwroot/help/dashboards/cout-reel-interim.html` | Help dashboard (KPIs, formules, FAQ) |
+| 5 | `wwwroot/help/dashboards/index.html` | Card N°11 ajoutée + nav harmonisée |
+| 5 | `Pages/Dashboards/DashboardHome.razor` | Card "Coût Réel Intérimaires" ajoutée |
+| 5 | `Startup.cs` | DI : `IBulletinInterimImportService` + `ICoutReelInterimDashboardService` |
+
+### Workflow utilisateur final
+
+```
+Société intérim envoie facture .xlsx
+    ↓
+Intérimaires → Lots d'import → "Charger livre de paie"
+    ↓
+Wizard 4 étapes (Période/Société → Upload → Preview → Confirm)
+    ↓
+N BulletinInterim créés + fiches Interimaire manquantes auto
+    ↓
+Dashboard /dashboards/cout-reel-interim affiche KPIs + écart contrat/réel
+```
+
+### Limites V1.3 (à compléter en V1.3.1)
+
+- Pas d'export Excel/PDF du dashboard N°11
+- Comparaison contrat suppose mois standard 22 jours (pas de pro-rata mi-temps)
+- Prestataires exclus de la comparaison contrat (pas de FK vers ContratInterim)
+- Pas de seeder démo BulletinInterim (test uniquement avec fichier réel)
+- Tableau Comparaison limité à 50 premiers écarts (par valeur absolue)
+
+---
+
 ## ✅ V1.2.1 — REFONTE BUDGET ANNUEL (2026-05-05) — BUILD OK
 
 > **Décision DAF** : passage à un modèle simplifié sur demande métier.

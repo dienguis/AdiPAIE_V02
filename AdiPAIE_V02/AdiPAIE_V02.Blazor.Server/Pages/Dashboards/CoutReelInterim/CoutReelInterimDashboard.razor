@@ -1,0 +1,542 @@
+@* =====================================================================
+    CoutReelInterimDashboard.razor — V1.3 Sprint 1 (mai 2026)
+    URL : /dashboards/cout-reel-interim
+    Périmètre : Pilotage DAF + DRH — coût réel facturé par les sociétés
+    d'intérim (vs coût théorique contrat).
+   ===================================================================== *@
+
+@page "/dashboards/cout-reel-interim"
+@attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.BusinessObjects.RH
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+
+@inject ICoutReelInterimDashboardService Service
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpCtx
+
+<PageTitle>Coût Réel Intérimaires — Tableaux de Bord RH</PageTitle>
+
+@if (_loading)
+{
+    <div class="cri-loading"><DxLoadingPanel Text="Chargement…" Visible="true" /></div>
+}
+else if (_errorMessage != null)
+{
+    <div class="cri-error">@_errorMessage</div>
+}
+else if (_data != null)
+{
+    <header class="cri-header">
+        <div class="cri-header__title">
+            <button class="cri-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
+                <i class="bi bi-arrow-left-circle"></i>
+            </button>
+            <div>
+                <div class="cri-header__perimetre">Pilotage DAF + DRH · Tableau N°11 · Facturation intérim</div>
+                <h1 class="cri-header__h1">Coût Réel Intérimaires</h1>
+            </div>
+        </div>
+        <div class="cri-filters">
+            <a class="cri-help" title="Aide" href="/help/dashboards/cout-reel-interim.html" target="_blank" rel="noopener">
+                <i class="bi bi-question-circle"></i>
+            </a>
+            <label>
+                <span>Année</span>
+                <select @bind="_filter.Annee" @bind:after="LoadDataAsync">
+                    @foreach (var y in _anneesDispo) { <option value="@y">@y</option> }
+                </select>
+            </label>
+            <label>
+                <span>Mois</span>
+                <select @bind="_moisStr" @bind:after="OnMoisChanged">
+                    @for (int m = 1; m <= 12; m++)
+                    {
+                        <option value="@m">@m.ToString("D2") — @FrCulture.DateTimeFormat.GetMonthName(m)</option>
+                    }
+                </select>
+            </label>
+            <label>
+                <span>Site</span>
+                <select @bind="_selectedSiteOid" @bind:after="OnSiteChanged">
+                    <option value="">Tous</option>
+                    @foreach (var s in _sitesDispo) { <option value="@s.Oid">@s.Nom</option> }
+                </select>
+            </label>
+            <label>
+                <span>Société d'intérim</span>
+                <select @bind="_selectedSocOid" @bind:after="OnSocChanged">
+                    <option value="">Toutes</option>
+                    @foreach (var s in _societesDispo) { <option value="@s.Oid">@s.RaisonSociale</option> }
+                </select>
+            </label>
+        </div>
+    </header>
+
+    @* ── KPIs principaux ─────────────────────────────────────────── *@
+    <section class="cri-kpis">
+        <div class="cri-kpi cri-kpi--ttc">
+            <div class="cri-kpi__head"><i class="bi bi-receipt"></i> TTC du mois</div>
+            <div class="cri-kpi__value">@FormatFcfa(_data.Kpis.TTCMois)</div>
+            <div class="cri-kpi__sub">@_data.Kpis.NbBulletinsMois bulletins · Variation : @FormatEcart(_data.Kpis.VariationTTCMoisPrec) (@FormatPct(_data.Kpis.VariationTTCMoisPrecPct))</div>
+        </div>
+        <div class="cri-kpi cri-kpi--ytd">
+            <div class="cri-kpi__head"><i class="bi bi-graph-up"></i> TTC YTD</div>
+            <div class="cri-kpi__value">@FormatFcfa(_data.Kpis.TTCAnneeYTD)</div>
+            <div class="cri-kpi__sub">Cumul jan-@_data.Mois?.ToString("D2") @_data.Annee</div>
+        </div>
+        <div class="cri-kpi cri-kpi--multi">
+            <div class="cri-kpi__head"><i class="bi bi-magic"></i> Multiplicateur Brut → TTC</div>
+            <div class="cri-kpi__value">×@_data.Kpis.MultiplicateurMois.ToString("0.00", FrCulture)</div>
+            <div class="cri-kpi__sub">1 FCFA brut = @_data.Kpis.MultiplicateurMois.ToString("0.00", FrCulture) FCFA TTC</div>
+        </div>
+        <div class="cri-kpi cri-kpi--moy">
+            <div class="cri-kpi__head"><i class="bi bi-person-circle"></i> Coût moyen / intérimaire</div>
+            <div class="cri-kpi__value">@FormatFcfa(_data.Kpis.CoutMoyenInterimaire)</div>
+            <div class="cri-kpi__sub">Taux commission moyen : @_data.Kpis.TauxCommissionMoyenPct.ToString("0.00", FrCulture)% du HT</div>
+        </div>
+    </section>
+
+    @* ── Décomposition (donut barres) ─────────────────────────── *@
+    <section class="cri-section">
+        <h3 class="cri-section__title">Décomposition de la facturation du mois</h3>
+        @{
+            var maxDecomp = _data.Decomposition.Count > 0
+                ? Math.Max(1m, _data.Decomposition.Max(d => d.Montant))
+                : 1m;
+        }
+        <div class="cri-decomp">
+            @foreach (var d in _data.Decomposition)
+            {
+                var pct = (decimal)d.Montant * 100m / maxDecomp;
+                <div class="cri-decomp__row">
+                    <div class="cri-decomp__lbl">@d.Composante</div>
+                    <div class="cri-decomp__bar-wrap">
+                        <div class="cri-decomp__bar"
+                             style="@($"width:{pct.ToString("0.00", InvCulture)}%;background:{d.CouleurHex}")">
+                        </div>
+                    </div>
+                    <div class="cri-decomp__val">
+                        @FormatFcfa(d.Montant)
+                        <span class="cri-decomp__pct">(@d.PourcentageDuTotal.ToString("0.0", FrCulture)%)</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    @* ── Évolution 12 mois ─────────────────────────────────────── *@
+    <section class="cri-section">
+        <h3 class="cri-section__title">Évolution TTC sur 12 mois glissants</h3>
+        @{
+            var maxEvol = _data.Evolution.Count > 0
+                ? Math.Max(1m, _data.Evolution.Max(e => e.TTC))
+                : 1m;
+        }
+        @if (_data.Evolution.All(e => e.TTC == 0))
+        {
+            <div class="cri-empty">Aucun bulletin importé sur la période. Charger un fichier via Intérimaires → Lots d'import.</div>
+        }
+        else
+        {
+            <div class="cri-evol">
+                @foreach (var e in _data.Evolution)
+                {
+                    var pct = (decimal)e.TTC * 100m / maxEvol;
+                    var cssRow = (e.Annee == _data.Annee && e.Mois == _data.Mois) ? "cri-evol__row--current" : "";
+                    <div class="cri-evol__row @cssRow">
+                        <div class="cri-evol__lbl">@e.Libelle</div>
+                        <div class="cri-evol__bar-wrap">
+                            <div class="cri-evol__bar" style="@($"width:{pct.ToString("0.00", InvCulture)}%")"></div>
+                        </div>
+                        <div class="cri-evol__val">@FormatFcfa(e.TTC)</div>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+
+    @* ── 2 colonnes : Top 10 + Par société ───────────────────── *@
+    <div class="cri-grid">
+
+        <section class="cri-section">
+            <h3 class="cri-section__title">Top 10 — Coûts les plus élevés du mois</h3>
+            @if (_data.Top10.Count == 0)
+            {
+                <div class="cri-empty">Pas de données.</div>
+            }
+            else
+            {
+                <table class="cri-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Matricule</th>
+                            <th>Intérimaire</th>
+                            <th>Site</th>
+                            <th class="num">TTC</th>
+                            <th class="num">Mult.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ var rank = 1; }
+                        @foreach (var i in _data.Top10)
+                        {
+                            <tr>
+                                <td>@rank</td>
+                                <td>
+                                    @i.Matricule
+                                    @if (i.IsPrestataire)
+                                    {
+                                        <span class="cri-tag-prest">PRESTATAIRE</span>
+                                    }
+                                </td>
+                                <td>@i.NomComplet</td>
+                                <td>@i.Site</td>
+                                <td class="num strong">@FormatFcfa(i.TTC)</td>
+                                <td class="num">×@i.Multiplicateur.ToString("0.00", FrCulture)</td>
+                            </tr>
+                            rank++;
+                        }
+                    </tbody>
+                </table>
+            }
+        </section>
+
+        <section class="cri-section">
+            <h3 class="cri-section__title">Coût par société d'intérim</h3>
+            @if (_data.ParSociete.Count == 0)
+            {
+                <div class="cri-empty">Pas de données.</div>
+            }
+            else
+            {
+                <table class="cri-table">
+                    <thead>
+                        <tr>
+                            <th>Société</th>
+                            <th class="num">Bulletins</th>
+                            <th class="num">Commission %</th>
+                            <th class="num">TTC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in _data.ParSociete)
+                        {
+                            <tr>
+                                <td>@s.SocieteNom</td>
+                                <td class="num">@s.NbBulletins</td>
+                                <td class="num">@s.TauxCommissionPct.ToString("0.00", FrCulture)%</td>
+                                <td class="num strong">@FormatFcfa(s.TotalTTC)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </section>
+
+    </div>
+
+    @* ── Comparaison contrat vs réel ──────────────────────────── *@
+    <section class="cri-section">
+        <h3 class="cri-section__title">Comparaison Contrat (théorique) vs Réel TTC</h3>
+        <p class="cri-hint">
+            Le coût théorique = <code>TauxJournalier × 22 jours</code> (1 mois standard).
+            Un écart positif signifie que le réel TTC dépasse le théorique. Les prestataires sont exclus (pas de contrat).
+        </p>
+        @if (_data.EcartContratReel.Count == 0)
+        {
+            <div class="cri-empty">Pas de données comparables sur ce mois.</div>
+        }
+        else
+        {
+            <div class="cri-tablewrap">
+                <table class="cri-table">
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Intérimaire</th>
+                            <th class="num">Coût contrat</th>
+                            <th class="num">Coût réel TTC</th>
+                            <th class="num">Écart</th>
+                            <th class="num">Écart %</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var e in _data.EcartContratReel.Take(50))
+                        {
+                            <tr>
+                                <td>@e.Matricule</td>
+                                <td>@e.NomComplet</td>
+                                <td class="num">@(e.ContratIntrouvable ? "—" : FormatFcfa(e.CoutContratTheorique))</td>
+                                <td class="num strong">@FormatFcfa(e.CoutReelTTC)</td>
+                                <td class="num @CssEcart(e.Ecart)">@(e.ContratIntrouvable ? "—" : FormatEcart(e.Ecart))</td>
+                                <td class="num @CssEcart(e.Ecart)">@(e.ContratIntrouvable ? "—" : FormatPct(e.EcartPct))</td>
+                                <td>
+                                    @if (e.ContratIntrouvable)
+                                    {
+                                        <span class="cri-tag-warn">Contrat introuvable</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (_data.EcartContratReel.Count > 50)
+            {
+                <div class="cri-hint">Affichage limité aux 50 premiers écarts (tri par valeur absolue décroissante).</div>
+            }
+        }
+    </section>
+
+    <footer class="cri-footer">
+        <span><i class="bi bi-clock-history"></i> Calculé le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
+        <span class="sep">·</span>
+        <span>Année @_data.Annee · Mois @_data.Mois?.ToString("D2") · Source : BulletinInterim importés</span>
+    </footer>
+}
+
+<style>
+    :root {
+        --cri-navy: #142E4D;
+        --cri-navy-light: #1F4376;
+        --cri-orange: #F18A1C;
+        --cri-blue: #1A73B5;
+        --cri-purple: #7B5EA7;
+        --cri-text: #142E4D;
+        --cri-soft: #5C6679;
+        --cri-muted: #94A3BC;
+        --cri-bg: #F6F7F9;
+        --cri-border: #E5E7EB;
+        --cri-track: #E5E9EE;
+        --cri-red: #E63946;
+        --cri-green: #2EA75B;
+    }
+
+    .cri-loading, .cri-error { padding: 2rem; }
+    .cri-error { color: var(--cri-red); font-weight: 600; }
+
+    .cri-header {
+        background: linear-gradient(135deg, var(--cri-navy) 0%, var(--cri-navy-light) 100%);
+        color: #E6EAF1;
+        padding: 1.1rem 1.5rem;
+        display: flex; flex-wrap: wrap; gap: 1.25rem;
+        align-items: center; justify-content: space-between;
+        border-bottom: 3px solid var(--cri-orange);
+    }
+    .cri-header__title { display: flex; align-items: center; gap: 0.75rem; }
+    .cri-back {
+        background: var(--cri-navy-light); border: none; color: #fff;
+        width: 38px; height: 38px; border-radius: 50%;
+        font-size: 1.25rem; cursor: pointer;
+    }
+    .cri-back:hover { background: var(--cri-orange); }
+    .cri-header__h1 { font-size: 1.55rem; font-weight: 700; margin: 0; color: #fff; }
+    .cri-header__perimetre {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--cri-orange); font-weight: 600;
+    }
+    .cri-filters { display: flex; gap: 0.85rem; flex-wrap: wrap; align-items: flex-end; }
+    .cri-filters label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.72rem; }
+    .cri-filters label span { color: #B7C2D5; text-transform: uppercase; letter-spacing: 0.04em; }
+    .cri-filters select {
+        padding: 0.35rem 0.55rem; border: 1px solid var(--cri-navy-light);
+        background: rgba(255,255,255,0.08); color: #fff; border-radius: 4px;
+        font-size: 0.85rem; min-width: 140px;
+    }
+    .cri-filters select option { color: var(--cri-text); }
+    .cri-help {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px; border-radius: 50%;
+        background: rgba(255,255,255,0.1); color: #fff;
+        text-decoration: none; font-size: 1.1rem;
+    }
+    .cri-help:hover { background: var(--cri-orange); }
+
+    .cri-kpis {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.85rem; padding: 1rem 1.5rem;
+    }
+    .cri-kpi {
+        background: #fff; border: 1px solid var(--cri-border);
+        border-radius: 8px; padding: 0.95rem 1.1rem;
+        box-shadow: 0 1px 2px rgba(20, 46, 77, 0.04);
+        border-left: 4px solid var(--cri-navy);
+    }
+    .cri-kpi--ttc { border-left-color: var(--cri-orange); }
+    .cri-kpi--ytd { border-left-color: var(--cri-blue); }
+    .cri-kpi--multi { border-left-color: var(--cri-purple); }
+    .cri-kpi--moy { border-left-color: var(--cri-green); }
+    .cri-kpi__head {
+        font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+        color: var(--cri-soft); font-weight: 600; margin-bottom: 0.4rem;
+    }
+    .cri-kpi__value {
+        font-size: 1.5rem; font-weight: 700; color: var(--cri-text);
+        font-variant-numeric: tabular-nums;
+    }
+    .cri-kpi__sub { font-size: 0.74rem; color: var(--cri-muted); margin-top: 0.25rem; }
+
+    .cri-section {
+        background: #fff; border: 1px solid var(--cri-border);
+        border-radius: 8px; padding: 1rem 1.25rem 1.1rem;
+        margin: 0.85rem 1.5rem;
+    }
+    .cri-section__title {
+        font-size: 0.95rem; font-weight: 700; color: var(--cri-text);
+        margin: 0 0 0.7rem 0; padding-bottom: 0.45rem;
+        border-bottom: 2px solid var(--cri-orange);
+        display: inline-block;
+    }
+    .cri-hint { font-size: 0.78rem; color: var(--cri-muted); font-style: italic; margin: 0.5rem 0; }
+
+    .cri-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    @@media (max-width: 1100px) { .cri-grid { grid-template-columns: 1fr; } }
+
+    .cri-decomp { display: flex; flex-direction: column; gap: 0.45rem; }
+    .cri-decomp__row { display: grid; grid-template-columns: 200px 1fr 280px; gap: 0.7rem; align-items: center; }
+    .cri-decomp__lbl { font-size: 0.85rem; color: var(--cri-text); font-weight: 600; }
+    .cri-decomp__bar-wrap { background: var(--cri-track); border-radius: 3px; height: 22px; overflow: hidden; }
+    .cri-decomp__bar { height: 22px; transition: width 0.35s ease; border-radius: 3px; }
+    .cri-decomp__val {
+        font-size: 0.82rem; text-align: right; font-weight: 700;
+        color: var(--cri-text); font-variant-numeric: tabular-nums;
+    }
+    .cri-decomp__pct { color: var(--cri-muted); font-weight: 500; font-size: 0.75rem; }
+
+    .cri-evol { display: flex; flex-direction: column; gap: 0.4rem; }
+    .cri-evol__row { display: grid; grid-template-columns: 90px 1fr 130px; gap: 0.5rem; align-items: center; padding: 0.2rem 0.4rem; border-radius: 3px; }
+    .cri-evol__row--current { background: rgba(241, 138, 28, 0.1); border-left: 3px solid var(--cri-orange); }
+    .cri-evol__lbl { font-size: 0.78rem; color: var(--cri-soft); font-weight: 600; }
+    .cri-evol__bar-wrap { background: var(--cri-track); border-radius: 3px; height: 18px; overflow: hidden; }
+    .cri-evol__bar { height: 18px; background: var(--cri-orange); transition: width 0.35s ease; }
+    .cri-evol__val { font-size: 0.78rem; text-align: right; font-weight: 700; color: var(--cri-text); font-variant-numeric: tabular-nums; }
+
+    .cri-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .cri-table th, .cri-table td {
+        padding: 0.45rem 0.65rem; border-bottom: 1px solid var(--cri-border);
+        text-align: left; font-variant-numeric: tabular-nums;
+    }
+    .cri-table th {
+        background: var(--cri-bg); color: var(--cri-soft); font-weight: 600;
+        text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.04em;
+    }
+    .cri-table .num { text-align: right; }
+    .cri-table .strong { font-weight: 700; color: var(--cri-text); }
+    .cri-tablewrap { max-height: 480px; overflow-y: auto; border: 1px solid var(--cri-border); border-radius: 6px; }
+
+    .cri-tag-prest {
+        display: inline-block; padding: 0.1rem 0.35rem; border-radius: 3px;
+        font-size: 0.65rem; font-weight: 700; background: #E8F1FB; color: var(--cri-blue);
+        margin-left: 0.35rem; text-transform: uppercase;
+    }
+    .cri-tag-warn {
+        display: inline-block; padding: 0.1rem 0.35rem; border-radius: 3px;
+        font-size: 0.65rem; font-weight: 700; background: #FEF3E2; color: #8A4F00;
+        text-transform: uppercase;
+    }
+    .ec-pos { color: var(--cri-red); font-weight: 700; }
+    .ec-neg { color: var(--cri-green); font-weight: 700; }
+    .ec-neutral { color: var(--cri-soft); }
+
+    .cri-empty { color: var(--cri-muted); padding: 1rem; font-style: italic; text-align: center; }
+
+    .cri-footer {
+        margin: 1rem 1.5rem; padding: 0.6rem 0; font-size: 0.72rem;
+        color: var(--cri-muted); text-align: center;
+    }
+    .cri-footer .sep { margin: 0 0.5rem; opacity: 0.5; }
+</style>
+
+@code {
+    private static readonly CultureInfo FrCulture = CultureInfo.GetCultureInfo("fr-FR");
+    private static readonly CultureInfo InvCulture = CultureInfo.InvariantCulture;
+
+    private bool _loading = true;
+    private string? _errorMessage;
+    private CoutReelInterimDto? _data;
+
+    private CoutReelInterimFilterModel _filter = new();
+    private List<int> _anneesDispo = new();
+    private List<Site> _sitesDispo = new();
+    private List<SocieteInterim> _societesDispo = new();
+    private string _selectedSiteOid = "";
+    private string _selectedSocOid = "";
+    private string _moisStr = DateTime.Today.Month.ToString();
+
+    protected override void OnInitialized()
+    {
+        if (!DashboardAuthHelper.CanAccessDashboards(HttpCtx, ObjectSpaceFactory))
+        {
+            Nav.NavigateTo("/LoginPage", forceLoad: true);
+            return;
+        }
+        LoadLookups();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await LoadDataAsync();
+    }
+
+    private void LoadLookups()
+    {
+        try
+        {
+            using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Site));
+            _anneesDispo = Enumerable.Range(DateTime.Today.Year - 4, 6).OrderByDescending(y => y).ToList();
+            _sitesDispo = os.GetObjectsQuery<Site>().ToList().OrderBy(s => s.Nom).ToList();
+            _societesDispo = os.GetObjectsQuery<SocieteInterim>().ToList().OrderBy(s => s.RaisonSociale).ToList();
+        }
+        catch (Exception ex) { _errorMessage = $"Erreur chargement référentiels : {ex.Message}"; }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _loading = true; _errorMessage = null; StateHasChanged();
+        try
+        {
+            await Task.Run(() =>
+            {
+                using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Site));
+                _data = Service.GetData(_filter, os);
+            });
+        }
+        catch (Exception ex) { _errorMessage = $"Erreur de calcul : {ex.Message}"; }
+        finally { _loading = false; StateHasChanged(); }
+    }
+
+    private async Task OnMoisChanged()
+    {
+        if (int.TryParse(_moisStr, out var m)) _filter.Mois = m;
+        await LoadDataAsync();
+    }
+
+    private async Task OnSiteChanged()
+    {
+        _filter.SiteOid = Guid.TryParse(_selectedSiteOid, out var oid) ? oid : null;
+        await LoadDataAsync();
+    }
+
+    private async Task OnSocChanged()
+    {
+        _filter.SocieteInterimOid = Guid.TryParse(_selectedSocOid, out var oid) ? oid : null;
+        await LoadDataAsync();
+    }
+
+    private string FormatFcfa(decimal v) => $"{v.ToString("N0", FrCulture)} FCFA";
+    private string FormatEcart(decimal v) => (v >= 0 ? "+" : "") + FormatFcfa(v);
+    private string FormatPct(decimal v) => (v >= 0 ? "+" : "") + v.ToString("0.00", FrCulture) + "%";
+    private string CssEcart(decimal v) =>
+        v > 0 ? "ec-pos" :
+        v < 0 ? "ec-neg" :
+                "ec-neutral";
+}

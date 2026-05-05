@@ -97,6 +97,11 @@ namespace AdiPAIE_V02.Blazor.Server
                 AdiPAIE_V02.Module.Services.Interim.IBulletinInterimImportService,
                 AdiPAIE_V02.Module.Services.Interim.BulletinInterimImportService>();
 
+            // Tableau N°11 — Coût Réel Intérimaires (Dashboard)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.ICoutReelInterimDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.CoutReelInterimDashboardService>();
+
             // Export Excel partagé pour les 6 tableaux (Étape 7.2)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IDashboardExcelExportService,

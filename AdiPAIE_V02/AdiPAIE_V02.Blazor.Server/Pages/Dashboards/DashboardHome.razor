@@ -295,5 +295,14 @@
             Description:     "9 indicateurs réglementaires SN avec feux tricolores : SMIG, CDD, stages, congés, déclarations IPRES/CSS/IPM.",
             Icon:            "bi-patch-check",
             Route:           "/dashboards/conformite-senegal"),
+
+        // ─── V1.3 — Pilotage intérim ─────────────────────────────────
+        new(
+            Title:           "Coût Réel Intérimaires",
+            PerimetreLabel:  "Pilotage DAF · V1.3 · Personnel Externe",
+            PerimetreCss:    "externe",
+            Description:     "Coût TTC réel facturé par les sociétés d'intérim (vs coût théorique contrat). Multiplicateur Brut→TTC, top 10, évolution 12 mois, écart contrat/réel par intérimaire.",
+            Icon:            "bi-receipt",
+            Route:           "/dashboards/cout-reel-interim"),
     };
 }

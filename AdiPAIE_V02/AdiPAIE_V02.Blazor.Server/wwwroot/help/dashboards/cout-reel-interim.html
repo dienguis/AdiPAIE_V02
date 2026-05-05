@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coût Réel Intérimaires — Aide Tableau N°11</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">SunuPaie — Guide utilisateur</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+        <a href="/help/dashboards/budget-vs-realise.html">N°7 Budget</a>
+        <a href="/help/dashboards/provisions-sociales.html">N°8 Provisions</a>
+        <a href="/help/dashboards/cout-complet.html">N°9 Coût Complet</a>
+        <a href="/help/dashboards/conformite-senegal.html">N°10 Conformité</a>
+        <a href="/help/dashboards/cout-reel-interim.html" class="active">N°11 Coût Réel Intérim</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°11 · V1.3</div>
+        <h1>Coût Réel Intérimaires</h1>
+        <p class="lead">Coût TTC réel facturé chaque mois par les sociétés d'intérim, comparé au coût théorique des contrats. Permet au DAF de valider les factures et identifier les dérives.</p>
+
+        <h2>À quoi sert ce tableau</h2>
+        <p>Aujourd'hui, l'app calcule le coût intérim théorique (TauxJournalier × 22 jours). Mais le DAF paye en réalité un montant <strong>TTC</strong> qui inclut les charges patronales gérées par la société d'intérim, sa commission d'agence (~9 %) et la TVA (18 %). Ce dashboard donne enfin la <strong>vraie dépense</strong>.</p>
+
+        <h2>Pour qui</h2>
+        <ul>
+            <li><strong>DAF</strong> : validation des factures avant paiement, pilotage du budget intérim.</li>
+            <li><strong>DRH</strong> : analyse coût/poste, comparaison sociétés d'intérim.</li>
+            <li><strong>DG</strong> : suivi de l'évolution du recours à l'intérim.</li>
+        </ul>
+
+        <h2>Prérequis</h2>
+        <p>Le dashboard repose sur les <strong>BulletinInterim</strong> importés via le wizard <em>Intérimaires → Lots d'import → Charger livre de paie</em>. Tant qu'aucun fichier n'a été importé pour le mois cible, les KPIs sont à 0.</p>
+        <p><a href="/help/import-livre-paie-interim.html">→ Voir le guide d'import du livre de paie</a></p>
+
+        <h2 id="kpis">Les 4 KPIs principaux</h2>
+        <table>
+            <thead><tr><th>KPI</th><th>Calcul</th></tr></thead>
+            <tbody>
+                <tr><td><strong>TTC du mois</strong></td><td>Σ <code>BulletinInterim.TTC</code> sur le mois cible. Affiche aussi nb bulletins + variation vs mois précédent.</td></tr>
+                <tr><td><strong>TTC YTD</strong></td><td>Σ TTC depuis janvier jusqu'au mois cible inclus.</td></tr>
+                <tr><td><strong>Multiplicateur Brut → TTC</strong></td><td>TTC mois ÷ Brut imposable mois. Typiquement <strong>×1,80 à ×2,20</strong> au Sénégal.</td></tr>
+                <tr><td><strong>Coût moyen par intérimaire</strong></td><td>TTC mois ÷ nb bulletins. Affiche aussi le taux moyen de commission agence (commission / HT).</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Sections du tableau</h2>
+
+        <h3>Décomposition de la facturation</h3>
+        <p>4 barres horizontales avec part en % du total :</p>
+        <ul>
+            <li><strong>Brut imposable</strong> : ce que touche l'intérimaire (avant charges)</li>
+            <li><strong>Charges + indemnités sociétés</strong> : Débours - Brut (charges patronales + indemnités gérées par la société d'intérim)</li>
+            <li><strong>Commission agence</strong> : marge de la société d'intérim</li>
+            <li><strong>TVA</strong> : 18 % sur le HT</li>
+        </ul>
+
+        <h3>Évolution TTC sur 12 mois glissants</h3>
+        <p>Histogramme horizontal des 12 derniers mois (jusqu'au mois cible). Le mois sélectionné est mis en évidence (bord orange). Permet de détecter les saisonnalités et tendances.</p>
+
+        <h3>Top 10 — Coûts les plus élevés du mois</h3>
+        <p>Liste des 10 intérimaires avec le TTC le plus élevé. Inclut un tag <em>PRESTATAIRE</em> pour les lignes hors fiche. Affiche le multiplicateur individuel.</p>
+
+        <h3>Coût par société d'intérim</h3>
+        <p>Comparaison entre sociétés d'intérim partenaires d'ELTON. La colonne <strong>Commission %</strong> permet d'identifier les sociétés où la marge est anormalement élevée (à renégocier).</p>
+
+        <h3 id="comparaison">★ Comparaison Contrat vs Réel</h3>
+        <p>Pour chaque intérimaire avec une fiche (les Prestataires sont exclus), le système calcule :</p>
+        <ul>
+            <li><strong>Coût théorique</strong> = <code>TauxJournalier × 22 jours</code> (contrat actif au 15 du mois)</li>
+            <li><strong>Coût réel TTC</strong> = somme des bulletins du mois</li>
+            <li><strong>Écart</strong> = Réel - Théorique (rouge si positif = dépassement)</li>
+        </ul>
+
+        <div class="info" style="background:#E8F1FB;border-left:4px solid #1A73B5;padding:0.7rem 1rem;border-radius:4px;">
+            <strong>💡 Lecture de l'écart :</strong> un écart de +50 % à +100 % est <em>normal</em> car le théorique ne couvre que le brut, pas les charges + commission + TVA. Un écart <strong>très supérieur à la moyenne du multiplicateur</strong> (typiquement &gt;2,5) ou <em>négatif</em> mérite investigation : changement de fonction non communiqué, intérimaire absent mais facturé, erreur de saisie société d'intérim.
+        </div>
+
+        <h2>Filtres disponibles</h2>
+        <ul>
+            <li><strong>Année</strong> : 5 dernières années + l'année en cours</li>
+            <li><strong>Mois</strong> : 1 à 12 (par défaut mois courant)</li>
+            <li><strong>Site</strong> : focus sur un site précis (basé sur Interimaire.Site)</li>
+            <li><strong>Société d'intérim</strong> : focus sur une société émettrice spécifique</li>
+        </ul>
+
+        <h2>Cas d'usage typiques</h2>
+        <table>
+            <thead><tr><th>Quand</th><th>Action attendue</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Réception facture mensuelle</strong></td><td>Importer le fichier puis ouvrir ce dashboard pour valider le TTC avant paiement.</td></tr>
+                <tr><td><strong>Suspicion d'erreur</strong></td><td>Filtrer sur le mois et la société, regarder la table Comparaison contrat/réel, identifier les écarts anormaux.</td></tr>
+                <tr><td><strong>Renégociation société d'intérim</strong></td><td>Comparer la colonne <em>Commission %</em> entre sociétés, prendre les chiffres en pièce jointe pour la négo.</td></tr>
+                <tr><td><strong>Préparation budget N+1</strong></td><td>Lire l'évolution 12 mois + multiplicateur moyen → projection coût total intérim.</td></tr>
+                <tr><td><strong>Reporting CODIR</strong></td><td>4 KPIs en haut + évolution = synthèse en 1 page.</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Limites connues V1.3</h2>
+        <ul>
+            <li>Le coût théorique contrat suppose un mois standard (22 jours). Pour un intérimaire en mi-temps, l'écart paraît artificiellement élevé.</li>
+            <li>Les Prestataires (ligne Matricule="PRESTATAIRE") ne sont pas dans la table Comparaison (pas de contrat associé).</li>
+            <li>Pas encore d'export Excel ni PDF (à venir en V1.3.1).</li>
+            <li>La table Comparaison limite l'affichage aux 50 premiers écarts (par valeur absolue décroissante).</li>
+        </ul>
+
+        <h2>Questions fréquentes</h2>
+        <table>
+            <thead><tr><th>Question</th><th>Réponse</th></tr></thead>
+            <tbody>
+                <tr><td>Le multiplicateur affiche ×0 ?</td><td>Aucun bulletin importé pour ce mois. Importer le fichier via Intérimaires → Lots d'import.</td></tr>
+                <tr><td>Un intérimaire apparaît avec "Contrat introuvable" ?</td><td>Le matricule n'a pas de ContratInterim actif au 15 du mois. Soit c'est une fiche créée auto à compléter (créer un contrat), soit le contrat est terminé.</td></tr>
+                <tr><td>Combien d'années conserve-t-on ?</td><td>Tout est conservé sans purge (cf. décision V1.3 — analyse historique 5+ ans).</td></tr>
+                <tr><td>Le total TTC YTD ne correspond pas à la somme manuelle.</td><td>Le YTD inclut tous les mois jusqu'au mois cible inclus. Vérifier les filtres (Site, Société) qui peuvent masquer une partie des bulletins.</td></tr>
+                <tr><td>Le mois prochain je n'aurai pas encore la facture.</td><td>Pas de problème : le dashboard affiche 0 sur les mois sans bulletin. Une fois la facture importée, tout est mis à jour automatiquement.</td></tr>
+            </tbody>
+        </table>
+
+        <p class="footer-help">SunuPaie — V1.3 (mai 2026) — Tableau N°11 Coût Réel Intérimaires</p>
+    </main>
+</body>
+</html>
