@@ -608,9 +608,18 @@
             });
             _step = 4;
         }
+        catch (InvalidOperationException ex)
+        {
+            // Exception métier déjà mise en forme par le service (message lisible)
+            _errorMessage = ex.Message;
+            // On reste sur l'étape 3 pour permettre à l'utilisateur de corriger
+            // (ex cocher 'Écraser le batch existant' ou supprimer un doublon).
+        }
         catch (Exception ex)
         {
-            _errorMessage = $"Erreur lors du commit : {ex.Message}";
+            // Exception inattendue — message court sans stack trace technique
+            var rootMsg = ex.GetBaseException()?.Message ?? ex.Message;
+            _errorMessage = $"Erreur inattendue lors de l'enregistrement : {rootMsg}";
         }
         StateHasChanged();
     }

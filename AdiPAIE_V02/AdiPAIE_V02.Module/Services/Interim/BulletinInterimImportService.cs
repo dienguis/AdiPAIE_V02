@@ -168,9 +168,9 @@ namespace AdiPAIE_V02.Module.Services.Interim
 
                 for (int r = dataStart; r <= lastRow; r++)
                 {
-                    string matriculeStr = SafeStr(ws.Cell(r, colMatricule).Value);
-                    string nom = SafeStr(ws.Cell(r, colNoms).Value);
-                    string prenom = SafeStr(ws.Cell(r, colPrenoms).Value);
+                    string matriculeStr = SafeStr(ws.Cell(r, colMatricule));
+                    string nom = SafeStr(ws.Cell(r, colNoms));
+                    string prenom = SafeStr(ws.Cell(r, colPrenoms));
 
                     // Skip lignes vides / total
                     if (string.IsNullOrWhiteSpace(matriculeStr) && string.IsNullOrWhiteSpace(nom)) continue;
@@ -183,35 +183,35 @@ namespace AdiPAIE_V02.Module.Services.Interim
                         MatriculeOriginal = matriculeStr.Trim(),
                         Nom = nom.Trim().ToUpperInvariant(),
                         Prenom = prenom.Trim(),
-                        Sexe = colSexe > 0 ? SafeStr(ws.Cell(r, colSexe).Value).Trim() : "",
-                        Fonction = colFonction > 0 ? SafeStr(ws.Cell(r, colFonction).Value).Trim() : "",
-                        SiteAffectation = colSite > 0 ? SafeStr(ws.Cell(r, colSite).Value).Trim() : "",
+                        Sexe = colSexe > 0 ? SafeStr(ws.Cell(r, colSexe)).Trim() : "",
+                        Fonction = colFonction > 0 ? SafeStr(ws.Cell(r, colFonction)).Trim() : "",
+                        SiteAffectation = colSite > 0 ? SafeStr(ws.Cell(r, colSite)).Trim() : "",
 
-                        Trentieme = colTrente > 0 ? SafeDecimal(ws.Cell(r, colTrente).Value) : 0m,
-                        SalaireBase = colSalBase > 0 ? SafeDecimal(ws.Cell(r, colSalBase).Value) : 0m,
-                        BrutImposable = colBrut > 0 ? SafeDecimal(ws.Cell(r, colBrut).Value) : 0m,
+                        Trentieme = colTrente > 0 ? SafeDecimal(ws.Cell(r, colTrente)) : 0m,
+                        SalaireBase = colSalBase > 0 ? SafeDecimal(ws.Cell(r, colSalBase)) : 0m,
+                        BrutImposable = colBrut > 0 ? SafeDecimal(ws.Cell(r, colBrut)) : 0m,
 
-                        IpresSal = colIpresSal > 0 ? SafeDecimal(ws.Cell(r, colIpresSal).Value) : 0m,
-                        IpresPat = colIpresPat > 0 ? SafeDecimal(ws.Cell(r, colIpresPat).Value) : 0m,
-                        CssAll = colCssAll > 0 ? SafeDecimal(ws.Cell(r, colCssAll).Value) : 0m,
-                        CssAcc = colCssAcc > 0 ? SafeDecimal(ws.Cell(r, colCssAcc).Value) : 0m,
-                        IpmSal = colIpmSal > 0 ? SafeDecimal(ws.Cell(r, colIpmSal).Value) : 0m,
-                        IpmPat = colIpmPat > 0 ? SafeDecimal(ws.Cell(r, colIpmPat).Value) : 0m,
+                        IpresSal = colIpresSal > 0 ? SafeDecimal(ws.Cell(r, colIpresSal)) : 0m,
+                        IpresPat = colIpresPat > 0 ? SafeDecimal(ws.Cell(r, colIpresPat)) : 0m,
+                        CssAll = colCssAll > 0 ? SafeDecimal(ws.Cell(r, colCssAll)) : 0m,
+                        CssAcc = colCssAcc > 0 ? SafeDecimal(ws.Cell(r, colCssAcc)) : 0m,
+                        IpmSal = colIpmSal > 0 ? SafeDecimal(ws.Cell(r, colIpmSal)) : 0m,
+                        IpmPat = colIpmPat > 0 ? SafeDecimal(ws.Cell(r, colIpmPat)) : 0m,
 
-                        CFCE = colCfce > 0 ? SafeDecimal(ws.Cell(r, colCfce).Value) : 0m,
-                        RetenueIR = colIR > 0 ? SafeDecimal(ws.Cell(r, colIR).Value) : 0m,
-                        RetenueTRIMF = colTRIMF > 0 ? SafeDecimal(ws.Cell(r, colTRIMF).Value) : 0m,
+                        CFCE = colCfce > 0 ? SafeDecimal(ws.Cell(r, colCfce)) : 0m,
+                        RetenueIR = colIR > 0 ? SafeDecimal(ws.Cell(r, colIR)) : 0m,
+                        RetenueTRIMF = colTRIMF > 0 ? SafeDecimal(ws.Cell(r, colTRIMF)) : 0m,
 
-                        PrimeTransport = colTransport > 0 ? SafeDecimal(ws.Cell(r, colTransport).Value) : 0m,
-                        PrimePanier = colPanier > 0 ? SafeDecimal(ws.Cell(r, colPanier).Value) : 0m,
-                        IndemnitesDiverses = colIndemDiv > 0 ? SafeDecimal(ws.Cell(r, colIndemDiv).Value) : 0m,
+                        PrimeTransport = colTransport > 0 ? SafeDecimal(ws.Cell(r, colTransport)) : 0m,
+                        PrimePanier = colPanier > 0 ? SafeDecimal(ws.Cell(r, colPanier)) : 0m,
+                        IndemnitesDiverses = colIndemDiv > 0 ? SafeDecimal(ws.Cell(r, colIndemDiv)) : 0m,
 
-                        NetAPayer = colNet > 0 ? SafeDecimal(ws.Cell(r, colNet).Value) : 0m,
-                        Debours = SafeDecimal(ws.Cell(r, colDebours).Value),
-                        CommissionAgence = SafeDecimal(ws.Cell(r, colCommAg).Value),
-                        MontantHT = colHT > 0 ? SafeDecimal(ws.Cell(r, colHT).Value) : 0m,
-                        TVA = SafeDecimal(ws.Cell(r, colTVA).Value),
-                        TTC = SafeDecimal(ws.Cell(r, colTTC).Value)
+                        NetAPayer = colNet > 0 ? SafeDecimal(ws.Cell(r, colNet)) : 0m,
+                        Debours = SafeDecimal(ws.Cell(r, colDebours)),
+                        CommissionAgence = SafeDecimal(ws.Cell(r, colCommAg)),
+                        MontantHT = colHT > 0 ? SafeDecimal(ws.Cell(r, colHT)) : 0m,
+                        TVA = SafeDecimal(ws.Cell(r, colTVA)),
+                        TTC = SafeDecimal(ws.Cell(r, colTTC))
                     };
 
                     // ── Détermination du statut ──
@@ -288,13 +288,90 @@ namespace AdiPAIE_V02.Module.Services.Interim
                         "Cocher 'Écraser' pour remplacer.");
                 }
 
-                int nbAnciens = existingBatch.Bulletins?.Count ?? 0;
-                if (existingBatch.Bulletins != null)
+                // ★ Stratégie défensive : supprimer TOUS les batches matching
+                //   la clé (Année, Mois, Société), pas seulement le premier.
+                //   Ça couvre le cas (rare) de doublons accumulés par anciens
+                //   tests avant la mise en place de l'index unique.
+                var allMatchingBatches = os.GetObjectsQuery<ImportBulletinInterimBatch>()
+                    .ToList()
+                    .Where(b => b.Annee == preview.Annee && b.Mois == preview.Mois
+                              && b.Societe?.Oid == preview.SocieteOid)
+                    .ToList();
+
+                int nbAnciens = allMatchingBatches.Sum(b => b.Bulletins?.Count ?? 0);
+
+                foreach (var oldBatch in allMatchingBatches)
                 {
-                    foreach (var anc in existingBatch.Bulletins.ToList())
-                        os.Delete(anc);
+                    if (oldBatch.Bulletins != null)
+                    {
+                        foreach (var anc in oldBatch.Bulletins.ToList())
+                            os.Delete(anc);
+                    }
+                    os.Delete(oldBatch);
                 }
-                os.Delete(existingBatch);
+
+                // ★ FLUSH immédiat de la suppression en BDD AVANT d'insérer le nouveau
+                //   batch. Sans ce commit intermédiaire, XPO accumule DELETE + INSERT
+                //   dans la même unité de travail et l'index unique
+                //   UX_Batch_Annee_Mois_Societe voit les deux lignes simultanément
+                //   → violation de contrainte unique au commit final.
+                try
+                {
+                    os.CommitChanges();
+                    // Force le purge des objets supprimés en cache XPO
+                    // Purge XPO des objets supprimés (cast vers XPObjectSpace pour accès Session)
+                    try
+                    {
+                        if (os is DevExpress.ExpressApp.Xpo.XPObjectSpace xpoOs)
+                            xpoOs.Session.PurgeDeletedObjects();
+                    }
+                    catch { }
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException(
+                        "Impossible de supprimer l'ancien batch avant le ré-import : "
+                        + (ex.GetBaseException()?.Message ?? ex.Message), ex);
+                }
+
+                // ★ Vérification post-suppression : confirmer qu'aucun batch
+                //   matching la clé ne reste en base. Si c'est le cas, message
+                //   d'erreur précis (rare mais bon pour le débogage).
+                var stillThere = os.GetObjectsQuery<ImportBulletinInterimBatch>()
+                    .ToList()
+                    .Where(b => b.Annee == preview.Annee && b.Mois == preview.Mois
+                              && b.Societe?.Oid == preview.SocieteOid)
+                    .ToList();
+
+                if (stillThere.Count > 0)
+                {
+                    // Tentative de seconde suppression (ceinture + bretelles)
+                    foreach (var dup in stillThere)
+                    {
+                        if (dup.Bulletins != null)
+                            foreach (var b in dup.Bulletins.ToList()) os.Delete(b);
+                        os.Delete(dup);
+                    }
+                    try
+                    {
+                        os.CommitChanges();
+                        // Purge XPO des objets supprimés (cast vers XPObjectSpace pour accès Session)
+                    try
+                    {
+                        if (os is DevExpress.ExpressApp.Xpo.XPObjectSpace xpoOs)
+                            xpoOs.Session.PurgeDeletedObjects();
+                    }
+                    catch { }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidOperationException(
+                            $"Impossible de supprimer {stillThere.Count} batch(s) résiduels en base. " +
+                            "Supprimer manuellement via Intérimaires → Lots d'import. " +
+                            "Détail : " + (ex.GetBaseException()?.Message ?? ex.Message), ex);
+                    }
+                }
+
                 result.BatchEcrase = true;
                 result.NbBulletinsAnciensSupprimes = nbAnciens;
             }
@@ -329,7 +406,7 @@ namespace AdiPAIE_V02.Module.Services.Interim
 
                 if (ligne.Statut == LignePreviewStatut.OK && ligne.InterimaireExistantOid.HasValue)
                 {
-                    interim = os.GetObjectByKey<Interimaire>(ligne.InterimaireExistantOid.Value);
+                    interim = os.GetObjectByKey<Interimaire>(ligne.InterimaireExistantOid);
                 }
                 else if (ligne.Statut == LignePreviewStatut.ACreer)
                 {
@@ -405,7 +482,53 @@ namespace AdiPAIE_V02.Module.Services.Interim
                 if (ligne.Statut == LignePreviewStatut.Prestataire) result.NbPrestataires++;
             }
 
-            os.CommitChanges();
+            // ── Commit transactionnel avec gestion d'erreur lisible ──
+            try
+            {
+                os.CommitChanges();
+            }
+            catch (Exception ex)
+            {
+                // Capture des erreurs SQL/XPO les plus fréquentes pour les
+                // traduire en messages métier compréhensibles par l'utilisateur.
+                var typeName = ex.GetType().Name;
+                var msg = ex.Message ?? "";
+                var fullMsg = (ex.InnerException?.Message ?? "") + " " + msg;
+
+                // Erreur 2601/2627 = violation index unique côté SQL Server
+                if (fullMsg.Contains("2601") || fullMsg.Contains("2627")
+                    || typeName.Contains("ConstraintViolation")
+                    || fullMsg.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase)
+                    || fullMsg.Contains("duplicate", StringComparison.OrdinalIgnoreCase))
+                {
+                    string detail = "";
+                    if (fullMsg.Contains("UX_Batch_Annee_Mois_Societe", StringComparison.OrdinalIgnoreCase))
+                        detail = " Un lot d'import existe déjà pour cette période et cette société. " +
+                                 "Cocher 'Écraser le batch existant' à l'étape Preview ou supprimer manuellement le lot précédent.";
+                    else if (fullMsg.Contains("Matricule", StringComparison.OrdinalIgnoreCase))
+                        detail = " Un intérimaire avec ce matricule existe déjà mais n'a pas été détecté à l'étape Preview. " +
+                                 "Vérifier les fiches Intérimaires et relancer.";
+                    else
+                        detail = " Cause probable : un enregistrement avec une clé unique (matricule, batch, société) " +
+                                 "existe déjà en base.";
+
+                    throw new InvalidOperationException(
+                        "Conflit de contrainte unique lors de l'enregistrement." + detail, ex);
+                }
+
+                // Erreur 547 = violation FK (référence vers entité inexistante)
+                if (fullMsg.Contains("547") || fullMsg.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException(
+                        "Référence manquante : un objet lié (Société, Intérimaire) a été supprimé entre " +
+                        "la preview et le commit. Recommencer l'import.", ex);
+                }
+
+                // Erreur générique : on remonte un message court (pas la stack)
+                throw new InvalidOperationException(
+                    $"Erreur lors de l'enregistrement en base : {msg}", ex);
+            }
+
             result.BatchOid = batch.Oid;
             result.TotalTTC = batch.TotalTTC;
             return result;
@@ -451,13 +574,35 @@ namespace AdiPAIE_V02.Module.Services.Interim
         {
             foreach (var kv in headers)
             {
-                var t = kv.Value.ToLowerInvariant();
+                // Normalisation : minuscules + suppression des accents pour matching tolérant
+                // ("Prénoms" ≡ "prenoms", "débours" ≡ "debours", "Indemnités" ≡ "indemnites").
+                var t = RemoveAccents(kv.Value.ToLowerInvariant());
                 foreach (var kw in keywords)
                 {
-                    if (t.Contains(kw.ToLowerInvariant())) return kv.Key;
+                    if (t.Contains(RemoveAccents(kw.ToLowerInvariant()))) return kv.Key;
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Retire les accents d'une chaîne en utilisant la normalisation Unicode FormD
+        /// puis en filtrant les caractères de catégorie NonSpacingMark.
+        /// </summary>
+        private static string RemoveAccents(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return s ?? "";
+            var normalized = s.Normalize(System.Text.NormalizationForm.FormD);
+            var sb = new System.Text.StringBuilder(normalized.Length);
+            foreach (var c in normalized)
+            {
+                if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c)
+                    != System.Globalization.UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString().Normalize(System.Text.NormalizationForm.FormC);
         }
 
         private static bool IsPrestataireMatricule(string matricule)
@@ -467,25 +612,75 @@ namespace AdiPAIE_V02.Module.Services.Interim
             return m == "PRESTATAIRE" || m == "PREST" || m.StartsWith("PRESTATAIRE");
         }
 
-        private static string SafeStr(object? value) => value?.ToString() ?? "";
-
-        private static decimal SafeDecimal(object? value)
+        /// <summary>
+        /// Lit le contenu textuel d'une cellule ClosedXML en gérant tous les types
+        /// (texte, nombre, date, blank, formule, erreur).
+        /// </summary>
+        private static string SafeStr(IXLCell? cell)
         {
-            if (value == null) return 0m;
-            if (value is double d) return (decimal)d;
-            if (value is float f) return (decimal)f;
-            if (value is decimal de) return de;
-            if (value is int i) return i;
-            if (value is long l) return l;
-            var s = value.ToString();
-            if (string.IsNullOrWhiteSpace(s)) return 0m;
+            if (cell == null) return "";
+            try
+            {
+                // Si la cellule a une formule, on essaie d'utiliser CachedValue
+                // (la dernière valeur calculée sauvegardée par Excel).
+                var val = cell.HasFormula ? cell.CachedValue : cell.Value;
+                if (val.IsBlank) return "";
+                if (val.IsError) return "";
+                if (val.IsText) return val.GetText() ?? "";
+                if (val.IsNumber) return val.GetNumber().ToString(System.Globalization.CultureInfo.InvariantCulture);
+                if (val.IsDateTime) return val.GetDateTime().ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+                if (val.IsBoolean) return val.GetBoolean().ToString();
+                return val.ToString() ?? "";
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Lit la valeur numérique d'une cellule ClosedXML SANS passer par ToString()
+        /// (qui interprétait "252379,45" comme 25 237 945 à cause de la virgule prise
+        /// comme séparateur de milliers en InvariantCulture). Utilise directement
+        /// XLCellValue.GetNumber() qui retourne un double natif.
+        ///
+        /// Gère aussi les formules : si la cellule a une formule (=SUM, =A1*5%, etc.),
+        /// on lit la valeur cachée (CachedValue) calculée par Excel à la dernière sauvegarde.
+        /// Si la formule est invalide ou non calculée, retourne 0.
+        ///
+        /// Robuste aux cellules formatées en entier visuellement mais stockées en
+        /// décimal (ex affichage "252 379" mais valeur réelle 252379.45) — la valeur
+        /// brute est toujours lue intégralement.
+        /// </summary>
+        private static decimal SafeDecimal(IXLCell? cell)
+        {
+            if (cell == null) return 0m;
+            try
+            {
+                // Pour les cellules avec formule, utiliser CachedValue plutôt que Value
+                // (Value peut tenter d'évaluer la formule et lancer une exception si
+                // l'environnement n'a pas le moteur de calcul Excel).
+                var val = cell.HasFormula ? cell.CachedValue : cell.Value;
+                if (val.IsBlank) return 0m;
+                if (val.IsError) return 0m;
+                if (val.IsNumber) return (decimal)val.GetNumber();
+                if (val.IsBoolean) return val.GetBoolean() ? 1m : 0m;
+                if (!val.IsText) return 0m;
+
+                var s = val.GetText() ?? "";
+                if (string.IsNullOrWhiteSpace(s)) return 0m;
             // Tolérer espaces/séparateurs
             s = s.Replace(" ", "").Replace(" ", "").Replace("FCFA", "", StringComparison.OrdinalIgnoreCase);
             if (decimal.TryParse(s, System.Globalization.NumberStyles.Any,
                 System.Globalization.CultureInfo.InvariantCulture, out var v1)) return v1;
             if (decimal.TryParse(s, System.Globalization.NumberStyles.Any,
                 System.Globalization.CultureInfo.GetCultureInfo("fr-FR"), out var v2)) return v2;
-            return 0m;
+                return 0m;
+            }
+            catch
+            {
+                return 0m;
+            }
         }
 
     }

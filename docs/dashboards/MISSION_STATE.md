@@ -704,7 +704,65 @@ public class ImportBulletinInterimBatch : BaseObject
 
 ---
 
-## ✅ V1.3 SPRINT 1 — COÛT RÉEL INTÉRIMAIRES (2026-05-05) — CODE IMPLÉMENTÉ
+## ✅ V1.3 SPRINT 1 — COÛT RÉEL INTÉRIMAIRES (2026-05-05) — BUILD OK + IMPORT TESTÉ
+
+> **Status final** : module **complet et fonctionnel**. Build OK (toutes erreurs
+> CS résolues). Import du fichier de test ELTON validé : 31 bulletins importés
+> (30 fiches Intérimaire créées auto + 1 prestataire), Total TTC =
+> 7 784 839 FCFA, multiplicateur ×1.91 — cohérent avec les ratios réels.
+
+### Fixes appliqués pendant les tests d'intégration
+
+| Bug | Fix | Détail |
+|---|---|---|
+| `Sexe` enum / `Interimaire.Sexe` introuvables | Suppression du code | L'enum est dans `BusinessObjects` (pas `DomainEnums`) ; `Interimaire` n'a pas `Sexe` (seul `Salarie` l'a). Fiches créées auto sans Sexe. |
+| Filtre Site sur Interimaire (`b.Interimaire.Site` introuvable) | Filtrage par `SiteAffectation` (string snapshot) | Site est sur ContratInterim, pas sur Interimaire. On compare au Nom du site sélectionné, normalisé `.Trim().ToUpperInvariant()`. |
+| Razor RZ1010 (`@{` dans bloc `else { }`) | Suppression `@{}` | Dans bloc Razor déjà en code (else, foreach, etc.), pas besoin de `@{}` pour passer en C#. |
+| Recherche fuzzy ne matche pas les accents | Normalisation Unicode FormD + filtre NonSpacingMark | "Prénoms" → "prenoms", "débours" → "debours". `RemoveAccents()` appliquée des 2 côtés (titre + keyword). |
+| **Valeurs gonflées ×91-100** au commit (XLCellValue.ToString → virgule = milliers) | Refactor `SafeDecimal/SafeStr` pour prendre `IXLCell` | Utilise directement `cell.Value.GetNumber()` (double natif), évite `ToString()` parasité par culture. |
+| `int? → int` (BuildHeaderMap) | Ajout `.Value` | Rejet collatéral du `replace_all` `.Value)` → `)`. |
+| `IObjectSpace.Session` introuvable | Cast vers `XPObjectSpace` | `Session` est exposée par `DevExpress.ExpressApp.Xpo.XPObjectSpace`, pas par l'interface générique. |
+| **Conflit contrainte unique** au ré-import (écrasement) | Commit en 2 phases (DELETE puis INSERT) + double-check | XPO accumulait DELETE + INSERT dans la même unité de travail → violation `UX_Batch_Annee_Mois_Societe`. Fix : `CommitChanges()` après les deletes + `PurgeDeletedObjects()` + vérification post-delete. |
+| Cellules avec formules / format décimal masqué | `cell.HasFormula ? cell.CachedValue : cell.Value` | Lit la valeur cachée Excel pour les formules ; le format d'affichage n'a aucune influence sur la valeur lue brute. |
+
+### Résultats réels du test d'intégration (fichier `LIVRE_DE_PAIE_TEST_MARS2026.xlsx`)
+
+```
+Lot d'import (Batch) : a0921cc5-9d5d-4b8c-baa1-ffb4ca435388
+Bulletins créés      : 31
+Fiches Intérimaire créées auto : 30
+Prestataires         : 1
+Total TTC            : 7 784 839 FCFA
+Multiplicateur Brut→TTC : ×1.91
+```
+
+### Workflow validé end-to-end
+
+```
+[Excel facture mensuelle] → [Wizard 4 étapes] → [Service parsing fuzzy/accents]
+  → [Création auto fiches Interimaire] → [Commit transactionnel avec écrasement]
+  → [Dashboard N°11 KPIs Cout Reel]
+```
+
+### Bonus : richesse du hub help
+
+- Section "Modèles à télécharger" sur `/help/index.html` avec liens directs
+  (download attribute) vers `Modele_Import_Salaries.xlsx` et `Modele_LivrePaieInterim.xlsx`
+- Section "Tableaux de bord (Pilotage)" avec raccourcis vers les 5 dashboards
+  V1.2/V1.3 + lien vers le hub
+- Nav harmonisée "SunuPaie — Guide utilisateur" comme libellé du lien d'accueil
+
+### Limites connues V1.3.1 (futur)
+
+- Export Excel/PDF du dashboard N°11
+- Seeder démo `BulletinInterim` (pour démo CODIR sans manipulation manuelle)
+- Pro-rata mi-temps dans la comparaison contrat
+- Notification automatique RH listant les fiches créées auto à compléter
+- Filtre Site dans le dashboard N°11 actuellement basé sur SiteAffectation (string snapshot) — passage à un lookup ContratInterim.Site quand le module sera mature
+
+---
+
+## ✅ V1.3 SPRINT 1 — COÛT RÉEL INTÉRIMAIRES (2026-05-05) — code initial (déprécié, voir section ci-dessus)
 
 > Status : code complet pour les 5 étapes (entités, service import, wizard,
 > dashboard, help). Build à valider par le user.
