@@ -551,6 +551,72 @@ MouvementHeuresSup, ParametresPaie pour les seuils).
 
 ---
 
+## ✅ V1.2 SPRINTS 1-5 — CODE IMPLÉMENTÉ (2026-05-04)
+
+> Status : **code écrit, build à valider** (le user fait le build dans VS le
+> 2026-05-05 et renvoie les erreurs éventuelles).
+
+### Fichiers créés
+
+| Sprint | Fichier | Rôle |
+|---|---|---|
+| 1 | `BusinessObjects/Budget/BudgetMasseSalariale.cs` | Entité XPO + enum BudgetRubrique + enum BudgetSource |
+| 2 | `Models/Dashboards/BudgetVsRealiseDto.cs` | DTO + sub-DTOs (Mensuel, CumulYtd, Rubrique, Site) |
+| 2 | `Models/Dashboards/BudgetVsRealiseFilterModel.cs` | Filtre (Année, Site, SeuilAlerte) |
+| 2 | `Services/Dashboards/IBudgetVsRealiseDashboardService.cs` | Interface |
+| 2 | `Services/Dashboards/BudgetVsRealiseDashboardService.cs` | Service avec cache 5 min, calculs mensuel/YTD/projection |
+| 2 | `Pages/Dashboards/Budget/BudgetVsRealiseDashboard.razor` | Page Razor (route `/dashboards/budget-vs-realise`) |
+| 3 | `Models/Dashboards/ProvisionsSocialesDto.cs` | DTO IDR + CP |
+| 3 | `Services/Dashboards/IProvisionsSocialesDashboardService.cs` + impl | Calcul barème CCI Sénégal (25/30/40%) |
+| 3 | `Pages/Dashboards/Provisions/ProvisionsSocialesDashboard.razor` | Page (route `/dashboards/provisions-sociales`) |
+| 4 | `Models/Dashboards/CoutCompletDto.cs` | DTO Fully Loaded Cost |
+| 4 | `Services/Dashboards/ICoutCompletDashboardService.cs` + impl | Net + Cotis + Charges + Avantages + Formation |
+| 4 | `Pages/Dashboards/Cout/CoutCompletDashboard.razor` | Page (route `/dashboards/cout-complet`) |
+| 5 | `Models/Dashboards/ConformiteSenegalDto.cs` | DTO + enum StatutConformite |
+| 5 | `Services/Dashboards/IConformiteSenegalDashboardService.cs` + impl | 9 indicateurs réglementaires |
+| 5 | `Pages/Dashboards/Conformite/ConformiteSenegalDashboard.razor` | Page (route `/dashboards/conformite-senegal`) |
+
+### Fichiers modifiés
+
+- `Blazor.Server/Startup.cs` — DI : 4 nouveaux `AddScoped<I*, *>()` après le bloc V1.0
+- `Blazor.Server/Pages/Dashboards/DashboardHome.razor` — 4 nouvelles `CardInfo` ajoutées dans `_cards`
+
+### Limites connues V1.2 (à compléter en V1.2.1)
+
+- **Provisions sociales** : congés payés calculés sur estimation théorique
+  faute d'entité `SoldeConge` mappée. À brancher quand le module congés sera
+  intégré.
+- **Coût complet** : `Formation` à 0 (entité Formation pas encore mappée
+  côté Bulletin). Avantages nature détectés via `RubriqueTypeRef.Code` AV_NATURE_*
+  — fallback à 0 si non trouvé.
+- **Conformité SN** : 5 indicateurs sur 9 sont actifs (SMIG, CDD, Stages,
+  Congés, Contrats scannés en NonEvalue). Les 3 déclarations sociales
+  (IPRES/CSS/IPM) et HSup détaillé sont en NonEvalue (entités à créer).
+- **Budget vs Réalisé** : ventilation par rubrique du réalisé est faite au
+  prorata du budget (heuristique). En V1.3, mapping `BudgetRubrique ↔
+  RubriqueTypeRef` à formaliser pour ventilation exacte.
+
+### Build attendu — points de vigilance
+
+- Vérifier que `Salarie.Categories?.Intitule` compile (utilisé dans
+  `CoutCompletDashboardService`). Si la nav property s'appelle autrement,
+  adapter.
+- `Salarie.FullName` : provient de l'héritage `Person` (DevExpress base impl).
+- Le service `ConformiteSenegalDashboardService` lit `TypeContrat` via
+  réflexion (au cas où la propriété ne serait pas exactement nommée ainsi).
+- Module XAF : la nouvelle entité `BudgetMasseSalariale` doit faire l'objet
+  d'une `dotnet ef migrations add V12_BudgetRH` (si EF) OU d'un
+  `os.UpdateSchema()` (XPO standard) au prochain démarrage.
+
+### Données de seed (à ajouter en V1.2.1)
+
+`DemoDataSeeder.EnsureAll()` n'a PAS été modifié. Pour tester les dashboards
+V1.2 avec des valeurs réalistes, il faudra ajouter :
+- `EnsureBudgetMasseSalariale()` : 1 année × 12 mois × 9 rubriques × 1-3 sites
+  (≈ 200 lignes de budget pour 2026)
+
+---
+
 ## ⭐ NOTES POST-V1.1 (mai 2026)
 
 - **Pyramide des âges H/F** : ajoutée au dashboard Effectif détaillé

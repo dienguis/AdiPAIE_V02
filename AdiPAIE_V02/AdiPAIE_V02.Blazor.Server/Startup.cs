@@ -70,6 +70,27 @@ namespace AdiPAIE_V02.Blazor.Server
                 AdiPAIE_V02.Module.Services.Dashboards.IBilanSocialDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.BilanSocialDashboardService>();
 
+            // ─── V1.2 — Pilotage stratégique DAF + DRH ─────────────────────
+            // Tableau N°7 — Budget vs Réalisé Masse Salariale (Sprint 2)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IBudgetVsRealiseDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.BudgetVsRealiseDashboardService>();
+
+            // Tableau N°8 — Provisions Sociales (IDR + Congés payés) (Sprint 3)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IProvisionsSocialesDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.ProvisionsSocialesDashboardService>();
+
+            // Tableau N°9 — Coût Complet par Salarié (Fully Loaded Cost) (Sprint 4)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.ICoutCompletDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.CoutCompletDashboardService>();
+
+            // Tableau N°10 — Conformité Sénégal (audit-ready) (Sprint 5)
+            services.AddScoped<
+                AdiPAIE_V02.Module.Services.Dashboards.IConformiteSenegalDashboardService,
+                AdiPAIE_V02.Module.Services.Dashboards.ConformiteSenegalDashboardService>();
+
             // Export Excel partagé pour les 6 tableaux (Étape 7.2)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IDashboardExcelExportService,

@@ -262,5 +262,38 @@
             Description:     "Tableau 12 mois × 17 colonnes : effectifs, mouvements, formation, masse salariale, accidents.",
             Icon:            "bi-clipboard-data",
             Route:           "/dashboards/bilan-social"),
+
+        // ─── V1.2 — Pilotage stratégique DAF + DRH ─────────────────────
+        new(
+            Title:           "Budget vs Réalisé",
+            PerimetreLabel:  "Pilotage DAF · V1.2",
+            PerimetreCss:    "mixte",
+            Description:     "Comparaison budget mensuel vs masse salariale réelle, écarts cumul YTD, projection annuelle, alertes par rubrique et par site.",
+            Icon:            "bi-bullseye",
+            Route:           "/dashboards/budget-vs-realise"),
+
+        new(
+            Title:           "Provisions Sociales",
+            PerimetreLabel:  "Pilotage DAF · V1.2",
+            PerimetreCss:    "mixte",
+            Description:     "Provisions IDR (barème CCI Sénégal) et congés payés acquis non pris. Conformité SYSCOHADA, audit-ready.",
+            Icon:            "bi-shield-check",
+            Route:           "/dashboards/provisions-sociales"),
+
+        new(
+            Title:           "Coût Complet par Salarié",
+            PerimetreLabel:  "Pilotage DAF + DRH · V1.2",
+            PerimetreCss:    "mixte",
+            Description:     "Fully Loaded Cost : net + cotisations + charges patronales + avantages nature + formation. Multiplicateur magique.",
+            Icon:            "bi-cash-stack",
+            Route:           "/dashboards/cout-complet"),
+
+        new(
+            Title:           "Conformité Sénégal",
+            PerimetreLabel:  "DAF + DRH · V1.2 · Audit",
+            PerimetreCss:    "mixte",
+            Description:     "9 indicateurs réglementaires SN avec feux tricolores : SMIG, CDD, stages, congés, déclarations IPRES/CSS/IPM.",
+            Icon:            "bi-patch-check",
+            Route:           "/dashboards/conformite-senegal"),
     };
 }
