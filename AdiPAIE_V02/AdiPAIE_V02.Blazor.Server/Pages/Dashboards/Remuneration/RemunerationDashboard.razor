@@ -126,9 +126,11 @@ else
                 @* V1.1 — Unité organisationnelle (filtrée par site sélectionné) *@
                 <div class="ed-filter">
                     <label>Unité</label>
+                    @* V1.2 fix — DisplayName inclut le site (ex "Boutique — BANDIA")
+                       pour éviter les doublons "Boutique" / "Boutique" / "Boutique" *@
                     <DxComboBox TData="UniteOrganisationnelle" TValue="UniteOrganisationnelle"
                                 Data="@_unitesDispo"
-                                TextFieldName="@nameof(UniteOrganisationnelle.Nom)"
+                                TextFieldName="@nameof(UniteOrganisationnelle.DisplayName)"
                                 Value="@_selectedUnite"
                                 ValueChanged="@((UniteOrganisationnelle? u) => OnUniteChanged(u))"
                                 NullText="Toutes"
