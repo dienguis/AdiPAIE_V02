@@ -163,8 +163,9 @@
           <Item Id="Param_DocumentTypes" Caption="Types de document" ViewId="DocumentTypeRef_ListView" Index="10" ImageName="Document Properties" IsNewNode="True" />
           <Item Id="Param_PretTypes" Caption="Types de prêt" ViewId="PretType_ListView" Index="11" IsNewNode="True" />
           <Item Id="Param_Workflows" Caption="Diagrammes de workflow" ViewId="Workflows_View" Index="12" ImageName="Action_Debug" IsNewNode="True" />
-          <!-- V1.2 — Module Budget RH -->
-          <Item Id="Param_BudgetMS" Caption="Budget Masse Salariale" ViewId="BudgetMasseSalariale_ListView" Index="15" ImageName="BO_Money" IsNewNode="True" />
+          <!-- V1.2 — BudgetMasseSalariale est ajouté ici automatiquement par
+               l'attribut [NavigationItem("GRH - Administration")] sur l'entité.
+               Pas besoin d'Item explicite (causait un doublon). -->
         </Items>
       </Item>
       <Item Id="Administration" Caption="Administration" Index="50" ImageName="ModelEditor_Settings" IsNewNode="True">

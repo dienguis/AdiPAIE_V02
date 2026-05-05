@@ -381,59 +381,91 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        //  V1.2 — BUDGET MASSE SALARIALE (DÉMO 2026)
+        //  V1.2 — BUDGET MASSE SALARIALE (DÉMO 2025 + 2026)
         //
-        //  Génère un budget annuel cohérent ELTON :
-        //    - Année courante (2026) + 12 mois × 9 rubriques
-        //    - 1 ligne globale par mois × rubrique (Site=NULL)
-        //    - + ventilation par site sur 3 stations principales
-        //      pour Salaires de base + Charges patronales
+        //  Génère 2 années de budgets pour permettre le comparatif N-1 :
+        //    - 2025 (année N-1)  : budget de base
+        //    - 2026 (année N)    : budget +5 % (inflation)
         //
-        //  Volumes : ~180 lignes (108 globales + 72 par site).
+        //  Pour chaque année : 12 mois × 9 rubriques :
+        //    - 1 ligne globale par mois × rubrique (Site=NULL) → 108 lignes/an
+        //    - + ventilation par site sur 3 stations principales pour
+        //      Salaires de base + Charges patronales              →  72 lignes/an
+        //
+        //  Volumes : ~360 lignes (180 par année).
         //  Tous les Commentaire commencent par "DEMO_BUDGET_" pour le wipe.
         //
-        //  Hypothèses budget annuel ELTON (env. 250 salariés, 500k brut moyen) :
-        //    - Salaires base       : 1 100 000 000 FCFA   (52 %)
-        //    - Charges patronales  :   400 000 000 FCFA   (19 %)
-        //    - Primes              :   200 000 000 FCFA
-        //    - 13e mois            :   100 000 000 FCFA   (100 % décembre)
-        //    - Indemnités          :    80 000 000 FCFA
-        //    - Avantages nature    :   100 000 000 FCFA
-        //    - Gratifications      :    50 000 000 FCFA   (50% juin + 50% décembre)
-        //    - Formation           :    30 000 000 FCFA
-        //    - Recrutement         :    20 000 000 FCFA
-        //    Total ≈ 2 080 000 000 FCFA
+        //  Hypothèses budget annuel ELTON 2025 (env. 250 salariés, 480k brut moyen) :
+        //    - Salaires base       : 1 050 000 000 FCFA   (52 %)
+        //    - Charges patronales  :   380 000 000 FCFA   (19 %)
+        //    - Primes              :   190 000 000 FCFA
+        //    - 13e mois            :    95 000 000 FCFA   (100 % décembre)
+        //    - Indemnités          :    75 000 000 FCFA
+        //    - Avantages nature    :    95 000 000 FCFA
+        //    - Gratifications      :    47 000 000 FCFA   (50 % juin + 50 % décembre)
+        //    - Formation           :    28 000 000 FCFA
+        //    - Recrutement         :    19 000 000 FCFA
+        //    Total 2025 ≈ 1 979 000 000 FCFA
+        //  Hypothèse 2026 : tous les montants × 1,05 (inflation 5 %)
+        //    Total 2026 ≈ 2 078 000 000 FCFA
         // ═════════════════════════════════════════════════════════════════════
         private static void EnsureBudgetMasseSalariale(
             IObjectSpace os,
             (Site bandia, Site cdb, Site mermoz, Site siege, Site depotDakar, Site depotThies) sites)
         {
-            int anneeCible = DateTime.Today.Year;
+            int anneeCourante = DateTime.Today.Year;
+            int anneePrecedente = anneeCourante - 1;
 
-            // Idempotence — si on trouve déjà un budget DEMO sur l'année cible, on skip
+            // ── Budget annuel de référence (base = année N-1) ─────────────
+            var totauxBaseAnneeNm1 = new (BudgetRubrique R, decimal Annuel)[]
+            {
+                (BudgetRubrique.SalairesBase,        1_050_000_000m),
+                (BudgetRubrique.ChargesPatronales,     380_000_000m),
+                (BudgetRubrique.Primes,                190_000_000m),
+                (BudgetRubrique.TreiziemeMois,          95_000_000m),
+                (BudgetRubrique.Indemnites,             75_000_000m),
+                (BudgetRubrique.AvantagesNature,        95_000_000m),
+                (BudgetRubrique.Gratifications,         47_000_000m),
+                (BudgetRubrique.Formation,              28_000_000m),
+                (BudgetRubrique.Recrutement,            19_000_000m),
+            };
+
+            // Coefficient d'inflation appliqué à chaque année par rapport à N-1
+            const decimal CoefInflationParAn = 1.05m;
+
+            // Seeder pour 2 années consécutives
+            SeederBudgetAnnee(os, sites, anneePrecedente, totauxBaseAnneeNm1, multiplicateur: 1.00m);
+            SeederBudgetAnnee(os, sites, anneeCourante,   totauxBaseAnneeNm1, multiplicateur: CoefInflationParAn);
+        }
+
+        /// <summary>
+        /// Génère les ~180 lignes de budget pour une année donnée :
+        ///   - 108 lignes globales (Site=NULL) × 9 rubriques × 12 mois
+        ///   -  72 lignes ventilées par site (3 sites × 2 rubriques × 12 mois)
+        /// Idempotent par année grâce au check sur Annee + préfixe Commentaire.
+        /// </summary>
+        private static void SeederBudgetAnnee(
+            IObjectSpace os,
+            (Site bandia, Site cdb, Site mermoz, Site siege, Site depotDakar, Site depotThies) sites,
+            int annee,
+            (BudgetRubrique R, decimal Annuel)[] totauxBase,
+            decimal multiplicateur)
+        {
+            // Idempotence par année — si on trouve déjà un budget DEMO sur cette année, on skip
             bool dejaExistant = os.GetObjectsQuery<BudgetMasseSalariale>()
                 .ToList()
-                .Any(b => b.Annee == anneeCible
+                .Any(b => b.Annee == annee
                        && b.Commentaire != null
                        && b.Commentaire.StartsWith("DEMO_BUDGET_"));
             if (dejaExistant) return;
 
-            // ── Budget annuel par rubrique (FCFA) ─────────────────────────
-            var totauxAnnuels = new (BudgetRubrique R, decimal Annuel)[]
-            {
-                (BudgetRubrique.SalairesBase,        1_100_000_000m),
-                (BudgetRubrique.ChargesPatronales,     400_000_000m),
-                (BudgetRubrique.Primes,                200_000_000m),
-                (BudgetRubrique.TreiziemeMois,         100_000_000m),
-                (BudgetRubrique.Indemnites,             80_000_000m),
-                (BudgetRubrique.AvantagesNature,       100_000_000m),
-                (BudgetRubrique.Gratifications,         50_000_000m),
-                (BudgetRubrique.Formation,              30_000_000m),
-                (BudgetRubrique.Recrutement,            20_000_000m),
-            };
+            // Application du multiplicateur d'inflation
+            var totauxAnnee = totauxBase
+                .Select(t => (t.R, Annuel: Math.Round(t.Annuel * multiplicateur, 0)))
+                .ToArray();
 
             // ── 1. Lignes globales (Site=NULL) — mensualisation auto ──────
-            foreach (var (rubrique, annuel) in totauxAnnuels)
+            foreach (var (rubrique, annuel) in totauxAnnee)
             {
                 for (int mois = 1; mois <= 12; mois++)
                 {
@@ -441,13 +473,13 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                     if (montantMois <= 0) continue;
 
                     var b = os.CreateObject<BudgetMasseSalariale>();
-                    b.Annee = anneeCible;
+                    b.Annee = annee;
                     b.Mois = mois;
                     b.Site = null;          // Budget global non ventilé
                     b.Rubrique = rubrique;
                     b.Montant = montantMois;
                     b.Source = BudgetSource.AutoMensualise;
-                    b.Commentaire = $"DEMO_BUDGET_GLOBAL_{anneeCible}";
+                    b.Commentaire = $"DEMO_BUDGET_GLOBAL_{annee}";
                 }
             }
 
@@ -464,7 +496,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
 
             foreach (var rub in rubriquesVentilees)
             {
-                decimal annuel = totauxAnnuels.First(t => t.R == rub).Annuel;
+                decimal annuel = totauxAnnee.First(t => t.R == rub).Annuel;
                 decimal partSiteAnnuel = Math.Round(annuel / sitesVentiles.Length, 0);
 
                 foreach (var site in sitesVentiles)
@@ -475,13 +507,13 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                         if (montantMoisSite <= 0) continue;
 
                         var b = os.CreateObject<BudgetMasseSalariale>();
-                        b.Annee = anneeCible;
+                        b.Annee = annee;
                         b.Mois = mois;
                         b.Site = site;
                         b.Rubrique = rub;
                         b.Montant = montantMoisSite;
                         b.Source = BudgetSource.AutoMensualise;
-                        b.Commentaire = $"DEMO_BUDGET_SITE_{site.Code}";
+                        b.Commentaire = $"DEMO_BUDGET_SITE_{site.Code}_{annee}";
                     }
                 }
             }
