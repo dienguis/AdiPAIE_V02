@@ -55,6 +55,10 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             EnsureContrats(os, interims, sites, unites, postes);
             EnsureMouvements(os, interims, sites, unites);
             EnsureBudgetMasseSalariale(os, sites);   // V1.2 — démo Budget vs Réalisé
+
+            // V1.3.3 — Démo congés (CongeType + CongeDemande) pour le dashboard N°5
+            var typesConge = EnsureCongeTypesDemo(os);
+            EnsureCongeDemandesDemo(os, typesConge);
         }
 
         // ═════════════════════════════════════════════════════════════════════
@@ -469,6 +473,179 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 b.Commentaire = $"DEMO_BUDGET_SITE_{site.Code}_{annee}";
             }
         }
+
+        // ═════════════════════════════════════════════════════════════════════
+        //  V1.3.3 — TYPES DE CONGÉ + CONGE-DEMANDES DE DÉMO
+        //
+        //  Crée 9 CongeType (MAL, AT, EVENT, AUT, NAUT, CPAYE, FORM, MAT, PAT)
+        //  s'ils n'existent pas, puis seed des CongeDemande variées sur les
+        //  ~30 premiers salariés actifs pour 2025 + 2026.
+        //
+        //  Patterns réalistes :
+        //    - Tous les salariés : 1 CPAYE 10-15j en juillet/août
+        //    - Tous les salariés : 1 MAL court (3-5j) dispersé
+        //    - 1 salarié sur 5 : 1 EVENT 1-2j (mariage, deuil, etc.)
+        //    - 1 salarié hommes sur 8 : 3j PAT
+        //    - 1 salariée femme sur 6 : 90j MAT
+        //    - 1 salarié sur 25 : MAL longue 28j (cas critique)
+        //
+        //  Idempotence : Motif commence par "DEMO_CONGE_" pour le wiper.
+        // ═════════════════════════════════════════════════════════════════════
+        private static (CongeType mal, CongeType at, CongeType evt, CongeType aut,
+                        CongeType naut, CongeType cpaye, CongeType form, CongeType mat, CongeType pat)
+            EnsureCongeTypesDemo(IObjectSpace os)
+        {
+            var mal   = EnsureCongeType(os, "MAL",   "Maladie",                FamilleConge.Maladie,           false, 0m,  ImpactSalaireConge());
+            var at    = EnsureCongeType(os, "AT",    "Accident du Travail",    FamilleConge.Maladie,           true,  0m,  ImpactSalaireConge());
+            var evt   = EnsureCongeType(os, "EVENT", "Événement familial",     FamilleConge.EvenementFamilial, true,  0m,  ImpactSalaireConge());
+            var aut   = EnsureCongeType(os, "AUT",   "Autre absence",          FamilleConge.Autre,             false, 0m,  ImpactSalaireConge());
+            var naut  = EnsureCongeType(os, "NAUT",  "Absence non autorisée",  FamilleConge.SansSolde,         false, 0m,  CongeImpactSalaire.Impaye);
+            var cpaye = EnsureCongeType(os, "CPAYE", "Congé payé annuel",      FamilleConge.Annuel,            true,  2.5m, ImpactSalaireConge());
+            var form  = EnsureCongeType(os, "FORM",  "Formation",              FamilleConge.Autre,             true,  0m,  ImpactSalaireConge());
+            var mat   = EnsureCongeType(os, "MAT",   "Maternité",              FamilleConge.Maternite,         false, 0m,  ImpactSalaireConge());
+            var pat   = EnsureCongeType(os, "PAT",   "Paternité",              FamilleConge.Maternite,         false, 0m,  ImpactSalaireConge());
+            os.CommitChanges();
+            return (mal, at, evt, aut, naut, cpaye, form, mat, pat);
+        }
+
+        /// <summary>Helper pour récupérer le membre Paye de l'enum quel que soit son nom exact.</summary>
+        private static CongeImpactSalaire ImpactSalaireConge()
+        {
+            try { return (CongeImpactSalaire)Enum.Parse(typeof(CongeImpactSalaire), "Paye"); }
+            catch { return default; }
+        }
+
+        private static CongeType EnsureCongeType(
+            IObjectSpace os, string code, string libelle, FamilleConge famille,
+            bool justifObligatoire, decimal acquisitionMensuelle, CongeImpactSalaire impact)
+        {
+            var existing = os.GetObjectsQuery<CongeType>().ToList()
+                .FirstOrDefault(t => string.Equals(t.Code, code, StringComparison.OrdinalIgnoreCase));
+            if (existing != null) return existing;
+
+            var t = os.CreateObject<CongeType>();
+            t.Code = code;
+            t.Libelle = libelle;
+            t.Famille = famille;
+            t.ImpactSalaire = impact;
+            try { var p = typeof(CongeType).GetProperty("JustificatifObligatoire"); p?.SetValue(t, justifObligatoire); } catch { }
+            t.AcquisitionMensuelle = acquisitionMensuelle;
+            t.CompteEnJoursOuvrables = true;
+            return t;
+        }
+
+        private static void EnsureCongeDemandesDemo(
+            IObjectSpace os,
+            (CongeType mal, CongeType at, CongeType evt, CongeType aut,
+             CongeType naut, CongeType cpaye, CongeType form, CongeType mat, CongeType pat) types)
+        {
+            // Idempotence : skip si demandes démo déjà présentes
+            bool dejaExistant = os.GetObjectsQuery<CongeDemande>().ToList()
+                .Any(d => (d.Motif ?? "").StartsWith("DEMO_CONGE_"));
+            if (dejaExistant) return;
+
+            // Récupère les salariés actifs (~30 premiers)
+            var salaries = os.GetObjectsQuery<Salarie>().ToList()
+                .Where(s => s.DateEmbauche != default
+                         && (s.DateSortie == default
+                             || s.DateSortie == new DateTime(1900, 1, 1)
+                             || s.DateSortie > DateTime.Today))
+                .OrderBy(s => s.Matricule)
+                .Take(40)
+                .ToList();
+            if (salaries.Count == 0) return;
+
+            var rnd = new Random(42); // reproductibilité
+            int anneeCourante = DateTime.Today.Year;
+
+            for (int idx = 0; idx < salaries.Count; idx++)
+            {
+                var sal = salaries[idx];
+
+                foreach (int annee in new[] { anneeCourante - 1, anneeCourante })
+                {
+                    // 1. CPAYE en juillet/août (10-15 jours)
+                    {
+                        int dayStart = 1 + rnd.Next(15);
+                        int duree = 10 + rnd.Next(6);
+                        int moisCp = 7 + rnd.Next(2);
+                        var debut = new DateTime(annee, moisCp, dayStart);
+                        var fin = debut.AddDays(duree - 1);
+                        if (fin.Year == annee)
+                            CreerDemande(os, sal, types.cpaye, debut, fin, "DEMO_CONGE_CP_VACANCES");
+                    }
+
+                    // 2. MAL court (1-5 jours, dispersé sur l'année)
+                    {
+                        int moisMal = 1 + rnd.Next(12);
+                        int dayMal = 1 + rnd.Next(20);
+                        int duree = 1 + rnd.Next(5);
+                        var debut = new DateTime(annee, moisMal, dayMal);
+                        var fin = debut.AddDays(duree - 1);
+                        if (fin.Year == annee)
+                            CreerDemande(os, sal, types.mal, debut, fin, "DEMO_CONGE_MAL_GRIPPE");
+                    }
+
+                    // 3. EVENT (1-2 jours, 1 salarié sur 5)
+                    if (idx % 5 == 0)
+                    {
+                        int moisEv = 1 + rnd.Next(12);
+                        var debut = new DateTime(annee, moisEv, 1 + rnd.Next(20));
+                        var fin = debut.AddDays(rnd.Next(2));
+                        if (fin.Year == annee)
+                            CreerDemande(os, sal, types.evt, debut, fin, "DEMO_CONGE_EVENT_FAMILIAL");
+                    }
+
+                    // 4. PAT (3 jours, 1 salarié homme sur 8)
+                    if (idx % 8 == 0 && sal.Sexe == Sexe.Masculin)
+                    {
+                        var debut = new DateTime(annee, 4, 5);
+                        var fin = debut.AddDays(2);
+                        CreerDemande(os, sal, types.pat, debut, fin, "DEMO_CONGE_PAT_NAISSANCE");
+                    }
+
+                    // 5. MAT (90 jours = 14 semaines, 1 salariée sur 6)
+                    if (idx % 6 == 0 && sal.Sexe == Sexe.Feminin && annee == anneeCourante - 1)
+                    {
+                        var debut = new DateTime(annee, 9, 1);
+                        var fin = debut.AddDays(89);
+                        CreerDemande(os, sal, types.mat, debut, fin, "DEMO_CONGE_MAT_NAISSANCE");
+                    }
+
+                    // 6. MAL longue (28 jours, 1 salarié sur 25 — cas critique)
+                    if (idx % 25 == 0 && annee == anneeCourante)
+                    {
+                        var debut = new DateTime(annee, 3, 1);
+                        var fin = debut.AddDays(27);
+                        CreerDemande(os, sal, types.mal, debut, fin, "DEMO_CONGE_MAL_LONGUE");
+                    }
+
+                    // 7. FORM (3 jours, 1 salarié sur 4)
+                    if (idx % 4 == 0)
+                    {
+                        var debut = new DateTime(annee, 11, 10 + rnd.Next(10));
+                        var fin = debut.AddDays(2);
+                        if (fin.Year == annee)
+                            CreerDemande(os, sal, types.form, debut, fin, "DEMO_CONGE_FORM_PROFESSIONNELLE");
+                    }
+                }
+            }
+        }
+
+        private static void CreerDemande(
+            IObjectSpace os, Salarie sal, CongeType type,
+            DateTime debut, DateTime fin, string motif)
+        {
+            var d = os.CreateObject<CongeDemande>();
+            d.Salarie = sal;
+            d.Type = type;
+            d.DateDebut = debut;
+            d.DateFin = fin;
+            d.Statut = CongeStatut.Accordee;
+            d.Motif = motif;
+            try { d.DureeJours = (decimal)((fin - debut).TotalDays + 1); } catch { }
+            try { d.JustificatifFourni = true; } catch { }
+        }
     }
 
     /// <summary>
@@ -489,6 +666,12 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 .Where(x => (x.Commentaire ?? "").StartsWith("DEMO_BUDGET_"))
                 .ToList();
             foreach (var x in budgets) { os.Delete(x); }
+
+            // V1.3.3 — Suppression des CongeDemande démo (Motif commence par "DEMO_CONGE_")
+            var congesDemo = os.GetObjectsQuery<CongeDemande>().ToList()
+                .Where(x => (x.Motif ?? "").StartsWith("DEMO_CONGE_"))
+                .ToList();
+            foreach (var x in congesDemo) { os.Delete(x); }
 
             // Ordre de suppression : enfants d'abord pour éviter les violations FK
             var mouvements = os.GetObjectsQuery<MouvementInterimaire>().ToList()
