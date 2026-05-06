@@ -62,7 +62,45 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         /// <summary>Liste détaillée par employé avec décomposition motif (toutes lignes).</summary>
         public List<EmployeAbsenceRowDto> Employes { get; set; } = new();
 
+        /// <summary>Vue calendrier matricielle (rempli uniquement si Vue=Calendrier).</summary>
+        public CalendrierAbsencesDto? Calendrier { get; set; }
+
         public DateTime CalculatedAt { get; set; }
+    }
+
+    /// <summary>
+    /// Vue calendrier : 1 mois × N employés. Chaque employé a un tableau de jours
+    /// avec le code motif si absent ce jour, vide sinon.
+    /// </summary>
+    public sealed class CalendrierAbsencesDto
+    {
+        public int Annee { get; set; }
+        public int Mois { get; set; }
+        public string MoisLibelle { get; set; } = "";
+        public int NbJours { get; set; }                  // 28..31
+        public List<CalendrierJourDto> Jours { get; set; } = new();
+        public List<CalendrierLigneDto> Lignes { get; set; } = new();
+    }
+
+    public sealed class CalendrierJourDto
+    {
+        public int Jour { get; set; }                     // 1..31
+        public DateTime Date { get; set; }
+        public string LettreJour { get; set; } = "";       // "L", "M", "M", "J", "V", "S", "D"
+        public bool IsWeekend { get; set; }
+        public bool IsFerie { get; set; }
+    }
+
+    public sealed class CalendrierLigneDto
+    {
+        public Guid SalarieOid { get; set; }
+        public string Matricule { get; set; } = "";
+        public string NomComplet { get; set; } = "";
+        public string Categorie { get; set; } = "";
+        public string Departement { get; set; } = "";
+        /// <summary>Indexé par jour (1..31). Null = pas d'absence ce jour.</summary>
+        public Dictionary<int, MotifAbsence?> Cellules { get; set; } = new();
+        public decimal TotalJours { get; set; }
     }
 
     public sealed class KpiAbsencesDto

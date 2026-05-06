@@ -508,6 +508,23 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 .OrderByDescending(e => e.TotalJours)
                 .ToList();
 
+            // ── 10. Vue Calendrier (si demandée, périmètre Interne uniquement) ─
+            CalendrierAbsencesDto? calendrier = null;
+            if (filter.Vue == VueAbsences.Calendrier)
+            {
+                var cells = demandesAvecMotif
+                    .Where(x => x.Demande.Salarie != null)
+                    .Select(x => new CalendrierAbsenceCell
+                    {
+                        SalarieOid = x.Demande.Salarie!.Oid,
+                        DateDebut = x.Demande.DateDebut,
+                        DateFin = x.Demande.DateFin,
+                        Motif = x.Motif
+                    })
+                    .ToList();
+                calendrier = ComputeCalendrier(filter, salaries, cells);
+            }
+
             return new SuiviAbsencesDto
             {
                 Kpis = kpis,
@@ -517,9 +534,116 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 ParDepartement = parDept,
                 ParMois = parMois,
                 Employes = employes,
+                Calendrier = calendrier,
                 CalculatedAt = DateTime.Now
             };
         }
+
+        /// <summary>Container interne pour le calcul du calendrier.</summary>
+        private sealed class CalendrierAbsenceCell
+        {
+            public Guid SalarieOid { get; set; }
+            public DateTime DateDebut { get; set; }
+            public DateTime DateFin { get; set; }
+            public MotifAbsence Motif { get; set; }
+        }
+
+        /// <summary>
+        /// Construit la grille calendrier employés × jours pour le mois cible.
+        /// Filtre les employés qui ont au moins 1 absence dans le mois pour
+        /// éviter d'afficher des centaines de lignes vides.
+        /// </summary>
+        private CalendrierAbsencesDto ComputeCalendrier(
+            SuiviAbsencesFilterModel filter,
+            List<Salarie> salaries,
+            List<CalendrierAbsenceCell> cells)
+        {
+            int annee = filter.AnneeCalendrier;
+            int mois = filter.MoisCalendrier;
+            if (mois < 1 || mois > 12) mois = DateTime.Today.Month;
+
+            var d0 = new DateTime(annee, mois, 1);
+            int nbJours = DateTime.DaysInMonth(annee, mois);
+
+            // En-têtes jours
+            var jours = new List<CalendrierJourDto>(nbJours);
+            for (int j = 1; j <= nbJours; j++)
+            {
+                var d = new DateTime(annee, mois, j);
+                bool weekend = d.DayOfWeek == DayOfWeek.Saturday || d.DayOfWeek == DayOfWeek.Sunday;
+                jours.Add(new CalendrierJourDto
+                {
+                    Jour = j,
+                    Date = d,
+                    LettreJour = LettreJour(d.DayOfWeek),
+                    IsWeekend = weekend,
+                    IsFerie = false   // V1.3.4 : connecter à l'entité JourFerie si dispo
+                });
+            }
+
+            var d1 = d0.AddMonths(1).AddDays(-1);
+            var cellsMois = cells.Where(c => c.DateDebut <= d1 && c.DateFin >= d0).ToList();
+
+            // Pour chaque salarié actif sur le mois, construire sa ligne
+            var lignes = new List<CalendrierLigneDto>();
+            foreach (var sal in salaries)
+            {
+                if (sal.DateEmbauche > d1) continue;
+                if (sal.DateSortie != default && sal.DateSortie != SortieSentinelle && sal.DateSortie < d0) continue;
+
+                var cellsSal = cellsMois.Where(c => c.SalarieOid == sal.Oid).ToList();
+                if (cellsSal.Count == 0) continue; // skip salariés sans absence
+
+                var dico = new Dictionary<int, MotifAbsence?>();
+                foreach (var c in cellsSal)
+                {
+                    var debut = c.DateDebut < d0 ? d0 : c.DateDebut;
+                    var fin = c.DateFin > d1 ? d1 : c.DateFin;
+                    for (var d = debut; d <= fin; d = d.AddDays(1))
+                    {
+                        // Priorité au motif Absentéisme si chevauchement
+                        if (!dico.ContainsKey(d.Day)
+                            || (IsAbsenteisme(c.Motif) && dico[d.Day].HasValue && !IsAbsenteisme(dico[d.Day]!.Value)))
+                        {
+                            dico[d.Day] = c.Motif;
+                        }
+                    }
+                }
+
+                lignes.Add(new CalendrierLigneDto
+                {
+                    SalarieOid = sal.Oid,
+                    Matricule = sal.Matricule ?? "",
+                    NomComplet = sal.FullName ?? "",
+                    Categorie = SafeCategorie(sal),
+                    Departement = SafeDepartement(sal) ?? "",
+                    Cellules = dico,
+                    TotalJours = dico.Values.Count(v => v.HasValue)
+                });
+            }
+
+            return new CalendrierAbsencesDto
+            {
+                Annee = annee,
+                Mois = mois,
+                MoisLibelle = FrCulture.DateTimeFormat.GetMonthName(mois),
+                NbJours = nbJours,
+                Jours = jours,
+                Lignes = lignes.OrderByDescending(l => l.TotalJours).ThenBy(l => l.NomComplet).ToList()
+            };
+        }
+
+        private static string LettreJour(DayOfWeek d) => d switch
+        {
+            DayOfWeek.Monday    => "L",
+            DayOfWeek.Tuesday   => "M",
+            DayOfWeek.Wednesday => "M",
+            DayOfWeek.Thursday  => "J",
+            DayOfWeek.Friday    => "V",
+            DayOfWeek.Saturday  => "S",
+            DayOfWeek.Sunday    => "D",
+            _ => "?"
+        };
 
         // ─────────────────────────────────────────────────────────────────────
         //  HELPERS — Mapping motif

@@ -68,6 +68,23 @@ else if (_data != null)
             </button>
         </div>
 
+        @* Toggle Vue Tableau / Calendrier (uniquement Interne — Externe n'a pas de granularité jour) *@
+        @if (_filter.Personnel == PersonnelType.Interne)
+        {
+            <div class="sa-toggle">
+                <button type="button"
+                        class="sa-toggle__btn @(_filter.Vue == VueAbsences.Tableau ? "sa-toggle__btn--on" : "")"
+                        @onclick="@(() => SwitchVue(VueAbsences.Tableau))">
+                    <i class="bi bi-table"></i> Tableau
+                </button>
+                <button type="button"
+                        class="sa-toggle__btn @(_filter.Vue == VueAbsences.Calendrier ? "sa-toggle__btn--on" : "")"
+                        @onclick="@(() => SwitchVue(VueAbsences.Calendrier))">
+                    <i class="bi bi-calendar3"></i> Calendrier
+                </button>
+            </div>
+        }
+
         <a class="sa-help" title="Aide" href="/help/dashboards/suivi-absences.html" target="_blank" rel="noopener">
             <i class="bi bi-question-circle"></i>
         </a>
@@ -240,6 +257,97 @@ else if (_data != null)
             </div>
         </details>
     </section>
+
+    @* ═══════════════════════════════════════════════════════════════
+       VUE CALENDRIER (uniquement si Interne + Vue=Calendrier)
+       ═══════════════════════════════════════════════════════════════ *@
+    @if (_filter.Personnel == PersonnelType.Interne && _filter.Vue == VueAbsences.Calendrier && _data.Calendrier != null)
+    {
+        <section class="sa-cal-toolbar">
+            <div class="sa-cal-period">
+                <button class="sa-cal-nav" @onclick="PrevMonth" title="Mois précédent">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <div class="sa-cal-period__lbl">
+                    <strong>@_data.Calendrier.MoisLibelle @_data.Calendrier.Annee</strong>
+                </div>
+                <button class="sa-cal-nav" @onclick="NextMonth" title="Mois suivant">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <button class="sa-cal-today" @onclick="CurrentMonth">Aujourd'hui</button>
+            </div>
+            <div class="sa-cal-legend">
+                <span class="legend-cell legend-mal">MAL</span>
+                <span class="legend-cell legend-at">AT</span>
+                <span class="legend-cell legend-event">EVENT</span>
+                <span class="legend-cell legend-aut">AUT/NAUT</span>
+                <span class="legend-cell legend-cpaye">CPAYE</span>
+                <span class="legend-cell legend-form">FORM</span>
+                <span class="legend-cell legend-mat">MAT/PAT</span>
+                <span class="legend-cell legend-we">Weekend</span>
+            </div>
+        </section>
+
+        <section class="sa-section">
+            @if (_data.Calendrier.Lignes.Count == 0)
+            {
+                <div class="sa-empty-cal">
+                    <i class="bi bi-calendar-x"></i>
+                    Aucune absence enregistrée pour @_data.Calendrier.MoisLibelle @_data.Calendrier.Annee.
+                </div>
+            }
+            else
+            {
+                <div class="sa-cal-wrap">
+                    <table class="sa-cal-table">
+                        <thead>
+                            <tr>
+                                <th class="sa-cal-emp">Employé</th>
+                                @foreach (var j in _data.Calendrier.Jours)
+                                {
+                                    <th class="sa-cal-day @(j.IsWeekend ? "sa-cal-day--we" : "")"
+                                        title="@j.Date.ToString("dddd dd MMM yyyy", FrCulture)">
+                                        <div class="sa-cal-day__num">@j.Jour</div>
+                                        <div class="sa-cal-day__lt">@j.LettreJour</div>
+                                    </th>
+                                }
+                                <th class="sa-cal-total">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ligne in _data.Calendrier.Lignes)
+                            {
+                                <tr>
+                                    <td class="sa-cal-emp">
+                                        <strong>@ligne.NomComplet</strong>
+                                        <small class="sa-mat">@ligne.Matricule · @ligne.Categorie</small>
+                                    </td>
+                                    @foreach (var j in _data.Calendrier.Jours)
+                                    {
+                                        var motif = ligne.Cellules.TryGetValue(j.Jour, out var m) ? m : null;
+                                        var css = motif.HasValue ? CssCellMotif(motif.Value)
+                                                : (j.IsWeekend ? "sa-cal-cell--we" : "");
+                                        <td class="sa-cal-cell @css"
+                                            title="@(motif.HasValue ? motif.ToString() : (j.IsWeekend ? "Weekend" : ""))">
+                                            @(motif.HasValue ? motif.ToString() : "")
+                                        </td>
+                                    }
+                                    <td class="sa-cal-total">@ligne.TotalJours.ToString("0", FrCulture)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="sa-hint">@_data.Calendrier.Lignes.Count employé(s) avec au moins 1 absence sur le mois (les salariés sans absence ne sont pas affichés).</div>
+            }
+        </section>
+    }
+    else
+    {
+
+    @* ═══════════════════════════════════════════════════════════════
+       VUE TABLEAU ANALYTIQUE (par défaut)
+       ═══════════════════════════════════════════════════════════════ *@
 
     @* ── 6 KPIs Excel-style ─────────────────────────────────────── *@
     <section class="sa-kpis">
@@ -441,6 +549,8 @@ else if (_data != null)
             <div class="sa-hint">Affichage limité aux 100 premiers (par TotalJours décroissant). Total: @_data.Employes.Count(x => x.TotalJours > 0) employés ayant des absences.</div>
         }
     </section>
+
+    } @* fin else (Vue Tableau analytique) *@
 
     <footer class="sa-footer">
         <span><i class="bi bi-clock-history"></i> Calculé le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
@@ -710,6 +820,100 @@ else if (_data != null)
         color: var(--sa-muted); text-align: center;
     }
     .sa-footer .sep { margin: 0 0.5rem; opacity: 0.5; }
+
+    /* ═════ Vue Calendrier ═════ */
+    .sa-cal-toolbar {
+        display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap;
+        margin: 0.7rem 1.5rem 0; padding: 0.6rem 0.9rem;
+        background: var(--sa-bg); border: 1px solid var(--sa-border); border-radius: 8px;
+    }
+    .sa-cal-period {
+        display: flex; align-items: center; gap: 0.4rem;
+    }
+    .sa-cal-nav {
+        background: #fff; border: 1px solid var(--sa-border); border-radius: 4px;
+        width: 32px; height: 32px; cursor: pointer; color: var(--sa-text);
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+    .sa-cal-nav:hover { background: var(--sa-orange); color: #fff; border-color: var(--sa-orange); }
+    .sa-cal-period__lbl { font-size: 1.05rem; color: var(--sa-text); padding: 0 0.5rem; min-width: 180px; text-align: center; }
+    .sa-cal-today {
+        background: #fff; border: 1px solid var(--sa-border); border-radius: 4px;
+        padding: 0.4rem 0.7rem; cursor: pointer; font-size: 0.78rem; margin-left: 0.5rem;
+    }
+    .sa-cal-today:hover { background: var(--sa-bg); border-color: var(--sa-orange); }
+
+    .sa-cal-legend {
+        display: flex; gap: 0.4rem; flex-wrap: wrap; margin-left: auto;
+        font-size: 0.7rem;
+    }
+    .sa-cal-legend .legend-cell {
+        padding: 0.15rem 0.45rem; border-radius: 3px; color: #fff;
+        font-weight: 700; letter-spacing: 0.04em;
+    }
+    .sa-cal-legend .legend-mal   { background: #E63946; }
+    .sa-cal-legend .legend-at    { background: #C03028; }
+    .sa-cal-legend .legend-event { background: #F08300; }
+    .sa-cal-legend .legend-aut   { background: #F0AD4E; }
+    .sa-cal-legend .legend-cpaye { background: #4DB6AC; }
+    .sa-cal-legend .legend-form  { background: #7B5EA7; }
+    .sa-cal-legend .legend-mat   { background: #FF6FB5; }
+    .sa-cal-legend .legend-we    { background: #BFC8D6; }
+
+    .sa-cal-wrap {
+        max-height: 600px; overflow: auto;
+        border: 1px solid var(--sa-border); border-radius: 6px; background: #fff;
+    }
+    .sa-cal-table {
+        width: max-content; min-width: 100%; border-collapse: collapse;
+        font-size: 0.72rem; font-variant-numeric: tabular-nums;
+    }
+    .sa-cal-table th, .sa-cal-table td {
+        border: 1px solid var(--sa-border); padding: 0;
+    }
+    .sa-cal-table thead th {
+        background: var(--sa-navy); color: #fff; padding: 0.25rem 0.15rem;
+        position: sticky; top: 0; z-index: 5; text-align: center;
+    }
+    .sa-cal-day { width: 28px; min-width: 28px; height: 38px; }
+    .sa-cal-day--we { background: #1F4376; }
+    .sa-cal-day__num { font-weight: 700; font-size: 0.78rem; }
+    .sa-cal-day__lt { font-size: 0.62rem; opacity: 0.75; }
+    .sa-cal-emp {
+        position: sticky; left: 0; z-index: 6;
+        background: var(--sa-navy); color: #fff;
+        padding: 0.5rem 0.7rem; min-width: 220px; text-align: left;
+    }
+    .sa-cal-table tbody .sa-cal-emp {
+        background: #fff; color: var(--sa-text); border-right: 2px solid var(--sa-orange);
+    }
+    .sa-cal-table tbody .sa-cal-emp small { display: block; color: var(--sa-muted); font-weight: normal; font-size: 0.68rem; margin-top: 1px; }
+    .sa-cal-total {
+        position: sticky; right: 0; z-index: 4;
+        background: var(--sa-navy); color: #fff;
+        font-weight: 700; min-width: 50px; text-align: center;
+    }
+    .sa-cal-table tbody .sa-cal-total {
+        background: var(--sa-bg); color: var(--sa-text); border-left: 2px solid var(--sa-orange);
+    }
+    .sa-cal-cell {
+        text-align: center; height: 28px; min-width: 28px;
+        font-size: 0.62rem; font-weight: 700; color: #fff;
+    }
+    .sa-cal-cell--mal   { background: #E63946; }
+    .sa-cal-cell--at    { background: #C03028; }
+    .sa-cal-cell--event { background: #F08300; }
+    .sa-cal-cell--aut   { background: #F0AD4E; }
+    .sa-cal-cell--cpaye { background: #4DB6AC; }
+    .sa-cal-cell--form  { background: #7B5EA7; }
+    .sa-cal-cell--mat   { background: #FF6FB5; }
+    .sa-cal-cell--autre { background: #8B95A5; }
+    .sa-cal-cell--we    { background: #F0F2F5; }
+
+    .sa-empty-cal {
+        padding: 2rem; text-align: center; color: var(--sa-muted); font-style: italic;
+    }
+    .sa-empty-cal i { font-size: 2rem; display: block; margin-bottom: 0.4rem; opacity: 0.5; }
 </style>
 
 @code {
@@ -885,6 +1089,46 @@ else if (_data != null)
         _filter = new SuiviAbsencesFilterModel { Personnel = current };
         await LoadDataAsync();
     }
+
+    private async Task SwitchVue(VueAbsences v)
+    {
+        if (_filter.Vue == v) return;
+        _filter.Vue = v;
+        await LoadDataAsync();
+    }
+
+    private async Task PrevMonth()
+    {
+        _filter.MoisCalendrier--;
+        if (_filter.MoisCalendrier < 1) { _filter.MoisCalendrier = 12; _filter.AnneeCalendrier--; }
+        await LoadDataAsync();
+    }
+
+    private async Task NextMonth()
+    {
+        _filter.MoisCalendrier++;
+        if (_filter.MoisCalendrier > 12) { _filter.MoisCalendrier = 1; _filter.AnneeCalendrier++; }
+        await LoadDataAsync();
+    }
+
+    private async Task CurrentMonth()
+    {
+        _filter.MoisCalendrier = DateTime.Today.Month;
+        _filter.AnneeCalendrier = DateTime.Today.Year;
+        await LoadDataAsync();
+    }
+
+    private static string CssCellMotif(MotifAbsence m) => m switch
+    {
+        MotifAbsence.MAL   => "sa-cal-cell--mal",
+        MotifAbsence.AT    => "sa-cal-cell--at",
+        MotifAbsence.EVENT => "sa-cal-cell--event",
+        MotifAbsence.AUT or MotifAbsence.NAUT => "sa-cal-cell--aut",
+        MotifAbsence.CPAYE => "sa-cal-cell--cpaye",
+        MotifAbsence.FORM  => "sa-cal-cell--form",
+        MotifAbsence.MAT or MotifAbsence.PAT => "sa-cal-cell--mat",
+        _                  => "sa-cal-cell--autre"
+    };
 
     private async Task SwitchPersonnel(PersonnelType p)
     {
