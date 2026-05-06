@@ -258,64 +258,140 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         {
             using var wb = new XLWorkbook();
 
+            string anneesStr = filter.Annees != null && filter.Annees.Count > 0
+                ? string.Join(",", filter.Annees) : DateTime.Today.Year.ToString();
+
             BuildSyntheseGenerique(wb, "Tableau N°5 — Suivi des Absences",
-                $"INTERNE · {filter.Annee}",
-                ("Nb absences",     dto.Kpis.NbAbsences.ToString("N0", Fr)),
-                ("Total jours",     dto.Kpis.TotalJours.ToString("N1", Fr)),
-                ("% Absentéisme",   dto.Kpis.TauxAbsenteisme.ToString("0.00", Fr) + " %"),
-                ("Durée Moy.",      dto.Kpis.DureeMoyenneJours.ToString("N1", Fr) + " j"),
-                ("% Justifiées",    dto.Kpis.PourcentageJustifie.ToString("0.0", Fr) + " %"),
-                ("Mois pic",        dto.Kpis.MoisPicLibelle ?? "—"));
+                $"INTERNE · {anneesStr}",
+                ("Effectif moyen",   dto.Kpis.EffectifMoyen.ToString("N0", Fr)),
+                ("Se sont absentés", dto.Kpis.NbSalariesAbsents.ToString("N0", Fr)),
+                ("Total jours",      dto.Kpis.TotalJours.ToString("N1", Fr)),
+                ("Absentéisme",      dto.Kpis.TauxAbsenteismePct.ToString("0.00", Fr) + " %"),
+                ("JO Perdus",        dto.Kpis.JOPerdus.ToString("N1", Fr) + " j"),
+                ("Resp Tmp Travail", dto.Kpis.RespTempsTravailPct.ToString("0.0", Fr) + " %"));
 
             var ws = wb.Worksheets.Add("KPI");
             WriteHeader(ws, "Indicateur", "Valeur");
-            ws.Cell("A2").Value = "Nb absences";                ws.Cell("B2").Value = dto.Kpis.NbAbsences;
-            ws.Cell("A3").Value = "Total jours";                ws.Cell("B3").Value = dto.Kpis.TotalJours;
-            ws.Cell("A4").Value = "% Absentéisme";              ws.Cell("B4").Value = dto.Kpis.TauxAbsenteisme;       ws.Cell("B4").Style.NumberFormat.Format = FmtPct;
-            ws.Cell("A5").Value = "Durée moyenne";              ws.Cell("B5").Value = dto.Kpis.DureeMoyenneJours;
-            ws.Cell("A6").Value = "% Justifiées";               ws.Cell("B6").Value = dto.Kpis.PourcentageJustifie;   ws.Cell("B6").Style.NumberFormat.Format = FmtPct;
-            ws.Cell("A7").Value = "Top absent";                 ws.Cell("B7").Value = dto.Kpis.TopAbsent;
-            ws.Cell("A8").Value = "Top absent — jours";         ws.Cell("B8").Value = dto.Kpis.TopAbsentJours;
-            ws.Cell("A9").Value = "Mois pic";                   ws.Cell("B9").Value = dto.Kpis.MoisPicLibelle;
-            ws.Cell("A10").Value = "Coût impayé estimé";        ws.Cell("B10").Value = dto.Kpis.CoutEstimeImpaye;     ws.Cell("B10").Style.NumberFormat.Format = FmtFcfa;
-            ws.Cell("A11").Value = "Nb salariés absents";       ws.Cell("B11").Value = dto.Kpis.NbSalariesAbsents;
-            ws.Cell("A12").Value = "Effectif total";            ws.Cell("B12").Value = dto.Kpis.NbSalariesEffectif;
+            ws.Cell("A2").Value = "Effectif moyen";          ws.Cell("B2").Value = dto.Kpis.EffectifMoyen;
+            ws.Cell("A3").Value = "Se sont absentés";        ws.Cell("B3").Value = dto.Kpis.NbSalariesAbsents;
+            ws.Cell("A4").Value = "Total jours";             ws.Cell("B4").Value = dto.Kpis.TotalJours;
+            ws.Cell("A5").Value = "% Absentéisme";           ws.Cell("B5").Value = dto.Kpis.TauxAbsenteismePct;       ws.Cell("B5").Style.NumberFormat.Format = FmtPct;
+            ws.Cell("A6").Value = "JO Perdus";               ws.Cell("B6").Value = dto.Kpis.JOPerdus;
+            ws.Cell("A7").Value = "Resp Tmp Travail";        ws.Cell("B7").Value = dto.Kpis.RespTempsTravailPct;      ws.Cell("B7").Style.NumberFormat.Format = FmtPct;
+            ws.Cell("A8").Value = "Nb absences";             ws.Cell("B8").Value = dto.Kpis.NbAbsences;
+            ws.Cell("A9").Value = "Durée moyenne";           ws.Cell("B9").Value = dto.Kpis.DureeMoyenneJours;
+            ws.Cell("A10").Value = "Top absent";              ws.Cell("B10").Value = dto.Kpis.TopAbsent;
+            ws.Cell("A11").Value = "Top absent jours";        ws.Cell("B11").Value = dto.Kpis.TopAbsentJours;
+            ws.Cell("A12").Value = "Mois pic";                ws.Cell("B12").Value = dto.Kpis.MoisPicLibelle ?? "";
             ws.Columns().AdjustToContents();
 
-            WriteBarSheet(wb, "Par famille",     dto.ParFamille);
-            WriteBarSheet(wb, "Par categorie",   dto.ParCategorie);
-            WriteBarSheet(wb, "Par segment",     dto.ParSegment);
-
-            ws = wb.Worksheets.Add("Evolution mensuelle");
-            WriteHeader(ws, "Mois", "Libelle", "Nb jours", "Nb absences");
+            // Par Motif (10 lignes max)
+            ws = wb.Worksheets.Add("Par motif");
+            WriteHeader(ws, "Code", "Libellé", "Catégorie", "Nb jours", "Nb absences", "% Total");
             int row = 2;
+            foreach (var m in dto.ParMotif)
+            {
+                ws.Cell(row, 1).Value = m.Code;
+                ws.Cell(row, 2).Value = m.Libelle;
+                ws.Cell(row, 3).Value = m.IsAbsenteisme ? "Absentéisme" : "Programmée";
+                ws.Cell(row, 4).Value = m.NbJours;
+                ws.Cell(row, 5).Value = m.NbAbsences;
+                ws.Cell(row, 6).Value = m.PourcentageDuTotal / 100m; ws.Cell(row, 6).Style.NumberFormat.Format = FmtPct;
+                row++;
+            }
+            ws.Columns().AdjustToContents();
+
+            // Par Catégorie (DimRowDto)
+            ws = wb.Worksheets.Add("Par categorie");
+            WriteHeader(ws, "Catégorie", "Eff. actifs", "JO Perdus", "Absentéisme %");
+            row = 2;
+            foreach (var c in dto.ParCategorie)
+            {
+                ws.Cell(row, 1).Value = c.Libelle;
+                ws.Cell(row, 2).Value = c.NbSalariesActifs;
+                ws.Cell(row, 3).Value = c.JOPerdus;
+                ws.Cell(row, 4).Value = c.TauxAbsenteismePct / 100m; ws.Cell(row, 4).Style.NumberFormat.Format = FmtPct;
+                row++;
+            }
+            ws.Columns().AdjustToContents();
+
+            // Par Département
+            ws = wb.Worksheets.Add("Par departement");
+            WriteHeader(ws, "Département", "Eff. actifs", "JO Perdus", "Absentéisme %");
+            row = 2;
+            foreach (var d in dto.ParDepartement)
+            {
+                ws.Cell(row, 1).Value = d.Libelle;
+                ws.Cell(row, 2).Value = d.NbSalariesActifs;
+                ws.Cell(row, 3).Value = d.JOPerdus;
+                ws.Cell(row, 4).Value = d.TauxAbsenteismePct / 100m; ws.Cell(row, 4).Style.NumberFormat.Format = FmtPct;
+                row++;
+            }
+            ws.Columns().AdjustToContents();
+
+            // Par Ancienneté
+            ws = wb.Worksheets.Add("Par anciennete");
+            WriteHeader(ws, "Tranche", "Eff. actifs", "JO Perdus", "Absentéisme %");
+            row = 2;
+            foreach (var a in dto.ParAnciennete)
+            {
+                ws.Cell(row, 1).Value = a.Tranche;
+                ws.Cell(row, 2).Value = a.NbSalariesActifs;
+                ws.Cell(row, 3).Value = a.JOPerdus;
+                ws.Cell(row, 4).Value = a.TauxAbsenteismePct / 100m; ws.Cell(row, 4).Style.NumberFormat.Format = FmtPct;
+                row++;
+            }
+            ws.Columns().AdjustToContents();
+
+            // Évolution mensuelle (2 séries)
+            ws = wb.Worksheets.Add("Evolution mensuelle");
+            WriteHeader(ws, "Mois", "Libellé", "J. Absentéisme", "J. Programmées", "Nb absences");
+            row = 2;
             foreach (var m in dto.ParMois)
             {
                 ws.Cell(row, 1).Value = m.Mois;
                 ws.Cell(row, 2).Value = m.Libelle;
-                ws.Cell(row, 3).Value = m.NbJours;
-                ws.Cell(row, 4).Value = m.NbAbsences;
+                ws.Cell(row, 3).Value = m.JoursAbsenteisme;
+                ws.Cell(row, 4).Value = m.JoursProgrammees;
+                ws.Cell(row, 5).Value = m.NbAbsences;
                 row++;
             }
             ws.Columns().AdjustToContents();
 
-            ws = wb.Worksheets.Add("Top 10 absents");
-            WriteHeader(ws, "Rang", "Salarié", "Catégorie", "Segment", "Famille principale", "Nb absences", "Total jours");
-            row = 2; int rank = 1;
-            foreach (var t in dto.Top10Absents)
+            // Liste détaillée employés (avec décomposition motif)
+            ws = wb.Worksheets.Add("Detail employes");
+            WriteHeader(ws, "Matricule", "Salarié", "Site", "Département", "Catégorie", "Fonction", "Ancienneté",
+                            "J. Abs", "J. Prog", "Total", "Resp Tmp",
+                            "AUT", "NAUT", "EVENT", "MAL", "AT",
+                            "CPAYE", "FORM", "MAT", "PAT");
+            row = 2;
+            foreach (var e in dto.Employes.Where(x => x.TotalJours > 0))
             {
-                ws.Cell(row, 1).Value = rank++;
-                ws.Cell(row, 2).Value = t.NomSalarie;
-                ws.Cell(row, 3).Value = t.Categorie;
-                ws.Cell(row, 4).Value = t.Segment;
-                ws.Cell(row, 5).Value = t.FamillePrincipale;
-                ws.Cell(row, 6).Value = t.NbAbsences;
-                ws.Cell(row, 7).Value = t.TotalJours;
+                ws.Cell(row, 1).Value = e.Matricule;
+                ws.Cell(row, 2).Value = e.NomComplet;
+                ws.Cell(row, 3).Value = e.Site;
+                ws.Cell(row, 4).Value = e.Departement;
+                ws.Cell(row, 5).Value = e.Categorie;
+                ws.Cell(row, 6).Value = e.Fonction;
+                ws.Cell(row, 7).Value = e.AncienneteAnnees;
+                ws.Cell(row, 8).Value = e.JoursAbsenteisme;
+                ws.Cell(row, 9).Value = e.JoursProgrammees;
+                ws.Cell(row, 10).Value = e.TotalJours;
+                ws.Cell(row, 11).Value = e.RespTempsTravailPct / 100m; ws.Cell(row, 11).Style.NumberFormat.Format = FmtPct;
+                ws.Cell(row, 12).Value = e.JoursAUT;
+                ws.Cell(row, 13).Value = e.JoursNAUT;
+                ws.Cell(row, 14).Value = e.JoursEVENT;
+                ws.Cell(row, 15).Value = e.JoursMAL;
+                ws.Cell(row, 16).Value = e.JoursAT;
+                ws.Cell(row, 17).Value = e.JoursCPAYE;
+                ws.Cell(row, 18).Value = e.JoursFORM;
+                ws.Cell(row, 19).Value = e.JoursMAT;
+                ws.Cell(row, 20).Value = e.JoursPAT;
                 row++;
             }
             ws.Columns().AdjustToContents();
 
-            return Finalize(wb, $"Suivi_Absences_{filter.Annee}.xlsx");
+            return Finalize(wb, $"Suivi_Absences_{anneesStr.Replace(',', '_')}.xlsx");
         }
 
         // ─────────────────────────────────────────────────────────────────────

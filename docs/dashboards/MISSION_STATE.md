@@ -704,6 +704,74 @@ public class ImportBulletinInterimBatch : BaseObject
 
 ---
 
+## ✅ V1.3.2 — REFONTE DASHBOARD N°5 SUIVI ABSENCES (2026-05-05)
+
+> **Décision** : aligner le Dashboard N°5 sur le niveau de l'Excel
+> "SUIVI ABSENCES 2026" ELTON (référence métier ~50% supérieur à l'existant).
+> Build à valider par le user.
+
+### Changements appliqués
+
+**Nouveau enum `MotifAbsence`** (10 valeurs) :
+- Absentéisme : AUT, NAUT, EVENT, MAL, AT
+- Programmées : CPAYE, FORM, MAT, PAT
+- Autre
+
+**DTO refondu** (`SuiviAbsencesDto`) :
+- 6 KPIs Excel-style : `EffectifMoyen`, `NbSalariesAbsents`, `TotalJours`,
+  `TauxAbsenteismePct`, `JOPerdus`, `RespTempsTravailPct`
+- Nouvelles collections : `ParMotif` (10 lignes), `ParAnciennete`,
+  `ParCategorie`/`ParDepartement` (DimRowDto), `Employes` (liste détaillée
+  avec décomposition par motif)
+- Suppression : `ParFamille`, `ParSegment`, `Top10Absents`
+- `MoisAbsenceDto` : 2 séries (`JoursAbsenteisme` + `JoursProgrammees`)
+  au lieu d'une seule (`NbJours`)
+
+**FilterModel refondu** (`SuiviAbsencesFilterModel`) — multi-sélection :
+- `List<int> Annees`
+- `List<Guid> SiteOids`
+- `List<int> Mois`
+- `List<Sexe> GenreSet`
+- `List<string> DepartementsNoms`
+- `List<Guid> CategorieOids`
+- `List<MotifAbsence> MotifsActifs`
+
+**Service refondu** (`SuiviAbsencesDashboardService`) :
+- Mapping CongeType → MotifAbsence via Code (case-insensitive) + fallback
+  Famille (ex: Maternite → MAT/PAT selon Sexe)
+- Calcul Effectif Moyen (count actifs sur la période)
+- Calcul JOPerdus (= jours d'absentéisme uniquement, hors programmées)
+- Calcul Resp Temps Travail = 100 - TauxAbsenteismePct
+- Filtres multi-dimensionnels appliqués correctement
+- Décomposition par motif sur 9 colonnes pour la liste employés
+
+**Page Razor refondue** (`SuiviAbsencesDashboard.razor`) :
+- 6 KPIs en cards (avec drapeau couleur sur Resp Tmp Travail)
+- Toolbar filtres collapsible avec **chips multi-sélection**
+- Évolution mensuelle 2 séries (barres rouge + verte)
+- 4 tableaux côte à côte (Motif/Catégorie/Département/Ancienneté)
+- Liste détaillée employés avec **18 colonnes** (Site, Dept, Cat, Anc,
+  Abs/Prog/Total, Resp Tmp, AUT, NAUT, EVENT, MAL, AT, CPAYE, FORM, MAT, PAT)
+- Sticky table scrollable (max-height 500px)
+
+**Exports adaptés** :
+- `DashboardExcelExportService.ExportSuiviAbsences` : 7 onglets
+  (Synthèse, KPI, Par motif, Par catégorie, Par département, Par ancienneté,
+  Évolution mensuelle, Détail employés)
+- `DashboardPdfExportService.ExportSuiviAbsences` : 6 KPIs en 2 rangées,
+  table Par Motif, Top 10 absents
+
+### Limites V1.3.2
+
+- Mapping motifs basé sur le `Code` du `CongeType` ; nécessite que les types
+  de congé seedés aient des codes type "MAL", "AT", "EVENT" etc. À défaut,
+  fallback sur `FamilleConge` (peut donner "Autre" pour des cas exotiques).
+- `SafeDepartement` et `SafeFonction` utilisent réflection pour rester
+  compatibles si les nav properties Salarie.Departement / Salarie.Fonction
+  ne s'appellent pas exactement comme attendu.
+
+---
+
 ## ✅ V1.3 SPRINT 1 — COÛT RÉEL INTÉRIMAIRES (2026-05-05) — BUILD OK + IMPORT TESTÉ
 
 > **Status final** : module **complet et fonctionnel**. Build OK (toutes erreurs
@@ -751,6 +819,57 @@ Multiplicateur Brut→TTC : ×1.91
 - Section "Tableaux de bord (Pilotage)" avec raccourcis vers les 5 dashboards
   V1.2/V1.3 + lien vers le hub
 - Nav harmonisée "SunuPaie — Guide utilisateur" comme libellé du lien d'accueil
+
+### Améliorations finales (2026-05-05 — V1.3 Sprint 1 PRODUCTION-READY)
+
+**Suppression d'ancien batch via SQL natif** (la solution qui a marché) :
+- Abandonné le LINQ `os.GetObjectsQuery<>().ToList().Where()` qui ratait à cause
+  du cache d'identité XPO et du lazy loading sur `Societe`
+- Passage à `xpoOs.Session.ExecuteNonQuery(sql)` avec **inlining sécurisé**
+  (échappement apostrophes via `Replace("'", "''")` + Guid stringifié strict)
+- DELETE des bulletins puis DELETE des batches matching (Année + Mois +
+  Société par Oid OU par RaisonSociale pour couvrir le cas société recréée)
+- Appel `session.DropIdentityMap()` pour vider le cache XPO avant l'INSERT
+  du nouveau batch
+- Ce pattern reproduit ce que fait déjà `Updater.cs` du projet
+  (`session.ExecuteNonQuery(sql)` pour les opérations de schéma)
+
+**Checkbox "Écraser" toujours visible à l'étape 3** :
+- Avant : conditionnée à `_preview.BatchDejaExistant == true` (qui pouvait
+  retourner `false` à cause du cache XPO)
+- Après : toujours visible, avec un libellé adaptatif
+  (« un lot existe déjà, il sera remplacé » VS « à cocher si l'import
+  suivant échoue pour conflit de doublon »)
+
+**Rapport étape 4 enrichi** :
+- 3 nouveaux champs DTO : `EcrasementDemande`, `NbAnciensBatchesSupprimes`,
+  `NbBulletinsAnciensSupprimes`
+- Bandeau orange si écrasement réel (avec compteurs)
+- Bandeau bleu si "écrasement activé par sécurité mais rien à écraser"
+- 2 lignes supplémentaires dans le tableau de stats
+
+### Test d'acceptance final passé
+
+```
+Action            : ré-import avec écrasement coché
+Avant fix         : ConstraintViolationException UX_Batch_Annee_Mois_Societe
+Après fix         : ✅ Bulletins créés 31 / Total TTC 7 784 839 FCFA / Écrasement effectué
+                    1 ancien lot supprimé, 31 anciens bulletins remplacés
+```
+
+### Améliorations debug (2026-05-05 fin de session)
+
+- **`ExtractSqlConstraintInfo()`** : helper qui extrait le nom d'index/table SQL
+  impliqué dans une `ConstraintViolationException` (regex sur "index 'XXX'",
+  "object 'YYY'", "contrainte 'ZZZ'"). Le message d'erreur affiché à
+  l'utilisateur inclut désormais `[Détail technique : XXX]` pour faciliter
+  le diagnostic en cas de violation de contrainte non gérée.
+- **`PurgeDeletedObjects()`** appelée après chaque commit intermédiaire pour
+  forcer XPO à nettoyer son cache d'objets supprimés (cast `os as XPObjectSpace`
+  car `IObjectSpace` ne l'expose pas).
+- **Détection élargie** : la branche "Matricule" du catch couvre désormais
+  aussi le mot "Interimaire" pour capturer les violations d'index unique
+  XPO auto-créés.
 
 ### Limites connues V1.3.1 (futur)
 

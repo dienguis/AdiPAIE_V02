@@ -210,44 +210,59 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         public (byte[] Bytes, string FileName) ExportSuiviAbsences(
             SuiviAbsencesDto dto, SuiviAbsencesFilterModel filter)
         {
+            string anneesStr = filter.Annees != null && filter.Annees.Count > 0
+                ? string.Join(",", filter.Annees) : DateTime.Today.Year.ToString();
+
             var pdf = BuildDocument(
                 "Tableau N°5 — Suivi des Absences",
-                $"INTERNE · Année {filter.Annee} · {(filter.InclureEnAttente ? "Avec En attente" : "Accordées seules")}",
+                $"INTERNE · {anneesStr} · {(filter.InclureEnAttente ? "Avec En attente" : "Accordées seules")}",
                 page =>
                 {
+                    // 6 KPIs Excel-style en 2 rangées de 3
                     page.Item().Row(r =>
                     {
-                        r.RelativeItem().Element(c => Kpi(c, "Nb absences",   dto.Kpis.NbAbsences.ToString("N0", Fr)));
-                        r.RelativeItem().Element(c => Kpi(c, "Total jours",   dto.Kpis.TotalJours.ToString("N1", Fr)));
-                        r.RelativeItem().Element(c => Kpi(c, "% Absentéisme", Pct(dto.Kpis.TauxAbsenteisme)));
-                        r.RelativeItem().Element(c => Kpi(c, "Durée Moy.",    dto.Kpis.DureeMoyenneJours.ToString("N1", Fr) + " j"));
+                        r.RelativeItem().Element(c => Kpi(c, "Effectif Moyen",   dto.Kpis.EffectifMoyen.ToString("N0", Fr)));
+                        r.RelativeItem().Element(c => Kpi(c, "Se sont Absentés", dto.Kpis.NbSalariesAbsents.ToString("N0", Fr)));
+                        r.RelativeItem().Element(c => Kpi(c, "Total jours",      dto.Kpis.TotalJours.ToString("N1", Fr)));
                     });
                     page.Item().Row(r =>
                     {
-                        r.RelativeItem().Element(c => Kpi(c, "% Justifiées",  Pct(dto.Kpis.PourcentageJustifie)));
-                        r.RelativeItem().Element(c => Kpi(c, "Top Absent",    dto.Kpis.TopAbsent));
-                        r.RelativeItem().Element(c => Kpi(c, "Mois pic",      dto.Kpis.MoisPicLibelle));
-                        r.RelativeItem().Element(c => Kpi(c, "Coût impayé",   Fcfa(dto.Kpis.CoutEstimeImpaye)));
+                        r.RelativeItem().Element(c => Kpi(c, "Absentéisme",      Pct(dto.Kpis.TauxAbsenteismePct)));
+                        r.RelativeItem().Element(c => Kpi(c, "JO Perdus",        dto.Kpis.JOPerdus.ToString("N1", Fr) + " j"));
+                        r.RelativeItem().Element(c => Kpi(c, "Resp Tmp Travail", Pct(dto.Kpis.RespTempsTravailPct)));
                     });
 
-                    BarTable(page, "Par famille de congé",          dto.ParFamille);
-                    BarTable(page, "Par catégorie pro (Top 10)",    dto.ParCategorie);
-                    BarTable(page, "Par département",               dto.ParSegment);
+                    // Tableau Par Motif (10 motifs)
+                    if (dto.ParMotif.Count > 0)
+                    {
+                        page.Item().Element(c => SectionTitle(c, "Décomposition par motif"));
+                        page.Item().Table(t =>
+                        {
+                            t.ColumnsDefinition(cd => { cd.ConstantColumn(60); cd.RelativeColumn(2); cd.RelativeColumn(); cd.RelativeColumn(); cd.RelativeColumn(); });
+                            Th(t, "Code", "Libellé", "Catégorie", "Jours", "% Total");
+                            foreach (var m in dto.ParMotif)
+                                Td(t, m.Code, m.Libelle, m.IsAbsenteisme ? "Absentéisme" : "Programmée",
+                                    m.NbJours.ToString("N1", Fr), Pct(m.PourcentageDuTotal));
+                        });
+                    }
 
-                    if (dto.Top10Absents.Count > 0)
+                    // Top 10 absents (par TotalJours décroissant, depuis Employes)
+                    var top10 = dto.Employes.Where(e => e.TotalJours > 0).Take(10).ToList();
+                    if (top10.Count > 0)
                     {
                         page.Item().Element(c => SectionTitle(c, "Top 10 salariés les plus absents"));
                         page.Item().Table(t =>
                         {
-                            t.ColumnsDefinition(cd => { cd.ConstantColumn(20); cd.RelativeColumn(2); cd.RelativeColumn(); cd.RelativeColumn(); cd.RelativeColumn(2); cd.RelativeColumn(); cd.RelativeColumn(); });
-                            Th(t, "#", "Salarié", "Catégorie", "Segment", "Famille principale", "Nb abs.", "Tot. jours");
+                            t.ColumnsDefinition(cd => { cd.ConstantColumn(20); cd.RelativeColumn(2); cd.RelativeColumn(); cd.RelativeColumn(); cd.RelativeColumn(); cd.RelativeColumn(); cd.RelativeColumn(); });
+                            Th(t, "#", "Salarié", "Site", "Département", "Catégorie", "J. Abs", "J. Prog");
                             int rank = 1;
-                            foreach (var r in dto.Top10Absents)
-                                Td(t, (rank++).ToString(), r.NomSalarie, r.Categorie, r.Segment, r.FamillePrincipale, r.NbAbsences.ToString("N0", Fr), r.TotalJours.ToString("N1", Fr));
+                            foreach (var r in top10)
+                                Td(t, (rank++).ToString(), r.NomComplet, r.Site, r.Departement, r.Categorie,
+                                    r.JoursAbsenteisme.ToString("N1", Fr), r.JoursProgrammees.ToString("N1", Fr));
                         });
                     }
                 });
-            return (pdf, $"Suivi_Absences_{filter.Annee}.pdf");
+            return (pdf, $"Suivi_Absences_{anneesStr.Replace(',', '_')}.pdf");
         }
 
         // ─────────────────────────────────────────────────────────────────────

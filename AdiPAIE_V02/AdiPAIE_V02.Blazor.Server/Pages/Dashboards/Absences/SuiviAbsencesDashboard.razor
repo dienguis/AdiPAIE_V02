@@ -1,22 +1,16 @@
 @* =====================================================================
-    SuiviAbsencesDashboard.razor — Tableau N°5
+    SuiviAbsencesDashboard.razor — Tableau N°5 V1.3.2 (mai 2026)
     URL : /dashboards/suivi-absences
-    Périmètre : Personnel INTERNE uniquement (Salarie + CongeDemande)
+    Périmètre : Personnel INTERNE (Salarie + CongeDemande)
 
-    UI complète (Étape 4.5) :
-      - Filtres : Année, Site, Genre, Segment, Catégorie, Famille
-      - Toggle « Accordées seulement » / « Inclure En attente + Soumise »
-      - 8 KPI cartes : NbAbsences, TotalJours, TauxAbsenteisme,
-                       DureeMoyenne, %Justifiées, TopAbsent, MoisPic,
-                       CoutImpaye
-      - Bar horizontal Famille (Annuel / Maladie / Maternité / ...)
-      - Bar horizontal Catégorie (Top 10)
-      - Bar horizontal Segment
-      - Bar vertical mensuel 12 mois (jours d'absence)
-      - Tableau Top 10 absents (Salarié, Catégorie, Segment, NbAbs, Jours, Famille principale)
-
-    Source : CongeDemande filtré CongeStatut.Accordee par défaut.
-    Charte ELTON Oil héritée via wwwroot/css/dashboards-elton.css.
+    REFONTE Excel-style (alignée sur SUIVI ABSENCES 2026 ELTON) :
+      - 6 KPIs : Effectif Moyen, se sont Absentés, Total jours,
+                 Absentéisme %, JO Perdus, Resp. Tmp Travail %
+      - Filtres multi : Année, Site, Mois, Catégorie, Département, Genre, Motif
+      - Décomposition fine : 10 motifs (5 Absentéisme + 4 Programmées + Autre)
+      - Tableaux : Par Motif / Par Ancienneté / Par Catégorie / Par Département
+      - Évolution mensuelle 2 séries (Absentéisme + Programmées)
+      - Liste détaillée employés avec décomposition par motif (10 colonnes)
    ===================================================================== *@
 
 @page "/dashboards/suivi-absences"
@@ -31,439 +25,713 @@
 @using static AdiPAIE_V02.Module.Domain.DomainEnums
 
 @inject ISuiviAbsencesDashboardService Service
-@inject IDashboardExcelExportService ExcelExport
-@inject IDashboardPdfExportService PdfExport
-@inject IJSRuntime JS
 @inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
 @inject NavigationManager Nav
 @inject IHttpContextAccessor HttpCtx
 
 <PageTitle>Suivi des Absences — Tableaux de Bord RH</PageTitle>
 
-@if (_data == null && _errorMessage == null)
+@if (_loading)
 {
-    <div class="ed-loading">
-        <DxLoadingPanel Text="Chargement…" Visible="true" />
-    </div>
+    <div class="sa-loading"><DxLoadingPanel Text="Calcul des absences…" Visible="true" /></div>
 }
-else
+else if (_errorMessage != null)
 {
-    <header class="ed-header">
-
-        @* ── Ligne 1 : titre + toggle statut + KPI total jours ──────── *@
-        <div class="ed-header__row">
-
-            <div class="ed-header__title">
-                <button class="ed-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
-                    <i class="bi bi-arrow-left-circle"></i>
-                </button>
-                <div>
-                    <div class="ed-header__perimetre">
-                        Tableau N°5 · Personnel Interne (CDI / CDD / Stage)
-                    </div>
-                    <h1 class="ed-header__h1">Suivi des Absences <span class="ed-h1-sub">— Congés &amp; arrêts</span></h1>
+    <div class="sa-error">@_errorMessage</div>
+}
+else if (_data != null)
+{
+    <header class="sa-header">
+        <div class="sa-header__title">
+            <button class="sa-back" @onclick="@(() => Nav.NavigateTo("/dashboards"))" title="Retour">
+                <i class="bi bi-arrow-left-circle"></i>
+            </button>
+            <div>
+                <div class="sa-header__perimetre">
+                    Tableau N°5 · @(_filter.Personnel == PersonnelType.Externe ? "Personnel Externe (Intérimaires)" : "Personnel Interne") · V1.3.2
                 </div>
-            </div>
-
-            <div class="ed-kpigroup">
-                <div class="ed-kpigroup__head"><i class="bi bi-clipboard-check"></i><span>Statut</span></div>
-                <div class="ed-toggle">
-                    <button class="ed-toggle__btn @(!_filter.InclureEnAttente ? "ed-toggle__btn--active" : "")"
-                            @onclick="@(() => OnInclureEnAttenteChanged(false))">Accordées</button>
-                    <button class="ed-toggle__btn @(_filter.InclureEnAttente ? "ed-toggle__btn--active" : "")"
-                            @onclick="@(() => OnInclureEnAttenteChanged(true))">+ En attente</button>
-                </div>
-            </div>
-
-            <div class="ed-kpi-effectif" title="Total jours d'absence (selon statut + filtres actifs)">
-                <div class="ed-kpi-effectif__label">Total jours @_filter.Annee</div>
-                <div class="ed-kpi-effectif__value">@FormatNum(_data?.Kpis.TotalJours ?? 0)</div>
-                <div class="ed-kpi-effectif__date">@(_data?.Kpis.NbAbsences ?? 0) absences · @(_data?.Kpis.NbSalariesAbsents ?? 0) salariés</div>
+                <h1 class="sa-header__h1">Suivi des Absences</h1>
             </div>
         </div>
 
-        @* ── Ligne 2 : filtres + actions ───────────────────────────── *@
-        <div class="ed-header__row ed-header__row--filters">
-            <div class="ed-filter">
-                <label>Année</label>
-                <DxComboBox TData="int" TValue="int"
-                            Data="@_anneesDispo"
-                            Value="@_filter.Annee"
-                            ValueChanged="@((int v) => OnAnneeChanged(v))"
-                            CssClass="ed-input" />
-            </div>
-            <div class="ed-filter">
-                <label>Site</label>
-                <DxComboBox TData="Site" TValue="Site"
-                            Data="@_sitesDispo"
-                            TextFieldName="@nameof(Site.Nom)"
-                            Value="@_selectedSite"
-                            ValueChanged="@((Site? s) => OnSiteChanged(s))"
-                            NullText="Tous"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            CssClass="ed-input" />
-            </div>
-            <div class="ed-filter">
-                <label>Genre</label>
-                <DxComboBox TData="Sexe?" TValue="Sexe?"
-                            Data="@_genresDispo"
-                            Value="@_filter.Genre"
-                            ValueChanged="@((Sexe? s) => OnGenreChanged(s))"
-                            NullText="Tous"
-                            CssClass="ed-input">
-                    <ItemTemplate>
-                        @(context is null ? "Tous" : ((Sexe)context) == Sexe.Masculin ? "Masculin" : "Féminin")
-                    </ItemTemplate>
-                </DxComboBox>
-            </div>
-            <div class="ed-filter">
-                <label>Segment</label>
-                <DxComboBox TData="Departement" TValue="Departement"
-                            Data="@_departementsDispo"
-                            TextFieldName="@nameof(Departement.Nom)"
-                            Value="@_selectedDepartement"
-                            ValueChanged="@((Departement? d) => OnSegmentChanged(d))"
-                            NullText="Tous"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            CssClass="ed-input" />
-            </div>
-            <div class="ed-filter">
-                <label>Catégorie</label>
-                <DxComboBox TData="Categories" TValue="Categories"
-                            Data="@_categoriesDispo"
-                            TextFieldName="@nameof(Categories.Intitule)"
-                            Value="@_selectedCategorie"
-                            ValueChanged="@((Categories? c) => OnCategorieChanged(c))"
-                            NullText="Toutes"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            CssClass="ed-input" />
-            </div>
-            <div class="ed-filter">
-                <label>Famille</label>
-                <DxComboBox TData="FamilleConge?" TValue="FamilleConge?"
-                            Data="@_famillesDispo"
-                            Value="@_filter.Famille"
-                            ValueChanged="@((FamilleConge? f) => OnFamilleChanged(f))"
-                            NullText="Toutes"
-                            CssClass="ed-input">
-                    <ItemTemplate>
-                        @(context is null ? "Toutes" : LabelFamille((FamilleConge)context))
-                    </ItemTemplate>
-                </DxComboBox>
-            </div>
-            <div class="ed-actions">
-                <button class="ed-btn ed-btn--icon" title="Actualiser" @onclick="OnRefreshClick" disabled="@_loading">
-                    <i class="bi bi-arrow-clockwise"></i>
-                </button>
-                <button class="ed-btn ed-btn--icon" title="Export PDF (Étape 7)" @onclick="OnExportPdfClick" disabled="@_loading">
-                    <i class="bi bi-file-earmark-pdf"></i>
-                </button>
-                <button class="ed-btn ed-btn--icon" title="Export Excel (Étape 7)" @onclick="OnExportExcelClick" disabled="@_loading">
-                    <i class="bi bi-file-earmark-excel"></i>
-                </button>
-                <a class="ed-btn ed-btn--icon" title="Aide ce tableau" href="/help/dashboards/suivi-absences.html" target="_blank" rel="noopener">
-                    <i class="bi bi-question-circle"></i>
-                </a>
-            </div>
+        @* Toggle Interne / Externe *@
+        <div class="sa-toggle">
+            <button type="button"
+                    class="sa-toggle__btn @(_filter.Personnel == PersonnelType.Interne ? "sa-toggle__btn--on" : "")"
+                    @onclick="@(() => SwitchPersonnel(PersonnelType.Interne))">
+                <i class="bi bi-people-fill"></i> Interne
+            </button>
+            <button type="button"
+                    class="sa-toggle__btn @(_filter.Personnel == PersonnelType.Externe ? "sa-toggle__btn--on" : "")"
+                    @onclick="@(() => SwitchPersonnel(PersonnelType.Externe))">
+                <i class="bi bi-person-badge"></i> Externe (Intérimaires)
+            </button>
         </div>
+
+        <a class="sa-help" title="Aide" href="/help/dashboards/suivi-absences.html" target="_blank" rel="noopener">
+            <i class="bi bi-question-circle"></i>
+        </a>
     </header>
 
-    @if (!string.IsNullOrEmpty(_errorMessage))
+    @if (_filter.Personnel == PersonnelType.Externe)
     {
-        <div class="ed-error"><i class="bi bi-exclamation-triangle-fill"></i><strong>Erreur :</strong> @_errorMessage</div>
+        <div class="sa-banner-externe">
+            <i class="bi bi-info-circle"></i>
+            <strong>Mode Externe (Intérimaires)</strong> — données calculées à partir du
+            <em>30ème de présence</em> des bulletins intérim importés. Pas de décomposition fine
+            par motif (le fichier facture ne contient pas le détail). Les filtres Catégorie /
+            Département / Genre / Ancienneté ne s'appliquent pas à ce périmètre.
+        </div>
     }
 
-    @if (_data != null)
-    {
-        <main class="ed-main">
+    @* ── Bandeau filtres (toolbar collapsible) ─────────────────────── *@
+    <section class="sa-filters">
+        <details open>
+            <summary><strong>Filtres</strong> @if (_filtersSummary.Count > 0) { <span class="sa-tag">@string.Join(" · ", _filtersSummary)</span> }</summary>
+            <div class="sa-filters__grid">
 
-            @* ── 8 KPI cartes ──────────────────────────────────────────── *@
-            <section class="ed-section">
-                <h3 class="ed-section__title">Indicateurs clés — @_filter.Annee</h3>
-                <div class="ed-kpiinline">
-                    <div class="ed-kpiinline__card">
-                        <div class="ed-kpiinline__label">Nb absences</div>
-                        <div class="ed-kpiinline__value">@_data.Kpis.NbAbsences.ToString("N0", FrCulture)</div>
-                        <div class="ed-kpiinline__sub">demandes accordées</div>
-                    </div>
-                    <div class="ed-kpiinline__card">
-                        <div class="ed-kpiinline__label">Total jours</div>
-                        <div class="ed-kpiinline__value">@FormatNum(_data.Kpis.TotalJours)</div>
-                        <div class="ed-kpiinline__sub">jours ouvrables</div>
-                    </div>
-                    <div class="ed-kpiinline__card ed-kpiinline__card--down">
-                        <div class="ed-kpiinline__label">% Absentéisme</div>
-                        <div class="ed-kpiinline__value">@FormatPct(_data.Kpis.TauxAbsenteisme)</div>
-                        <div class="ed-kpiinline__sub">/ @_data.Kpis.NbSalariesEffectif salariés × 264 j</div>
-                    </div>
-                    <div class="ed-kpiinline__card">
-                        <div class="ed-kpiinline__label">Durée Moy.</div>
-                        <div class="ed-kpiinline__value">@FormatNum(_data.Kpis.DureeMoyenneJours) j</div>
-                        <div class="ed-kpiinline__sub">par absence</div>
-                    </div>
-                    <div class="ed-kpiinline__card">
-                        <div class="ed-kpiinline__label">% Justifiées</div>
-                        <div class="ed-kpiinline__value">@FormatPct(_data.Kpis.PourcentageJustifie)</div>
-                        <div class="ed-kpiinline__sub">justificatif fourni</div>
-                    </div>
-                    <div class="ed-kpiinline__card">
-                        <div class="ed-kpiinline__label">Top Absent</div>
-                        <div class="ed-kpiinline__value sb-topname">@TruncSafe(_data.Kpis.TopAbsent, 22)</div>
-                        <div class="ed-kpiinline__sub">@FormatNum(_data.Kpis.TopAbsentJours) jours</div>
-                    </div>
-                    <div class="ed-kpiinline__card">
-                        <div class="ed-kpiinline__label">Mois pic</div>
-                        <div class="ed-kpiinline__value">@CapitalizeFirst(_data.Kpis.MoisPicLibelle)</div>
-                        <div class="ed-kpiinline__sub">mois le + chargé</div>
-                    </div>
-                    <div class="ed-kpiinline__card ed-kpiinline__card--down">
-                        <div class="ed-kpiinline__label">Coût impayé</div>
-                        <div class="ed-kpiinline__value">@FormatFcfa(_data.Kpis.CoutEstimeImpaye)</div>
-                        <div class="ed-kpiinline__sub">familles « sans solde »</div>
+                @* Années (multi) *@
+                <div class="sa-filter">
+                    <label>Année(s)</label>
+                    <div class="sa-chips">
+                        @foreach (var y in _anneesDispo)
+                        {
+                            var on = _filter.Annees.Contains(y);
+                            <button type="button" class="sa-chip @(on ? "sa-chip--on" : "")"
+                                    @onclick="@(() => ToggleAnnee(y))">@y</button>
+                        }
                     </div>
                 </div>
-            </section>
 
-            @* ── Évolution mensuelle 12 mois ──────────────────────────── *@
-            <section class="ed-section">
-                <h3 class="ed-section__title">Évolution mensuelle — jours d'absence</h3>
-                @if (_data.ParMois.All(m => m.NbJours == 0))
-                {
-                    <div class="ed-empty">Aucune absence sur l'année.</div>
-                }
-                else
-                {
-                    var maxM = _data.ParMois.Max(m => m.NbJours);
-                    <div class="ed-vbar-chart" style="grid-template-columns: repeat(12, 1fr); height: 220px;">
-                        @foreach (var m in _data.ParMois)
+                @* Mois (multi) *@
+                <div class="sa-filter">
+                    <label>Mois</label>
+                    <div class="sa-chips">
+                        @for (int m = 1; m <= 12; m++)
                         {
-                            var h = maxM > 0 ? m.NbJours * 100m / maxM : 0m;
-                            <div class="ed-vbar">
-                                <div class="ed-vbar__value">@FormatNum(m.NbJours)</div>
-                                <div class="ed-vbar__col sb-vbar__col" style="@($"height:{h.ToString("0.00", InvCulture)}%")"></div>
-                                <div class="ed-vbar__label">@m.Libelle</div>
+                            var mm = m;
+                            var on = _filter.Mois.Contains(mm);
+                            <button type="button" class="sa-chip sa-chip--mini @(on ? "sa-chip--on" : "")"
+                                    @onclick="@(() => ToggleMois(mm))">@mm.ToString("D2")</button>
+                        }
+                        <button type="button" class="sa-chip sa-chip--reset"
+                                @onclick="@(() => { _filter.Mois.Clear(); _ = LoadDataAsync(); })">Tous</button>
+                    </div>
+                </div>
+
+                @* Site (multi) — EXTERNE uniquement (intérimaires affectés aux stations) *@
+                @if (_filter.Personnel == PersonnelType.Externe)
+                {
+                    <div class="sa-filter sa-filter--wide">
+                        <label>
+                            Site(s)
+                            @if (_filter.SiteOids.Count > 0)
+                            {
+                                <span class="sa-tag">@_filter.SiteOids.Count sélectionné(s)</span>
+                            }
+                        </label>
+                        @if (_sitesDispo.Count <= 8)
+                        {
+                            <div class="sa-chips">
+                                @foreach (var s in _sitesDispo)
+                                {
+                                    var sOid = s.Oid;
+                                    var on = _filter.SiteOids.Contains(sOid);
+                                    <button type="button" class="sa-chip @(on ? "sa-chip--on" : "")"
+                                            @onclick="@(() => ToggleSite(sOid))">@s.Nom</button>
+                                }
                             </div>
+                        }
+                        else
+                        {
+                            <details class="sa-sitesdrop">
+                                <summary class="sa-sitesdrop__btn">
+                                    <i class="bi bi-geo-alt"></i>
+                                    @(_filter.SiteOids.Count == 0
+                                        ? "Choisir parmi " + _sitesDispo.Count + " sites…"
+                                        : _filter.SiteOids.Count + " site(s) sélectionné(s)")
+                                    <i class="bi bi-chevron-down sa-sitesdrop__caret"></i>
+                                </summary>
+                                <div class="sa-sitesdrop__panel">
+                                    <input type="search" placeholder="🔍 Rechercher un site…"
+                                           class="sa-sitesdrop__search"
+                                           @bind="_siteSearch" @bind:event="oninput" />
+                                    <div class="sa-sitesdrop__actions">
+                                        <button type="button" class="sa-btn-mini" @onclick="ClearSites">Tout désélectionner</button>
+                                        <span class="sa-sitesdrop__count">@FilteredSites.Count / @_sitesDispo.Count</span>
+                                    </div>
+                                    <div class="sa-sitesdrop__list">
+                                        @foreach (var s in FilteredSites)
+                                        {
+                                            var sOid = s.Oid;
+                                            var on = _filter.SiteOids.Contains(sOid);
+                                            <label class="sa-sitesdrop__item @(on ? "sa-sitesdrop__item--on" : "")">
+                                                <input type="checkbox" checked="@on"
+                                                       @onclick="@(() => ToggleSite(sOid))" />
+                                                <span>@s.Nom</span>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+                            </details>
                         }
                     </div>
                 }
-            </section>
 
-            @* ── Grille bar charts (3 colonnes responsive) ───────────── *@
-            <div class="sb-grid">
+                @* Genre / Catégorie / Département — INTERNE uniquement *@
+                @if (_filter.Personnel == PersonnelType.Interne)
+                {
+                    <div class="sa-filter">
+                        <label>Genre</label>
+                        <div class="sa-chips">
+                            <button type="button" class="sa-chip @(_filter.GenreSet.Contains(Sexe.Masculin) ? "sa-chip--on" : "")"
+                                    @onclick="@(() => ToggleGenre(Sexe.Masculin))">♂ Hommes</button>
+                            <button type="button" class="sa-chip @(_filter.GenreSet.Contains(Sexe.Feminin) ? "sa-chip--on" : "")"
+                                    @onclick="@(() => ToggleGenre(Sexe.Feminin))">♀ Femmes</button>
+                        </div>
+                    </div>
 
-                <section class="ed-section">
-                    <h3 class="ed-section__title">Par famille de congé</h3>
-                    @if (_data.ParFamille.Count == 0)
-                    {
-                        <div class="ed-empty">Pas de données.</div>
-                    }
-                    else
-                    {
-                        var maxF = _data.ParFamille.Max(b => b.Valeur);
-                        <div class="ed-hbar-chart">
-                            @foreach (var b in _data.ParFamille)
+                    <div class="sa-filter">
+                        <label>Catégorie(s)</label>
+                        <div class="sa-chips">
+                            @foreach (var c in _categoriesDispo)
                             {
-                                var w = maxF > 0 ? (decimal)b.Valeur * 100m / maxF : 0m;
-                                <div class="ed-hbar">
-                                    <div class="ed-hbar__label" title="@b.Libelle">@b.Libelle</div>
-                                    <div class="ed-hbar__track">
-                                        <div class="ed-hbar__fill sb-hbar__fill" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
-                                    </div>
-                                    <div class="ed-hbar__value">@b.Valeur.ToString("N0", FrCulture) j (@b.Pourcentage.ToString("0.0", FrCulture)%)</div>
-                                </div>
+                                var cOid = c.Oid;
+                                var on = _filter.CategorieOids.Contains(cOid);
+                                <button type="button" class="sa-chip @(on ? "sa-chip--on" : "")"
+                                        @onclick="@(() => ToggleCategorie(cOid))">@(c.Intitule ?? "?")</button>
                             }
                         </div>
-                    }
-                </section>
+                    </div>
 
-                <section class="ed-section">
-                    <h3 class="ed-section__title">Par catégorie professionnelle (Top 10)</h3>
-                    @if (_data.ParCategorie.Count == 0)
-                    {
-                        <div class="ed-empty">Pas de données.</div>
-                    }
-                    else
-                    {
-                        var maxC = _data.ParCategorie.Max(b => b.Valeur);
-                        <div class="ed-hbar-chart">
-                            @foreach (var b in _data.ParCategorie)
+                    <div class="sa-filter">
+                        <label>Département(s)</label>
+                        <div class="sa-chips">
+                            @foreach (var d in _departementsDispo)
                             {
-                                var w = maxC > 0 ? (decimal)b.Valeur * 100m / maxC : 0m;
-                                <div class="ed-hbar">
-                                    <div class="ed-hbar__label" title="@b.Libelle">@b.Libelle</div>
-                                    <div class="ed-hbar__track">
-                                        <div class="ed-hbar__fill sb-hbar__fill" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
-                                    </div>
-                                    <div class="ed-hbar__value">@b.Valeur.ToString("N0", FrCulture) j (@b.Pourcentage.ToString("0.0", FrCulture)%)</div>
-                                </div>
+                                var on = _filter.DepartementsNoms.Contains(d);
+                                <button type="button" class="sa-chip @(on ? "sa-chip--on" : "")"
+                                        @onclick="@(() => ToggleDept(d))">@d</button>
                             }
                         </div>
-                    }
-                </section>
+                    </div>
+                }
 
-                <section class="ed-section">
-                    <h3 class="ed-section__title">Par département</h3>
-                    @if (_data.ParSegment.Count == 0)
-                    {
-                        <div class="ed-empty">Pas de données.</div>
-                    }
-                    else
-                    {
-                        var maxS = _data.ParSegment.Max(b => b.Valeur);
-                        <div class="ed-hbar-chart">
-                            @foreach (var b in _data.ParSegment)
-                            {
-                                var w = maxS > 0 ? (decimal)b.Valeur * 100m / maxS : 0m;
-                                <div class="ed-hbar">
-                                    <div class="ed-hbar__label" title="@b.Libelle">@b.Libelle</div>
-                                    <div class="ed-hbar__track">
-                                        <div class="ed-hbar__fill sb-hbar__fill" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
-                                    </div>
-                                    <div class="ed-hbar__value">@b.Valeur.ToString("N0", FrCulture) j (@b.Pourcentage.ToString("0.0", FrCulture)%)</div>
-                                </div>
-                            }
-                        </div>
-                    }
-                </section>
+                @* Motif *@
+                <div class="sa-filter">
+                    <label>Motif(s)</label>
+                    <div class="sa-chips">
+                        @foreach (var m in _motifsDispo)
+                        {
+                            var on = _filter.MotifsActifs.Contains(m);
+                            var css = IsAbsenteismeMotif(m) ? "sa-chip--abs" : "sa-chip--prog";
+                            <button type="button" class="sa-chip @css @(on ? "sa-chip--on" : "")"
+                                    @onclick="@(() => ToggleMotif(m))">@m</button>
+                        }
+                    </div>
+                </div>
+
+                <div class="sa-filter sa-filter__reset">
+                    <button class="sa-btn sa-btn--reset" @onclick="ResetFilters">
+                        <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+                    </button>
+                </div>
+
             </div>
+        </details>
+    </section>
 
-            @* ── Top 10 absents ─────────────────────────────────────── *@
-            <section class="ed-section">
-                <h3 class="ed-section__title">Top 10 salariés les plus absents</h3>
-                @if (_data.Top10Absents.Count == 0)
-                {
-                    <div class="ed-empty">Pas de données.</div>
-                }
-                else
-                {
-                    <table class="sb-table">
-                        <thead>
+    @* ── 6 KPIs Excel-style ─────────────────────────────────────── *@
+    <section class="sa-kpis">
+        <div class="sa-kpi sa-kpi--effectif">
+            <div class="sa-kpi__head">Effectif Moyen</div>
+            <div class="sa-kpi__value">@_data.Kpis.EffectifMoyen.ToString("0", FrCulture)</div>
+        </div>
+        <div class="sa-kpi sa-kpi--absent">
+            <div class="sa-kpi__head">se sont Absentés</div>
+            <div class="sa-kpi__value">@_data.Kpis.NbSalariesAbsents</div>
+        </div>
+        <div class="sa-kpi sa-kpi--jours">
+            <div class="sa-kpi__head">Absences (jours)</div>
+            <div class="sa-kpi__value">@_data.Kpis.TotalJours.ToString("0.0", FrCulture)</div>
+        </div>
+        <div class="sa-kpi sa-kpi--taux">
+            <div class="sa-kpi__head">Absentéisme</div>
+            <div class="sa-kpi__value">@_data.Kpis.TauxAbsenteismePct.ToString("0.0", FrCulture)%</div>
+        </div>
+        <div class="sa-kpi sa-kpi--jp">
+            <div class="sa-kpi__head">JO Perdus</div>
+            <div class="sa-kpi__value">@_data.Kpis.JOPerdus.ToString("0.0", FrCulture) j</div>
+        </div>
+        <div class="sa-kpi sa-kpi--rt">
+            <div class="sa-kpi__head">Resp. Tmp Travail</div>
+            <div class="sa-kpi__value">@_data.Kpis.RespTempsTravailPct.ToString("0.0", FrCulture)%</div>
+            <div class="sa-kpi__flag">@(_data.Kpis.RespTempsTravailPct >= 95 ? "🟢" : (_data.Kpis.RespTempsTravailPct >= 90 ? "🟠" : "🔴"))</div>
+        </div>
+    </section>
+
+    @* ── Évolution mensuelle (graphique barres) ─────────────────── *@
+    <section class="sa-section">
+        <h3 class="sa-section__title">Évolution mensuelle (Absentéisme + Programmées)</h3>
+        @{
+            var maxMois = _data.ParMois.Count > 0
+                ? Math.Max(1m, _data.ParMois.Max(m => Math.Max(m.JoursAbsenteisme, m.JoursProgrammees)))
+                : 1m;
+        }
+        <div class="sa-monthbars">
+            @foreach (var m in _data.ParMois)
+            {
+                var hAbs = (decimal)m.JoursAbsenteisme * 120m / maxMois;
+                var hProg = (decimal)m.JoursProgrammees * 120m / maxMois;
+                <div class="sa-monthcol">
+                    <div class="sa-monthcol__bars">
+                        <div class="sa-monthcol__abs" style="@($"height:{hAbs.ToString("0.00", InvCulture)}px")" title="@($"Absentéisme : {m.JoursAbsenteisme:0.0} j")"></div>
+                        <div class="sa-monthcol__prog" style="@($"height:{hProg.ToString("0.00", InvCulture)}px")" title="@($"Programmées : {m.JoursProgrammees:0.0} j")"></div>
+                    </div>
+                    <div class="sa-monthcol__lbl">@m.Libelle</div>
+                </div>
+            }
+        </div>
+        <div class="sa-legend">
+            <span><span class="dot dot-abs"></span>Absentéisme</span>
+            <span><span class="dot dot-prog"></span>Programmées</span>
+        </div>
+    </section>
+
+    @* ── Tableaux côte à côte : Motif (toujours) + 3 dimensions INTERNE seulement ── *@
+    <div class="sa-grid4">
+
+        <section class="sa-section">
+            <h3 class="sa-section__title">Par Motif</h3>
+            <table class="sa-table">
+                <thead><tr><th>Motif</th><th class="num">Jours</th><th class="num">% Total</th></tr></thead>
+                <tbody>
+                    @foreach (var r in _data.ParMotif)
+                    {
+                        <tr>
+                            <td>
+                                <span class="sa-tag-motif @(r.IsAbsenteisme ? "sa-tag-motif--abs" : "sa-tag-motif--prog")">@r.Code</span>
+                                @r.Libelle
+                            </td>
+                            <td class="num">@r.NbJours.ToString("0.0", FrCulture)</td>
+                            <td class="num">
+                                @r.PourcentageDuTotal.ToString("0.0", FrCulture)%
+                                <span class="sa-microbar"><span style="@($"width:{r.PourcentageDuTotal.ToString("0.00", InvCulture)}%")"></span></span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </section>
+
+        @if (_filter.Personnel == PersonnelType.Interne)
+        {
+            <section class="sa-section">
+                <h3 class="sa-section__title">Par Catégorie</h3>
+                <table class="sa-table">
+                    <thead><tr><th>Catégorie</th><th class="num">JO Perdus</th><th class="num">Absentéisme</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in _data.ParCategorie.Take(10))
+                        {
                             <tr>
-                                <th class="sb-th-rank">#</th>
-                                <th class="sb-th-left">Salarié</th>
-                                <th class="sb-th-left">Catégorie</th>
-                                <th class="sb-th-left">Segment</th>
-                                <th class="sb-th-left">Famille principale</th>
-                                <th class="sb-th-num">Nb absences</th>
-                                <th class="sb-th-num">Total jours</th>
+                                <td>@r.Libelle</td>
+                                <td class="num">@r.JOPerdus.ToString("0.0", FrCulture)</td>
+                                <td class="num">@r.TauxAbsenteismePct.ToString("0.0", FrCulture)%</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @{ int rank = 1; }
-                            @foreach (var r in _data.Top10Absents)
-                            {
-                                <tr>
-                                    <td class="sb-td-rank">@rank</td>
-                                    <td class="sb-td-left">@r.NomSalarie</td>
-                                    <td class="sb-td-left">@r.Categorie</td>
-                                    <td class="sb-td-left">@r.Segment</td>
-                                    <td class="sb-td-left">@r.FamillePrincipale</td>
-                                    <td class="sb-td-num">@r.NbAbsences.ToString("N0", FrCulture)</td>
-                                    <td class="sb-td-num"><strong>@FormatNum(r.TotalJours)</strong></td>
-                                </tr>
-                                rank++;
-                            }
-                        </tbody>
-                    </table>
-                }
+                        }
+                    </tbody>
+                </table>
             </section>
 
-            <footer class="ed-footer">
-                <span><i class="bi bi-clock-history"></i> Calculé le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
-                <span class="sep">·</span>
-                <span>Source CongeDemande (statut @(_filter.InclureEnAttente ? "EnAttente + Soumise + Accordée" : "Accordée uniquement"))</span>
-                <span class="sep">·</span>
-                <span>Base 264 j ouvrables / an</span>
-            </footer>
-        </main>
-    }
+            <section class="sa-section">
+                <h3 class="sa-section__title">Par Département</h3>
+                <table class="sa-table">
+                    <thead><tr><th>Département</th><th class="num">JO Perdus</th><th class="num">Absentéisme</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in _data.ParDepartement.Take(10))
+                        {
+                            <tr>
+                                <td>@r.Libelle</td>
+                                <td class="num">@r.JOPerdus.ToString("0.0", FrCulture)</td>
+                                <td class="num">@r.TauxAbsenteismePct.ToString("0.0", FrCulture)%</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="sa-section">
+                <h3 class="sa-section__title">Par Ancienneté</h3>
+                <table class="sa-table">
+                    <thead><tr><th>Tranche</th><th class="num">JO Perdus</th><th class="num">Absentéisme</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in _data.ParAnciennete)
+                        {
+                            <tr>
+                                <td>@r.Tranche ans · @r.NbSalariesActifs sal.</td>
+                                <td class="num">@r.JOPerdus.ToString("0.0", FrCulture)</td>
+                                <td class="num">@r.TauxAbsenteismePct.ToString("0.0", FrCulture)%</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </section>
+        }
+
+    </div>
+
+    @* ── Liste détaillée employés ─────────────────────────────── *@
+    <section class="sa-section">
+        <h3 class="sa-section__title">Détail par employé (décomposition par motif)</h3>
+        <div class="sa-tablewrap">
+            <table class="sa-table sa-table--detail">
+                <thead>
+                    <tr>
+                        <th rowspan="2">Employé</th>
+                        <th rowspan="2">Site</th>
+                        <th rowspan="2">Dépt</th>
+                        <th rowspan="2">Cat.</th>
+                        <th rowspan="2" class="num">Anc.</th>
+                        <th colspan="3" class="grp grp-abs">Absences</th>
+                        <th rowspan="2" class="num">Resp Tmp</th>
+                        <th colspan="5" class="grp grp-abs">Absentéisme (jours)</th>
+                        <th colspan="4" class="grp grp-prog">Programmées (jours)</th>
+                    </tr>
+                    <tr>
+                        <th class="num">Abs.</th>
+                        <th class="num">Prog.</th>
+                        <th class="num">Total</th>
+                        <th class="num">AUT</th><th class="num">NAUT</th><th class="num">EVENT</th>
+                        <th class="num">MAL</th><th class="num">AT</th>
+                        <th class="num">CPAYE</th><th class="num">FORM</th>
+                        <th class="num">MAT</th><th class="num">PAT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in _data.Employes.Where(x => x.TotalJours > 0).Take(100))
+                    {
+                        <tr>
+                            <td><strong>@e.NomComplet</strong> <small class="sa-mat">@e.Matricule</small></td>
+                            <td>@e.Site</td>
+                            <td>@e.Departement</td>
+                            <td>@e.Categorie</td>
+                            <td class="num">@e.AncienneteAnnees.ToString("0", FrCulture)</td>
+                            <td class="num">@FmtJ(e.JoursAbsenteisme)</td>
+                            <td class="num">@FmtJ(e.JoursProgrammees)</td>
+                            <td class="num strong">@FmtJ(e.TotalJours)</td>
+                            <td class="num">
+                                <span class="@CssRespTmp(e.RespTempsTravailPct)">@e.RespTempsTravailPct.ToString("0.0", FrCulture)%</span>
+                            </td>
+                            <td class="num">@FmtJ(e.JoursAUT)</td>
+                            <td class="num">@FmtJ(e.JoursNAUT)</td>
+                            <td class="num">@FmtJ(e.JoursEVENT)</td>
+                            <td class="num">@FmtJ(e.JoursMAL)</td>
+                            <td class="num">@FmtJ(e.JoursAT)</td>
+                            <td class="num">@FmtJ(e.JoursCPAYE)</td>
+                            <td class="num">@FmtJ(e.JoursFORM)</td>
+                            <td class="num">@FmtJ(e.JoursMAT)</td>
+                            <td class="num">@FmtJ(e.JoursPAT)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (_data.Employes.Count(x => x.TotalJours > 0) > 100)
+        {
+            <div class="sa-hint">Affichage limité aux 100 premiers (par TotalJours décroissant). Total: @_data.Employes.Count(x => x.TotalJours > 0) employés ayant des absences.</div>
+        }
+    </section>
+
+    <footer class="sa-footer">
+        <span><i class="bi bi-clock-history"></i> Calculé le @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm:ss", FrCulture)</span>
+        <span class="sep">·</span>
+        <span>Mois pic absentéisme : @(_data.Kpis.MoisPicLibelle ?? "—") · Top absent : @(_data.Kpis.TopAbsent ?? "—") (@_data.Kpis.TopAbsentJours.ToString("0.0", FrCulture) j)</span>
+    </footer>
 }
 
-@* ── Styles propres au Tableau N°5 ───────────────────────────────── *@
 <style>
-    .ed-h1-sub { font-weight: 400; opacity: 0.75; font-size: 0.85em; }
-
-    /* Charts couleur secondaire (orange ELTON pour absences = élément à surveiller) */
-    .sb-vbar__col   { background: linear-gradient(180deg, var(--ed-orange, #F18A1C) 0%, #FFB347 100%) !important; }
-    .sb-hbar__fill  { background: linear-gradient(90deg,  var(--ed-orange, #F18A1C) 0%, #FFB347 100%) !important; }
-
-    /* Grille des 3 bar-charts */
-    .sb-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-        gap: 1rem;
+    :root {
+        --sa-navy: #142E4D;
+        --sa-navy-light: #1F4376;
+        --sa-orange: #F18A1C;
+        --sa-blue: #1A73B5;
+        --sa-red: #E63946;
+        --sa-green: #2EA75B;
+        --sa-text: #142E4D;
+        --sa-soft: #5C6679;
+        --sa-muted: #94A3BC;
+        --sa-bg: #F6F7F9;
+        --sa-border: #E5E7EB;
+        --sa-track: #E5E9EE;
     }
 
-    /* Top Absent : nom potentiellement long */
-    .sb-topname { font-size: 1rem !important; line-height: 1.2 !important; }
+    .sa-loading, .sa-error { padding: 2rem; }
+    .sa-error { color: var(--sa-red); font-weight: 600; }
 
-    /* Tableau Top 10 absents */
-    .sb-table {
-        width: 100%;
-        border-collapse: collapse;
+    .sa-header {
+        background: linear-gradient(135deg, var(--sa-navy) 0%, var(--sa-navy-light) 100%);
+        color: #E6EAF1;
+        padding: 1.1rem 1.5rem;
+        display: flex; align-items: center; gap: 0.75rem;
+        border-bottom: 3px solid var(--sa-orange);
+    }
+    .sa-back, .sa-help {
+        background: var(--sa-navy-light); border: none; color: #fff;
+        width: 38px; height: 38px; border-radius: 50%;
+        font-size: 1.25rem; cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center;
+        text-decoration: none;
+    }
+    .sa-back:hover, .sa-help:hover { background: var(--sa-orange); }
+    .sa-help { margin-left: auto; }
+
+    .sa-toggle {
+        display: flex; gap: 0.3rem; margin-left: 1.5rem;
+        background: rgba(255,255,255,0.08); border-radius: 6px; padding: 0.2rem;
+    }
+    .sa-toggle__btn {
+        background: transparent; border: none; color: #fff;
+        padding: 0.45rem 0.9rem; border-radius: 4px; cursor: pointer;
+        font-weight: 600; font-size: 0.85rem;
+        display: inline-flex; align-items: center; gap: 0.35rem;
+        transition: background 0.15s ease;
+    }
+    .sa-toggle__btn:hover { background: rgba(255,255,255,0.1); }
+    .sa-toggle__btn--on { background: var(--sa-orange); color: #fff; }
+    .sa-toggle__btn--on:hover { background: var(--sa-orange); }
+
+    .sa-banner-externe {
+        margin: 0.7rem 1.5rem 0; padding: 0.7rem 1rem;
+        background: #E8F1FB; border-left: 4px solid var(--sa-blue);
+        border-radius: 6px; font-size: 0.85rem; color: #1A4F8C;
+    }
+    .sa-banner-externe i { margin-right: 0.4rem; }
+
+    .sa-filter--wide { grid-column: span 2; }
+    @@media (max-width: 900px) { .sa-filter--wide { grid-column: span 1; } }
+
+    /* Dropdown sites (>8) */
+    .sa-sitesdrop { position: relative; margin-top: 0.25rem; }
+    .sa-sitesdrop__btn {
+        background: #fff; border: 1px solid var(--sa-border); border-radius: 6px;
+        padding: 0.45rem 0.75rem; cursor: pointer; font-size: 0.85rem;
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        color: var(--sa-text); width: 100%; max-width: 360px;
+        list-style: none;
+        transition: border-color 0.15s ease;
+    }
+    .sa-sitesdrop__btn::-webkit-details-marker { display: none; }
+    .sa-sitesdrop__btn:hover { border-color: var(--sa-orange); }
+    .sa-sitesdrop[open] .sa-sitesdrop__btn { border-color: var(--sa-orange); }
+    .sa-sitesdrop__caret { margin-left: auto; font-size: 0.85rem; transition: transform 0.2s; }
+    .sa-sitesdrop[open] .sa-sitesdrop__caret { transform: rotate(180deg); }
+
+    .sa-sitesdrop__panel {
+        position: absolute; top: 100%; left: 0; z-index: 50;
+        margin-top: 0.3rem; padding: 0.6rem;
+        background: #fff; border: 1px solid var(--sa-border); border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(20, 46, 77, 0.12);
+        min-width: 320px; max-width: 420px;
+    }
+    .sa-sitesdrop__search {
+        width: 100%; padding: 0.4rem 0.6rem; font-size: 0.85rem;
+        border: 1px solid var(--sa-border); border-radius: 4px;
+        outline: none; margin-bottom: 0.4rem;
+    }
+    .sa-sitesdrop__search:focus { border-color: var(--sa-orange); }
+    .sa-sitesdrop__actions {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 0.35rem; font-size: 0.75rem; color: var(--sa-soft);
+    }
+    .sa-btn-mini {
+        background: none; border: none; color: var(--sa-blue); cursor: pointer;
+        font-size: 0.75rem; padding: 0; text-decoration: underline;
+    }
+    .sa-btn-mini:hover { color: var(--sa-orange); }
+    .sa-sitesdrop__count { font-variant-numeric: tabular-nums; }
+
+    .sa-sitesdrop__list {
+        max-height: 240px; overflow-y: auto;
+        border-top: 1px dashed var(--sa-border); padding-top: 0.3rem;
+    }
+    .sa-sitesdrop__item {
+        display: flex; align-items: center; gap: 0.5rem;
+        padding: 0.35rem 0.5rem; border-radius: 4px; cursor: pointer;
+        font-size: 0.85rem; color: var(--sa-text);
+        transition: background 0.1s ease;
+    }
+    .sa-sitesdrop__item:hover { background: var(--sa-bg); }
+    .sa-sitesdrop__item--on { background: rgba(241, 138, 28, 0.08); font-weight: 600; }
+    .sa-sitesdrop__item input[type="checkbox"] { cursor: pointer; }
+    .sa-header__h1 { font-size: 1.55rem; font-weight: 700; margin: 0; color: #fff; }
+    .sa-header__perimetre {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--sa-orange); font-weight: 600;
+    }
+
+    .sa-filters {
+        margin: 0.85rem 1.5rem 0;
+        background: var(--sa-bg); border: 1px solid var(--sa-border); border-radius: 8px;
+        padding: 0.6rem 0.9rem;
         font-size: 0.85rem;
     }
-    .sb-table thead th {
-        background: var(--ed-bg-dark-2, #142E4D);
-        color: #fff;
-        font-weight: 600;
-        padding: 0.55rem 0.75rem;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        white-space: nowrap;
+    .sa-filters summary { cursor: pointer; outline: none; padding: 0.2rem 0; }
+    .sa-tag {
+        display: inline-block; margin-left: 0.6rem; padding: 0.1rem 0.5rem;
+        background: var(--sa-orange); color: #fff; border-radius: 3px; font-size: 0.72rem;
     }
-    .sb-table thead .sb-th-left { text-align: left; }
-    .sb-table thead .sb-th-num  { text-align: right; }
-    .sb-table thead .sb-th-rank { text-align: center; width: 2rem; }
-    .sb-table tbody tr {
-        border-bottom: 1px solid var(--ed-border, #E5E7EB);
+    .sa-filters__grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 0.7rem; margin-top: 0.7rem;
     }
-    .sb-table tbody tr:nth-child(even) { background: rgba(20, 46, 77, 0.025); }
-    .sb-table tbody tr:hover           { background: var(--ed-orange-soft, rgba(241,138,28,.08)); }
-    .sb-table td {
-        padding: 0.55rem 0.75rem;
+    .sa-filter label { font-size: 0.72rem; color: var(--sa-soft); font-weight: 600; text-transform: uppercase; }
+    .sa-chips { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.25rem; }
+    .sa-chip {
+        background: #fff; border: 1px solid var(--sa-border); border-radius: 14px;
+        padding: 0.18rem 0.6rem; cursor: pointer; font-size: 0.78rem;
+        color: var(--sa-text); transition: all 0.15s ease;
+    }
+    .sa-chip:hover { border-color: var(--sa-orange); }
+    .sa-chip--on { background: var(--sa-orange); color: #fff; border-color: var(--sa-orange); }
+    .sa-chip--abs:not(.sa-chip--on) { border-left: 3px solid var(--sa-red); }
+    .sa-chip--prog:not(.sa-chip--on) { border-left: 3px solid var(--sa-green); }
+    .sa-chip--mini { padding: 0.18rem 0.4rem; font-size: 0.72rem; }
+    .sa-chip--reset { background: #fff; border-style: dashed; color: var(--sa-soft); }
+    .sa-filter__reset { display: flex; align-items: flex-end; }
+    .sa-btn {
+        padding: 0.45rem 0.85rem; border-radius: 6px; cursor: pointer;
+        font-size: 0.85rem; border: 1px solid var(--sa-border); background: #fff;
+        color: var(--sa-text); font-weight: 600;
+    }
+    .sa-btn--reset:hover { background: var(--sa-bg); border-color: var(--sa-orange); }
+
+    .sa-kpis {
+        display: grid; grid-template-columns: repeat(6, 1fr);
+        gap: 0.65rem; padding: 0.85rem 1.5rem;
+    }
+    @@media (max-width: 1100px) { .sa-kpis { grid-template-columns: repeat(3, 1fr); } }
+    .sa-kpi {
+        background: #fff; border: 1px solid var(--sa-border); border-radius: 8px;
+        padding: 0.75rem; text-align: center;
+        border-top: 4px solid var(--sa-navy);
+    }
+    .sa-kpi--effectif { border-top-color: var(--sa-blue); }
+    .sa-kpi--absent { border-top-color: var(--sa-orange); }
+    .sa-kpi--jours { border-top-color: #7B5EA7; }
+    .sa-kpi--taux { border-top-color: var(--sa-red); }
+    .sa-kpi--jp { border-top-color: #FF6B35; }
+    .sa-kpi--rt { border-top-color: var(--sa-green); }
+    .sa-kpi__head {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em;
+        color: var(--sa-soft); font-weight: 600; margin-bottom: 0.3rem;
+    }
+    .sa-kpi__value {
+        font-size: 1.6rem; font-weight: 700; color: var(--sa-text);
         font-variant-numeric: tabular-nums;
     }
-    .sb-td-left { text-align: left; }
-    .sb-td-num  { text-align: right; }
-    .sb-td-rank {
-        text-align: center;
-        font-weight: 700;
-        color: var(--ed-orange, #F18A1C);
+    .sa-kpi__flag { font-size: 0.95rem; margin-top: 0.15rem; }
+
+    .sa-section {
+        background: #fff; border: 1px solid var(--sa-border);
+        border-radius: 8px; padding: 0.85rem 1.1rem;
+        margin: 0.7rem 1.5rem;
     }
+    .sa-section__title {
+        font-size: 0.92rem; font-weight: 700; color: var(--sa-text);
+        margin: 0 0 0.55rem 0; padding-bottom: 0.3rem;
+        border-bottom: 2px solid var(--sa-orange); display: inline-block;
+    }
+
+    .sa-monthbars {
+        display: flex; align-items: flex-end; height: 140px; gap: 0.4rem; padding: 0.3rem 0;
+    }
+    .sa-monthcol { flex: 1; display: flex; flex-direction: column; align-items: center; }
+    .sa-monthcol__bars { display: flex; align-items: flex-end; gap: 2px; height: 120px; }
+    .sa-monthcol__abs { width: 12px; background: var(--sa-red); border-radius: 2px 2px 0 0; transition: height 0.3s; }
+    .sa-monthcol__prog { width: 12px; background: var(--sa-green); border-radius: 2px 2px 0 0; transition: height 0.3s; }
+    .sa-monthcol__lbl { font-size: 0.7rem; color: var(--sa-soft); margin-top: 0.2rem; }
+
+    .sa-legend {
+        margin-top: 0.5rem; font-size: 0.75rem; color: var(--sa-soft);
+        display: flex; gap: 1rem;
+    }
+    .sa-legend .dot {
+        display: inline-block; width: 11px; height: 11px;
+        border-radius: 2px; margin-right: 0.3rem; vertical-align: middle;
+    }
+    .sa-legend .dot-abs { background: var(--sa-red); }
+    .sa-legend .dot-prog { background: var(--sa-green); }
+
+    .sa-grid4 {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 0;
+    }
+    @@media (max-width: 900px) { .sa-grid4 { grid-template-columns: 1fr; } }
+
+    .sa-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .sa-table th, .sa-table td {
+        padding: 0.4rem 0.55rem; border-bottom: 1px solid var(--sa-border);
+        text-align: left; font-variant-numeric: tabular-nums;
+    }
+    .sa-table th {
+        background: var(--sa-bg); color: var(--sa-soft); font-weight: 600;
+        text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.04em;
+    }
+    .sa-table .num { text-align: right; }
+    .sa-table .strong { font-weight: 700; color: var(--sa-text); }
+    .sa-table .grp { background: var(--sa-bg); text-align: center; font-size: 0.68rem; }
+    .sa-table .grp-abs { color: var(--sa-red); }
+    .sa-table .grp-prog { color: var(--sa-green); }
+
+    .sa-tag-motif {
+        display: inline-block; padding: 0.1rem 0.35rem; border-radius: 3px;
+        font-size: 0.68rem; font-weight: 700; color: #fff;
+        margin-right: 0.4rem;
+    }
+    .sa-tag-motif--abs { background: var(--sa-red); }
+    .sa-tag-motif--prog { background: var(--sa-green); }
+
+    .sa-microbar {
+        display: inline-block; width: 50px; height: 6px; background: var(--sa-track);
+        border-radius: 3px; margin-left: 0.3rem; vertical-align: middle; overflow: hidden;
+    }
+    .sa-microbar span { display: block; height: 100%; background: var(--sa-orange); }
+
+    .sa-mat { color: var(--sa-muted); font-weight: normal; font-size: 0.75rem; }
+    .resp-ok { color: var(--sa-green); font-weight: 700; }
+    .resp-warn { color: var(--sa-orange); font-weight: 700; }
+    .resp-bad { color: var(--sa-red); font-weight: 700; }
+
+    .sa-tablewrap { max-height: 500px; overflow: auto; border: 1px solid var(--sa-border); border-radius: 6px; }
+    .sa-hint { font-size: 0.78rem; color: var(--sa-muted); font-style: italic; margin-top: 0.4rem; }
+
+    .sa-footer {
+        margin: 0.7rem 1.5rem; padding: 0.5rem 0; font-size: 0.72rem;
+        color: var(--sa-muted); text-align: center;
+    }
+    .sa-footer .sep { margin: 0 0.5rem; opacity: 0.5; }
 </style>
 
 @code {
-    private static readonly CultureInfo FrCulture  = CultureInfo.GetCultureInfo("fr-FR");
+    private static readonly CultureInfo FrCulture = CultureInfo.GetCultureInfo("fr-FR");
     private static readonly CultureInfo InvCulture = CultureInfo.InvariantCulture;
-    private static readonly NumberFormatInfo FcfaFmt = new()
-    {
-        NumberGroupSeparator = " ",
-        NumberDecimalSeparator = ",",
-        NumberDecimalDigits = 0
-    };
 
-    private bool _loading = false;
-    private string? _errorMessage = null;
+    private bool _loading = true;
+    private string? _errorMessage;
     private SuiviAbsencesDto? _data;
-
     private SuiviAbsencesFilterModel _filter = new();
+
     private List<int> _anneesDispo = new();
     private List<Site> _sitesDispo = new();
-    private List<Departement> _departementsDispo = new();
     private List<Categories> _categoriesDispo = new();
-    private Site? _selectedSite;
-    private Departement? _selectedDepartement;
-    private Categories? _selectedCategorie;
-
-    private readonly List<Sexe?> _genresDispo = new() { null, Sexe.Masculin, Sexe.Feminin };
-    private readonly List<FamilleConge?> _famillesDispo = new()
+    private List<string> _departementsDispo = new();
+    private MotifAbsence[] _motifsDispo = new[]
     {
-        null,
-        FamilleConge.Annuel, FamilleConge.Maladie, FamilleConge.Maternite,
-        FamilleConge.EvenementFamilial, FamilleConge.SansSolde, FamilleConge.Recuperation
+        MotifAbsence.AUT, MotifAbsence.NAUT, MotifAbsence.EVENT, MotifAbsence.MAL, MotifAbsence.AT,
+        MotifAbsence.CPAYE, MotifAbsence.FORM, MotifAbsence.MAT, MotifAbsence.PAT
     };
+
+    private List<string> _filtersSummary = new();
 
     protected override void OnInitialized()
     {
@@ -473,107 +741,181 @@ else
             return;
         }
         LoadLookups();
-        LoadData();
     }
 
-    private IObjectSpace CreateOs() =>
-        ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Salarie));
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await LoadDataAsync();
+    }
 
     private void LoadLookups()
     {
         try
         {
-            using var os = CreateOs();
-            _anneesDispo       = Service.GetAnneesDisponibles(os);
-            _sitesDispo        = Service.GetSitesActifs(os);
-            _departementsDispo = Service.GetDepartements(os);
-            _categoriesDispo   = Service.GetCategories(os);
+            using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Salarie));
+            _anneesDispo = Enumerable.Range(DateTime.Today.Year - 3, 5).OrderByDescending(y => y).ToList();
+            _sitesDispo = os.GetObjectsQuery<Site>().ToList().OrderBy(s => s.Nom).ToList();
+            _categoriesDispo = os.GetObjectsQuery<Categories>().ToList()
+                .OrderBy(c => c.Intitule ?? "").ToList();
+
+            // Distinct des Departement.Nom via réflection
+            var sals = os.GetObjectsQuery<Salarie>().ToList();
+            var depts = sals
+                .Select(s =>
+                {
+                    try
+                    {
+                        var prop = typeof(Salarie).GetProperty("Departement");
+                        if (prop == null) return null;
+                        var dep = prop.GetValue(s);
+                        return dep?.GetType().GetProperty("Nom")?.GetValue(dep)?.ToString();
+                    }
+                    catch { return null; }
+                })
+                .Where(d => !string.IsNullOrWhiteSpace(d))
+                .Distinct()
+                .OrderBy(d => d)
+                .Cast<string>()
+                .ToList();
+            _departementsDispo = depts;
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Chargement des filtres : {ex.Message}";
+            _errorMessage = $"Erreur chargement référentiels : {ex.Message}";
         }
     }
 
-    private void LoadData()
+    private async Task LoadDataAsync()
     {
-        _loading = true;
-        _errorMessage = null;
+        // Vider les données précédentes pour un feedback visuel immédiat
+        // (sinon l'utilisateur voit les anciennes valeurs pendant le calcul)
+        _data = null;
+        _loading = true; _errorMessage = null; StateHasChanged();
         try
         {
-            using var os = CreateOs();
-            _data = Service.GetData(_filter, os);
+            BuildFiltersSummary();
+            await Task.Run(() =>
+            {
+                using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Salarie));
+                _data = Service.GetData(_filter, os);
+            });
         }
-        catch (Exception ex)
+        catch (Exception ex) { _errorMessage = $"Erreur de calcul : {ex.Message}"; }
+        finally { _loading = false; StateHasChanged(); }
+    }
+
+    private void BuildFiltersSummary()
+    {
+        _filtersSummary.Clear();
+        if (_filter.Annees.Count > 0) _filtersSummary.Add($"{string.Join(",", _filter.Annees)}");
+        if (_filter.Mois.Count > 0) _filtersSummary.Add($"{_filter.Mois.Count} mois");
+        if (_filter.SiteOids.Count > 0) _filtersSummary.Add($"{_filter.SiteOids.Count} sites");
+        if (_filter.GenreSet.Count > 0) _filtersSummary.Add(string.Join("/", _filter.GenreSet));
+        if (_filter.CategorieOids.Count > 0) _filtersSummary.Add($"{_filter.CategorieOids.Count} cat.");
+        if (_filter.DepartementsNoms.Count > 0) _filtersSummary.Add($"{_filter.DepartementsNoms.Count} dépt.");
+        if (_filter.MotifsActifs.Count > 0) _filtersSummary.Add($"{_filter.MotifsActifs.Count} motifs");
+    }
+
+    // ── Toggles filtres ────────────────────────────────────────────
+    private async Task ToggleAnnee(int y)
+    {
+        if (_filter.Annees.Contains(y)) _filter.Annees.Remove(y);
+        else _filter.Annees.Add(y);
+        if (_filter.Annees.Count == 0) _filter.Annees.Add(DateTime.Today.Year);
+        await LoadDataAsync();
+    }
+    private async Task ToggleMois(int m)
+    {
+        if (_filter.Mois.Contains(m)) _filter.Mois.Remove(m);
+        else _filter.Mois.Add(m);
+        await LoadDataAsync();
+    }
+    private async Task ToggleSite(Guid oid)
+    {
+        if (_filter.SiteOids.Contains(oid)) _filter.SiteOids.Remove(oid);
+        else _filter.SiteOids.Add(oid);
+        await LoadDataAsync();
+    }
+
+    private async Task ClearSites()
+    {
+        _filter.SiteOids.Clear();
+        await LoadDataAsync();
+    }
+
+    private string _siteSearch = "";
+
+    /// <summary>Sites filtrés par la recherche en cours (case-insensitive sur Nom).</summary>
+    private List<Site> FilteredSites
+    {
+        get
         {
-            _errorMessage = $"Calcul du tableau : {ex.Message}";
-            _data = null;
+            if (string.IsNullOrWhiteSpace(_siteSearch)) return _sitesDispo;
+            var q = _siteSearch.Trim().ToUpperInvariant();
+            return _sitesDispo.Where(s => (s.Nom ?? "").ToUpperInvariant().Contains(q)).ToList();
         }
-        finally { _loading = false; }
+    }
+    private async Task ToggleGenre(Sexe g)
+    {
+        if (_filter.GenreSet.Contains(g)) _filter.GenreSet.Remove(g);
+        else _filter.GenreSet.Add(g);
+        await LoadDataAsync();
+    }
+    private async Task ToggleCategorie(Guid oid)
+    {
+        if (_filter.CategorieOids.Contains(oid)) _filter.CategorieOids.Remove(oid);
+        else _filter.CategorieOids.Add(oid);
+        await LoadDataAsync();
+    }
+    private async Task ToggleDept(string d)
+    {
+        if (_filter.DepartementsNoms.Contains(d)) _filter.DepartementsNoms.Remove(d);
+        else _filter.DepartementsNoms.Add(d);
+        await LoadDataAsync();
+    }
+    private async Task ToggleMotif(MotifAbsence m)
+    {
+        if (_filter.MotifsActifs.Contains(m)) _filter.MotifsActifs.Remove(m);
+        else _filter.MotifsActifs.Add(m);
+        await LoadDataAsync();
+    }
+    private async Task ResetFilters()
+    {
+        var current = _filter.Personnel;
+        _filter = new SuiviAbsencesFilterModel { Personnel = current };
+        await LoadDataAsync();
     }
 
-    private Task OnInclureEnAttenteChanged(bool v)        { _filter.InclureEnAttente = v; LoadData(); return Task.CompletedTask; }
-    private Task OnAnneeChanged(int a)                    { _filter.Annee = a; LoadData(); return Task.CompletedTask; }
-    private Task OnSiteChanged(Site? s)                   { _selectedSite = s; _filter.SiteOid = s?.Oid; LoadData(); return Task.CompletedTask; }
-    private Task OnGenreChanged(Sexe? g)                  { _filter.Genre = g; LoadData(); return Task.CompletedTask; }
-    private Task OnSegmentChanged(Departement? d)         { _selectedDepartement = d; _filter.Segment = d?.Nom; LoadData(); return Task.CompletedTask; }
-    private Task OnCategorieChanged(Categories? c)        { _selectedCategorie = c; _filter.CategorieOid = c?.Oid; LoadData(); return Task.CompletedTask; }
-    private Task OnFamilleChanged(FamilleConge? f)        { _filter.Famille = f; LoadData(); return Task.CompletedTask; }
-
-    private Task OnRefreshClick()
+    private async Task SwitchPersonnel(PersonnelType p)
     {
-        Service.InvalidateCache(_filter);
-        LoadData();
-        return Task.CompletedTask;
-    }
-
-    private async Task OnExportPdfClick()
-    {
-        if (_data == null) return;
-        try
+        if (_filter.Personnel == p) return;
+        _filter.Personnel = p;
+        // Vider les filtres qui n'ont pas de sens dans le périmètre cible
+        if (p == PersonnelType.Externe)
         {
-            var (bytes, fileName) = PdfExport.ExportSuiviAbsences(_data, _filter);
-            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName, "application/pdf", Convert.ToBase64String(bytes));
+            // Externe : Catégorie, Département, Genre n'ont pas de sens
+            _filter.GenreSet.Clear();
+            _filter.DepartementsNoms.Clear();
+            _filter.CategorieOids.Clear();
         }
-        catch (Exception ex) { _errorMessage = $"Export PDF : {ex.Message}"; }
-    }
-    private async Task OnExportExcelClick()
-    {
-        if (_data == null) return;
-        try
+        else
         {
-            var (bytes, fileName) = ExcelExport.ExportSuiviAbsences(_data, _filter);
-            await JS.InvokeVoidAsync("AdiPAIE.downloadFile", fileName,
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                Convert.ToBase64String(bytes));
+            // Interne : Site n'est pas une dimension d'analyse pertinente (les
+            // salariés internes sont au siège, le site n'apporte pas d'info)
+            _filter.SiteOids.Clear();
         }
-        catch (Exception ex) { _errorMessage = $"Export Excel : {ex.Message}"; }
+        // Reset Motifs aussi (les motifs disponibles dépendent du périmètre)
+        _filter.MotifsActifs.Clear();
+        await LoadDataAsync();
     }
 
-    private static string FormatNum(decimal v) => v.ToString("N1", FrCulture);
-    private static string FormatPct(decimal v) => v.ToString("0.0", FrCulture) + " %";
-    private static string FormatFcfa(decimal v) => Math.Round(v, 0).ToString("#,##0", FcfaFmt) + " F";
+    // ── Helpers display ────────────────────────────────────────────
+    private string FmtJ(decimal v) => v == 0m ? "" : v.ToString("0", FrCulture);
+    private string CssRespTmp(decimal v) =>
+        v >= 95m ? "resp-ok" : v >= 90m ? "resp-warn" : "resp-bad";
 
-    private static string LabelFamille(FamilleConge f) => f switch
-    {
-        FamilleConge.Annuel             => "Congé annuel",
-        FamilleConge.Maladie            => "Maladie",
-        FamilleConge.Maternite          => "Maternité / Paternité",
-        FamilleConge.EvenementFamilial  => "Événement familial",
-        FamilleConge.SansSolde          => "Sans solde",
-        FamilleConge.Recuperation       => "Récupération",
-        _                               => f.ToString()
-    };
-
-    private static string TruncSafe(string s, int max)
-    {
-        if (string.IsNullOrEmpty(s)) return "—";
-        return s.Length > max ? s.Substring(0, max - 1) + "…" : s;
-    }
-
-    private static string CapitalizeFirst(string s)
-    {
-        if (string.IsNullOrEmpty(s)) return "—";
-        return char.ToUpper(s[0], FrCulture) + s.Substring(1);
-    }
+    private static bool IsAbsenteismeMotif(MotifAbsence m) =>
+        m == MotifAbsence.AUT || m == MotifAbsence.NAUT
+        || m == MotifAbsence.EVENT || m == MotifAbsence.MAL
+        || m == MotifAbsence.AT;
 }
