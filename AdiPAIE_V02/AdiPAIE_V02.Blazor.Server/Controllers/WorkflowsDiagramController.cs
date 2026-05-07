@@ -26,6 +26,9 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
                 ImageName = "Action_Debug",
                 ToolTip = "Affiche les diagrammes de tous les workflows AdiPAIE."
             };
+            // Masquer ce bouton globalement — il polluait toutes les ListView.
+            // Pour le réafficher temporairement (debug), commenter la ligne suivante.
+            ouvrirAction.Active.SetItemValue("HiddenGlobally", false);
             ouvrirAction.Execute += async (s, e) =>
             {
                 var js = Application.ServiceProvider?.GetService<IJSRuntime>();

@@ -11,7 +11,7 @@
       <Action Id="ExporterBulletinsMoisCourant" PaintStyle="Caption" ImageName="BO_Invoice" Caption="Export mois" />
       <Action Id="ExporterBulletinsSelection" PaintStyle="Caption" ImageName="BO_Invoice" Caption="Export sélection" />
       <Action Id="NormalizeBulletinLines" PaintStyle="Caption" ImageName="btn_reordonner" Caption="Réordonner" />
-      <Action Id="OpenHelp" PaintStyle="CaptionAndImage" ImageName="Help" ToolTip="Ouvre le guide d'utilisation du module courant." />
+      <Action Id="OpenHelp" PaintStyle="Caption" ImageName="Help" ToolTip="Ouvre le guide d'utilisation du module courant." />
       <Action Id="ReloadModeleDefaults" PaintStyle="Caption" ImageName="Action_Refresh" IsVisible="False" />
       <Action Id="RemplacerDepuisModele" PaintStyle="Caption" ImageName="Action_Reset" IsVisible="False" />
       <Action Id="RemplacerLignesModeleSeulement" PaintStyle="Caption" ImageName="Action_Reset" IsVisible="False" />
@@ -26,6 +26,17 @@
       <Action Id="ImprimerBulletin" PaintStyle="Caption" Caption="Imprimer" />
       <Action Id="Bulletin_AjouterHS" PaintStyle="Caption" Caption="Ajouter HS" />
       <Action Id="EnvoyerBulletinEmail" PaintStyle="Caption" IsVisible="False" />
+      <!-- Masquer le bouton "Workflows / Afficher diagramme" partout -->
+      <Action Id="Workflows_OuvrirDiagrammes" IsVisible="False" />
+      <!-- Captions visibles sur les boutons des listes Salariés -->
+      <Action Id="Salarie_CreerModelesEnMasse" PaintStyle="Caption" Caption="Créer modèles" />
+      <Action Id="CreateBulletinsForPeriod" PaintStyle="Caption" Caption="Créer bulletins" />
+      <Action Id="OpenEmployeeBulletins" PaintStyle="Caption" Caption="Voir bulletins" />
+      <Action Id="OpenDossierRH" PaintStyle="Caption" Caption="Dossier RH" />
+      <!-- Actions méthode-niveau sur Salarie -->
+      <Action Id="Salarie.Active" PaintStyle="Caption" Caption="Activer" />
+      <Action Id="Salarie.Desactive" PaintStyle="Caption" Caption="Désactiver" />
+      <Action Id="Salarie.RegenererModele" PaintStyle="Caption" Caption="Régénérer modèle" />
     </Actions>
   </ActionDesign>
   <BOModel>
@@ -422,7 +433,7 @@
     </ListView>
     <DetailView Id="BulletinModele_DetailView" PopupWindowWidth="1400" PopupWindowHeight="900">
       <Items>
-        <ActionContainerViewItem Id="BtnRecharger" ActionContainer="Edit" PaintStyle="CaptionAndImage" IsNewNode="True" />
+        <ActionContainerViewItem Id="BtnRecharger" ActionContainer="Edit" PaintStyle="Caption" IsNewNode="True" />
       </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100">
@@ -468,8 +479,8 @@
     </ListView>
     <DetailView Id="CentreConstantesPaie_DetailView" ImageName="Actions_Settings" AllowDelete="False" AllowEdit="False" AllowNew="False">
       <Items>
-        <ActionContainerViewItem Id="HubRubrique" Caption="Paramétrage Rubrique" PaintStyle="CaptionAndImage" IsNewNode="True" />
-        <ActionContainerViewItem Id="ParamsHub" Caption="Pamétrage Barèmes et Taux" PaintStyle="CaptionAndImage" IsNewNode="True" />
+        <ActionContainerViewItem Id="HubRubrique" Caption="Paramétrage Rubrique" PaintStyle="Caption" IsNewNode="True" />
+        <ActionContainerViewItem Id="ParamsHub" Caption="Pamétrage Barèmes et Taux" PaintStyle="Caption" IsNewNode="True" />
       </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100">

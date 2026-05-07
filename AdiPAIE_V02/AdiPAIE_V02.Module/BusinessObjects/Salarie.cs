@@ -222,11 +222,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(IsActif), ref isActif, value);
         }
 
-        [Action(Caption = "Activé", ImageName = "BO_Task",
+        [Action(Caption = "Activer", ImageName = "BO_Task",
             TargetObjectsCriteria = "IsActif=false", AutoCommit = true)]
         public void Active() => IsActif = true;
 
-        [Action(Caption = "Désactivé", ImageName = "BO_Task",
+        [Action(Caption = "Désactiver", ImageName = "BO_Task",
             TargetObjectsCriteria = "IsActif=true", AutoCommit = true)]
         public void Desactive() => IsActif = false;
 
@@ -991,7 +991,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // ── Modèle bulletin ───────────────────────────────────
         [Action(
-            Caption = "Regénérer",
+            Caption = "Régénérer modèle",
             ImageName = "BO_Resume",
             AutoCommit = true,
             ConfirmationMessage = "Recréer/compléter le modèle de bulletin pour ce salarié ?")]

@@ -31,6 +31,7 @@ namespace AdiPAIE_V02.Module.Controllers
             {
                 Caption = "Créer bulletins",
                 ImageName = "BO_Resume",
+                PaintStyle = DevExpress.ExpressApp.Templates.ActionItemPaintStyle.Caption,
                 SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects,
                 TargetObjectsCriteria = "IsActif = True",
                 TargetObjectsCriteriaMode = TargetObjectsCriteriaMode.TrueForAll
@@ -43,6 +44,7 @@ namespace AdiPAIE_V02.Module.Controllers
             {
                 Caption = "Voir bulletins",
                 ImageName = "BO_Invoice",
+                PaintStyle = DevExpress.ExpressApp.Templates.ActionItemPaintStyle.Caption,
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject // besoin d'1 salarié
             };
             openBulletinsAction.Execute += OpenBulletinsAction_Execute;

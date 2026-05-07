@@ -27,8 +27,9 @@ namespace AdiPAIE_V02.Module.Controllers
             action = new SimpleAction(this,
                 "Salarie_CreerModelesEnMasse", PredefinedCategory.Edit)
             {
-                Caption = "Créer modèles bulletin",
+                Caption = "Créer modèles",
                 ImageName = "BO_Resume",
+                PaintStyle = DevExpress.ExpressApp.Templates.ActionItemPaintStyle.Caption,
                 ToolTip = "Crée un BulletinModele par défaut pour les salariés sélectionnés "
                         + "(ou tous les salariés actifs si aucune sélection). "
                         + "Idempotent : ne touche pas aux salariés ayant déjà un modèle actif.",

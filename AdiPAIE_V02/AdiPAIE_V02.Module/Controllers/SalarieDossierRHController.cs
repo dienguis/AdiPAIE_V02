@@ -2,6 +2,7 @@
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.ExpressApp.Editors;
+using DevExpress.ExpressApp.Templates;
 using DevExpress.Persistent.Base;
 using System;
 using System.Linq;
@@ -16,8 +17,9 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             openDossierRhAction = new SimpleAction(this, "OpenDossierRH", PredefinedCategory.View)
             {
-                Caption = "Ouvrir dossier RH",
-                ImageName = "BO_Folder"
+                Caption = "Dossier RH",
+                ImageName = "BO_Folder",
+                PaintStyle = ActionItemPaintStyle.Caption
             };
 
             openDossierRhAction.Execute += OpenDossierRhAction_Execute;
