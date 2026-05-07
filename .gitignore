@@ -361,3 +361,10 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Politique projet : les présentations CODIR (.pptx) sont stockées hors Git
+# (partage Teams / Drive) car volumineuses et régénérables. Les .docx/.xlsx
+# techniques (cahier de recette, plans de test, notes techniques) restent
+# versionnés cas par cas.
+*.pptx
+~$*
