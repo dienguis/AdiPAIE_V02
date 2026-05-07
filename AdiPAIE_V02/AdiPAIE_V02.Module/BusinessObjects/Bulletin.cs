@@ -233,11 +233,46 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         //Archivage PDF
         private FileData _pdfArchive;
         [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [VisibleInListView(false), VisibleInDetailView(false)]
         public FileData PdfArchive
         {
             get => _pdfArchive;
             set => SetPropertyValue(nameof(PdfArchive), ref _pdfArchive, value);
         }
+
+        // ── V1.4.3 — Métadonnées de publication ───────────────────────
+        // Renseignés par BulletinPublicationService.Publier() au moment où
+        // RH publie le bulletin (statut → Envoye). Audit trail + UI.
+        private DateTime? _datePublication;
+        [XafDisplayName("Date publication")]
+        [VisibleInListView(false)]
+        [ModelDefault("AllowEdit", "False")]
+        public DateTime? DatePublication
+        {
+            get => _datePublication;
+            set => SetPropertyValue(nameof(DatePublication), ref _datePublication, value);
+        }
+
+        private string _publieParUser;
+        [Size(100)]
+        [XafDisplayName("Publié par")]
+        [VisibleInListView(false)]
+        [ModelDefault("AllowEdit", "False")]
+        public string PublieParUser
+        {
+            get => _publieParUser;
+            set => SetPropertyValue(nameof(PublieParUser), ref _publieParUser, value);
+        }
+
+        /// <summary>
+        /// True si le bulletin est consultable par le salarié dans son Espace
+        /// Salarié. Couvre tous les statuts ≥ Envoye (publié, comptabilisé,
+        /// clôturé). Utilisé comme critère de filtre dans Bulletin_EspaceSalarie_ListView.
+        /// </summary>
+        [NonPersistent]
+        [VisibleInListView(false), VisibleInDetailView(false)]
+        public bool EstPublie =>
+            Statut >= AdiPAIE_V02.Module.Domain.DomainEnums.BulletinStatut.Envoye;
 
         public override void AfterConstruction()
         {

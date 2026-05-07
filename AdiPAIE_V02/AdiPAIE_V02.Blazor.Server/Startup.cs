@@ -33,93 +33,93 @@ namespace AdiPAIE_V02.Blazor.Server
             services.AddHttpContextAccessor();
             services.AddScoped<CircuitHandler, CircuitHandlerProxy>();
 
-            // -- Module « Tableaux de Bord RH » (Étape 2 + 4.x) -----------
-            // Cache mémoire utilisé par les services Dashboards pour
-            // mémoriser les KPI lourds (TTL configuré côté service, 5 min
-            // par défaut). Les services concrets sont ajoutés au fur
-            // et à mesure des Tableaux 1 ? 6 (Étape 4).
+            // -- Module ï¿½ Tableaux de Bord RH ï¿½ (ï¿½tape 2 + 4.x) -----------
+            // Cache mï¿½moire utilisï¿½ par les services Dashboards pour
+            // mï¿½moriser les KPI lourds (TTL configurï¿½ cï¿½tï¿½ service, 5 min
+            // par dï¿½faut). Les services concrets sont ajoutï¿½s au fur
+            // et ï¿½ mesure des Tableaux 1 ? 6 (ï¿½tape 4).
             services.AddMemoryCache();
 
-            // Tableau N°1 — Effectif détaillé (Étape 4.1)
+            // Tableau Nï¿½1 ï¿½ Effectif dï¿½taillï¿½ (ï¿½tape 4.1)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IEffectifDetailleDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.EffectifDetailleDashboardService>();
 
-            // Tableau N°2 — Analyse de l'Effectif (Étape 4.2)
+            // Tableau Nï¿½2 ï¿½ Analyse de l'Effectif (ï¿½tape 4.2)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IAnalyseEffectifDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.AnalyseEffectifDashboardService>();
 
-            // Tableau N°3 — Mouvements (Arrivées / Départs) (Étape 4.3)
+            // Tableau Nï¿½3 ï¿½ Mouvements (Arrivï¿½es / Dï¿½parts) (ï¿½tape 4.3)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IMouvementsDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.MouvementsDashboardService>();
 
-            // Tableau N°4 — Rémunération (Égalité des salaires) (Étape 4.4)
+            // Tableau Nï¿½4 ï¿½ Rï¿½munï¿½ration (ï¿½galitï¿½ des salaires) (ï¿½tape 4.4)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IRemunerationDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.RemunerationDashboardService>();
 
-            // Tableau N°5 — Suivi des Absences (Étape 4.5)
+            // Tableau Nï¿½5 ï¿½ Suivi des Absences (ï¿½tape 4.5)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.ISuiviAbsencesDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.SuiviAbsencesDashboardService>();
 
-            // Tableau N°6 — Bilan Social Mensuel (Étape 4.6)
+            // Tableau Nï¿½6 ï¿½ Bilan Social Mensuel (ï¿½tape 4.6)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IBilanSocialDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.BilanSocialDashboardService>();
 
-            // --- V1.2 — Pilotage stratégique DAF + DRH ---------------------
-            // Tableau N°7 — Budget vs Réalisé Masse Salariale (Sprint 2)
+            // --- V1.2 ï¿½ Pilotage stratï¿½gique DAF + DRH ---------------------
+            // Tableau Nï¿½7 ï¿½ Budget vs Rï¿½alisï¿½ Masse Salariale (Sprint 2)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IBudgetVsRealiseDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.BudgetVsRealiseDashboardService>();
 
-            // Tableau N°8 — Provisions Sociales (IDR + Congés payés) (Sprint 3)
+            // Tableau Nï¿½8 ï¿½ Provisions Sociales (IDR + Congï¿½s payï¿½s) (Sprint 3)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IProvisionsSocialesDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.ProvisionsSocialesDashboardService>();
 
-            // Tableau N°9 — Coût Complet par Salarié (Fully Loaded Cost) (Sprint 4)
+            // Tableau Nï¿½9 ï¿½ Coï¿½t Complet par Salariï¿½ (Fully Loaded Cost) (Sprint 4)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.ICoutCompletDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.CoutCompletDashboardService>();
 
-            // Tableau N°10 — Conformité Sénégal (audit-ready) (Sprint 5)
+            // Tableau Nï¿½10 ï¿½ Conformitï¿½ Sï¿½nï¿½gal (audit-ready) (Sprint 5)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IConformiteSenegalDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.ConformiteSenegalDashboardService>();
 
-            // --- V1.3 Sprint 1 — Coût Réel Intérimaires -------------------
-            // Service d'import du livre de paie intérim (parsing xlsx + matching)
+            // --- V1.3 Sprint 1 ï¿½ Coï¿½t Rï¿½el Intï¿½rimaires -------------------
+            // Service d'import du livre de paie intï¿½rim (parsing xlsx + matching)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Interim.IBulletinInterimImportService,
                 AdiPAIE_V02.Module.Services.Interim.BulletinInterimImportService>();
 
-            // Tableau N°11 — Coût Réel Intérimaires (Dashboard)
+            // Tableau Nï¿½11 ï¿½ Coï¿½t Rï¿½el Intï¿½rimaires (Dashboard)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.ICoutReelInterimDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.CoutReelInterimDashboardService>();
 
-            // Tableau N°12 — Pilotage Recrutement (Dashboard V1.4)
+            // Tableau Nï¿½12 ï¿½ Pilotage Recrutement (Dashboard V1.4)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IPilotageRecrutementDashboardService,
                 AdiPAIE_V02.Module.Services.Dashboards.PilotageRecrutementDashboardService>();
 
-            // Export Excel partagé pour les 6 tableaux (Étape 7.2)
+            // Export Excel partagï¿½ pour les 6 tableaux (ï¿½tape 7.2)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IDashboardExcelExportService,
                 AdiPAIE_V02.Module.Services.Dashboards.DashboardExcelExportService>();
 
-            // Export PDF partagé pour les 6 tableaux (Étape 7.3 — QuestPDF)
+            // Export PDF partagï¿½ pour les 6 tableaux (ï¿½tape 7.3 ï¿½ QuestPDF)
             services.AddScoped<
                 AdiPAIE_V02.Module.Services.Dashboards.IDashboardPdfExportService,
                 AdiPAIE_V02.Module.Services.Dashboards.DashboardPdfExportService>();
 
-            // V1.4 — Hosted services désactivés temporairement (debug deploy IIS Production)
+            // V1.4 ï¿½ Hosted services dï¿½sactivï¿½s temporairement (debug deploy IIS Production)
             // Cause un NullReferenceException dans DxResourceManager.RegisterTheme au prerendering
-            // À réactiver après fix DevExpress (ticket support en cours)
+            // ï¿½ rï¿½activer aprï¿½s fix DevExpress (ticket support en cours)
             services.AddHostedService<AttestationRappelService>();
             services.AddHostedService<DossierExpirationRappelService>();
             services.AddHostedService<EvaluationFroidRappelService>();
@@ -177,13 +177,13 @@ namespace AdiPAIE_V02.Blazor.Server
        .GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>()
        .GetConnectionString("ConnectionString");
 
-                        // V1.1 — Si le password est chiffré (DPAPI:base64...), le déchiffrer
+                        // V1.1 ï¿½ Si le password est chiffrï¿½ (DPAPI:base64...), le dï¿½chiffrer
                         // pour SqlClient. Transparent si pas de chiffrement (legacy).
                         connectionString = AdiPAIE_V02.Module.Services.DbConfigHelper
                             .DecryptConnectionString(connectionString);
 
                         // Ajouter TrustServerCertificate=True si absent
-                        // (évite l'erreur SSL avec SQL Server Express / certificat auto-signé)
+                        // (ï¿½vite l'erreur SSL avec SQL Server Express / certificat auto-signï¿½)
                         if (!string.IsNullOrWhiteSpace(connectionString)
                             && !connectionString.Contains("TrustServerCertificate", StringComparison.OrdinalIgnoreCase))
                         {
@@ -253,12 +253,21 @@ namespace AdiPAIE_V02.Blazor.Server
             app.UseStaticFiles();
             app.UseRouting();
           
-            var cultureInfo = new System.Globalization.CultureInfo("fr-FR");
+            // V1.4.3 â€” Culture fr-FR avec override FCFA (XOF) pour le SÃ©nÃ©gal.
+            // Ã‰vite l'apparition du "â‚¬" partout oÃ¹ XAF rend une decimal en mode
+            // currency (Bulletin.NetAPayer, etc.) sans DisplayFormat explicite.
+            var cultureInfo = (System.Globalization.CultureInfo)
+                System.Globalization.CultureInfo.GetCultureInfo("fr-FR").Clone();
+            cultureInfo.NumberFormat.CurrencySymbol = "FCFA";
+            cultureInfo.NumberFormat.CurrencyDecimalDigits = 0; // FCFA n'a pas de centimes
+            cultureInfo.NumberFormat.CurrencyPositivePattern = 3; // "1 234 FCFA"
+            cultureInfo.NumberFormat.CurrencyNegativePattern = 8; // "-1 234 FCFA"
+
             System.Globalization.CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
             System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
             app.UseRequestLocalization(new RequestLocalizationOptions
             {
-                DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("fr-FR"),
+                DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(cultureInfo),
                 SupportedCultures = new[] { cultureInfo },
                 SupportedUICultures = new[] { cultureInfo }
             });

@@ -63,16 +63,22 @@ namespace AdiPAIE_V02.Module.Controllers
         protected override void OnActivated()
         {
             base.OnActivated();
+
+            // V1.4.3 — ValiderEtEnvoyer et RenvoyerBulletin sont OBSOLÈTES.
+            // Le nouveau workflow : Valider → Publier → (Re-notifier).
+            // L'envoi de PDF chiffré par email est remplacé par notification +
+            // accès Espace Salarié (cf. BulletinPublishController).
+            // On force ces actions à inactives pour les masquer en attendant
+            // de les supprimer définitivement après stabilisation.
+            _validerEtEnvoyer.Active.SetItemValue("V143_Obsolete", false);
+            _renvoyer.Active.SetItemValue("V143_Obsolete", false);
+
             if (View is DetailView)
             {
-                // DetailView : uniquement "Renvoyer" — envoi géré par l'aperçu en lot
-                _validerEtEnvoyer.Active["UsesBatchSend"] = false;
                 _renvoyer.SelectionDependencyType = SelectionDependencyType.RequireSingleObject;
             }
             else
             {
-                // ListView : les deux masqués — envoi via ApercuEnvoiBulletinsMois
-                _validerEtEnvoyer.Active["UsesBatchSend"] = false;
                 _renvoyer.SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects;
             }
         }

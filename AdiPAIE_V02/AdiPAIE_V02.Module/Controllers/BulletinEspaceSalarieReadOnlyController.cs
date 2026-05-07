@@ -33,7 +33,19 @@ namespace AdiPAIE_V02.Module.Controllers
             "NormalizeBulletinLines",
             "ChargerDepuisModele",
             "RemplacerDepuisModele",
-            "RemplacerLignesModeleSeulement"
+            "RemplacerLignesModeleSeulement",
+            // V1.4.3 — actions RH publication à masquer côté salarié
+            "PublierBulletin",
+            "DepublierBulletin",
+            "RenotifierBulletin",
+            "ValiderBulletin",
+            "ValiderEtEnvoyer",
+            "RenvoyerBulletin",
+            "EnvoyerClePDF",
+            "EnvoyerBulletinEmail",
+            "Bulletin_RecalculerMaintenant",
+            "CloturerBulletin",
+            "ReouvrirBulletin"
         };
 
         // Categories entieres a masquer

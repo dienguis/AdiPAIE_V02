@@ -1046,3 +1046,371 @@ V1.2 avec des valeurs réalistes, il faudra ajouter :
   LocalMachine. **Ne JAMAIS faire `dotnet clean`** sans avoir vérifié que
   ProgramData contient bien le fichier (sinon perte connection string).
 
+---
+
+## ✅ V1.4.3 — WORKFLOW PUBLICATION BULLETIN + ESPACE SALARIÉ (2026-05-07)
+
+> **Décision CODIR mai 2026** : plus d'envoi PDF par email. Le salarié se
+> connecte à l'Espace Salarié authentifié pour télécharger son bulletin.
+> L'email devient une simple notification d'information.
+
+### Workflow
+
+```
+Brouillon ─[Valider]→ Validé ─[Publier]→ Envoyé ─[Clôturer]→ Cloturé
+                                ├─[Dépublier]→ Validé (correction)
+                                └─[Notifier]→ ré-envoi email
+```
+
+### Décisions clés
+
+- Réutilisation du statut `Envoye` (sémantique « Publié ») → zéro migration
+- `DatePublication != NULL` = critère de visibilité Espace Salarié
+- Plus de clé PDF — auth Espace Salarié remplace la clé
+- PDF archivé dans `Bulletin.PdfArchive` (FileData) au Publier
+
+### Fichiers nouveaux
+
+- `Services/BulletinPublicationService.cs` — Publier / Depublier / Notifier (async)
+- `Controllers/BulletinPublishController.cs` — actions RH multi-sélection
+- `Controllers/BulletinEspaceSalarieNoDetailController.cs` — bloque drill-down
+- `Reports/BulletinPaie.repx` — design custom embedded (87 580 octets)
+
+### Fichiers modifiés majeurs
+
+- `BusinessObjects/Bulletin.cs` — DatePublication, PublieParUser, EstPublie
+- `Controllers/BulletinSalarieFilterController.cs` — filtre `DatePublication != null`
+- `Controllers/BulletinValiderEnvoyerController.cs` — actions obsolètes désactivées
+- `Controllers/BulletinTelechargerController.cs` — scoped à vue Espace Salarié
+- `Services/BulletinPdfService.cs` — auto-bootstrap rapport (REPX embedded + fallback)
+- `DatabaseUpdate/Updater.cs` — `SeedBulletinReportIfMissing` au démarrage
+- `Module.csproj` — EmbeddedResource BulletinPaie.repx
+- `Model.DesignedDiffs.xafml` — vue Bulletin_EspaceSalarie_ListView, menu, captions
+
+### Fix culture FCFA
+
+- `Blazor.Server/Startup.cs` — clone fr-FR, override `CurrencySymbol = "FCFA"`,
+  `CurrencyDecimalDigits = 0`, format `1 234 FCFA`. Plus de `€` partout.
+
+### Fix UI Blazor
+
+- Tous les handlers SMTP passent par `SendAsync` (extension threadpool)
+  pour ne pas bloquer le thread SignalR. Plus de "Loading..." infini sur Notifier.
+
+### Procédure d'export REPX (à utiliser quand le rapport est modifié dans designer)
+
+```powershell
+# Adapter Server selon environnement
+$conn = New-Object System.Data.SqlClient.SqlConnection "Server=CPC-adien-ZA8ZN\SQLEXPRESS;Database=SunuPaie_Recette;Integrated Security=true;TrustServerCertificate=true"
+$conn.Open()
+$cmd = $conn.CreateCommand()
+$cmd.CommandText = "SELECT Content FROM ReportDataV2 WHERE Name='BulletinPaie' AND GCRecord IS NULL"
+$bytes = $cmd.ExecuteScalar()
+[System.IO.File]::WriteAllBytes("C:\Dev\AdiPAIE_V02\AdiPAIE_V02\AdiPAIE_V02.Module\Reports\BulletinPaie.repx", $bytes)
+$conn.Close()
+```
+
+Puis `git add Reports/BulletinPaie.repx && git commit`.
+
+### Bulletins legacy (pré-V1.4.3)
+
+- Critère `DatePublication IS NOT NULL` les exclut de la vue salarié
+- RH publie rétroactivement via Bulletin_ListView → multi-sélection → Publier
+- Pas de migration automatique au startup (volontaire — évite envois massifs)
+
+### Email notification
+
+- Sujet : `[SunuPaie] Votre bulletin de paie [Mois] [Année] est disponible`
+- Corps HTML simple, **0 PJ, 0 clé**, instructions step-by-step Espace Salarié
+
+### Vue Espace Salarié
+
+- `Bulletin_EspaceSalarie_ListView` (nouvelle, AllowEdit/New/Delete=False)
+- Colonnes : Année, Mois, Période, NetAPayer, DatePublication
+- Action unique : **Télécharger** (stream PdfArchive sans clé)
+- Drill-down vers DetailView bloqué
+- Filtre forcé : `Salarie.Oid = currentUser AND DatePublication IS NOT NULL`
+
+### Toolbar RH après V1.4.3
+
+```
+[ Valider ]  [ Publier ]  [ Dépublier ]  [ Notifier ]  [ Clôturer ]  [ Imprimer ]  [ Recalc ]
+```
+
+Anciens boutons masqués : Valider+envoyer, Renvoyer PDF, Envoyer clé PDF.
+
+### Menu Reports réactivé
+
+Pour permettre l'édition du rapport `BulletinPaie` dans le designer XAF.
+Visibilité gérée par RBAC : Admin et rôles avec `CanEditModel = true` voient
+le menu, autres rôles non.
+
+### Désactivés / nettoyés
+
+- `BulletinArchivePdfBulkController.cs` — fichier vidé (action redondante avec Publier)
+- `ValiderEtEnvoyer`, `RenvoyerBulletin`, `EnvoyerClePDF`, `EnvoyerBulletinEmail` —
+  actions obsolètes masquées via `IsVisible="False"` XAFML + `Active.SetItemValue`
+
+### Roadmap V1.5+
+
+- Action UI « Exporter rapport REPX » pour automatiser l'export PowerShell
+- Suppression définitive des controllers obsolètes après stabilisation
+- Help bulletins.html + espace-salarie.html mis à jour
+
+---
+
+## ✅ V1.4.3 — WORKFLOW PUBLICATION BULLETIN + ESPACE SALARIÉ (2026-05-07)
+
+> **Décision CODIR mai 2026** : plus d'envoi PDF par email. Le salarié se
+> connecte à l'Espace Salarié authentifié pour télécharger son bulletin.
+> L'email devient une simple notification d'information.
+
+### Workflow Bulletin V1.4.3
+
+```
+Brouillon ─[Valider]→ Validé ─[Publier]→ Envoyé ─[Clôturer]→ Cloturé
+                                ↑
+                                ├─[Dépublier]→ Validé (correction)
+                                └─[Notifier]→ ré-envoi email seul
+```
+
+### Décisions clés
+
+- **Réutilisation du statut `Envoye`** (sémantique « Publié ») plutôt que
+  d'ajouter un nouveau statut → zéro migration de données.
+- **`DatePublication != NULL`** = critère unique de visibilité côté Espace
+  Salarié → bulletin n'apparaît dans Mes bulletins QUE si RH a explicitement
+  cliqué Publier. Pas de migration silencieuse des bulletins legacy.
+- **Plus de clé PDF** : le salarié est authentifié dans son espace, l'auth
+  remplace la clé. Email contient juste un lien vers l'espace.
+- **PDF archivé** dans `Bulletin.PdfArchive` (FileData) au moment du Publier.
+  Stable, immuable, audit-friendly.
+
+### Modèle de données
+
+**`Bulletin.cs`** (nouveau champs) :
+- `DatePublication : DateTime?` — date du Publier (audit)
+- `PublieParUser : string` — utilisateur qui a publié (audit)
+- `EstPublie : bool` (NonPersistent) — `Statut >= Envoye`
+
+**`PdfArchive`** (FileData, déjà existant) — masqué dans ListView/DetailView
+(`VisibleInListView(false)`, `VisibleInDetailView(false)`).
+
+### Services
+
+- **`BulletinPublicationService.cs`** (nouveau) — orchestration :
+  - `Publier(bulletin, os, user)` — génère PDF + archive + statut Envoye +
+    DatePublication + email notification (best-effort, non bloquant)
+  - `Depublier(bulletin, os, user)` — repasse à Validé, conserve PdfArchive
+  - `EnvoyerNotification(bulletin, os)` — re-envoi email seul
+
+### Controllers
+
+**Côté RH (`Bulletin_ListView`) :**
+- `BulletinPublishController.cs` (nouveau) — actions Publier / Dépublier /
+  Notifier (sélection multiple supportée)
+- `BulletinValiderEnvoyerController.cs` — `ValiderEtEnvoyer` et
+  `RenvoyerBulletin` désactivés (V143_Obsolete)
+- `EnvoyerClePayslipController.cs` — `EnvoyerClePDF` désactivé
+- `BulletinTelechargerController.cs` — limité à `Bulletin_EspaceSalarie_ListView`
+
+**Côté Espace Salarié (vue dédiée `Bulletin_EspaceSalarie_ListView`) :**
+- `BulletinSalarieFilterController.cs` — filtre forcé
+  `Salarie.Oid = currentUser AND DatePublication IS NOT NULL`
+- `BulletinEspaceSalarieReadOnlyController.cs` — désactive toutes actions RH
+  (Publier, Dépublier, Notifier, Imprimer, Recalc, etc.)
+- `BulletinEspaceSalarieNoDetailController.cs` (nouveau) — bloque le
+  drill-down vers le DetailView (pas d'accès au détail technique)
+
+### Vue Espace Salarié
+
+**`Bulletin_EspaceSalarie_ListView`** (nouvelle, dans `Model.DesignedDiffs.xafml`)
+- Lecture seule absolue (`AllowEdit/AllowNew/AllowDelete = False`)
+- Colonnes : Année, Mois, Période, NetAPayer, DatePublication
+- Action unique : **Télécharger** (stream du `PdfArchive` sans clé)
+- Pas de DetailViewID utilisable (drill-down bloqué par controller)
+
+Menu navigation : `Mon espace > Mes bulletins` → pointe vers cette vue.
+
+### Rapport BulletinPaie — sécurisation
+
+- **REPX embarqué** dans le projet (`Reports/BulletinPaie.repx`, ~87 Ko) —
+  versionné Git, déployable.
+- **Auto-seed** dans `Updater.SeedBulletinReportIfMissing` — au démarrage,
+  si `BulletinPaie` absent en DB → recréé depuis la ressource embarquée.
+  Idempotent : ne touche jamais le rapport custom existant.
+- **Filet runtime** dans `BulletinPdfService.LoadOrCreateReport` — si
+  suppression accidentelle en cours de session, recréation au prochain appel.
+- **Menu Reports réactivé** (admin uniquement par RBAC) pour permettre la
+  modification du design dans le designer XAF.
+
+### Procédure d'export REPX (pour versionner les modifs designer)
+
+Quand le rapport est modifié dans le designer XAF, exporter le `.repx` vers
+le repo pour pouvoir le redéployer :
+
+```powershell
+# Adapter Server selon environnement (CPC-adien-ZA8ZN\SQLEXPRESS dev, R24PROD prod)
+$conn = New-Object System.Data.SqlClient.SqlConnection "Server=CPC-adien-ZA8ZN\SQLEXPRESS;Database=SunuPaie_Recette;Integrated Security=true;TrustServerCertificate=true"
+$conn.Open()
+$cmd = $conn.CreateCommand()
+$cmd.CommandText = "SELECT Content FROM ReportDataV2 WHERE Name='BulletinPaie' AND GCRecord IS NULL"
+$bytes = $cmd.ExecuteScalar()
+[System.IO.File]::WriteAllBytes("C:\Dev\AdiPAIE_V02\AdiPAIE_V02\AdiPAIE_V02.Module\Reports\BulletinPaie.repx", $bytes)
+$conn.Close()
+Write-Host "Exporté : $($bytes.Length) octets"
+```
+
+Puis `git add Reports/BulletinPaie.repx && git commit -m "feat(reports): MAJ design BulletinPaie"`.
+
+### Email de notification
+
+Sujet : `[SunuPaie] Votre bulletin de paie [Mois] [Année] est disponible`
+Corps HTML simple, **0 PJ, 0 clé**, lien vers Espace Salarié, instructions
+step-by-step pour le télécharger.
+
+### Bulletins legacy (pré-V1.4.3)
+
+- Critère `DatePublication IS NOT NULL` les exclut → invisibles pour le salarié
+- Pour les rendre visibles : RH les sélectionne sur Bulletin_ListView →
+  Publier (multi-sélection supportée). Le service génère le PDF rétroactivement,
+  set DatePublication, envoie l'email. Idempotent.
+- Pas de migration automatique au startup (volontaire, évite envois massifs
+  involontaires).
+
+### Décisions UI
+
+- Action « Re-notifier » renommée **« Notifier »** (sémantiquement plus juste
+  car couvre 1ʳᵉ notif et ré-envoi).
+- Bouton « Mon bulletin » sur Bulletin_ListView (RH) → supprimé. RH a
+  désormais Imprimer / Publier à la place.
+- Bouton « Télécharger » sur la vue Espace Salarié (cliché "Action_Export").
+
+### Fichiers impactés
+
+**Nouveaux :**
+- `Services/BulletinPublicationService.cs`
+- `Controllers/BulletinPublishController.cs`
+- `Controllers/BulletinEspaceSalarieNoDetailController.cs`
+- `Reports/BulletinPaie.repx` (binaire embedded resource)
+
+**Modifiés :**
+- `BusinessObjects/Bulletin.cs` (+ DatePublication, PublieParUser, EstPublie)
+- `Domain/DomainEnums.cs` (commentaire sémantique BulletinStatut.Envoye)
+- `Controllers/BulletinSalarieFilterController.cs` (filtre DatePublication)
+- `Controllers/BulletinEspaceSalarieReadOnlyController.cs` (+ actions masquées)
+- `Controllers/BulletinValiderEnvoyerController.cs` (désactivation V143_Obsolete)
+- `Controllers/EnvoyerClePayslipController.cs` (désactivation)
+- `Blazor.Server/Controllers/BulletinTelechargerController.cs` (TargetViewId
+  + suppression fallback clé)
+- `Services/BulletinPdfService.cs` (LoadOrCreateReport + TrySeedFromEmbeddedRepx)
+- `DatabaseUpdate/Updater.cs` (SeedBulletinReportIfMissing)
+- `Module/AdiPAIE_V02.Module.csproj` (EmbeddedResource BulletinPaie.repx)
+- `Module/Model.DesignedDiffs.xafml` (vue Espace Salarié + menu + actions)
+
+### À faire après stabilisation
+
+- [ ] Suppression définitive des controllers obsolètes (`BulletinEmailController`,
+      `EnvoyerClePayslipController`) après vérification 0 régression
+- [ ] Suppression du fichier `BulletinArchivePdfBulkController.cs` (vidé)
+- [ ] Documenter dans help/bulletins.html et help/espace-salarie.html
+- [ ] Roadmap V1.5 : action UI « Exporter rapport REPX » pour automatiser
+      l'export PowerShell
+
+
+---
+
+## V1.4.3 — WORKFLOW PUBLICATION BULLETIN + ESPACE SALARIE (2026-05-07)
+
+**Decision CODIR mai 2026** : plus d'envoi PDF par email. Le salarie se
+connecte a l'Espace Salarie authentifie pour telecharger son bulletin.
+L'email devient une simple notification d'information.
+
+### Workflow
+
+Brouillon -> Valider -> Valide -> Publier -> Envoye -> Cloturer -> Cloture
+                                  Depublier (correction)
+                                  Notifier (re-envoi email)
+
+### Decisions cles
+
+- Reutilisation du statut Envoye (semantique "Publie") - zero migration
+- DatePublication != NULL = critere de visibilite Espace Salarie
+- Plus de cle PDF - auth Espace Salarie remplace la cle
+- PDF archive dans Bulletin.PdfArchive (FileData) au Publier
+
+### Fichiers nouveaux
+
+- Services/BulletinPublicationService.cs : Publier / Depublier / Notifier (async)
+- Controllers/BulletinPublishController.cs : actions RH multi-selection
+- Controllers/BulletinEspaceSalarieNoDetailController.cs : bloque drill-down
+- Reports/BulletinPaie.repx : design custom embedded (87 580 octets)
+
+### Fichiers modifies majeurs
+
+- BusinessObjects/Bulletin.cs : DatePublication, PublieParUser, EstPublie
+- Controllers/BulletinSalarieFilterController.cs : filtre DatePublication != null
+- Controllers/BulletinValiderEnvoyerController.cs : actions obsoletes desactivees
+- Blazor.Server/Controllers/BulletinTelechargerController.cs : scoped vue Espace Salarie
+- Services/BulletinPdfService.cs : auto-bootstrap rapport (REPX embedded + fallback)
+- DatabaseUpdate/Updater.cs : SeedBulletinReportIfMissing au demarrage
+- Module.csproj : EmbeddedResource BulletinPaie.repx
+- Model.DesignedDiffs.xafml : vue Bulletin_EspaceSalarie_ListView, menu, captions
+
+### Fix culture FCFA
+
+Blazor.Server/Startup.cs : clone fr-FR, override CurrencySymbol = "FCFA",
+CurrencyDecimalDigits = 0, format "1 234 FCFA". Plus de EUR partout.
+
+### Fix UI Blazor
+
+Tous les handlers SMTP passent par SendAsync (extension threadpool)
+pour ne pas bloquer le thread SignalR. Plus de "Loading..." infini sur Notifier.
+
+### Procedure d'export REPX (a utiliser quand le rapport est modifie dans designer)
+
+```powershell
+# Adapter Server selon environnement
+$conn = New-Object System.Data.SqlClient.SqlConnection "Server=CPC-adien-ZA8ZN\SQLEXPRESS;Database=SunuPaie_Recette;Integrated Security=true;TrustServerCertificate=true"
+$conn.Open()
+$cmd = $conn.CreateCommand()
+$cmd.CommandText = "SELECT Content FROM ReportDataV2 WHERE Name='BulletinPaie' AND GCRecord IS NULL"
+$bytes = $cmd.ExecuteScalar()
+[System.IO.File]::WriteAllBytes("C:\Dev\AdiPAIE_V02\AdiPAIE_V02\AdiPAIE_V02.Module\Reports\BulletinPaie.repx", $bytes)
+$conn.Close()
+```
+
+Puis git add Reports/BulletinPaie.repx && git commit.
+
+### Bulletins legacy (pre-V1.4.3)
+
+- Critere DatePublication IS NOT NULL les exclut de la vue salarie
+- RH publie retroactivement via Bulletin_ListView -> multi-selection -> Publier
+- Pas de migration automatique au startup (volontaire - evite envois massifs)
+
+### Toolbar RH apres V1.4.3
+
+[ Valider ] [ Publier ] [ Depublier ] [ Notifier ] [ Cloturer ] [ Imprimer ] [ Recalc ]
+
+Anciens boutons masques : Valider+envoyer, Renvoyer PDF, Envoyer cle PDF.
+
+### Vue Espace Salarie
+
+- Bulletin_EspaceSalarie_ListView (nouvelle, AllowEdit/New/Delete=False)
+- Colonnes : Annee, Mois, Periode, NetAPayer, DatePublication
+- Action unique : Telecharger (stream PdfArchive sans cle)
+- Drill-down vers DetailView bloque
+- Filtre force : Salarie.Oid = currentUser AND DatePublication IS NOT NULL
+
+### Menu Reports reactive
+
+Pour permettre l'edition du rapport BulletinPaie dans le designer XAF.
+Visibilite geree par RBAC : Admin et roles avec CanEditModel = true voient
+le menu, autres roles non.
+
+### Roadmap V1.5+
+
+- Action UI "Exporter rapport REPX" pour automatiser l'export PowerShell
+- Suppression definitive des controllers obsoletes apres stabilisation
+- Help bulletins.html + espace-salarie.html mis a jour
+

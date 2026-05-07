@@ -26,6 +26,14 @@ namespace AdiPAIE_V02.Module.Controllers
             _sendKey.Execute += OnExecuteAsync; // handler async
         }
 
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+            // V1.4.3 — la clé PDF n'a plus de sens : le salarié télécharge
+            // depuis l'Espace Salarié authentifié. On masque cette action.
+            _sendKey.Active.SetItemValue("V143_Obsolete", false);
+        }
+
         // IMPORTANT: async void ok pour un handler d’événement UI
         private async void OnExecuteAsync(object evtSender, SimpleActionExecuteEventArgs e)
         {

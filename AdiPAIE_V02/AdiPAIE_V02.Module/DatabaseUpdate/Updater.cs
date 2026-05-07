@@ -748,10 +748,74 @@ string adminUserName = "Admin";
             if (ObjectSpace.IsModified) ObjectSpace.CommitChanges();
 
             //ADIENG 27/08/2025 FIN
+
+            // ═══════════════════════════════════════════════════════
+            // V1.4.3 — Auto-seed du rapport BulletinPaie
+            // Si le ReportDataV2 "BulletinPaie" est absent (déploiement
+            // sur DB neuve, restore partiel, suppression accidentelle),
+            // on le crée à partir du REPX embarqué dans l'assembly.
+            // Idempotent : si déjà présent en DB, on ne touche pas.
+            // ═══════════════════════════════════════════════════════
+            SeedBulletinReportIfMissing();
+        }
+
+        /// <summary>
+        /// V1.4.3 — Crée le ReportDataV2 "BulletinPaie" depuis la ressource
+        /// embarquée Reports/BulletinPaie.repx si aucun rapport actif ne porte
+        /// ce nom. Le design custom peut continuer à être édité ensuite via
+        /// le designer XAF — le filet de sécurité garantit juste qu'un rapport
+        /// existe en DB pour Publier / Imprimer / Télécharger.
+        /// </summary>
+        private void SeedBulletinReportIfMissing()
+        {
+            const string ReportName = "BulletinPaie";
+            const string ResourceName = "AdiPAIE_V02.Module.Reports.BulletinPaie.repx";
+
+            try
+            {
+                // Idempotence : ne pas écraser le rapport custom existant
+                // (XPO filtre automatiquement les soft-deletes via GCRecord)
+                var existing = ObjectSpace.FirstOrDefault<DevExpress.Persistent.BaseImpl.ReportDataV2>(
+                    r => r.DisplayName == ReportName);
+                if (existing != null) return;
+
+                // Charger le REPX embarqué
+                var asm = typeof(Updater).Assembly;
+                using var stream = asm.GetManifestResourceStream(ResourceName);
+                if (stream == null)
+                {
+                    // Ressource absente → on log et on continue (le rapport peut
+                    // être créé manuellement par RH via le designer XAF)
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[V1.4.3 Seed] Ressource '{ResourceName}' introuvable — skip auto-seed.");
+                    return;
+                }
+
+                using var ms = new System.IO.MemoryStream();
+                stream.CopyTo(ms);
+                var repxBytes = ms.ToArray();
+
+                var rd = ObjectSpace.CreateObject<DevExpress.Persistent.BaseImpl.ReportDataV2>();
+                rd.DisplayName = ReportName;
+                rd.IsInplaceReport = true;
+                // DataTypeName en lecture seule — l'info de type est dans le REPX (Content)
+                rd.Content = repxBytes;
+
+                ObjectSpace.CommitChanges();
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"[V1.4.3 Seed] ReportDataV2 '{ReportName}' créé depuis ressource embarquée ({repxBytes.Length} octets).");
+            }
+            catch (Exception ex)
+            {
+                // Non bloquant : si le seed échoue, l'app démarre quand même
+                System.Diagnostics.Debug.WriteLine(
+                    $"[V1.4.3 Seed] Échec seed BulletinPaie : {ex.Message}");
+            }
         }
 
         // Copie de la méthode utilitaire utilisée par LibelleTitre (sans dépendre d'une instance)
-   
+
         //private void CreateReports()
         //{
         //    var name = "Bulletin A4 (simple)";

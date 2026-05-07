@@ -8,8 +8,21 @@ namespace AdiPAIE_V02.Module.Controllers
     /// <summary>
     /// Filtre la ListView Bulletin pour l'espace salarie.
     ///
-    ///   Salarie connecte -> voit uniquement SES bulletins Envoye / Comptabilise / Cloture
-    ///   RH / Admin       -> ne touche pas au filtre (voit tout)
+    /// V1.4.3 — Critère de visibilité : DatePublication IS NOT NULL.
+    /// C'est la garantie que RH a explicitement publié le bulletin via
+    /// BulletinPublicationService.Publier(). Les bulletins legacy
+    /// (statut Envoye/Cloture sans DatePublication) ne sont PAS visibles
+    /// tant que RH ne les republie pas manuellement.
+    ///
+    /// Deux modes :
+    ///   A) Vue Bulletin_EspaceSalarie_ListView (menu "Mes bulletins") :
+    ///      filtre TOUJOURS appliqué — Salarie.Oid = utilisateur courant
+    ///      ET DatePublication != null.
+    ///
+    ///   B) Vue Bulletin_ListView (RH gestion) :
+    ///      filtre appliqué uniquement si l'utilisateur connecté est un
+    ///      Salarié sans droits RH. RH/Admin voient tout (y compris les
+    ///      bulletins en Brouillon, Validé, et publiés).
     /// </summary>
     public class BulletinSalarieFilterController
         : ObjectViewController<ListView, Bulletin>
@@ -25,22 +38,24 @@ namespace AdiPAIE_V02.Module.Controllers
             if (salConn == null)
                 return; // Pas de salarié lié → ne rien toucher
 
-            // RH : pas de filtre → return sans toucher aux criteria
-            if (!EspaceSalarieHelper.DoitRestreindreEspaceSalarie(ObjectSpace))
-                return;
+            // V1.4.3 — Sur la vue dédiée Espace Salarié, le filtre est
+            // TOUJOURS actif, même pour RH.
+            bool estVueEspaceSalarie = string.Equals(
+                View?.Id, "Bulletin_EspaceSalarie_ListView",
+                System.StringComparison.OrdinalIgnoreCase);
 
-            // Employé : ses bulletins + statuts >= Envoye uniquement
-            var filtreStatut = new InOperator("Statut", new object[]
+            if (!estVueEspaceSalarie)
             {
-                BulletinStatut.Envoye,
-                BulletinStatut.Comptabilise,
-                BulletinStatut.Cloture
-            });
+                // Vue RH classique : on ne filtre que les vrais utilisateurs salariés
+                if (!EspaceSalarieHelper.DoitRestreindreEspaceSalarie(ObjectSpace))
+                    return;
+            }
 
+            // V1.4.3 — Filtre : ses bulletins ET publiés (DatePublication != null)
             View.CollectionSource.Criteria[FilterKey] =
-                new GroupOperator(GroupOperatorType.And,
-                    CriteriaOperator.Parse("Salarie.Oid = ?", salConn.Oid),
-                    filtreStatut);
+                CriteriaOperator.Parse(
+                    "Salarie.Oid = ? AND DatePublication IS NOT NULL",
+                    salConn.Oid);
         }
 
         protected override void OnDeactivated()

@@ -90,6 +90,11 @@ namespace AdiPAIE_V02.Module.Domain
             Valide = 1,
             Exporte = 2,  // (héritage; peut servir de compat. pour "Comptabilisé")
             Imprime = 3,
+            // V1.4.3 - Sémantique mise à jour : "Envoye" = bulletin PUBLIÉ dans
+            // l'Espace Salarié (PDF archivé sur Bulletin.PdfArchive + email
+            // de notification envoyé au salarié). Le PDF n'est plus envoyé
+            // en pièce jointe ni protégé par clé : le salarié le télécharge
+            // depuis l'Espace Salarié authentifié.
             Envoye = 4,
             Comptabilise = 5,
             Cloture = 6

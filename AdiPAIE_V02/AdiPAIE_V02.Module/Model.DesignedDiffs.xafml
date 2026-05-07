@@ -37,6 +37,14 @@
       <Action Id="Salarie.Active" PaintStyle="Caption" Caption="Activer" />
       <Action Id="Salarie.Desactive" PaintStyle="Caption" Caption="Désactiver" />
       <Action Id="Salarie.RegenererModele" PaintStyle="Caption" Caption="Régénérer modèle" />
+      <!-- V1.4.3 — Workflow Publication Bulletin -->
+      <Action Id="PublierBulletin" PaintStyle="Caption" Caption="Publier" />
+      <Action Id="DepublierBulletin" PaintStyle="Caption" Caption="Dépublier" />
+      <Action Id="RenotifierBulletin" PaintStyle="Caption" Caption="Notifier" />
+      <!-- V1.4.3 — Anciennes actions email-PDF désactivées (remplacées par Publier) -->
+      <Action Id="ValiderEtEnvoyer" IsVisible="False" />
+      <Action Id="RenvoyerBulletin" IsVisible="False" />
+      <Action Id="EnvoyerClePDF" IsVisible="False" />
     </Actions>
   </ActionDesign>
   <BOModel>
@@ -108,7 +116,7 @@
       </Item>
       <Item Id="GRH_EspaceSalarie" Caption="Mon espace" Index="30" ImageName="BO_Person" IsNewNode="True">
         <Items IsNewNode="True">
-          <Item Id="GRH_MesBulletins" Caption="Mes bulletins" ViewId="Bulletin_ListView" Index="0" ImageName="BO_Sale_Item" IsNewNode="True" />
+          <Item Id="GRH_MesBulletins" Caption="Mes bulletins" ViewId="Bulletin_EspaceSalarie_ListView" Index="0" ImageName="BO_Sale_Item" IsNewNode="True" />
           <Item Id="GRH_MesConges" Caption="Mes congés" ViewId="CongeDemande_ListView" Index="1" ImageName="BO_Scheduler" IsNewNode="True" />
           <Item Id="GRH_MesSoldesConges" Caption="Mon solde de congés" ViewId="SoldeConge_ListView" Index="2" ImageName="BO_Scheduler" IsNewNode="True" />
           <Item Id="GRH_MesAttestations" Caption="Mes attestations" ViewId="DemandeAttestation_ListView" Index="3" IsNewNode="True" />
@@ -220,7 +228,9 @@
           <Item Id="SimulationSursalaire_ListView" Removed="True" />
         </Items>
       </Item>
-      <Item Id="Reports" Removed="True" />
+      <!-- V1.4.3 — Reports réactivé : nécessaire pour designer/éditer le rapport
+           BulletinPaie. Visibilité gérée par les permissions de rôle :
+           Admin et rôles avec "Edit Model" voient le menu, autres rôles non. -->
       <Item Id="State Machine" Removed="True" />
     </Items>
   </NavigationItems>
@@ -1312,6 +1322,31 @@
         <ColumnInfo Id="Departement" Index="6" Width="170" />
         <ColumnInfo Id="Fonction" Index="7" Width="200" />
         <ColumnInfo Id="IsActif" Index="8" Width="70" />
+      </Columns>
+    </ListView>
+    <!-- V1.4.3 — Vue Espace Salarié : "Mes bulletins de paie".
+         Clone restreint de Bulletin_ListView, lecture seule absolue,
+         sans DetailViewID (pas de drill-down vers le détail bulletin).
+         Le filtre ".Salarie.User = current" + statut >= Envoye est appliqué
+         côté C# par BulletinSalarieFilterController. -->
+    <ListView Id="Bulletin_EspaceSalarie_ListView"
+              ClassName="AdiPAIE_V02.Module.BusinessObjects.Bulletin"
+              Caption="Mes bulletins de paie"
+              IsRoot="True"
+              IsGroupPanelVisible="False"
+              AllowNew="False"
+              AllowDelete="False"
+              AllowEdit="False"
+              AllowLink="False"
+              AllowUnlink="False"
+              EnableMasterDetailMode="False"
+              IsNewNode="True">
+      <Columns IsNewNode="True">
+        <ColumnInfo Id="Annee" PropertyName="Annee" SortIndex="0" SortOrder="Descending" Index="0" Width="80" IsNewNode="True" />
+        <ColumnInfo Id="Mois" PropertyName="Mois" SortIndex="1" SortOrder="Descending" Index="1" Width="60" IsNewNode="True" />
+        <ColumnInfo Id="Periode" PropertyName="Periode" Index="2" Width="120" IsNewNode="True" />
+        <ColumnInfo Id="NetAPayer" PropertyName="NetAPayer" Index="3" Width="140" IsNewNode="True" />
+        <ColumnInfo Id="DatePublication" PropertyName="DatePublication" Index="4" Width="140" IsNewNode="True" />
       </Columns>
     </ListView>
     <ListView Id="Salarie_Paie_ListView" ClassName="AdiPAIE_V02.Module.BusinessObjects.Salarie" AllowNew="False" AllowDelete="False" Caption="Liste des Salariés actifs" Filter="[IsActif] = True" ImageName="Employees" IsNewNode="True">

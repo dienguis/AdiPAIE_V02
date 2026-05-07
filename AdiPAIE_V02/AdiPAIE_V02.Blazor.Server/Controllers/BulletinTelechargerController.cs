@@ -24,40 +24,28 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
     ///     ne voit que ses propres bulletins
     /// </summary>
     public class BulletinTelechargerController
-        : ObjectViewController<ObjectView, Bulletin>
+        : ObjectViewController<ListView, Bulletin>
     {
         private readonly SimpleAction _telecharger;
 
         public BulletinTelechargerController()
         {
+            // V1.4.3 — visible UNIQUEMENT sur la ListView dédiée Espace Salarié.
+            // RH n'a plus le bouton "Mon bulletin" sur Bulletin_ListView (où ça
+            // n'avait aucun sens) — RH a Imprimer / Publier / Re-notifier à la place.
+            TargetViewId = "Bulletin_EspaceSalarie_ListView";
+
             _telecharger = new SimpleAction(this,
                 "Bulletin_Telecharger",
                 PredefinedCategory.View)
             {
-                Caption = "Mon bulletin",
+                Caption = "Télécharger",
                 ImageName = "Action_Export",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ToolTip = "Télécharger ce bulletin en PDF.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject
             };
             _telecharger.Execute += OnTelecharger;
-        }
-
-        protected override void OnActivated()
-        {
-            base.OnActivated();
-
-            // Visible uniquement si compte lie a une fiche salarie
-            try
-            {
-                _telecharger.Active["estSalarie"] =
-                    AdiPAIE_V02.Module.Controllers.EspaceSalarieHelper
-                        .EstSalarieConnecte(ObjectSpace);
-            }
-            catch
-            {
-                _telecharger.Active["estSalarie"] = false;
-            }
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -73,43 +61,22 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
 
             try
             {
-                byte[] pdfBytes;
                 var fileName = $"Bulletin_{bulletin.Periode}_{bulletin.Salarie?.Matricule}.pdf";
 
-                // ── Archive disponible → servir directement ───────────
-                if (bulletin.PdfArchive != null && bulletin.PdfArchive.Size > 0)
+                // V1.4.3 — Le filtre Bulletin_EspaceSalarie_ListView garantit que
+                // seuls les bulletins avec DatePublication != null arrivent ici.
+                // Et BulletinPublicationService.Publier crée toujours PdfArchive.
+                // Donc cette branche null/empty ne devrait pas se produire en
+                // pratique. On la garde par sécurité défensive.
+                if (bulletin.PdfArchive == null || bulletin.PdfArchive.Size == 0)
                 {
-                    using var ms = new MemoryStream();
-                    bulletin.PdfArchive.SaveToStream(ms);
-                    pdfBytes = ms.ToArray();
+                    throw new UserFriendlyException(
+                        "Ce bulletin n'est pas disponible. Contactez le service RH.");
                 }
-                else
-                {
-                    // ── Régénération à la volée ───────────────────────
-                    var keyEnc = bulletin.Salarie?.PayslipKeyEnc;
-                    if (string.IsNullOrWhiteSpace(keyEnc))
-                        throw new UserFriendlyException(
-                            "Votre bulletin n'est pas encore disponible en PDF. "
-                            + "Contactez le service RH.");
 
-                    var pwd = LocalSecretProtector.Unprotect(keyEnc);
-
-                    using var osRead = Application.CreateObjectSpace(typeof(Bulletin));
-                    pdfBytes = BulletinPdfService.BuildPdfByBulletinOid(
-                        osRead, bulletin.Oid, pwd);
-
-                    if (pdfBytes == null || pdfBytes.Length == 0)
-                        throw new UserFriendlyException(
-                            "Impossible de générer le PDF. Contactez le service RH.");
-
-                    // Archiver pour les prochains téléchargements
-                    if (bulletin.PdfArchive == null)
-                        bulletin.PdfArchive = ObjectSpace
-                            .CreateObject<DevExpress.Persistent.BaseImpl.FileData>();
-                    using var msArc = new MemoryStream(pdfBytes);
-                    bulletin.PdfArchive.LoadFromStream(fileName, msArc);
-                    ObjectSpace.CommitChanges();
-                }
+                using var ms = new MemoryStream();
+                bulletin.PdfArchive.SaveToStream(ms);
+                var pdfBytes = ms.ToArray();
 
                 // ── Téléchargement via JSInterop (adipaie.js) ─────────
                 var js = Application.ServiceProvider?.GetService<IJSRuntime>();

@@ -33,13 +33,17 @@
     <EmbeddedResource Include="Images\btn_renvoyer.png" />
     <EmbeddedResource Include="Images\btn_charger.png" />
     <EmbeddedResource Include="Model.DesignedDiffs.xafml" />
-    <!-- Dashboards XML retirés — remplacés par pages Blazor manuelles -->
+    <!-- Dashboards XML retirï¿½s ï¿½ remplacï¿½s par pages Blazor manuelles -->
+    <!-- V1.4.3 â€” Rapport Bulletin custom embarquï¿½ comme backup
+         (voir Updater.SeedBulletinReport pour la crï¿½ation auto si absent en DB) -->
+    <None Remove="Reports\BulletinPaie.repx" />
+    <EmbeddedResource Include="Reports\BulletinPaie.repx" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
-    <!-- QuestPDF — Étape 7.3 export PDF.
+    <!-- QuestPDF ï¿½ ï¿½tape 7.3 export PDF.
          Licence Community gratuite pour CA < 1 M$ ou open-source.
-         À valider légalement avant prod (Professional ˜ 699 $/an). -->
+         ï¿½ valider lï¿½galement avant prod (Professional ï¿½ 699 $/an). -->
     <PackageReference Include="QuestPDF" Version="2024.7.3" />
     <PackageReference Include="DevExpress.ExpressApp" Version="25.1.9" />
     <PackageReference Include="DevExpress.ExpressApp.AuditTrail.Xpo" Version="25.1.9" />
