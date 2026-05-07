@@ -1,0 +1,702 @@
+@* =====================================================================
+    PilotageRecrutementDashboard.razor — V1.4 (mai 2026)
+    URL : /dashboards/pilotage-recrutement
+    Périmètre : Pilotage DRH — Vue 360° du processus de recrutement.
+   ===================================================================== *@
+
+@page "/dashboards/pilotage-recrutement"
+@attribute [Authorize]
+
+@using System.Globalization
+@using AdiPAIE_V02.Module.BusinessObjects
+@using AdiPAIE_V02.Module.BusinessObjects.Recrutement
+@using AdiPAIE_V02.Module.Models.Dashboards
+@using AdiPAIE_V02.Module.Services.Dashboards
+@using DevExpress.ExpressApp
+@using DevExpress.ExpressApp.Blazor.Services
+
+@inject IPilotageRecrutementDashboardService Service
+@inject INonSecuredObjectSpaceFactory ObjectSpaceFactory
+@inject NavigationManager Nav
+
+<PageTitle>Pilotage Recrutement — Tableaux de Bord RH</PageTitle>
+
+@if (_loading)
+{
+    <div class="pr-loading"><DxLoadingPanel Text="Chargement…" Visible="true" /></div>
+}
+else if (_errorMessage != null)
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+else if (_data != null)
+{
+    <div class="pr-dashboard">
+        <!-- Header -->
+        <div class="pr-header">
+            <div class="pr-title-block">
+                <h1 class="pr-title"><i class="bi bi-person-plus"></i> Pilotage Recrutement</h1>
+                <div class="pr-subtitle">
+                    Pilotage DRH · V1.4 ·
+                    @(_filter.Personnel == PersonnelType.Externe ? "Personnel Externe (Intérim)" : "Personnel Interne")
+                    · Année @_filter.Annee · Recalculé @_data.CalculatedAt.ToString("dd/MM/yyyy HH:mm")
+                </div>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" @onclick="RefreshAsync">
+                <i class="bi bi-arrow-clockwise"></i> Actualiser
+            </button>
+        </div>
+
+        <!-- ── TOGGLE INTERNE / EXTERNE ─────────────────────────── -->
+        <div class="pr-toggle">
+            <button type="button"
+                    class="pr-toggle-btn @(_filter.Personnel == PersonnelType.Interne ? "pr-toggle-on" : "")"
+                    @onclick="@(() => SwitchPersonnel(PersonnelType.Interne))">
+                <i class="bi bi-people-fill"></i> Interne
+            </button>
+            <button type="button"
+                    class="pr-toggle-btn @(_filter.Personnel == PersonnelType.Externe ? "pr-toggle-on" : "")"
+                    @onclick="@(() => SwitchPersonnel(PersonnelType.Externe))">
+                <i class="bi bi-person-badge"></i> Externe (Intérim)
+            </button>
+        </div>
+
+        @if (_filter.Personnel == PersonnelType.Externe)
+        {
+            <div class="pr-banner">
+                <i class="bi bi-info-circle"></i>
+                <div>
+                    <strong>Mode Externe (Intérim)</strong> — le recrutement intérimaire est géré
+                    par les sociétés d'intérim partenaires (DTC, Bagamana, etc.). Pour le suivi détaillé
+                    des coûts intérim, voir le <a href="/dashboards/cout-reel-interim">Tableau N°11 — Coût Réel Intérimaires</a>.
+                    Les KPIs ci-dessous reflètent les nouveaux contrats intérim créés dans l'année.
+                </div>
+            </div>
+        }
+
+        <!-- ── FILTRES ──────────────────────────────────────────── -->
+        <div class="pr-filter-card">
+            <div class="pr-filter-row">
+                <div class="pr-filter-item">
+                    <label>Année</label>
+                    <select class="form-select form-select-sm" @bind="_filter.Annee" @bind:after="LoadDataAsync">
+                        @foreach (var an in _annees)
+                        {
+                            <option value="@an">@an</option>
+                        }
+                    </select>
+                </div>
+
+                @* Type contrat + Catégories — uniquement Interne *@
+                @if (_filter.Personnel == PersonnelType.Interne)
+                {
+                    <div class="pr-filter-item">
+                        <label>Type de contrat</label>
+                        <select class="form-select form-select-sm" @bind="_filter.TypeContrat" @bind:after="LoadDataAsync">
+                            <option value="">Tous</option>
+                            <option value="CDI">CDI</option>
+                            <option value="CDD">CDD</option>
+                            <option value="Stage">Stage</option>
+                        </select>
+                    </div>
+
+                    <div class="pr-filter-item pr-filter-grow">
+                        <label>Catégories (@_filter.CategorieOids.Count sél.)</label>
+                        <div class="pr-multi-chips">
+                            @foreach (var c in _categories)
+                            {
+                                var selected = _filter.CategorieOids.Contains(c.Oid);
+                                <button type="button"
+                                        class="pr-chip @(selected ? "pr-chip-on" : "")"
+                                        @onclick="() => ToggleCategorie(c.Oid)">
+                                    @c.Intitule
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @* Sites — uniquement Externe (les intérimaires sont affectés à un site) *@
+                @if (_filter.Personnel == PersonnelType.Externe)
+                {
+                    <div class="pr-filter-item pr-filter-grow">
+                        <label>
+                            Sites (@_filter.SiteOids.Count sél.)
+                        </label>
+                        @if (_sites.Count <= 8)
+                        {
+                            <div class="pr-multi-chips">
+                                @foreach (var s in _sites)
+                                {
+                                    var sOid = s.Oid;
+                                    var selected = _filter.SiteOids.Contains(sOid);
+                                    <button type="button"
+                                            class="pr-chip @(selected ? "pr-chip-on" : "")"
+                                            @onclick="@(() => ToggleSite(sOid))">
+                                        @s.Nom
+                                    </button>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <details class="pr-sitesdrop">
+                                <summary class="pr-sitesdrop-btn">
+                                    <i class="bi bi-geo-alt"></i>
+                                    @(_filter.SiteOids.Count == 0
+                                        ? "Choisir parmi " + _sites.Count + " sites…"
+                                        : _filter.SiteOids.Count + " site(s) sélectionné(s)")
+                                    <i class="bi bi-chevron-down pr-sitesdrop-caret"></i>
+                                </summary>
+                                <div class="pr-sitesdrop-panel">
+                                    <input type="search" placeholder="🔍 Rechercher un site…"
+                                           class="pr-sitesdrop-search"
+                                           @bind="_siteSearch" @bind:event="oninput" />
+                                    <div class="pr-sitesdrop-actions">
+                                        <button type="button" class="pr-btn-mini" @onclick="ClearSites">Tout désélectionner</button>
+                                        <span class="pr-sitesdrop-count">@FilteredSites.Count / @_sites.Count</span>
+                                    </div>
+                                    <div class="pr-sitesdrop-list">
+                                        @foreach (var s in FilteredSites)
+                                        {
+                                            var sOid = s.Oid;
+                                            var selected = _filter.SiteOids.Contains(sOid);
+                                            <label class="pr-sitesdrop-item @(selected ? "pr-sitesdrop-item-on" : "")">
+                                                <input type="checkbox" checked="@selected"
+                                                       @onclick="@(() => ToggleSite(sOid))" />
+                                                <span>@s.Nom</span>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+                            </details>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- ── KPIs HAUT ──────────────────────────────────────────── -->
+        <div class="pr-kpi-grid">
+            <div class="pr-kpi pr-kpi-blue">
+                <div class="pr-kpi-label">Postes ouverts</div>
+                <div class="pr-kpi-value">@_data.Kpis.NbPostesOuverts</div>
+                <div class="pr-kpi-hint">Validés / Publiés / En recrutement</div>
+            </div>
+            <div class="pr-kpi pr-kpi-green">
+                <div class="pr-kpi-label">Postes pourvus YTD</div>
+                <div class="pr-kpi-value">@_data.Kpis.NbPostesPourvus</div>
+                <div class="pr-kpi-hint">Statut Pourvu en @_filter.Annee</div>
+            </div>
+            <div class="pr-kpi pr-kpi-purple">
+                <div class="pr-kpi-label">Embauches YTD</div>
+                <div class="pr-kpi-value">@_data.Kpis.NbEmbauchesYTD</div>
+                <div class="pr-kpi-hint">Taux conversion @FmtPct(_data.Kpis.TauxConversionPct)</div>
+            </div>
+            <div class="pr-kpi pr-kpi-orange">
+                <div class="pr-kpi-label">Délai moyen recrutement</div>
+                <div class="pr-kpi-value">@FmtNum(_data.Kpis.DelaiMoyenRecrutementJ) <span class="pr-unit">j</span></div>
+                <div class="pr-kpi-hint">Ouverture → Pourvu</div>
+            </div>
+            <div class="pr-kpi pr-kpi-teal">
+                <div class="pr-kpi-label">Coût total recrutement YTD</div>
+                <div class="pr-kpi-value">@FmtFcfa(_data.Kpis.CoutTotalRecrutementYTD)</div>
+                <div class="pr-kpi-hint">Soit @FmtFcfa(_data.Kpis.CoutMoyenParEmbauche) / embauche</div>
+            </div>
+            <div class="pr-kpi pr-kpi-indigo">
+                <div class="pr-kpi-label">Candidatures actives</div>
+                <div class="pr-kpi-value">@_data.Kpis.NbCandidaturesActives</div>
+                <div class="pr-kpi-hint">@_data.Kpis.NbCandidaturesRecuesYTD reçues YTD</div>
+            </div>
+            <div class="pr-kpi pr-kpi-rose">
+                <div class="pr-kpi-label">Taux acceptation offres</div>
+                <div class="pr-kpi-value">@FmtPct(_data.Kpis.TauxAcceptationOffrePct)</div>
+                <div class="pr-kpi-hint">Acceptées / Envoyées</div>
+            </div>
+            <div class="pr-kpi pr-kpi-slate">
+                <div class="pr-kpi-label">Période d'essai en cours</div>
+                <div class="pr-kpi-value">@_data.Kpis.NbPeriodesEssaiEnCours</div>
+                <div class="pr-kpi-hint">Rétention post-essai @FmtPct(_data.Kpis.TauxRetentionPostEssaiPct)</div>
+            </div>
+        </div>
+
+        <!-- ── PIPELINE FUNNEL ─────────────────────────────────── -->
+        <div class="pr-section">
+            <h3 class="pr-h3"><i class="bi bi-funnel"></i> Pipeline de recrutement (funnel)</h3>
+            <div class="pr-funnel">
+                @foreach (var et in _data.Pipeline)
+                {
+                    var width = et.TauxVsTotalPct == 0 ? 5 : (int)Math.Max(8, et.TauxVsTotalPct);
+                    <div class="pr-funnel-row">
+                        <div class="pr-funnel-label">@et.Etape</div>
+                        <div class="pr-funnel-bar-wrap">
+                            <div class="pr-funnel-bar" style="width:@(width)%; background:@et.CouleurHex;">
+                                <span class="pr-funnel-bar-text">
+                                    @et.NbCandidatures <span class="pr-funnel-pct">(@FmtPct(et.TauxVsTotalPct))</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="pr-funnel-prec">
+                            @if (et.Ordre > 1)
+                            {
+                                <span title="vs étape précédente">↓ @FmtPct(et.TauxVsPrecedentePct)</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- ── ÉVOLUTION 12 MOIS ───────────────────────────────── -->
+        <div class="pr-section">
+            <h3 class="pr-h3"><i class="bi bi-graph-up"></i> Évolution mensuelle @_filter.Annee</h3>
+            <div class="pr-table-wrap">
+                <table class="table table-sm pr-table">
+                    <thead>
+                        <tr>
+                            <th>Mois</th>
+                            <th class="pr-num">Postes ouverts</th>
+                            <th class="pr-num">Candidatures reçues</th>
+                            <th class="pr-num">Embauches</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in _data.Evolution)
+                        {
+                            <tr>
+                                <td>@m.Libelle</td>
+                                <td class="pr-num">@m.NbOuvertures</td>
+                                <td class="pr-num">@m.NbCandidatures</td>
+                                <td class="pr-num"><strong>@m.NbEmbauches</strong></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── TOP SOURCES ─────────────────────────────────────── -->
+        <div class="pr-section">
+            <h3 class="pr-h3"><i class="bi bi-broadcast"></i> Performance des sources de recrutement</h3>
+            @if (_data.Sources.Count == 0)
+            {
+                <div class="text-muted">Aucune candidature avec source renseignée pour cette période.</div>
+            }
+            else
+            {
+                <div class="pr-table-wrap">
+                    <table class="table table-sm pr-table">
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th class="pr-num">Candidatures</th>
+                                <th class="pr-num">Entretiens</th>
+                                <th class="pr-num">Embauches</th>
+                                <th class="pr-num">Taux conv.</th>
+                                <th class="pr-num">Coût moyen / cand.</th>
+                                <th class="pr-num">Coût total</th>
+                                <th class="pr-num">Coût / embauche</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in _data.Sources)
+                            {
+                                <tr>
+                                    <td>@s.Source</td>
+                                    <td class="pr-num">@s.NbCandidatures</td>
+                                    <td class="pr-num">@s.NbEntretiens</td>
+                                    <td class="pr-num"><strong>@s.NbEmbauches</strong></td>
+                                    <td class="pr-num">@FmtPct(s.TauxConversionPct)</td>
+                                    <td class="pr-num">@FmtFcfa(s.CoutMoyenParCandidat)</td>
+                                    <td class="pr-num">@FmtFcfa(s.CoutTotal)</td>
+                                    <td class="pr-num"><strong>@FmtFcfa(s.CoutParEmbauche)</strong></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- ── DÉLAI PAR CATÉGORIE ─────────────────────────────── -->
+        <div class="pr-section">
+            <h3 class="pr-h3"><i class="bi bi-stopwatch"></i> Délai recrutement par catégorie</h3>
+            @if (_data.DelaiParCategorie.Count == 0)
+            {
+                <div class="text-muted">Aucun poste pourvu en @_filter.Annee.</div>
+            }
+            else
+            {
+                <div class="pr-table-wrap">
+                    <table class="table table-sm pr-table">
+                        <thead>
+                            <tr>
+                                <th>Catégorie</th>
+                                <th class="pr-num">Postes pourvus</th>
+                                <th class="pr-num">Délai moyen (j)</th>
+                                <th class="pr-num">Min</th>
+                                <th class="pr-num">Max</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in _data.DelaiParCategorie)
+                            {
+                                <tr>
+                                    <td>@c.Categorie</td>
+                                    <td class="pr-num">@c.NbPostesPourvus</td>
+                                    <td class="pr-num"><strong>@FmtNum(c.DelaiMoyenJ)</strong></td>
+                                    <td class="pr-num">@FmtNum(c.DelaiMinJ)</td>
+                                    <td class="pr-num">@FmtNum(c.DelaiMaxJ)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- ── POSTES OUVERTS ───────────────────────────────────── -->
+        <div class="pr-section">
+            <h3 class="pr-h3"><i class="bi bi-list-task"></i> Postes ouverts (tri par jours d'ouverture décroissant)</h3>
+            @if (_data.PostesOuverts.Count == 0)
+            {
+                <div class="text-muted">Aucun poste ouvert.</div>
+            }
+            else
+            {
+                <div class="pr-table-wrap">
+                    <table class="table table-sm pr-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Libellé</th>
+                                <th>Département</th>
+                                <th>Site</th>
+                                <th>Catégorie</th>
+                                <th>Contrat</th>
+                                <th>Statut</th>
+                                <th class="pr-num">Ouverture</th>
+                                <th class="pr-num">Jours</th>
+                                <th class="pr-num">Cand.</th>
+                                <th class="pr-num">Entr.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in _data.PostesOuverts)
+                            {
+                                var alertCls = p.JoursOuverts > 60 ? "pr-row-warn" : "";
+                                <tr class="@alertCls">
+                                    <td>@p.Code</td>
+                                    <td>@p.Libelle</td>
+                                    <td>@p.Departement</td>
+                                    <td>@p.Site</td>
+                                    <td>@p.Categorie</td>
+                                    <td>@p.TypeContrat</td>
+                                    <td>@p.Statut</td>
+                                    <td class="pr-num">@p.DateOuverture.ToString("dd/MM/yyyy")</td>
+                                    <td class="pr-num"><strong>@p.JoursOuverts</strong></td>
+                                    <td class="pr-num">@p.NbCandidatures</td>
+                                    <td class="pr-num">@p.NbEntretiens</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- ── PÉRIODES D'ESSAI EN COURS ──────────────────────── -->
+        <div class="pr-section">
+            <h3 class="pr-h3"><i class="bi bi-hourglass-split"></i> Périodes d'essai en cours</h3>
+            @if (_data.PeriodesEssaiEnCours.Count == 0)
+            {
+                <div class="text-muted">Aucune période d'essai en cours.</div>
+            }
+            else
+            {
+                <div class="pr-table-wrap">
+                    <table class="table table-sm pr-table">
+                        <thead>
+                            <tr>
+                                <th>Salarié</th>
+                                <th>Poste</th>
+                                <th>Site</th>
+                                <th class="pr-num">Début</th>
+                                <th class="pr-num">Fin prévue</th>
+                                <th class="pr-num">Jours écoulés</th>
+                                <th class="pr-num">Jours restants</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var pe in _data.PeriodesEssaiEnCours)
+                            {
+                                var alertCls = pe.JoursRestants <= 7 ? "pr-row-warn" : "";
+                                <tr class="@alertCls">
+                                    <td>@pe.SalarieNom</td>
+                                    <td>@pe.Poste</td>
+                                    <td>@pe.Site</td>
+                                    <td class="pr-num">@pe.DateDebut.ToString("dd/MM/yyyy")</td>
+                                    <td class="pr-num">@(pe.DateFinPrevue == default ? "—" : pe.DateFinPrevue.ToString("dd/MM/yyyy"))</td>
+                                    <td class="pr-num">@pe.JoursEcoules</td>
+                                    <td class="pr-num"><strong>@pe.JoursRestants</strong></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- ── MOTIFS REFUS (2 colonnes) ───────────────────────── -->
+        <div class="pr-section pr-row-2">
+            <div>
+                <h3 class="pr-h3"><i class="bi bi-x-circle"></i> Motifs de refus (côté entreprise)</h3>
+                @if (_data.RefusEntreprise.Count == 0)
+                {
+                    <div class="text-muted">Aucun refus enregistré.</div>
+                }
+                else
+                {
+                    <table class="table table-sm pr-table">
+                        <thead><tr><th>Motif</th><th class="pr-num">Nb</th><th class="pr-num">%</th></tr></thead>
+                        <tbody>
+                            @foreach (var r in _data.RefusEntreprise)
+                            {
+                                <tr><td>@r.Motif</td><td class="pr-num">@r.Nombre</td><td class="pr-num">@FmtPct(r.PourcentageDuTotal)</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+            <div>
+                <h3 class="pr-h3"><i class="bi bi-x-octagon"></i> Refus d'offres (côté candidat)</h3>
+                @if (_data.RefusCandidat.Count == 0)
+                {
+                    <div class="text-muted">Aucune offre refusée par un candidat.</div>
+                }
+                else
+                {
+                    <table class="table table-sm pr-table">
+                        <thead><tr><th>Motif</th><th class="pr-num">Nb</th><th class="pr-num">%</th></tr></thead>
+                        <tbody>
+                            @foreach (var r in _data.RefusCandidat)
+                            {
+                                <tr><td>@r.Motif</td><td class="pr-num">@r.Nombre</td><td class="pr-num">@FmtPct(r.PourcentageDuTotal)</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .pr-loading { display:flex; align-items:center; justify-content:center; min-height:60vh; }
+    .pr-dashboard { padding:16px 24px; max-width:1600px; margin:0 auto; }
+
+    .pr-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; gap:16px; }
+    .pr-title { margin:0; font-size:1.6rem; color:#1E3A8A; }
+    .pr-title i { margin-right:6px; }
+    .pr-subtitle { color:#64748B; font-size:0.85rem; margin-top:4px; }
+
+    .pr-toggle { display:inline-flex; gap:0; background:#F1F5F9; border-radius:8px; padding:4px; margin-bottom:12px; }
+    .pr-toggle-btn { background:transparent; border:none; padding:6px 14px; border-radius:6px; font-size:0.85rem; font-weight:500; color:#475569; cursor:pointer; transition:all .15s; }
+    .pr-toggle-btn:hover { background:#E2E8F0; }
+    .pr-toggle-on { background:#1E3A8A !important; color:#fff !important; box-shadow:0 1px 3px rgba(0,0,0,.15); }
+    .pr-toggle-btn i { margin-right:5px; }
+
+    .pr-banner { display:flex; gap:12px; align-items:flex-start; background:#FEF3C7; border:1px solid #FCD34D; border-radius:8px; padding:10px 14px; margin-bottom:12px; font-size:0.85rem; color:#78350F; }
+    .pr-banner i { font-size:1.2rem; flex-shrink:0; margin-top:2px; }
+    .pr-banner a { color:#1E3A8A; font-weight:600; text-decoration:underline; }
+
+    .pr-filter-card { background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:12px 16px; margin-bottom:16px; }
+    .pr-filter-row { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+    .pr-filter-item { display:flex; flex-direction:column; gap:4px; min-width:160px; }
+    .pr-filter-item label { font-size:0.75rem; font-weight:600; color:#475569; }
+    .pr-filter-grow { flex:1 1 380px; min-width:280px; }
+
+    .pr-multi-chips { display:flex; flex-wrap:wrap; gap:4px; max-height:80px; overflow-y:auto; padding:4px; background:#fff; border:1px solid #CBD5E1; border-radius:6px; }
+    .pr-chip { background:#fff; border:1px solid #CBD5E1; border-radius:14px; padding:2px 10px; font-size:0.75rem; cursor:pointer; transition:all .15s; }
+    .pr-chip:hover { background:#F1F5F9; }
+    .pr-chip-on { background:#1E3A8A; border-color:#1E3A8A; color:#fff; }
+
+    /* Dropdown searchable pour les sites (>8) */
+    .pr-sitesdrop { position:relative; }
+    .pr-sitesdrop-btn { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#fff; border:1px solid #CBD5E1; border-radius:6px; font-size:0.85rem; cursor:pointer; user-select:none; min-width:240px; }
+    .pr-sitesdrop-btn:hover { background:#F8FAFC; }
+    .pr-sitesdrop-btn::-webkit-details-marker { display:none; }
+    .pr-sitesdrop-caret { margin-left:auto; transition:transform .15s; }
+    details[open] > .pr-sitesdrop-btn .pr-sitesdrop-caret { transform:rotate(180deg); }
+    .pr-sitesdrop-panel { position:absolute; top:100%; left:0; z-index:100; margin-top:4px; min-width:320px; max-width:480px; background:#fff; border:1px solid #CBD5E1; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,.12); padding:8px; }
+    .pr-sitesdrop-search { width:100%; padding:6px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:0.85rem; margin-bottom:6px; }
+    .pr-sitesdrop-actions { display:flex; justify-content:space-between; align-items:center; padding:0 4px 6px 4px; font-size:0.75rem; color:#64748B; }
+    .pr-btn-mini { background:none; border:none; color:#1E3A8A; font-size:0.75rem; padding:2px 6px; cursor:pointer; text-decoration:underline; }
+    .pr-btn-mini:hover { color:#0F172A; }
+    .pr-sitesdrop-count { font-weight:500; }
+    .pr-sitesdrop-list { max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:2px; }
+    .pr-sitesdrop-item { display:flex; align-items:center; gap:8px; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.85rem; }
+    .pr-sitesdrop-item:hover { background:#F1F5F9; }
+    .pr-sitesdrop-item-on { background:#EFF6FF; color:#1E3A8A; font-weight:500; }
+    .pr-sitesdrop-item input[type=checkbox] { margin:0; }
+
+    .pr-kpi-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:16px; }
+    .pr-kpi { background:#fff; border:1px solid #E2E8F0; border-left:4px solid #94A3B8; border-radius:8px; padding:12px 14px; }
+    .pr-kpi-label { font-size:0.75rem; font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:.5px; }
+    .pr-kpi-value { font-size:1.6rem; font-weight:700; color:#0F172A; margin:4px 0; }
+    .pr-kpi-hint { font-size:0.75rem; color:#64748B; }
+    .pr-kpi-blue { border-left-color:#3B82F6; }
+    .pr-kpi-green { border-left-color:#10B981; }
+    .pr-kpi-purple { border-left-color:#8B5CF6; }
+    .pr-kpi-orange { border-left-color:#F59E0B; }
+    .pr-kpi-teal { border-left-color:#14B8A6; }
+    .pr-kpi-indigo { border-left-color:#6366F1; }
+    .pr-kpi-rose { border-left-color:#F43F5E; }
+    .pr-kpi-slate { border-left-color:#64748B; }
+    .pr-unit { font-size:0.9rem; color:#64748B; font-weight:400; }
+
+    .pr-section { background:#fff; border:1px solid #E2E8F0; border-radius:8px; padding:14px 16px; margin-bottom:16px; }
+    .pr-h3 { font-size:1.05rem; color:#1E3A8A; margin:0 0 12px 0; }
+    .pr-h3 i { margin-right:6px; }
+
+    .pr-funnel { display:flex; flex-direction:column; gap:6px; }
+    .pr-funnel-row { display:grid; grid-template-columns:160px 1fr 80px; align-items:center; gap:12px; }
+    .pr-funnel-label { font-weight:600; color:#334155; font-size:0.85rem; }
+    .pr-funnel-bar-wrap { background:#F1F5F9; border-radius:4px; height:28px; position:relative; overflow:hidden; }
+    .pr-funnel-bar { height:100%; display:flex; align-items:center; padding-left:10px; color:#fff; font-size:0.85rem; font-weight:600; transition:width .3s; min-width:60px; }
+    .pr-funnel-pct { font-weight:400; opacity:.85; margin-left:4px; }
+    .pr-funnel-prec { font-size:0.8rem; color:#64748B; text-align:right; }
+
+    .pr-table-wrap { overflow-x:auto; }
+    .pr-table { font-size:0.85rem; }
+    .pr-table th { background:#F1F5F9; color:#1E3A8A; font-weight:600; }
+    .pr-num { text-align:right; white-space:nowrap; }
+    .pr-row-warn { background:#FEF3C7; }
+
+    .pr-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @@media (max-width: 980px) {
+        .pr-row-2 { grid-template-columns:1fr; }
+        .pr-funnel-row { grid-template-columns:120px 1fr 60px; }
+    }
+</style>
+
+@code {
+#nullable enable
+    private bool _loading = true;
+    private string? _errorMessage;
+    private PilotageRecrutementDto? _data;
+    private PilotageRecrutementFilterModel _filter = new();
+
+    private List<int> _annees = new();
+    private List<Site> _sites = new();
+    private List<Categories> _categories = new();
+
+    // Recherche dans le dropdown sites (>8)
+    private string _siteSearch = "";
+    private List<Site> FilteredSites =>
+        string.IsNullOrWhiteSpace(_siteSearch)
+            ? _sites
+            : _sites.Where(s => (s.Nom ?? "").Contains(_siteSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    private async Task ClearSites()
+    {
+        _filter.SiteOids.Clear();
+        await LoadDataAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFiltersAsync();
+        await LoadDataAsync();
+    }
+
+    private Task LoadFiltersAsync()
+    {
+        try
+        {
+            using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(PosteVacant));
+            _annees = Service.GetAnneesDisponibles(os);
+            _sites = Service.GetSitesActifs(os);
+            _categories = Service.GetCategories(os);
+
+            if (_annees.Count > 0 && !_annees.Contains(_filter.Annee))
+                _filter.Annee = _annees.First();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erreur chargement filtres : {ex.Message}";
+        }
+        return Task.CompletedTask;
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _loading = true;
+        _data = null;
+        _errorMessage = null;
+        StateHasChanged();
+        await Task.Yield();
+        try
+        {
+            using var os = ObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(PosteVacant));
+            _data = Service.GetData(_filter, os);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Erreur calcul dashboard : {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RefreshAsync()
+    {
+        Service.InvalidateCache();
+        await LoadDataAsync();
+    }
+
+    /// <summary>Switch Interne ⇄ Externe : reset les filtres non pertinents pour le nouveau mode.</summary>
+    private async Task SwitchPersonnel(PersonnelType target)
+    {
+        if (_filter.Personnel == target) return;
+
+        _filter.Personnel = target;
+
+        // Reset systématique des filtres au changement de mode (le contexte change)
+        _filter.SiteOids.Clear();
+        _filter.DepartementOids.Clear();
+        _filter.CategorieOids.Clear();
+        _filter.TypeContrat = "";
+
+        // On vide aussi les KPIs pour signaler visuellement le changement
+        _data = null;
+        Service.InvalidateCache();
+        await LoadDataAsync();
+    }
+
+    private async Task ToggleSite(Guid oid)
+    {
+        if (_filter.SiteOids.Contains(oid)) _filter.SiteOids.Remove(oid);
+        else _filter.SiteOids.Add(oid);
+        await LoadDataAsync();
+    }
+
+    private async Task ToggleCategorie(Guid oid)
+    {
+        if (_filter.CategorieOids.Contains(oid)) _filter.CategorieOids.Remove(oid);
+        else _filter.CategorieOids.Add(oid);
+        await LoadDataAsync();
+    }
+
+    private static string FmtNum(decimal d) =>
+        d.ToString("N1", CultureInfo.GetCultureInfo("fr-FR"));
+
+    private static string FmtPct(decimal d) =>
+        d.ToString("N1", CultureInfo.GetCultureInfo("fr-FR")) + " %";
+
+    private static string FmtFcfa(decimal d) =>
+        d.ToString("N0", CultureInfo.GetCultureInfo("fr-FR")) + " FCFA";
+}

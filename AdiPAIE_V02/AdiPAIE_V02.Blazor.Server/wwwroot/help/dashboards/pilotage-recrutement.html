@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilotage Recrutement — Aide Tableau N°12</title>
+    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">SunuPaie — Guide utilisateur</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
+        <span class="sep">|</span>
+        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+        <a href="/help/dashboards/budget-vs-realise.html">N°7 Budget</a>
+        <a href="/help/dashboards/provisions-sociales.html">N°8 Provisions</a>
+        <a href="/help/dashboards/cout-complet.html">N°9 Coût Complet</a>
+        <a href="/help/dashboards/conformite-senegal.html">N°10 Conformité</a>
+        <a href="/help/dashboards/cout-reel-interim.html">N°11 Coût Réel Intérim</a>
+        <a href="/help/dashboards/pilotage-recrutement.html" class="active">N°12 Recrutement</a>
+    </nav>
+    <main>
+        <div class="num">Tableau N°12 · V1.4</div>
+        <h1>Pilotage Recrutement</h1>
+        <p class="lead">Vue 360° du processus de recrutement ELTON : postes ouverts, pipeline candidatures, performance des sources, délai moyen, coût par embauche, périodes d'essai en cours. Permet à la DRH et au manager hiérarchique de piloter chaque étape du tunnel d'acquisition de talents.</p>
+
+        <h2>À quoi sert ce tableau</h2>
+        <p>Avant V1.4, le suivi du recrutement se faisait via un fichier Excel partagé. Ce dashboard centralise toutes les candidatures dans la base XAF avec un workflow de pipeline réaliste (Reçue → Pré-sélection → Entretien planifié → Entretien fait → Offre proposée → Offre acceptée → Embauché). Il fournit les indicateurs RH classiques (coût d'acquisition, délai moyen, taux de conversion) et un suivi des périodes d'essai post-embauche.</p>
+
+        <h2>Pour qui</h2>
+        <ul>
+            <li><strong>DRH</strong> : pilotage global du recrutement, validation budgets, négociation avec sociétés de chasse de têtes.</li>
+            <li><strong>Responsable recrutement / Talent Acquisition</strong> : suivi quotidien du pipeline, identification des goulots d'étranglement.</li>
+            <li><strong>Managers hiérarchiques</strong> : visibilité sur les postes ouverts dans leur périmètre + statut des candidats.</li>
+            <li><strong>DAF</strong> : suivi du coût par embauche pour budget annuel.</li>
+        </ul>
+
+        <h2>Prérequis : alimenter les données</h2>
+        <p>Avant de voir des KPIs, il faut alimenter les entités du module Recrutement (groupe menu <strong>GRH - Recrutement</strong>) :</p>
+        <ol>
+            <li><strong>Référentiels</strong> à créer une seule fois :
+                <ul>
+                    <li><em>Motif d'ouverture poste</em> (Croissance, Remplacement, Création de fonction)</li>
+                    <li><em>Source de recrutement</em> avec le coût moyen par candidat (LinkedIn, Recommandation, ANEM, Salons emploi…)</li>
+                    <li><em>Motif refus candidat</em> (côté entreprise : manque expérience, prétentions trop élevées…)</li>
+                    <li><em>Motif refus offre</em> (côté candidat : rémunération insuffisante, autre offre…)</li>
+                </ul>
+            </li>
+            <li><strong>Poste vacant</strong> : créer une fiche dès qu'un poste est ouvert. Statut Brouillon → Validé DRH → Publié → En recrutement → Pourvu.</li>
+            <li><strong>Candidat</strong> : 1 fiche par personne, multi-candidatures possibles.</li>
+            <li><strong>Candidature</strong> : association Candidat × Poste avec statut workflow.</li>
+            <li><strong>Entretien</strong> : créer un entretien dès qu'il est planifié, mettre la note + l'avis après l'entretien.</li>
+            <li><strong>Offre d'emploi</strong> : créer dès qu'on prépare une proposition formelle.</li>
+            <li><strong>Période d'essai</strong> : créer à l'embauche pour suivre les 3 mois standards (CCT Sénégal).</li>
+        </ol>
+
+        <h2 id="kpis">Les 8 KPIs hauts du dashboard</h2>
+        <table>
+            <thead><tr><th>KPI</th><th>Calcul</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Postes ouverts</strong></td><td>Postes avec statut Validé / Publié / En recrutement (hors Brouillon, Pourvu, Annulé).</td></tr>
+                <tr><td><strong>Postes pourvus YTD</strong></td><td>Postes avec statut <em>Pourvu</em> et DateCloture dans l'année cible.</td></tr>
+                <tr><td><strong>Embauches YTD</strong></td><td>Candidatures avec statut <em>Embauché</em> dans l'année (le taux de conversion = embauches / candidatures reçues × 100).</td></tr>
+                <tr><td><strong>Délai moyen recrutement</strong></td><td>Moyenne (DateCloture - DateOuverture) en jours sur les postes pourvus dans l'année.</td></tr>
+                <tr><td><strong>Coût total recrutement YTD</strong></td><td>Σ (Source.CoutMoyenParCandidat × nb candidatures sur cette source) sur l'année. Affiche aussi le coût moyen par embauche.</td></tr>
+                <tr><td><strong>Candidatures actives</strong></td><td>Total candidatures dont le statut n'est pas terminal (hors Refusé / Désistement / Annulé / Embauché).</td></tr>
+                <tr><td><strong>Taux acceptation offres</strong></td><td>Offres acceptées / Offres envoyées × 100. Indicateur de l'attractivité salariale ELTON.</td></tr>
+                <tr><td><strong>Périodes d'essai en cours</strong></td><td>Nb de PeriodeEssai au statut <em>EnCours</em>. Affiche aussi le taux de rétention post-essai (Concluantes / (Concluantes + Rompues)).</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Sections du tableau</h2>
+
+        <h3>Pipeline de recrutement (funnel)</h3>
+        <p>7 barres horizontales qui visualisent le tunnel d'acquisition. Pour chaque étape (Reçue, Pré-sélection, Entretien planifié, Entretien fait, Offre proposée, Offre acceptée, Embauché), on calcule le nombre de candidatures qui ont atteint cette étape (statut numérique ≥ seuil). Le pourcentage indique :</p>
+        <ul>
+            <li><strong>vs total reçu</strong> : largeur visuelle de la barre (% du total reçu).</li>
+            <li><strong>↓ vs étape précédente</strong> : à droite, taux de passage entre 2 étapes consécutives. Permet d'identifier les étapes où on perd le plus de monde (souvent : passage entretien → offre).</li>
+        </ul>
+
+        <h3>Évolution mensuelle</h3>
+        <p>Pour chaque mois de l'année cible, 3 colonnes : nb postes ouverts (DateOuverture sur ce mois), nb candidatures reçues (DateSoumission sur ce mois), nb embauches (DateDecision + statut Embauché sur ce mois). Permet de détecter les saisonnalités (rentrée, fin d'année…).</p>
+
+        <h3>Performance des sources de recrutement</h3>
+        <p>Pour chaque source (LinkedIn, ANEM…) : nb candidatures, nb entretiens, nb embauches, taux de conversion, coût moyen par candidat (saisi sur le référentiel), coût total et <strong>coût par embauche</strong>. C'est le KPI le plus stratégique : il permet de réallouer le budget vers les sources les plus efficaces.</p>
+
+        <h3>Délai recrutement par catégorie</h3>
+        <p>Décomposition du délai moyen par catégorie professionnelle (Cadres, Maîtrise, Employés…). Affiche aussi min et max pour identifier les catégories où certains recrutements traînent anormalement.</p>
+
+        <h3 id="postes-ouverts">★ Liste des postes ouverts (priorisée)</h3>
+        <p>Tableau trié par <strong>Jours d'ouverture décroissant</strong>. Les lignes avec plus de 60 jours d'ouverture sont surlignées en orange (alerte : poste qui traîne, à investiguer). Affiche pour chaque poste : code, libellé, département, site, catégorie, type contrat, statut, date ouverture, jours, nb candidatures reçues, nb entretiens menés.</p>
+
+        <h3>Périodes d'essai en cours</h3>
+        <p>Pour chaque salarié en période d'essai : nom, poste, site, date début, date fin prévue, jours écoulés, jours restants. Les lignes avec ≤ 7 jours restants sont surlignées en orange (le manager doit prendre sa décision dans la semaine).</p>
+
+        <h3>Motifs de refus</h3>
+        <p>2 tables côte à côte :</p>
+        <ul>
+            <li><strong>Côté entreprise</strong> : pourquoi ELTON refuse certains candidats (analysés sur Candidature au statut Refusé).</li>
+            <li><strong>Côté candidat</strong> : pourquoi des candidats refusent les offres ELTON (analysés sur OffreEmploi au statut Refusée candidat). Indicateur clé pour ajuster la politique salariale.</li>
+        </ul>
+
+        <h2>Filtres disponibles</h2>
+        <ul>
+            <li><strong>Année</strong> : par défaut année en cours.</li>
+            <li><strong>Type de contrat</strong> : Tous, CDI, CDD, Stage.</li>
+            <li><strong>Sites</strong> : multi-sélection (chips). Filtre les postes selon leur Site.</li>
+            <li><strong>Catégories professionnelles</strong> : multi-sélection (chips).</li>
+        </ul>
+        <p>Le bouton <em>Actualiser</em> (en haut à droite) invalide le cache (TTL 5 min) et recalcule les données depuis la base.</p>
+
+        <h2>Bonnes pratiques</h2>
+        <ul>
+            <li><strong>Saisir le coût par source</strong> : le calcul du coût total recrutement n'a de sens que si chaque référentiel SourceRecrutement a son <em>CoutMoyenParCandidat</em> renseigné (ex. LinkedIn ≈ 25 000 FCFA / cand., ANEM ≈ 0 FCFA, Salon emploi ≈ 40 000 FCFA).</li>
+            <li><strong>Workflow strict</strong> : faire passer la candidature par chaque étape (ne pas sauter de Reçue à Embauché) pour que le funnel soit fiable.</li>
+            <li><strong>Renseigner le motif de refus</strong> : sans cette info, l'analyse stratégique est inopérante.</li>
+            <li><strong>Lier l'embauche à la fiche Salarié</strong> : sur Candidature au statut Embauché, renseigner le champ <em>Salarié créé</em> (FK vers la fiche Salarié). Crée une PeriodeEssai liée pour le suivi 3 mois.</li>
+        </ul>
+
+        <h2>Données démo</h2>
+        <p>Le seeder créé automatiquement (Updater) crée 5 postes (2 pourvus + 2 en recrutement + 1 brouillon), 30 candidats, ~50 candidatures avec workflow réaliste, 20 entretiens, 8 offres d'emploi (issues variées) et 2 périodes d'essai en cours. Tous préfixés <code>DEMO_RECRUT_</code> / <code>DEMO_CAND_</code> / <code>DEMO_POSTE_</code> et supprimables via le Controller <em>Vider données démo</em>.</p>
+
+        <h2>Limites connues</h2>
+        <ul>
+            <li>Le coût par source est un coût <em>par candidat</em> entré, pas par <em>embauche réussie</em>. Pour avoir un coût par embauche, le dashboard divise le coût total par le nombre d'embauches (ce qui pénalise les sources avec beaucoup de candidatures non retenues).</li>
+            <li>Le délai recrutement est calculé sur DateOuverture du poste — il ne distingue pas le temps de validation interne (Brouillon → Validé) du temps de sourcing actif.</li>
+            <li>Pas (encore) d'export Excel/PDF du dashboard. Roadmap V1.4.1.</li>
+        </ul>
+    </main>
+</body>
+</html>

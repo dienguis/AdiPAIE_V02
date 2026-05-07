@@ -59,6 +59,9 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             // V1.3.3 — Démo congés (CongeType + CongeDemande) pour le dashboard N°5
             var typesConge = EnsureCongeTypesDemo(os);
             EnsureCongeDemandesDemo(os, typesConge);
+
+            // V1.4 — Démo Recrutement (5 postes + 30 candidats + 50 cand. + entretiens + offres + PE)
+            RecrutementDemoSeeder.EnsureAll(os);
         }
 
         // ═════════════════════════════════════════════════════════════════════
@@ -672,6 +675,9 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 .Where(x => (x.Motif ?? "").StartsWith("DEMO_CONGE_"))
                 .ToList();
             foreach (var x in congesDemo) { os.Delete(x); }
+
+            // V1.4 — Suppression des données Recrutement démo (préfixes DEMO_RECRUT_/DEMO_CAND_/DEMO_POSTE_)
+            RecrutementDemoSeeder.WipeAll(os);
 
             // Ordre de suppression : enfants d'abord pour éviter les violations FK
             var mouvements = os.GetObjectsQuery<MouvementInterimaire>().ToList()
