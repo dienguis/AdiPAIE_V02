@@ -15,6 +15,7 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         // Tableaux d'égalité des salaires
         public List<EgaliteSalaireRowDto> ParSegment   { get; set; } = new();
         public List<EgaliteSalaireRowDto> ParCategorie { get; set; } = new();
+        public List<EgaliteSalaireRowDto> ParEchelon   { get; set; } = new(); // V1.5
 
         // Évolution mensuelle (12 mois Jan→Déc) — pour graphe d'évolution
         public List<MasseMensuelleDto> EvolutionMensuelle { get; set; } = new();

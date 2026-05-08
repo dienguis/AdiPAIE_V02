@@ -241,7 +241,9 @@ namespace AdiPAIE_V02.Module.Services
         private static string BuildEmailHtml(Bulletin b, string moisLabel)
         {
             var prenom = b.Salarie?.FirstName ?? b.Salarie?.FullName ?? "";
-            var net = b.NetAPayer.ToString("N0") + " FCFA";
+            // V1.5 — Décision DG (mai 2026) : ne PAS afficher le Net à payer
+            // dans l'email de notification (confidentialité — l'info reste
+            // visible uniquement dans le PDF téléchargé depuis l'Espace Salarié).
             return $@"
 <html>
 <body style='font-family:Calibri,sans-serif; font-size:14px; color:#222;'>
@@ -249,8 +251,6 @@ namespace AdiPAIE_V02.Module.Services
 
 <p>Votre bulletin de paie du mois de <strong>{moisLabel} {b.Annee}</strong>
 est désormais disponible dans votre Espace Salarié SunuPaie.</p>
-
-<p><strong>Net à payer :</strong> {net}</p>
 
 <p>Pour le consulter et le télécharger en PDF :</p>
 <ol>

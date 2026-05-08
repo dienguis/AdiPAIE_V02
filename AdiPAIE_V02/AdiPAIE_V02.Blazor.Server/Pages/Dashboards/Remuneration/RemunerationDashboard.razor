@@ -186,6 +186,17 @@ else
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 CssClass="ed-input" />
                 </div>
+                <div class="ed-filter">
+                    <label>Échelon</label>
+                    <DxComboBox TData="EchelonOption" TValue="EchelonOption"
+                                Data="@_echelonsDispo"
+                                TextFieldName="@nameof(EchelonOption.Label)"
+                                Value="@_selectedEchelon"
+                                ValueChanged="@((EchelonOption? e) => OnEchelonChanged(e))"
+                                NullText="Tous"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                CssClass="ed-input" />
+                </div>
             }
             <div class="ed-actions">
                 <button class="ed-btn ed-btn--icon" title="Actualiser" @onclick="OnRefreshClick" disabled="@_loading">
@@ -358,6 +369,61 @@ else
                     </table>
                 }
             </section>
+
+            @* ── V1.5 — Tableau « Égalité par Échelon » (INTERNE uniquement) ─ *@
+            @if (_filter.Personnel == PersonnelType.Interne)
+            {
+                <section class="ed-section">
+                    <h3 class="ed-section__title">
+                        Rémunération par Échelon — Égalité des salaires
+                    </h3>
+                    @if (_data.ParEchelon.Count == 0)
+                    {
+                        <div class="ed-empty">Pas de données.</div>
+                    }
+                    else
+                    {
+                        var maxTotalEch = _data.ParEchelon.Max(r => r.Total);
+                        <table class="rm-table">
+                            <thead>
+                                <tr>
+                                    <th class="rm-th-left">Échelon</th>
+                                    <th>Rémun. totale</th>
+                                    <th class="rm-th-num">Coût Moy. Salarié</th>
+                                    <th class="rm-th-num">Min</th>
+                                    <th class="rm-th-num">Max</th>
+                                    <th class="rm-th-num">Moyenne</th>
+                                    <th class="rm-th-num"><i class="bi bi-gender-female"></i> Moy. ♀</th>
+                                    <th class="rm-th-num"><i class="bi bi-gender-male"></i> Moy. ♂</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in _data.ParEchelon)
+                                {
+                                    var w = maxTotalEch > 0 ? (decimal)r.Total * 100m / maxTotalEch : 0m;
+                                    <tr>
+                                        <td class="rm-td-left">@r.Libelle</td>
+                                        <td class="rm-td-bar">
+                                            <div class="rm-bar-cell">
+                                                <span class="rm-bar-num">@FormatFcfa(r.Total)</span>
+                                                <div class="rm-bar-track">
+                                                    <div class="rm-bar-fill" style="@($"width:{w.ToString("0.00", InvCulture)}%")"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="rm-td-num">@FormatFcfa(r.CoutMoyen)</td>
+                                        <td class="rm-td-num">@FormatFcfa(r.Min)</td>
+                                        <td class="rm-td-num">@FormatFcfa(r.Max)</td>
+                                        <td class="rm-td-num">@FormatFcfa(r.Moyenne)</td>
+                                        <td class="rm-td-num">@(r.MoyFemme.HasValue ? FormatFcfa(r.MoyFemme.Value) : "—")</td>
+                                        <td class="rm-td-num">@(r.MoyHomme.HasValue ? FormatFcfa(r.MoyHomme.Value) : "—")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </section>
+            }
 
             @* ── Évolution mensuelle 12 mois (bar chart) ───────────────── *@
             <section class="ed-section">
@@ -553,11 +619,19 @@ else
     private UniteOrganisationnelle? _selectedUnite;
     private List<Departement> _departementsDispo = new();
     private List<Categories> _categoriesDispo = new();
+    private List<EchelonOption> _echelonsDispo = new(); // V1.5
+
+    /// <summary>
+    /// V1.5 — ViewModel léger pour le combo Échelon. Evite que la session XPO
+    /// disposée fasse retourner string.Empty depuis le PersistentAlias DisplayName.
+    /// </summary>
+    public sealed record EchelonOption(Guid Oid, string Label);
     private List<PosteInterimaire> _postesDispo = new();
     private Site? _selectedSite;
     private StationService? _selectedStation;
     private Departement? _selectedDepartement;
     private Categories? _selectedCategorie;
+    private EchelonOption? _selectedEchelon; // V1.5
     private PosteInterimaire? _selectedPoste;
 
     private readonly List<Sexe?> _genresDispo = new() { null, Sexe.Masculin, Sexe.Feminin };
@@ -588,6 +662,18 @@ else
             _unitesDispo       = Service.GetUnitesPourSite(os, null); // toutes au départ
             _departementsDispo = Service.GetDepartements(os);
             _categoriesDispo   = Service.GetCategories(os);
+            // V1.5 — On évalue le Code+Libelle PENDANT la session vivante,
+            // car DisplayName de Echelons est un PersistentAlias qui plante
+            // une fois l'os disposé.
+            _echelonsDispo     = os.GetObjectsQuery<Echelons>()
+                .ToList()
+                .Select(e => new EchelonOption(
+                    e.Oid,
+                    string.Join(" - ",
+                        new[] { e.Code, e.Libelle }
+                            .Where(x => !string.IsNullOrWhiteSpace(x)))))
+                .OrderBy(o => o.Label)
+                .ToList();
             _postesDispo       = Service.GetPostesInterimaire(os);
         }
         catch (Exception ex)
@@ -624,6 +710,7 @@ else
         _selectedSiteV1 = null; _selectedUnite = null;
         _selectedDepartement = null; _filter.Segment = null;
         _selectedCategorie = null; _selectedPoste = null; _filter.CategorieOid = null;
+        _selectedEchelon = null; _filter.EchelonOid = null; // V1.5
         _filter.Genre = null;
         // Mode Rémunération Nette n'a pas de sens en EXTERNE
         if (p == PersonnelType.Externe) _filter.Mode = RemunerationMode.CoutEmployeur;
@@ -637,6 +724,7 @@ else
     private Task OnGenreChanged(Sexe? g)                  { _filter.Genre = g; LoadData(); return Task.CompletedTask; }
     private Task OnSegmentChanged(Departement? d)         { _selectedDepartement = d; _filter.Segment = d?.Nom; LoadData(); return Task.CompletedTask; }
     private Task OnCategorieChanged(Categories? c)        { _selectedCategorie = c; _filter.CategorieOid = c?.Oid; LoadData(); return Task.CompletedTask; }
+    private Task OnEchelonChanged(EchelonOption? e)       { _selectedEchelon = e; _filter.EchelonOid = e?.Oid; LoadData(); return Task.CompletedTask; }
     private Task OnPosteChanged(PosteInterimaire? p)      { _selectedPoste = p; _filter.CategorieOid = p?.Oid; LoadData(); return Task.CompletedTask; }
 
     // ── V1.1 — Filtres EXTERNE Site/Unité (remplace Station/Poste) ──

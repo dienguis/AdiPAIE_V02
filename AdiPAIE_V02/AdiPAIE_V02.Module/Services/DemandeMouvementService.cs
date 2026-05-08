@@ -228,6 +228,13 @@ namespace AdiPAIE_V02.Module.Services
                 throw new UserFriendlyException("Intérimaire manquant.");
 
             // ── 1) Créer MouvementInterimaire (déjà validé RH) ──────────
+            // IMPORTANT : on capture l'AVANT (origine) avant toute modification
+            // du contrat, pour préserver l'historique complet sur le dashboard
+            // et la fiche intérimaire.
+            var contrat = d.Interimaire.ContratActif;
+            var stationAvant = d.StationOrigine ?? contrat?.Station;
+            var siteAvantV1 = contrat?.Site;
+
             var mvt = os.CreateObject<MouvementInterimaire>();
             mvt.Interimaire = d.Interimaire;
             mvt.DateMouvement = d.DateSouhaitee;
@@ -236,8 +243,34 @@ namespace AdiPAIE_V02.Module.Services
             mvt.TypeMouvement = MapTypeToMvtInterim(d.TypeMouvement);
             mvt.Motif = ConstruireMotifMouvement(d);
 
+            // ── 1b) Capture historique : Origine ─────────────────────────
+            // Toujours rempli pour permettre la reconstruction de la chrono.
+            mvt.StationOrigine = stationAvant;
+            mvt.SiteOrigineV1 = siteAvantV1;
+
+            // ── 1c) Capture historique : Destination ─────────────────────
+            // Selon TypeMouvement, la destination peut être identique
+            // (ChangementPoste = pas de changement de station) ou différente.
+            switch (d.TypeMouvement)
+            {
+                case TypeMouvementInterim.ChangementStation:
+                    mvt.StationDestination = d.StationDestination;
+                    break;
+                case TypeMouvementInterim.RemplacementTemporaire:
+                    // Remplacement = nouveau site temporaire si renseigné,
+                    // sinon on reste sur la station d'origine
+                    mvt.StationDestination = d.StationDestination ?? stationAvant;
+                    break;
+                case TypeMouvementInterim.ChangementPoste:
+                case TypeMouvementInterim.FinMissionAnticipee:
+                case TypeMouvementInterim.Autre:
+                default:
+                    // Pas de changement de station → destination = origine
+                    mvt.StationDestination = stationAvant;
+                    break;
+            }
+
             // ── 2) Mettre à jour le ContratInterim actif selon TypeMouvement
-            var contrat = d.Interimaire.ContratActif;
             if (contrat != null)
             {
                 switch (d.TypeMouvement)

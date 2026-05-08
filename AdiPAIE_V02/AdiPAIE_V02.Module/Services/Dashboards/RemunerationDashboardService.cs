@@ -80,6 +80,8 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 allBulletins = allBulletins.Where(b => b.Salarie?.Sexe == filter.Genre.Value).ToList();
             if (filter.CategorieOid.HasValue)
                 allBulletins = allBulletins.Where(b => b.Salarie?.Categories?.Oid == filter.CategorieOid.Value).ToList();
+            if (filter.EchelonOid.HasValue) // V1.5
+                allBulletins = allBulletins.Where(b => b.Salarie?.Echelon?.Oid == filter.EchelonOid.Value).ToList();
             if (!string.IsNullOrWhiteSpace(filter.Segment))
                 allBulletins = allBulletins.Where(b => SafeDepartementNom(b.Salarie) == filter.Segment).ToList();
 
@@ -144,6 +146,13 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 .OrderByDescending(r => r.Total)
                 .ToList();
 
+            // ── 7b. V1.5 — Tableau « Égalité par Échelon » ──────────────
+            var rowsEchelon = allBulletins
+                .GroupBy(b => b.Salarie?.Echelon?.DisplayName ?? "(Non renseigné)")
+                .Select(g => BuildEgaliteRow(g.Key, g.ToList(), SelectMontant, totalBrut))
+                .OrderByDescending(r => r.Total)
+                .ToList();
+
             // ── 8. Évolution mensuelle (12 mois Jan→Déc) ─────────────────
             var fr = CultureInfo.GetCultureInfo("fr-FR");
             var evolution = Enumerable.Range(1, 12).Select(m =>
@@ -166,6 +175,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 Kpis              = kpis,
                 ParSegment        = rowsSegment,
                 ParCategorie      = rowsCategorie,
+                ParEchelon        = rowsEchelon, // V1.5
                 EvolutionMensuelle = evolution,
                 ParFamilleRubrique = decomposition,
                 CalculatedAt       = DateTime.Now

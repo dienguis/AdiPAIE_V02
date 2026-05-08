@@ -43,9 +43,10 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         public Sexe?   Genre         { get; set; }
         public string? Segment       { get; set; }   // Departement.Nom (INTERNE) / BU (EXTERNE)
         public Guid?   CategorieOid  { get; set; }
+        public Guid?   EchelonOid    { get; set; }   // V1.5 — filtre Échelon (CCT Sénégal)
         public AncienneteBucket? Anciennete { get; set; }
 
         public string ToCacheKey() =>
-            $"remuneration|p={Personnel}|m={Mode}|a={Annee}|site={SiteOid}|g={Genre}|seg={Segment}|cat={CategorieOid}|anc={Anciennete}";
+            $"remuneration|p={Personnel}|m={Mode}|a={Annee}|site={SiteOid}|g={Genre}|seg={Segment}|cat={CategorieOid}|ech={EchelonOid}|anc={Anciennete}";
     }
 }

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Mouvements Intérim — Guide utilisateur SunuPaie V1.5</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
+    <style>
+        .step { background:#fff; border:1px solid #E2E8F0; border-left:4px solid #0F6E56; border-radius:8px; padding:16px 20px; margin:14px 0; }
+        .step-num { display:inline-block; background:#0F6E56; color:#fff; font-weight:700; padding:2px 10px; border-radius:12px; font-size:0.85em; margin-right:8px; }
+        .step h3 { color:#0F6E56; margin-top:0; }
+        .badge-statut { display:inline-block; padding:2px 8px; border-radius:10px; font-size:0.8em; font-weight:600; margin-right:4px; }
+        .b-blue { background:#DBEAFE; color:#1E40AF; }
+        .b-green { background:#D1FAE5; color:#166534; }
+        .b-red { background:#FEE2E2; color:#991B1B; }
+        .b-yellow { background:#FEF3C7; color:#78350F; }
+        .b-gray { background:#E2E8F0; color:#475569; }
+        .b-purple { background:#F3E8FF; color:#6B21A8; }
+        .toc { background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:14px 18px; margin-bottom:20px; }
+        .toc ol { margin:8px 0 0 0; padding-left:24px; }
+        .toc a { color:#0F6E56; text-decoration:none; font-weight:500; }
+        .toc a:hover { text-decoration:underline; }
+        .tip { background:#EFF6FF; border-left:4px solid #3B82F6; padding:10px 14px; margin:10px 0; border-radius:4px; }
+        .warn { background:#FEF3C7; border-left:4px solid #F59E0B; padding:10px 14px; margin:10px 0; border-radius:4px; }
+        .role-box { display:inline-block; padding:6px 14px; border-radius:6px; font-weight:600; font-size:0.9em; margin:4px 6px 4px 0; }
+        .role-ac { background:#FEF3C7; color:#92400E; border:1px solid #F59E0B; }
+        .role-arh { background:#DBEAFE; color:#1E3A8A; border:1px solid #3B82F6; }
+        .role-rh { background:#D1FAE5; color:#14532D; border:1px solid #10B981; }
+        .role-daf { background:#F3E8FF; color:#581C87; border:1px solid #8B5CF6; }
+        .workflow-table { width:100%; border-collapse:collapse; margin:14px 0; }
+        .workflow-table th, .workflow-table td { padding:8px 12px; border:1px solid #E2E8F0; text-align:left; vertical-align:top; }
+        .workflow-table th { background:#0F6E56; color:#fff; }
+        .workflow-table tr:nth-child(even) { background:#F8FAFC; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/help/index.html">SunuPaie — Guide utilisateur</a>
+        <span class="sep">|</span>
+        <span>Mouvements Intérimaires V1.5</span>
+    </nav>
+    <main>
+        <h1>🔁 Workflow Mouvements Intérimaires — Guide utilisateur</h1>
+        <p class="lead">
+            Ce module permet aux <strong>Assistants Commerciaux (AC)</strong> de
+            soumettre des demandes de mouvement pour les intérimaires (changement
+            de station, changement de poste, fin de mission anticipée, remplacement
+            temporaire). Le workflow garantit la double validation
+            <strong>Assistant RH → RH</strong>, avec une étape DAF optionnelle
+            pour les mouvements à fort impact financier.
+        </p>
+
+        <div class="tip">
+            <strong>Exigence ELTON :</strong> aucun mouvement n'est effectif sans
+            validation finale RH. La traçabilité (origine → destination, qui a
+            validé, quand) est conservée dans le <a href="/help/dashboards/mouvements.html">Dashboard N°3 Mouvements</a>
+            et la fiche de chaque intérimaire.
+        </div>
+
+        <div class="toc">
+            <strong>Sommaire</strong>
+            <ol>
+                <li><a href="#roles">Rôles concernés</a></li>
+                <li><a href="#workflow">Vue d'ensemble du workflow</a></li>
+                <li><a href="#prerequis">Prérequis (admin) : initialisation des rôles + mapping AC ↔ Stations</a></li>
+                <li><a href="#ac-creer">AC — Créer et soumettre une demande</a></li>
+                <li><a href="#assistant-rh">Assistant RH — Valider ou rejeter une demande</a></li>
+                <li><a href="#rh-valider">RH — Valider, court-circuiter, ou rejeter</a></li>
+                <li><a href="#daf">DAF (option) — Approuver une demande à fort impact</a></li>
+                <li><a href="#appliquer">RH — Appliquer la demande validée</a></li>
+                <li><a href="#suivre">Suivi et historique d'un intérimaire</a></li>
+                <li><a href="#cas-particuliers">Cas particuliers</a></li>
+            </ol>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <h2 id="roles">1. Rôles concernés</h2>
+
+        <table class="workflow-table">
+            <thead>
+                <tr>
+                    <th>Rôle</th>
+                    <th>Responsabilité dans le workflow</th>
+                    <th>Vue principale</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="role-box role-ac">Assistant Commercial</span></td>
+                    <td>Initie une demande de mouvement pour un intérimaire d'une station qu'il gère.</td>
+                    <td><em>Mon espace → Mes demandes mouvement intérim</em></td>
+                </tr>
+                <tr>
+                    <td><span class="role-box role-arh">Assistant RH</span></td>
+                    <td>1ʳᵉ validation : vérifie la cohérence et l'urgence avant transmission RH.</td>
+                    <td><em>Intérimaires → Demandes de mouvement</em> (filtre statut <em>Soumise</em>)</td>
+                </tr>
+                <tr>
+                    <td><span class="role-box role-rh">RH</span></td>
+                    <td>2ᵉ validation finale. Peut court-circuiter Assistant RH si absent. Appliquer le mouvement après validation.</td>
+                    <td><em>Intérimaires → Demandes de mouvement</em></td>
+                </tr>
+                <tr>
+                    <td><span class="role-box role-daf">DAF</span> <em>(option)</em></td>
+                    <td>Approuve uniquement si la demande coche <em>Approbation DAF requise</em>.</td>
+                    <td><em>Intérimaires → Demandes de mouvement</em> (filtre statut <em>Validée RH</em>)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <h2 id="workflow">2. Vue d'ensemble du workflow</h2>
+
+        <pre style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:14px;font-size:0.9em;line-height:1.5;">
+<span class="badge-statut b-gray">Brouillon</span>
+   ↓ <em>[AC] Soumettre</em>
+<span class="badge-statut b-yellow">Soumise (Asst RH)</span>
+   ├─ <em>[Asst RH] Valider</em> → <span class="badge-statut b-blue">Validée Asst RH</span>
+   │     ├─ <em>[RH] Valider</em> → <span class="badge-statut b-blue">Validée RH</span>
+   │     │     ├─ <em>[option DAF] Approuver</em> → <span class="badge-statut b-blue">Validée DAF</span>
+   │     │     │     └─ <em>[RH] Appliquer</em> → <span class="badge-statut b-green">Appliquée</span> ✓
+   │     │     └─ <em>[RH] Appliquer</em> (sans DAF) → <span class="badge-statut b-green">Appliquée</span> ✓
+   │     └─ <em>[RH] Rejeter</em> → <span class="badge-statut b-red">Rejetée RH</span>
+   ├─ <em>[Asst RH] Rejeter</em> → <span class="badge-statut b-red">Rejetée Asst RH</span>
+   └─ <em>[RH] Court-circuit</em> → <span class="badge-statut b-blue">Validée RH</span>
+                                                 ↓
+                              (suite normale : DAF si option, puis Appliquer)
+        </pre>
+
+        <p>L'<strong>Annulation</strong> est possible à tout moment avant <em>Appliquée</em>, par
+        l'initiateur (AC) ou par RH.</p>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <h2 id="prerequis">3. Prérequis (admin) — initialisation</h2>
+
+        <div class="step">
+            <h3><span class="step-num">3.1</span> Initialiser les rôles GRH</h3>
+            <p>L'administrateur clique une fois sur le bouton <strong>Init. rôles GRH</strong>
+            depuis <em>Paramètres Paie</em>. Cela crée 7 rôles dont
+            <strong>AssistantCommercial</strong> et leurs permissions
+            (idempotent — peut être relancé sans risque).</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">3.2</span> Affecter le rôle AC à un Salarié</h3>
+            <p>Naviguer vers <em>Administration → Utilisateurs</em>, ouvrir l'utilisateur
+            cible, onglet <strong>Roles</strong>, ajouter le rôle <code>AssistantCommercial</code>.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">3.3</span> Assigner les stations sous responsabilité de l'AC</h3>
+            <p>Ouvrir la fiche du Salarié AC, onglet <strong>Stations sous responsabilité (AC)</strong>,
+            cocher les stations qu'il gère.</p>
+            <div class="warn">
+                <strong>Important :</strong> sans cette étape, l'AC verra la liste
+                vide et ne pourra créer aucune demande (les intérimaires sont
+                filtrés sur ses stations).
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <h2 id="ac-creer"><span class="role-box role-ac">AC</span> 4. Créer et soumettre une demande</h2>
+
+        <div class="step">
+            <h3><span class="step-num">4.1</span> Accéder à la liste</h3>
+            <p>Menu : <strong>Mon espace → Mes demandes mouvement intérim</strong>.
+            La liste affiche uniquement vos propres demandes.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">4.2</span> Créer une nouvelle demande</h3>
+            <p>Clic <strong>Nouveau</strong>. Remplir les champs :</p>
+            <ul>
+                <li><strong>Intérimaire concerné</strong> — lookup filtré sur les stations que vous gérez</li>
+                <li><strong>Type de mouvement</strong> — choisir parmi :
+                    <ul>
+                        <li><em>Changement de Station Service</em> (mutation interne)</li>
+                        <li><em>Changement de poste / fonction</em></li>
+                        <li><em>Fin de mission anticipée</em></li>
+                        <li><em>Remplacement temporaire</em></li>
+                        <li><em>Autre</em> (motif libre — précision obligatoire)</li>
+                    </ul>
+                </li>
+                <li><strong>Date souhaitée</strong> — date d'effet voulue</li>
+                <li><strong>Champs adaptatifs</strong> selon le type :
+                    <ul>
+                        <li>Changement Station → <em>Station destination</em></li>
+                        <li>Changement Poste → <em>Poste souhaité</em></li>
+                        <li>Remplacement temporaire → <em>Salarié titulaire absent</em> + <em>Durée (jours)</em></li>
+                    </ul>
+                </li>
+                <li><strong>Motif</strong> — justification métier (obligatoire)</li>
+                <li><strong>Pièce jointe</strong> — optionnel (email client, certificat médical, etc.)</li>
+                <li><strong>Options workflow</strong> :
+                    <ul>
+                        <li><em>Notifier le RFE après application</em> — envoi email automatique à la société d'intérim</li>
+                        <li><em>Approbation DAF requise</em> — ajoute une étape DAF avant application</li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="tip">
+                Le champ <em>Initiateur</em> est rempli automatiquement avec votre
+                fiche Salarié. <em>Station origine</em> et <em>Poste actuel</em> sont
+                pré-remplis depuis le contrat actif de l'intérimaire (lecture seule).
+            </div>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">4.3</span> Soumettre la demande</h3>
+            <p>Sauvegarder, puis cliquer <strong>Soumettre</strong>. Le statut passe
+            de <span class="badge-statut b-gray">Brouillon</span> à
+            <span class="badge-statut b-yellow">Soumise (Asst RH)</span>.</p>
+            <p>Vous ne pouvez plus modifier la demande après soumission. Pour la
+            corriger, demandez à RH ou Assistant RH de la rejeter — elle reviendra
+            en Brouillon avec leur motif.</p>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <h2 id="assistant-rh"><span class="role-box role-arh">Asst RH</span> 5. Valider ou rejeter</h2>
+
+        <div class="step">
+            <h3><span class="step-num">5.1</span> Voir les demandes en attente</h3>
+            <p>Menu : <strong>Intérimaires → Demandes de mouvement</strong>. Filtrer
+            sur statut <em>Soumise (Asst RH)</em>.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">5.2</span> Examiner la demande</h3>
+            <p>Ouvrir la fiche, vérifier :</p>
+            <ul>
+                <li>Cohérence : intérimaire actif, type de mouvement adapté</li>
+                <li>Date souhaitée : préavis raisonnable, planning compatible</li>
+                <li>Motif : justification claire</li>
+                <li>Pièce jointe : présence si requise</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">5.3</span> Valider</h3>
+            <p>Saisir un commentaire (facultatif) dans <em>Commentaire Assistant RH</em>,
+            puis cliquer <strong>Valider (Asst RH)</strong>. Statut →
+            <span class="badge-statut b-blue">Validée Asst RH</span>. Transmise à RH.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">5.4</span> Rejeter</h3>
+            <p>Si la demande n'est pas recevable, saisir <strong>obligatoirement</strong>
+            un motif dans <em>Commentaire Assistant RH</em>, puis cliquer
+            <strong>Rejeter (Asst RH)</strong>. Statut →
+            <span class="badge-statut b-red">Rejetée Asst RH</span>. L'AC voit le motif et peut soumettre une nouvelle demande corrigée.</p>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <h2 id="rh-valider"><span class="role-box role-rh">RH</span> 6. Valider, court-circuiter ou rejeter</h2>
+
+        <div class="step">
+            <h3><span class="step-num">6.1</span> Validation normale</h3>
+            <p>Sur une demande au statut <em>Validée Asst RH</em>, saisir un commentaire
+            dans <em>Commentaire RH</em>, cliquer <strong>Valider RH</strong>. Statut →
+            <span class="badge-statut b-blue">Validée RH</span>.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">6.2</span> Court-circuit Assistant RH</h3>
+            <p>Si l'Assistant RH est absent ou indisponible, RH peut directement valider
+            une demande au statut <em>Soumise (Asst RH)</em>. Cliquer <strong>Valider RH</strong>
+            sur la fiche : le système détecte automatiquement le court-circuit, l'audit
+            l'enregistre comme tel.</p>
+            <div class="warn">
+                Le court-circuit ne saute aucune étape de validation finale RH —
+                il combine simplement les 2 étapes en une. À utiliser avec parcimonie
+                pour ne pas court-circuiter le contrôle Assistant RH systématiquement.
+            </div>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">6.3</span> Rejeter</h3>
+            <p>Saisir un motif dans <em>Commentaire RH</em> (obligatoire), cliquer
+            <strong>Rejeter RH</strong>. Statut → <span class="badge-statut b-red">Rejetée RH</span>.</p>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <h2 id="daf"><span class="role-box role-daf">DAF</span> 7. Approbation DAF (option)</h2>
+
+        <div class="step">
+            <h3><span class="step-num">7.1</span> Quand l'étape DAF s'active</h3>
+            <p>Uniquement si l'AC (ou RH après modification) a coché
+            <em>Approbation DAF requise</em>. Typiquement pour les mouvements à
+            fort impact financier (changement de station avec écart tarifaire,
+            durée de remplacement étendue, etc.).</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">7.2</span> Approuver ou rejeter</h3>
+            <p>Sur une demande <em>Validée RH</em> avec option DAF active, saisir
+            un commentaire DAF, cliquer <strong>Approuver DAF</strong> ou
+            <strong>Rejeter DAF</strong>.</p>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <h2 id="appliquer"><span class="role-box role-rh">RH</span> 8. Appliquer la demande</h2>
+
+        <div class="step">
+            <h3><span class="step-num">8.1</span> Quand le bouton Appliquer est disponible</h3>
+            <ul>
+                <li>Sans option DAF → dès que statut = <em>Validée RH</em></li>
+                <li>Avec option DAF → seulement après statut = <em>Validée DAF</em></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">8.2</span> Effets de l'application</h3>
+            <p>Le bouton <strong>Appliquer</strong> déclenche automatiquement :</p>
+            <ol>
+                <li>Création d'un <strong>MouvementInterimaire</strong> validé RH avec :
+                    <ul>
+                        <li>Date du mouvement</li>
+                        <li>Type (mappé depuis le type de demande)</li>
+                        <li><strong>Station origine + Station destination</strong> (préservées pour l'historique)</li>
+                        <li>Motif incluant la référence DMI</li>
+                    </ul>
+                </li>
+                <li>Mise à jour du <strong>ContratInterim actif</strong> selon le type :
+                    <ul>
+                        <li><em>Changement Station</em> → nouvelle Station sur le contrat</li>
+                        <li><em>Changement Poste</em> → nouveau Poste occupé</li>
+                        <li><em>Fin mission anticipée</em> → contrat fermé (statut Terminé + DateFinReelle)</li>
+                        <li><em>Remplacement temporaire</em> → pas de modification du contrat principal (juste l'enregistrement du mouvement)</li>
+                    </ul>
+                </li>
+                <li>Si <em>Notifier le RFE</em> coché → email automatique à la société
+                d'intérim (best-effort, non bloquant si SMTP en panne)</li>
+                <li>Statut de la demande → <span class="badge-statut b-green">Appliquée</span></li>
+                <li>Lien <em>Mouvement généré</em> rempli sur la demande pour navigation rapide</li>
+            </ol>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <h2 id="suivre">9. Suivi et historique d'un intérimaire</h2>
+
+        <div class="step">
+            <h3><span class="step-num">9.1</span> Sur la fiche intérimaire</h3>
+            <p>Onglet <strong>Mouvements</strong> : liste chronologique de tous
+            les mouvements (incluant ceux générés par les demandes V1.5).
+            Chaque ligne affiche origine → destination, type, date, qui a saisi.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">9.2</span> Sur le Dashboard N°3 « Mouvements »</h3>
+            <p>Le <a href="/help/dashboards/mouvements.html">Dashboard N°3</a>
+            agrège tous les mouvements de la période — y compris ceux des
+            demandes appliquées. Filtres : Site, Période, Type de mouvement.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">9.3</span> Audit complet</h3>
+            <p>Chaque transition (soumission, validation, rejet, application,
+            annulation) est auditée dans la table <code>AuditEntry</code> avec :
+            utilisateur, date/heure, ancien statut → nouveau statut, commentaire.
+            Consultable via <em>Administration → Audit</em>.</p>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <h2 id="cas-particuliers">10. Cas particuliers</h2>
+
+        <div class="step">
+            <h3><span class="step-num">10.1</span> Annuler une demande</h3>
+            <p>L'<strong>initiateur (AC)</strong> ou <strong>RH</strong> peut annuler
+            une demande à tout moment <strong>avant</strong> qu'elle ne soit appliquée.
+            Cliquer <strong>Annuler</strong>. Statut → <span class="badge-statut b-red">Annulée</span>.
+            Une demande appliquée ne peut plus être annulée — créer une nouvelle
+            demande pour défaire le mouvement.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">10.2</span> Salarié AC sans station assignée</h3>
+            <p>Si l'AC ouvre <em>Mes demandes mouvement intérim</em> sans avoir
+            de station dans <em>Stations sous responsabilité</em>, il ne pourra
+            pas créer de demande (lookup intérimaires vide). L'admin doit
+            assigner les stations.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">10.3</span> Email RFE sans adresse renseignée</h3>
+            <p>Si l'option <em>Notifier RFE</em> est cochée mais que la société
+            d'intérim de l'intérimaire n'a pas d'adresse email renseignée,
+            l'application réussit (le mouvement est appliqué) et l'email est
+            simplement skippé avec un log d'information. Aucun blocage.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-num">10.4</span> Republication après correction</h3>
+            <p>Une demande rejetée ne peut pas être ressuscitée. Pour la corriger,
+            créer une nouvelle demande qui référence la précédente dans le motif
+            (« Suite rejet DMI-2026-XXXXXX du JJ/MM/AAAA : … »).</p>
+        </div>
+
+        <hr style="margin:30px 0;">
+        <p style="color:#64748B; font-size:0.9em;">
+            <strong>Version V1.5</strong> — Mai 2026.
+            Pour toute question, contacter le service RH ELTON Oil Company.
+        </p>
+    </main>
+</body>
+</html>
