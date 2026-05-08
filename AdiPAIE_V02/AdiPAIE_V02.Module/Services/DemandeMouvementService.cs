@@ -80,6 +80,9 @@ namespace AdiPAIE_V02.Module.Services
             d.AssistantRHCommentaire = commentaire;
             os.CommitChanges();
             Audit(os, d, "ValiderAssistantRH", userName, commentaire);
+            NotifierAcFireForget(d, os,
+                "Demande validée par l'Assistant RH — en attente RH",
+                commentaire, logger);
         }
 
         public static void RejeterAssistantRH(
@@ -101,6 +104,9 @@ namespace AdiPAIE_V02.Module.Services
             d.AssistantRHCommentaire = motifRejet;
             os.CommitChanges();
             Audit(os, d, "RejeterAssistantRH", userName, motifRejet);
+            NotifierAcFireForget(d, os,
+                "Demande rejetée par l'Assistant RH",
+                motifRejet, logger);
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -131,6 +137,11 @@ namespace AdiPAIE_V02.Module.Services
             os.CommitChanges();
             Audit(os, d, courtCircuit ? "ValiderRH (court-circuit)" : "ValiderRH",
                   userName, commentaire);
+            NotifierAcFireForget(d, os,
+                d.OptionApprobationDAF
+                    ? "Demande validée par RH — en attente DAF"
+                    : "Demande validée par RH — prête à être appliquée",
+                commentaire, logger);
         }
 
         public static void RejeterRH(
@@ -153,6 +164,7 @@ namespace AdiPAIE_V02.Module.Services
             d.RHCommentaire = motifRejet;
             os.CommitChanges();
             Audit(os, d, "RejeterRH", userName, motifRejet);
+            NotifierAcFireForget(d, os, "Demande rejetée par RH", motifRejet, logger);
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -178,6 +190,9 @@ namespace AdiPAIE_V02.Module.Services
             d.DAFCommentaire = commentaire;
             os.CommitChanges();
             Audit(os, d, "ApprouverDAF", userName, commentaire);
+            NotifierAcFireForget(d, os,
+                "Demande approuvée par DAF — prête à être appliquée",
+                commentaire, logger);
         }
 
         public static void RejeterDAF(
@@ -199,6 +214,7 @@ namespace AdiPAIE_V02.Module.Services
             d.DAFCommentaire = motifRejet;
             os.CommitChanges();
             Audit(os, d, "RejeterDAF", userName, motifRejet);
+            NotifierAcFireForget(d, os, "Demande rejetée par DAF", motifRejet, logger);
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -322,6 +338,12 @@ namespace AdiPAIE_V02.Module.Services
                         d.Reference);
                 }
             }
+
+            // ── 5) Notification email AC initiateur (best-effort)
+            await NotifierAcAsync(d, os,
+                "Demande appliquée — mouvement effectif",
+                $"Mouvement {d.TypeMouvement} effectif au {d.DateSouhaitee:dd/MM/yyyy}.",
+                logger);
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -343,6 +365,18 @@ namespace AdiPAIE_V02.Module.Services
             d.Statut = DemandeMouvementStatut.Annulee;
             os.CommitChanges();
             Audit(os, d, "Annuler", userName, motif ?? "Annulé sans motif");
+
+            // V1.5.2 — Notif AC seulement si annulation par quelqu'un d'autre
+            // (sinon l'AC s'enverrait un email à lui-même → bruit inutile)
+            var emailAc = d.Initiateur?.Email?.Trim();
+            bool autoAnnulation = !string.IsNullOrWhiteSpace(emailAc)
+                && string.Equals(emailAc, userName, StringComparison.OrdinalIgnoreCase);
+            if (!autoAnnulation)
+            {
+                NotifierAcFireForget(d, os,
+                    "Demande annulée",
+                    motif ?? "Annulée sans motif", logger);
+            }
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -493,6 +527,120 @@ namespace AdiPAIE_V02.Module.Services
 
 <p style='margin-top:16px;'><strong>Motif :</strong><br/>
 {System.Net.WebUtility.HtmlEncode(d.Motif)}</p>
+
+<p style='color:#666; font-size:12px;'>
+— Service Paie / RH ELTON Oil Company
+</p>
+</body>
+</html>";
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // V1.5.2 — Notification AC sur changement de statut de SA demande
+        // L'initiateur (AC) reçoit un email à chaque transition (validée,
+        // rejetée, appliquée). Best-effort, non bloquant.
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Envoie un email à l'AC initiateur de la demande pour le tenir
+        /// informé du changement de statut. Async + non bloquant.
+        /// </summary>
+        private static async Task NotifierAcAsync(
+            DemandeMouvementInterim d, IObjectSpace os,
+            string transitionLibelle, string commentaire, ILogger logger = null)
+        {
+            try
+            {
+                var emailAc = d.Initiateur?.Email?.Trim();
+                if (string.IsNullOrWhiteSpace(emailAc))
+                {
+                    logger?.LogInformation(
+                        "Demande {Ref} : initiateur sans email — notification AC ignorée.",
+                        d.Reference);
+                    return;
+                }
+
+                var prm = ParametresPaie.TryGet(os);
+                if (prm == null || !prm.EmailActif) return;
+
+                IEmailSender sender;
+                try { sender = prm.CreateEmailSender(); }
+                catch (Exception ex)
+                {
+                    logger?.LogWarning(ex, "Demande {Ref} : EmailSender KO.", d.Reference);
+                    return;
+                }
+
+                var sujet = $"[SunuPaie] Votre demande {d.Reference} — {transitionLibelle}";
+                var body = BuildEmailAcHtml(d, transitionLibelle, commentaire);
+
+                await sender.SendAsync(emailAc, sujet, body, attachment: null);
+                logger?.LogInformation(
+                    "Demande {Ref} : notification AC envoyée à {Email} ({Transition}).",
+                    d.Reference, emailAc, transitionLibelle);
+            }
+            catch (Exception ex)
+            {
+                // Best-effort : un échec email ne doit pas casser la transition
+                logger?.LogWarning(ex,
+                    "Demande {Ref} : échec notification AC (non bloquant).", d?.Reference);
+            }
+        }
+
+        /// <summary>
+        /// Variante fire-and-forget pour les transitions synchrones.
+        /// Avale toutes les exceptions pour ne pas crasher le thread Blazor.
+        /// </summary>
+        private static void NotifierAcFireForget(
+            DemandeMouvementInterim d, IObjectSpace os,
+            string transitionLibelle, string commentaire, ILogger logger = null)
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await NotifierAcAsync(d, os, transitionLibelle, commentaire, logger);
+                }
+                catch { /* swallowed — déjà loggé par NotifierAcAsync */ }
+            });
+        }
+
+        private static string BuildEmailAcHtml(
+            DemandeMouvementInterim d, string transitionLibelle, string commentaire)
+        {
+            var prenomAc = d.Initiateur?.FirstName ?? d.Initiateur?.FullName ?? "";
+            var interimaireNom = d.Interimaire?.FullName ?? "—";
+            var matricule = d.Interimaire?.Matricule ?? "—";
+            var commentaireBlock = string.IsNullOrWhiteSpace(commentaire)
+                ? ""
+                : $@"<p style='margin-top:12px;'><strong>Commentaire :</strong><br/>
+                     {System.Net.WebUtility.HtmlEncode(commentaire)}</p>";
+
+            return $@"
+<html>
+<body style='font-family:Calibri,sans-serif; font-size:14px; color:#222;'>
+<p>Bonjour <strong>{System.Net.WebUtility.HtmlEncode(prenomAc)}</strong>,</p>
+
+<p>Le statut de votre demande de mouvement intérim a été mis à jour :</p>
+
+<div style='background:#F1F5F9; border-left:4px solid #0F6E56; padding:10px 14px; margin:10px 0; border-radius:4px;'>
+  <strong>{System.Net.WebUtility.HtmlEncode(transitionLibelle)}</strong>
+</div>
+
+<table style='border-collapse:collapse;'>
+  <tr><td style='padding:4px 12px 4px 0;'><strong>Référence</strong></td><td>{d.Reference}</td></tr>
+  <tr><td style='padding:4px 12px 4px 0;'><strong>Intérimaire</strong></td><td>{System.Net.WebUtility.HtmlEncode(interimaireNom)} ({System.Net.WebUtility.HtmlEncode(matricule)})</td></tr>
+  <tr><td style='padding:4px 12px 4px 0;'><strong>Type de mouvement</strong></td><td>{d.TypeMouvement}</td></tr>
+  <tr><td style='padding:4px 12px 4px 0;'><strong>Date souhaitée</strong></td><td>{d.DateSouhaitee:dd/MM/yyyy}</td></tr>
+  <tr><td style='padding:4px 12px 4px 0;'><strong>Statut actuel</strong></td><td>{d.Statut}</td></tr>
+</table>
+
+{commentaireBlock}
+
+<p style='margin-top:14px;'>
+Connectez-vous à votre Espace Salarié SunuPaie → menu
+<em>Mes demandes mouvement intérim</em> pour consulter le détail.
+</p>
 
 <p style='color:#666; font-size:12px;'>
 — Service Paie / RH ELTON Oil Company
