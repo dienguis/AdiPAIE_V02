@@ -234,6 +234,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         private FileData _pdfArchive;
         [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
         [VisibleInListView(false), VisibleInDetailView(false)]
+        [Browsable(false)] // QW3 — empêche apparition dans rapports auto-générés
         public FileData PdfArchive
         {
             get => _pdfArchive;

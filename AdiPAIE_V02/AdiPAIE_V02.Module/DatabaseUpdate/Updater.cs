@@ -757,7 +757,95 @@ string adminUserName = "Admin";
             // Idempotent : si déjà présent en DB, on ne touche pas.
             // ═══════════════════════════════════════════════════════
             SeedBulletinReportIfMissing();
+
+            // ═══════════════════════════════════════════════════════
+            // QW6 (V1.5.1) — Index SQL pour performance dashboards
+            // Idempotent : NOT EXISTS check avant CREATE INDEX.
+            // ═══════════════════════════════════════════════════════
+            EnsurePerformanceIndexes();
+
+            // QW1 — Auto-init des rôles GRH : reporté à V1.5.2 (refactor
+            // InitialiserRolesGRHController nécessaire — 200+ lignes
+            // de logique permissions à extraire en static).
+            // En attendant : RH/Admin clique manuellement le bouton
+            // « Init. rôles GRH » sur ParametresPaie après déploiement.
         }
+
+        /// <summary>
+        /// QW6 (V1.5.1) — Crée les index manquants pour accélérer les
+        /// dashboards et requêtes fréquentes. Idempotent via NOT EXISTS.
+        /// </summary>
+        private void EnsurePerformanceIndexes()
+        {
+            try
+            {
+                var session = ((DevExpress.ExpressApp.Xpo.XPObjectSpace)ObjectSpace).Session;
+
+                // Bulletin : filtré par Annee + Statut (dashboards N°4, N°6, etc.)
+                ExecSqlIfIndexMissing(session,
+                    "IX_Bulletin_Annee_Statut",
+                    "Bulletin",
+                    "CREATE INDEX IX_Bulletin_Annee_Statut ON Bulletin(Annee, Statut, GCRecord)");
+
+                // Bulletin : filtré pour Espace Salarié (DatePublication)
+                ExecSqlIfIndexMissing(session,
+                    "IX_Bulletin_Salarie_DatePub",
+                    "Bulletin",
+                    "CREATE INDEX IX_Bulletin_Salarie_DatePub ON Bulletin(Salarie, DatePublication)");
+
+                // ContratInterim : filtré par Statut (alertes fin mission)
+                ExecSqlIfIndexMissing(session,
+                    "IX_ContratInterim_Statut",
+                    "ContratInterim",
+                    "CREATE INDEX IX_ContratInterim_Statut ON ContratInterim(Statut, DateFinReelle)");
+
+                // MouvementInterimaire : filtré par Date + Type (Dashboard N°3)
+                ExecSqlIfIndexMissing(session,
+                    "IX_MouvementInterim_Date_Type",
+                    "MouvementInterimaire",
+                    "CREATE INDEX IX_MouvementInterim_Date_Type ON MouvementInterimaire(DateMouvement, TypeMouvement)");
+
+                // Bulletin : unique sur Salarie+Annee+Mois (évite doublons)
+                ExecSqlIfIndexMissing(session,
+                    "UX_Bulletin_Salarie_Annee_Mois",
+                    "Bulletin",
+                    "CREATE UNIQUE INDEX UX_Bulletin_Salarie_Annee_Mois "
+                    + "ON Bulletin(Salarie, Annee, Mois) "
+                    + "WHERE GCRecord IS NULL");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[V1.5.1 Indexes] Création index non bloquante : {ex.Message}");
+            }
+        }
+
+        private static void ExecSqlIfIndexMissing(
+            DevExpress.Xpo.Session session, string indexName, string tableName, string createSql)
+        {
+            try
+            {
+                // Pattern : IF NOT EXISTS (SELECT...) CREATE INDEX...
+                // Les noms d'index/table sont hardcodés en compile-time → safe.
+                var guardedSql =
+                    $"IF NOT EXISTS (SELECT 1 FROM sys.indexes "
+                    + $"WHERE name = '{indexName}' "
+                    + $"AND object_id = OBJECT_ID('{tableName}')) "
+                    + $"BEGIN {createSql} END";
+
+                session.ExecuteNonQuery(guardedSql);
+                System.Diagnostics.Debug.WriteLine(
+                    $"[V1.5.1 Indexes] Vérification/création index '{indexName}' OK.");
+            }
+            catch (Exception ex)
+            {
+                // Non bloquant : si la table n'existe pas encore (1ʳᵉ run avant
+                // schéma complet), on laisse passer
+                System.Diagnostics.Debug.WriteLine(
+                    $"[V1.5.1 Indexes] '{indexName}' : {ex.Message}");
+            }
+        }
+
 
         /// <summary>
         /// V1.4.3 — Crée le ReportDataV2 "BulletinPaie" depuis la ressource
