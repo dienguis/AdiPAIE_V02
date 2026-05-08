@@ -764,11 +764,38 @@ string adminUserName = "Admin";
             // ═══════════════════════════════════════════════════════
             EnsurePerformanceIndexes();
 
-            // QW1 — Auto-init des rôles GRH : reporté à V1.5.2 (refactor
-            // InitialiserRolesGRHController nécessaire — 200+ lignes
-            // de logique permissions à extraire en static).
-            // En attendant : RH/Admin clique manuellement le bouton
-            // « Init. rôles GRH » sur ParametresPaie après déploiement.
+            // ═══════════════════════════════════════════════════════
+            // QW1 (V1.5.2) — Auto-init des rôles GRH au démarrage
+            // Idempotent — délègue à RolesGRHInitializer.Initialize.
+            // Si des rôles existent déjà, leurs permissions sont juste
+            // enrichies (les V1.5 DemandeMouvementInterim notamment).
+            // ═══════════════════════════════════════════════════════
+            EnsureRolesGRHInitialized();
+        }
+
+        /// <summary>
+        /// QW1 (V1.5.2) — Création/maj des rôles GRH au démarrage.
+        /// Délègue à <see cref="Controllers.RolesGRHInitializer.Initialize"/>.
+        /// Non-bloquant : un échec ne crash pas l'app.
+        /// </summary>
+        private void EnsureRolesGRHInitialized()
+        {
+            try
+            {
+                var (nbRoles, nbPerms) =
+                    Controllers.RolesGRHInitializer.Initialize(ObjectSpace);
+                if (nbRoles > 0 || nbPerms > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[V1.5.2 RolesGRH] Auto-init : {nbRoles} rôle(s), "
+                        + $"{nbPerms} permission(s).");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[V1.5.2 RolesGRH] Auto-init non bloquant : {ex.Message}");
+            }
         }
 
         /// <summary>
