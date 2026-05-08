@@ -437,7 +437,6 @@ namespace AdiPAIE_V02.Module.NonPersistent
         //  VII. RELATIONS PROFESSIONNELLES (saisie manuelle)
         // ══════════════════════════════════════════════════════════════
         [XafDisplayName("Syndicats (noms, séparés par ;)")]
-        [Size(500)]
         public string Syndicats { get; set; }
 
         [XafDisplayName("Nombre de délégués du personnel")]

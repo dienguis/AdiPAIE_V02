@@ -28,6 +28,7 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             Active["Consolidated"] = false; // Remplacé par PeriodePaieEtatsController
             return;
+#pragma warning disable CS0162 // Code historique conservé pour référence (DÉSACTIVÉ)
             _livreAction = new PopupWindowShowAction(
                 this, "GenererLivreDePaye", PredefinedCategory.Reports)
             {
@@ -38,6 +39,7 @@ namespace AdiPAIE_V02.Module.Controllers
             };
             _livreAction.CustomizePopupWindowParams += OnCustomizePopup;
             _livreAction.Execute += OnExecute;
+#pragma warning restore CS0162
         }
 
         private void OnCustomizePopup(object sender, CustomizePopupWindowParamsEventArgs e)

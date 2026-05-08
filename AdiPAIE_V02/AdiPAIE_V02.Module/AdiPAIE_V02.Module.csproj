@@ -7,6 +7,22 @@
     <FileVersion>1.0.0.0</FileVersion>
     <Configurations>Debug;Release;EasyTest</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- V1.5.2 — Nullable annotations actives (autorise la syntaxe `?` sans
+         imposer les checks d'analyse stricte, qui généreraient des centaines
+         de nouveaux warnings sur du code legacy). -->
+    <Nullable>annotations</Nullable>
+    <!-- V1.5.2 — Cleanup warnings :
+         - XAF0020 : [NonPersistent] sur propriétés calculées read-only — légitime
+                     dans notre code (DisplayName, properties calculées). À nettoyer
+                     proprement en V1.6 (ajout de setters privés).
+         - CA1416  : APIs Windows-only (System.Drawing pour Reports, DataProtectionScope
+                     LocalMachine pour DPAPI). L'app tourne EXCLUSIVEMENT sur Windows
+                     IIS, ces APIs sont donc safe ici.
+         - XAF0022 : ShowViewStrategy.ShowView — utilisé volontairement dans nos
+                     wizards multi-popups (BilanSocial, BulkEnvoyerBulletins,
+                     CreateBulletinsForPeriod, ParamCentreConstantes). Migration
+                     vers e.ShowViewParameters demande refactor des closures Execute. -->
+    <NoWarn>$(NoWarn);XAF0020;CA1416;XAF0022</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Images\Gestion_de_la_Paie.png" />

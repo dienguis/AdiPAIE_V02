@@ -92,6 +92,7 @@ namespace AdiPAIE_V02.Module.Reports
 
             // Charger images/infos depuis ParametresPaie (singleton)
             try {
+#pragma warning disable XAF0018 // UnitOfWork() implicite : utilise XpoDefault.DataLayer (acceptable pour rapport global, pas de tenant)
                 using (var uow = new UnitOfWork())
                 {
                     var prm = new XPQuery<AdiPAIE_V02.Module.BusinessObjects.ParametresPaie>(uow).FirstOrDefault();
@@ -116,6 +117,7 @@ namespace AdiPAIE_V02.Module.Reports
                     addressLbl.Text = company?.Address ?? company?.Address ?? string.Empty;
                     idsLbl.Text = $"NINEA: {company?.NINEA ?? ""}    RC: {company?.RC ?? ""}";
                 }
+#pragma warning restore XAF0018
 
             }
             catch { /* silencieux si indisponible */ }

@@ -7,6 +7,14 @@
     <FileVersion>1.0.0.0</FileVersion>
     <Configurations>Debug;Release;EasyTest</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>annotations</Nullable>
+    <!-- V1.5.2 — Cleanup warnings :
+         - XAF0020 : [NonPersistent] sur propriétés calculées read-only — légitime
+         - CA1416  : APIs Windows-only (System.Drawing, DPAPI). App tourne sur IIS Windows.
+         - XAF0022 : ShowViewStrategy.ShowView dans wizards multi-popups
+                     (DeclarationController). Migration vers e.ShowViewParameters
+                     demande refactor des closures Execute. -->
+    <NoWarn>$(NoWarn);XAF0020;CA1416;XAF0022</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Model.xafml" />

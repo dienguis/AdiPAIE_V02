@@ -20,7 +20,6 @@ namespace AdiPAIE_V02.Module.NonPersistent
         [XafDisplayName("Mois")]
         public int Mois { get; set; } = DateTime.Today.Month;
 
-        [NonPersistent]
         [XafDisplayName("Période")]
         public string PeriodeAffichage =>
             new DateTime(Annee, Math.Clamp(Mois, 1, 12), 1)

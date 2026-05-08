@@ -29,9 +29,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
     {
         private static readonly string ColorNavy   = "#142E4D";
         private static readonly string ColorOrange = "#F18A1C";
-        private static readonly string ColorRed    = "#E63946";
         private static readonly string ColorGray   = "#5C6679";
-        private static readonly string ColorBgLite = "#F6F7F9";
         private static readonly string ColorBorder = "#E5E7EB";
 
         private static readonly CultureInfo Fr = CultureInfo.GetCultureInfo("fr-FR");

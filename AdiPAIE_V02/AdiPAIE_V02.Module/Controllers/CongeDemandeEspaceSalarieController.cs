@@ -31,7 +31,6 @@ namespace AdiPAIE_V02.Module.Controllers
 
         private readonly List<Controller> _controlleursDesactives = new List<Controller>();
         private readonly SimpleAction _soumettreDetailAction;
-        private bool _estSalarieRestreint;
 
         /// <summary>
         /// Actions autorisees pour un salarie (employe ou N+1).
@@ -111,8 +110,6 @@ namespace AdiPAIE_V02.Module.Controllers
             // (ou N+1 avec uniquement le role Employe)
             // ══════════════════════════════════════════════════════
 
-            _estSalarieRestreint = true;
-
             // Activer le bouton Soumettre pour l'employe
             _soumettreDetailAction.Active["OnlyForSalarie"] = true;
 
@@ -166,7 +163,6 @@ namespace AdiPAIE_V02.Module.Controllers
         protected override void OnDeactivated()
         {
             View.CurrentObjectChanged -= View_CurrentObjectChanged;
-            _estSalarieRestreint = false;
 
             foreach (var ctrl in _controlleursDesactives)
                 ctrl.Active.RemoveItem(ReasonKey);

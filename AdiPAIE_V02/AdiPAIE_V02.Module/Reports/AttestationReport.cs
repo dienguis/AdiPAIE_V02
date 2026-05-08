@@ -46,11 +46,13 @@ namespace AdiPAIE_V02.Module.Reports
 
             try
             {
+#pragma warning disable XAF0018 // UnitOfWork() implicite : utilise XpoDefault.DataLayer (acceptable pour rapport global, pas de tenant)
                 using (var uow = new UnitOfWork())
                 {
                     prm = new XPQuery<ParametresPaie>(uow).FirstOrDefault();
                     company = new XPQuery<Company>(uow).FirstOrDefault();
                 }
+#pragma warning restore XAF0018
             }
             catch { /* données non critiques */ }
 

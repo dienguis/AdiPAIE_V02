@@ -51,11 +51,10 @@ namespace AdiPAIE_V02.Blazor.Server.Controllers
         // ─────────────────────────────────────────────────────────────────
         private void OnTelecharger(object sender, SimpleActionExecuteEventArgs e)
         {
-            var bulletin = (View is DetailView)
-                ? View.CurrentObject as Bulletin
-                : View.SelectedObjects.Count == 1
-                    ? View.SelectedObjects[0] as Bulletin
-                    : null;
+            // Controller restreint à ListView (TargetViewId = "Bulletin_EspaceSalarie_ListView")
+            var bulletin = View.SelectedObjects.Count == 1
+                ? View.SelectedObjects[0] as Bulletin
+                : null;
 
             if (bulletin == null) return;
 

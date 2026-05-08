@@ -25,6 +25,7 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             Active["Consolidated"] = false; // Remplacé par PeriodePaieEtatsController
             return; // ← ne plus créer les actions
+#pragma warning disable CS0162 // Code historique conservé pour référence (DÉSACTIVÉ)
             _ipresAction = new PopupWindowShowAction(
                 this, "ExporterBordereauIPRES", PredefinedCategory.Edit)
             {
@@ -44,6 +45,7 @@ namespace AdiPAIE_V02.Module.Controllers
             };
             _cssAction.CustomizePopupWindowParams += (s, e) => CustomizePopup(e, "CSS");
             _cssAction.Execute += (s, e) => OnExecute(e, "CSS");
+#pragma warning restore CS0162
         }
 
         private void CustomizePopup(CustomizePopupWindowParamsEventArgs e, string type)

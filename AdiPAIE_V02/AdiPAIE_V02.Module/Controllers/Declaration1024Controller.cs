@@ -25,6 +25,7 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             Active["Consolidated"] = false; // Remplacé par PeriodePaieEtatsController
             return;
+#pragma warning disable CS0162 // Code historique conservé pour référence (DÉSACTIVÉ)
             _exportAction = new PopupWindowShowAction(
                 this, "ExporterDeclaration1024", PredefinedCategory.Edit)
             {
@@ -35,6 +36,7 @@ namespace AdiPAIE_V02.Module.Controllers
             };
             _exportAction.CustomizePopupWindowParams += OnCustomizePopup;
             _exportAction.Execute += OnExecute;
+#pragma warning restore CS0162
         }
 
         // ── Popup : saisie de l'année ─────────────────────────────────────

@@ -11,9 +11,8 @@ using System.Threading.Tasks;
 namespace AdiPAIE_V02.Module.Controllers
 {
     [DomainComponent]
-    [NonPersistent]
     [XafDisplayName("Période du bulletin")]
-    public class ParamGenerateBulletin  
+    public class ParamGenerateBulletin
     {
         [ModelDefault("DisplayFormat", "####")]
         [RuleRange(1900, 3000, CustomMessageTemplate = "L'année doit être entre 1900 et 3000.")]

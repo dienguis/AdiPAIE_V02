@@ -61,7 +61,9 @@ namespace AdiPAIE_V02.Module.Controllers
                 }
 
                 // 2) Obtenir le handle et ouvrir l’aperçu avec le critère
+#pragma warning disable CS0618 // ReportsStorage : API obsolète dans 25.1, mais migration vers IReportStorage via DI à planifier (V2.0)
                 var storage = ReportDataProvider.ReportsStorage; // IReportStorage (25.1)
+#pragma warning restore CS0618
                 string handle = storage.GetReportContainerHandle(rd);
 
                 Frame.GetController<ReportServiceController>()?.ShowPreview(handle, criteria);

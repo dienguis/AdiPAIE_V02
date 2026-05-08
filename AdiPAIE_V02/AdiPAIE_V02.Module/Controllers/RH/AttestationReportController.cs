@@ -14,7 +14,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
     public class AttestationReportController : ViewController
     {
         private readonly SimpleAction _genererAction;
-        private readonly SimpleAction _exportPdfAction;
+        // _exportPdfAction supprimé : action commentée historique (programmatic report désactivé)
 
         public AttestationReportController()
         {
