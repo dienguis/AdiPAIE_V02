@@ -124,6 +124,8 @@ namespace AdiPAIE_V02.Blazor.Server
             services.AddHostedService<DossierExpirationRappelService>();
             services.AddHostedService<EvaluationFroidRappelService>();
             services.AddHostedService<AlerteInterimaireService>();
+            // V1.5.2 (QW5) — Cron quotidien 06:00 : alerte fin de mission intérim ≤ 30j
+            services.AddHostedService<Services.AlerteFinMissionInterimHostedService>();
 
             services.AddXaf(Configuration, builder =>
             {

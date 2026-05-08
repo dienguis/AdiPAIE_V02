@@ -664,6 +664,8 @@ namespace AdiPAIE_V02.Module.Domain
             [XafDisplayName("Mouvement non validé")] MouvementNonValide = 5,
             [XafDisplayName("Mouvement tardif")] MouvementTardif = 6,
             [XafDisplayName("Incohérence données")] IncoherenceDonnees = 7,
+            // V1.5.2 (QW5) — Alerte automatique cron quotidien
+            [XafDisplayName("Fin de mission proche (≤ 30 j)")] FinMissionProche = 8,
         }
 
         public enum AlerteInterimaireNiveau
