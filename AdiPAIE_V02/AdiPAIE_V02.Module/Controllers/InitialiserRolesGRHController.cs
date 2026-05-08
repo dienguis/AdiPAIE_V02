@@ -28,14 +28,15 @@ namespace AdiPAIE_V02.Module.Controllers
                 "Admin_InitialiserRolesGRH", PredefinedCategory.Edit)
             {
                 Caption = "Init. rôles GRH",
-                ImageName = "ModelEditor_Security",
-                ToolTip = "Crée automatiquement les 6 rôles GRH "
-                           + "(Employe, Responsable, AssistantRH, RH, DAF, Comptable) "
+                ImageName = "BO_Security_Permission",
+                PaintStyle = DevExpress.ExpressApp.Templates.ActionItemPaintStyle.CaptionAndImage,
+                ToolTip = "Crée automatiquement les 7 rôles GRH "
+                           + "(Employe, Responsable, AssistantRH, AssistantCommercial, RH, DAF, Comptable) "
                            + "avec toutes leurs permissions. "
                            + "Idempotent — sans écrasement des personnalisations.",
                 ConfirmationMessage =
-                    "Cette action va créer (ou compléter) les 6 rôles GRH :\n"
-                    + "Employe, Responsable, AssistantRH, RH, DAF, Comptable.\n\n"
+                    "Cette action va créer (ou compléter) les 7 rôles GRH :\n"
+                    + "Employe, Responsable, AssistantRH, AssistantCommercial, RH, DAF, Comptable.\n\n"
                     + "Les rôles existants ne seront pas écrasés.\n"
                     + "Continuer ?"
             };
@@ -130,6 +131,29 @@ namespace AdiPAIE_V02.Module.Controllers
                 AddType<CategorieFraisMission>(assistant, "r");
                 AddType<NotificationSalarie>(assistant, "rc");
 
+                // V1.5 — Workflow Mouvements Intérim : 1ʳᵉ étape de validation
+                AddType<DemandeMouvementInterim>(assistant, "rw");
+                AddMember<DemandeMouvementInterim>(assistant,
+                    "AssistantRHValidationUser;AssistantRHDate;AssistantRHCommentaire",
+                    write: true, ref nbPerms);
+
+                // ══ ASSISTANT COMMERCIAL (V1.5) ══════════════════════
+                // Initie les demandes de mouvement intérim pour les stations
+                // qui sont sous sa responsabilité (collection Salarie.StationsGerees).
+                // Voit ses propres demandes (filtre Initiateur = currentUser).
+                var assistantCom = GetOrCreate(os, "AssistantCommercial", ref nbRoles);
+                AddType<DemandeMouvementInterim>(assistantCom, "rwc"); // pas de delete
+                AddObject<DemandeMouvementInterim>(assistantCom,
+                    "Initiateur.Email = CurrentUserName() "
+                    + "AND Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,Brouillon#");
+                // Lecture seule sur les intérimaires & contrats (pour lookup et autocomplétion)
+                AddType<Interimaire>(assistantCom, "r");
+                AddType<ContratInterim>(assistantCom, "r");
+                AddType<StationService>(assistantCom, "r");
+                AddType<PosteInterimaire>(assistantCom, "r");
+                AddType<MouvementInterimaire>(assistantCom, "r");
+                AddType<NotificationSalarie>(assistantCom, "rc");
+
                 // ══ RH ═══════════════════════════════════════════════
                 var rh = GetOrCreate(os, "RH", ref nbRoles);
                 AddType<DemandeDeplacement>(rh, "rw");
@@ -145,6 +169,11 @@ namespace AdiPAIE_V02.Module.Controllers
                     write: true, ref nbPerms);
 
                 AddType<DemandeAttestation>(rh, "rwcd");
+
+                // V1.5 — Workflow Mouvements Intérim : RH peut valider à toutes
+                // les étapes (court-circuit possible si Assistant RH absent)
+                AddType<DemandeMouvementInterim>(rh, "rwcd");
+
                 AddType<EntretienAnnuel>(rh, "rw");
                 AddMember<EntretienAnnuel>(rh,
                     "DateCloture;CloturePar;ScoreGlobal;NotesDecisionRH",
@@ -162,6 +191,13 @@ namespace AdiPAIE_V02.Module.Controllers
                 AddType<DemandeDeplacement>(daf, "r");
                 AddMember<DemandeDeplacement>(daf,
                     "ValideParDAF;DateValidationDAF",
+                    write: true, ref nbPerms);
+
+                // V1.5 — Workflow Mouvements Intérim : DAF approuve si
+                // OptionApprobationDAF=true sur la demande
+                AddType<DemandeMouvementInterim>(daf, "rw");
+                AddMember<DemandeMouvementInterim>(daf,
+                    "DAFValidationUser;DAFDate;DAFCommentaire",
                     write: true, ref nbPerms);
                 // DAF voit toutes les demandes approuvées par RH
                 AddObject<DemandeDeplacement>(daf,

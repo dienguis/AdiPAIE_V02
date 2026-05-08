@@ -18,8 +18,8 @@ namespace AdiPAIE_V02.Module.Controllers
 
         public ParametresPaieTestEmailController() {
             testEmailAction = new PopupWindowShowAction(this, "TestEmailSMTP", PredefinedCategory.Edit) {
-                Caption = "Email test",
-                ImageName = "Mail_16x16",
+                Caption = "Tester email",
+                ImageName = "BO_Mail",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage
             };
             testEmailAction.CustomizePopupWindowParams += OnCustomizePopupWindowParams;

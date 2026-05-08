@@ -96,6 +96,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         public XPCollection<ContratInterim> Contrats
             => GetCollection<ContratInterim>(nameof(Contrats));
 
+        // ── V1.5 — Assistants Commerciaux responsables de la station ──
+        [Association("AC-StationsGerees")]
+        [XafDisplayName("Assistants Commerciaux")]
+        public XPCollection<Salarie> AssistantsCommerciaux
+            => GetCollection<Salarie>(nameof(AssistantsCommerciaux));
+
         // ── Propriété calculée ────────────────────────────────────────
         [NonPersistent]
         [XafDisplayName("Effectif actuel")]

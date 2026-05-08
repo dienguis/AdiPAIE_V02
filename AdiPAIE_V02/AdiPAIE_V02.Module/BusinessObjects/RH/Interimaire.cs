@@ -603,8 +603,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         DateTime dateMouvement;
 
-        // ── Origine ───────────────────────────────────────────────────
+        // ── Origine [Legacy V1.0] — masqué UI depuis V1.5 ─────────────
+        // Données conservées en BD pour ne pas casser les services qui les
+        // utilisent encore. À supprimer définitivement en V1.6 après migration.
         [XafDisplayName("[Legacy] Station origine")]
+        [VisibleInListView(false), VisibleInDetailView(false)]
         public StationService StationOrigine
         {
             get => stationOrigine;
@@ -614,6 +617,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [XafDisplayName("[Legacy] BU origine")]
         [DataSourceCriteria("Station.Oid = '@This.StationOrigine.Oid'")]
+        [VisibleInListView(false), VisibleInDetailView(false)]
         public BusinessUnitStation BUOrigine
         {
             get => buOrigine;
@@ -622,6 +626,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         BusinessUnitStation buOrigine;
 
         [XafDisplayName("[Legacy] DG → Station (origine)")]
+        [VisibleInListView(false), VisibleInDetailView(false)]
         public bool OrigineEstDG
         {
             get => origineEstDG;
@@ -629,8 +634,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         bool origineEstDG;
 
-        // ── Destination ───────────────────────────────────────────────
+        // ── Destination [Legacy V1.0] — masqué UI depuis V1.5 ─────────
         [XafDisplayName("[Legacy] Station destination")]
+        [VisibleInListView(false), VisibleInDetailView(false)]
         public StationService StationDestination
         {
             get => stationDestination;
@@ -640,6 +646,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [XafDisplayName("[Legacy] BU destination")]
         [DataSourceCriteria("Station.Oid = '@This.StationDestination.Oid'")]
+        [VisibleInListView(false), VisibleInDetailView(false)]
         public BusinessUnitStation BUDestination
         {
             get => buDestination;
@@ -648,6 +655,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         BusinessUnitStation buDestination;
 
         [XafDisplayName("[Legacy] Destination = Direction Générale")]
+        [VisibleInListView(false), VisibleInDetailView(false)]
         public bool DestinationEstDG
         {
             get => destinationEstDG;

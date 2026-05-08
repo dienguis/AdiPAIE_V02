@@ -10,9 +10,18 @@ namespace AdiPAIE_V02.Module.Controllers {
             var action = new SimpleAction(this, "EnvoyerEmailTest", PredefinedCategory.RecordEdit) {
                 Caption = "Email test",
                 ConfirmationMessage = "Un email de test va être envoyé avec la configuration SMTP courante.",
-                ImageName = "BO_Mail"
+                ImageName = "BO_Mail",
+                PaintStyle = DevExpress.ExpressApp.Templates.ActionItemPaintStyle.CaptionAndImage
             };
             action.Execute += Action_Execute;
+        }
+
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+            // V1.5 — Doublon avec TestEmailSMTP (popup) : on masque celui-ci.
+            foreach (var a in Actions)
+                a.Active.SetItemValue("V15_DoublonEmailTest", false);
         }
 
         private void Action_Execute(object sender, SimpleActionExecuteEventArgs e) {

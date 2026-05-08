@@ -45,6 +45,23 @@
       <Action Id="ValiderEtEnvoyer" IsVisible="False" />
       <Action Id="RenvoyerBulletin" IsVisible="False" />
       <Action Id="EnvoyerClePDF" IsVisible="False" />
+      <!-- V1.5 — Boutons admin sur ParametresPaie : icône + texte (plus visibles) -->
+      <Action Id="Admin_InitialiserRolesGRH" PaintStyle="CaptionAndImage" ImageName="ModelEditor_Security" Caption="Init. rôles GRH" />
+      <!-- TestEmailSMTP (popup, peut envoyer à n'importe quelle adresse) — gardé -->
+      <Action Id="TestEmailSMTP" PaintStyle="CaptionAndImage" ImageName="Mail_16x16" Caption="Tester email" />
+      <!-- EnvoyerEmailTest (simple action, doublon) — masqué -->
+      <Action Id="EnvoyerEmailTest" IsVisible="False" />
+
+      <!-- V1.5 — Workflow Demande de Mouvement Intérim -->
+      <Action Id="DMI_Soumettre" PaintStyle="Caption" Caption="Soumettre" />
+      <Action Id="DMI_ValiderAssistantRH" PaintStyle="Caption" Caption="Valider (Asst RH)" />
+      <Action Id="DMI_RejeterAssistantRH" PaintStyle="Caption" Caption="Rejeter (Asst RH)" />
+      <Action Id="DMI_ValiderRH" PaintStyle="Caption" Caption="Valider RH" />
+      <Action Id="DMI_RejeterRH" PaintStyle="Caption" Caption="Rejeter RH" />
+      <Action Id="DMI_ApprouverDAF" PaintStyle="Caption" Caption="Approuver DAF" />
+      <Action Id="DMI_RejeterDAF" PaintStyle="Caption" Caption="Rejeter DAF" />
+      <Action Id="DMI_Appliquer" PaintStyle="Caption" Caption="Appliquer" />
+      <Action Id="DMI_Annuler" PaintStyle="Caption" Caption="Annuler" />
     </Actions>
   </ActionDesign>
   <BOModel>
@@ -106,7 +123,8 @@
           <Item Id="GRH_Int_Demandes" Caption="Demandes de recrutement" ViewId="DemandeRecrutementInterim_ListView" Index="1" ImageName="Action_Forward" IsNewNode="True" />
           <Item Id="GRH_Int_Contrats" Caption="Contrats intérimaires" ViewId="ContratInterim_ListView" Index="2" IsNewNode="True" />
           <Item Id="GRH_Int_Mouvements" Caption="Mouvements" ViewId="MouvementInterimaire_ListView" Index="3" ImageName="Action_Refresh" IsNewNode="True" />
-          <Item Id="GRH_Int_Alertes" Caption="Alertes" ViewId="AlerteInterimaire_ListView" Index="4" ImageName="State_Warning" IsNewNode="True" />
+          <Item Id="GRH_Int_DemandesMouvement" Caption="Demandes de mouvement" ViewId="DemandeMouvementInterim_ListView" Index="4" ImageName="Action_Forward" IsNewNode="True" />
+          <Item Id="GRH_Int_Alertes" Caption="Alertes" ViewId="AlerteInterimaire_ListView" Index="5" ImageName="State_Warning" IsNewNode="True" />
           <Item Id="GRH_Int_Formations" Caption="Formations intérimaires" ViewId="FormationInterimaire_ListView" Index="5" IsNewNode="True" />
           <Item Id="GRH_Int_Evaluations" Caption="Évaluations intérimaires" ViewId="EvaluationInterimaire_ListView" Index="6" IsNewNode="True" />
           <Item Id="GRH_Int_Sites" Caption="Sites / Stations" ViewId="StationService_ListView" Index="7" ImageName="BO_Organization_32x32" IsNewNode="True" />
@@ -122,6 +140,8 @@
           <Item Id="GRH_MesAttestations" Caption="Mes attestations" ViewId="DemandeAttestation_ListView" Index="3" IsNewNode="True" />
           <Item Id="GRH_MesEntretiens" Caption="Mon entretien annuel" ViewId="EntretienAnnuel_ListView" Index="4" IsNewNode="True" />
           <Item Id="GRH_MesDeplacements" Caption="Mes déplacements" ViewId="DemandeDeplacement_ListView" Index="5" IsNewNode="True" />
+          <!-- V1.5 — AC : ses demandes de mouvement intérim (filtre côté controller) -->
+          <Item Id="GRH_MesDemandesMvtInt" Caption="Mes demandes mouvement intérim" ViewId="DemandeMouvementInterim_AC_ListView" Index="6" ImageName="Action_Forward" IsNewNode="True" />
         </Items>
       </Item>
       <Item Id="Comptabilite" Caption="Comptabilité" Index="35" ImageName="Accounting_32x32" IsNewNode="True">
@@ -1329,6 +1349,26 @@
          sans DetailViewID (pas de drill-down vers le détail bulletin).
          Le filtre ".Salarie.User = current" + statut >= Envoye est appliqué
          côté C# par BulletinSalarieFilterController. -->
+    <!-- V1.5 — Vue AC dédiée pour les demandes de mouvement intérim.
+         Clone de la vue principale, filtre Initiateur=currentUser appliqué
+         par DemandeMouvementInterimAcFilterController. -->
+    <ListView Id="DemandeMouvementInterim_AC_ListView"
+              ClassName="AdiPAIE_V02.Module.BusinessObjects.RH.DemandeMouvementInterim"
+              Caption="Mes demandes de mouvement intérim"
+              IsRoot="True"
+              AllowNew="True"
+              AllowEdit="True"
+              AllowDelete="False"
+              IsNewNode="True">
+      <Columns IsNewNode="True">
+        <ColumnInfo Id="Reference" PropertyName="Reference" SortIndex="0" SortOrder="Descending" Index="0" Width="160" IsNewNode="True" />
+        <ColumnInfo Id="Statut" PropertyName="Statut" Index="1" Width="160" IsNewNode="True" />
+        <ColumnInfo Id="Interimaire" PropertyName="Interimaire" Index="2" Width="200" IsNewNode="True" />
+        <ColumnInfo Id="TypeMouvement" PropertyName="TypeMouvement" Index="3" Width="180" IsNewNode="True" />
+        <ColumnInfo Id="DateSouhaitee" PropertyName="DateSouhaitee" Index="4" Width="120" IsNewNode="True" />
+        <ColumnInfo Id="DateCreation" PropertyName="DateCreation" Index="5" Width="120" IsNewNode="True" />
+      </Columns>
+    </ListView>
     <ListView Id="Bulletin_EspaceSalarie_ListView"
               ClassName="AdiPAIE_V02.Module.BusinessObjects.Bulletin"
               Caption="Mes bulletins de paie"

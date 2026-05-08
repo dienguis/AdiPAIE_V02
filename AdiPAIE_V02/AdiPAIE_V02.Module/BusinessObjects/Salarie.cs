@@ -230,6 +230,16 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             TargetObjectsCriteria = "IsActif=true", AutoCommit = true)]
         public void Desactive() => IsActif = false;
 
+        // ── V1.5 — Mapping Assistant Commercial → Stations sous responsabilité
+        // Utilisé par DemandeMouvementInterim pour filtrer les intérimaires
+        // que l'AC peut sélectionner. Symétrique côté StationService (collection
+        // AssistantsCommerciaux). Vide pour les non-AC.
+        [Association("AC-StationsGerees")]
+        [XafDisplayName("Stations sous responsabilité (AC)")]
+        [VisibleInListView(false)]
+        public XPCollection<StationService> StationsGerees =>
+            GetCollection<StationService>(nameof(StationsGerees));
+
         // ── État civil complet ────────────────────────────────
         [VisibleInListView(false)]
         [Size(100)]

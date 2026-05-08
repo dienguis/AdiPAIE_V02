@@ -630,6 +630,30 @@ namespace AdiPAIE_V02.Module.Domain
             [XafDisplayName("Rupture contrat")] RuptureContrat = 5,
         }
 
+        // ─── V1.5 — Demande de Mouvement Intérim (initiée par AC) ───────
+        public enum TypeMouvementInterim
+        {
+            [XafDisplayName("Changement de Station Service")] ChangementStation = 0,
+            [XafDisplayName("Changement de poste / fonction")] ChangementPoste = 1,
+            [XafDisplayName("Fin de mission anticipée")] FinMissionAnticipee = 2,
+            [XafDisplayName("Remplacement temporaire")] RemplacementTemporaire = 3,
+            [XafDisplayName("Autre (motif libre)")] Autre = 99,
+        }
+
+        public enum DemandeMouvementStatut
+        {
+            [XafDisplayName("Brouillon")] Brouillon = 0,
+            [XafDisplayName("Soumise (Assistant RH)")] SoumiseAssistantRH = 10,
+            [XafDisplayName("Validée Assistant RH")] ValideeAssistantRH = 20,
+            [XafDisplayName("Validée RH")] ValideeRH = 30,
+            [XafDisplayName("Validée DAF")] ValideeDAF = 35,
+            [XafDisplayName("Appliquée")] Appliquee = 40,
+            [XafDisplayName("Rejetée Assistant RH")] RejeteeAssistantRH = 80,
+            [XafDisplayName("Rejetée RH")] RejeteeRH = 81,
+            [XafDisplayName("Rejetée DAF")] RejeteeDAF = 82,
+            [XafDisplayName("Annulée")] Annulee = 90,
+        }
+
         public enum AlerteInterimaireType
         {
             [XafDisplayName("Mission expirée")] MissionExpiree = 0,
