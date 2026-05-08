@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- xUnit -->
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+
+    <!-- Mocking — utile pour mocker IObjectSpace, ILogger, etc. -->
+    <PackageReference Include="Moq" Version="4.20.72" />
+
+    <!-- FluentAssertions — assertions plus lisibles -->
+    <PackageReference Include="FluentAssertions" Version="6.12.1" />
+
+    <!-- DevExpress XPO pour tester avec InMemoryDataStore -->
+    <PackageReference Include="DevExpress.Xpo" Version="25.1.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Référence vers le module à tester -->
+    <ProjectReference Include="..\AdiPAIE_V02.Module\AdiPAIE_V02.Module.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+  </ItemGroup>
+</Project>

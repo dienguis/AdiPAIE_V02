@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdiPAIE_V02.Module", "AdiPA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdiPAIE_V02.Win", "AdiPAIE_V02\AdiPAIE_V02.Win\AdiPAIE_V02.Win.csproj", "{9EA63F31-93A6-4509-9A48-FF225E34BD1D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdiPAIE_V02.Tests", "AdiPAIE_V02\AdiPAIE_V02.Tests\AdiPAIE_V02.Tests.csproj", "{A1B2C3D4-E5F6-4A5B-8C7D-1234567890AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,12 @@ Global
 		{9EA63F31-93A6-4509-9A48-FF225E34BD1D}.EasyTest|Any CPU.Build.0 = EasyTest|Any CPU
 		{9EA63F31-93A6-4509-9A48-FF225E34BD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EA63F31-93A6-4509-9A48-FF225E34BD1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C7D-1234567890AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C7D-1234567890AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C7D-1234567890AB}.EasyTest|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C7D-1234567890AB}.EasyTest|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C7D-1234567890AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C7D-1234567890AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
