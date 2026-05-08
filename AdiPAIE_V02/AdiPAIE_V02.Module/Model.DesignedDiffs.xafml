@@ -389,7 +389,7 @@
         <ColumnInfo Id="SectionImpressionKey" PropertyName="SectionImpressionKey" GroupIndex="0" SortOrder="Ascending" Visible="False" Index="7" />
       </Columns>
     </ListView>
-    <ListView Id="Bulletin_ListView">
+    <ListView Id="Bulletin_ListView" IsGroupPanelVisible="True">
       <Columns>
         <!-- Colonnes cachées (Index=-1) -->
         <ColumnInfo Id="BrutFiscal_CumulAnnee" Index="-1" />
@@ -419,11 +419,13 @@
         <ColumnInfo Id="DisplayName" Index="-1" SortIndex="-1" SortOrder="None" />
         <ColumnInfo Id="JoursTravailles" Index="-1" />
         <ColumnInfo Id="NombrePartsFiscales" Index="-1" />
-        <!-- Colonnes visibles avec tri Matricule (0) → Annee (1) → Mois (2) -->
-        <ColumnInfo Id="Salarie.Matricule" PropertyName="Salarie.Matricule" Caption="Matricule" Index="0" Width="100" SortIndex="0" SortOrder="Ascending" IsNewNode="True" />
-        <ColumnInfo Id="Salarie.FullName" PropertyName="Salarie.FullName" Caption="Nom Complet" Index="1" Width="200" IsNewNode="True" />
-        <ColumnInfo Id="Annee" Index="2" Width="80" SortIndex="1" SortOrder="Ascending" />
-        <ColumnInfo Id="Mois" Index="3" Width="60" SortIndex="2" SortOrder="Ascending" />
+        <!-- V1.5.2 — Group by Annee (DESC) puis Mois (DESC) :
+             les bulletins recents apparaissent en haut, regroupes par periode.
+             Tri secondaire sur Matricule pour ordre stable dans chaque groupe. -->
+        <ColumnInfo Id="Annee" Index="0" Width="80" GroupIndex="0" SortIndex="0" SortOrder="Descending" />
+        <ColumnInfo Id="Mois" Index="1" Width="60" GroupIndex="1" SortIndex="1" SortOrder="Descending" />
+        <ColumnInfo Id="Salarie.Matricule" PropertyName="Salarie.Matricule" Caption="Matricule" Index="2" Width="100" SortIndex="2" SortOrder="Ascending" IsNewNode="True" />
+        <ColumnInfo Id="Salarie.FullName" PropertyName="Salarie.FullName" Caption="Nom Complet" Index="3" Width="200" IsNewNode="True" />
         <ColumnInfo Id="Statut" Index="4" Width="100" />
         <ColumnInfo Id="BrutFiscal" Index="5" Width="120" DisplayFormat="{0:N0}" EditMask="N0" />
         <ColumnInfo Id="BrutSocial" Index="6" Width="120" DisplayFormat="{0:N0}" EditMask="N0" />
@@ -1013,16 +1015,18 @@
         </LayoutGroup>
       </Layout>
     </DetailView>
-    <ListView Id="PeriodePaie_ListView">
+    <ListView Id="PeriodePaie_ListView" IsGroupPanelVisible="True">
       <Columns>
         <ColumnInfo Id="DateDebut" Index="-1" Width="93" />
         <ColumnInfo Id="DateFin" Index="-1" />
-        <ColumnInfo Id="DisplayName" SortIndex="0" SortOrder="Ascending" Width="255" Index="-1" />
+        <ColumnInfo Id="DisplayName" SortIndex="-1" SortOrder="None" Width="255" Index="-1" />
         <ColumnInfo Id="Key" SortIndex="-1" SortOrder="None" Index="-1" />
         <ColumnInfo Id="Note" Index="-1" />
         <ColumnInfo Id="Ordinal" Index="-1" Width="125" />
-        <ColumnInfo Id="Annee" SortOrder="None" SortIndex="-1" Width="82" Index="0" />
-        <ColumnInfo Id="Mois" SortOrder="None" SortIndex="-1" Index="1" />
+        <!-- V1.5.2 — Group by Annee (DESC) puis Mois (DESC) :
+             les périodes récentes apparaissent en haut, regroupées par année. -->
+        <ColumnInfo Id="Annee" Index="0" Width="82" GroupIndex="0" SortIndex="0" SortOrder="Descending" />
+        <ColumnInfo Id="Mois" Index="1" GroupIndex="1" SortIndex="1" SortOrder="Descending" />
         <ColumnInfo Id="Libelle" Index="2" />
         <ColumnInfo Id="Statut" Index="3" Width="114" />
         <ColumnInfo Id="DateOuverture" Index="4" Width="119" />

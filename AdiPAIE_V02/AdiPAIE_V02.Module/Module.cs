@@ -36,6 +36,20 @@ namespace AdiPAIE_V02.Module
             //AdditionalExportedTypes.Add(typeof(SimulationSursalaire));
             AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.SimulationSursalaire));
 
+            // V1.5.2 — Enregistrement explicite des entités utilisées par les
+            // hosted services AlerteInterimaireService et AlerteFinMissionInterimHostedService.
+            // Évite ArgumentException "class is not registered" au démarrage
+            // (race condition entre BackgroundService start et XAF bootstrap).
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.Interimaire));
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.ContratInterim));
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.MouvementInterimaire));
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.AlerteInterimaire));
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.DemandeMouvementInterim));
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.SocieteInterim));
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.PosteInterimaire));
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.StationService));
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.BusinessUnitStation));
+
             // =================================
 
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.SystemModule.SystemModule));
