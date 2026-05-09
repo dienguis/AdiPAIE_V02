@@ -1296,7 +1296,14 @@ Corrigé en ajoutant :
 (Paramètres de Paie → Administration → "Init. rôles GRH") OU laisser
 l'Updater le faire au prochain démarrage.
 
-### 🚧 ISSUE OUVERTE V1.6.2 — Multi-rôle RH + RH_Manager bloque colonnes Bulletin
+### ✅ ISSUE RÉSOLUE V1.6.2 (confirmé 2026-05-09) — Multi-rôle RH + RH_Manager bloque colonnes Bulletin
+
+**Test sur base fresh** (créée le 2026-05-09 avec V1.6.2 + V1.7) → **toutes les
+colonnes Bulletin sont correctement visibles** pour un user RH neuf. Le code
+est sain. Le bug observé en base actuelle vient de la persistance d'anciennes
+configurations (RH_Manager assigné à ababacar.diallo en plus de RH).
+
+### 🚧 ISSUE D'ORIGINE — Multi-rôle RH + RH_Manager bloque colonnes Bulletin
 
 **Symptôme** : sur Consultation bulletins, les colonnes Matricule, NomComplet,
 BrutFiscal, BrutSocial, TRIMF restent invisibles pour un user qui a les 2 rôles
