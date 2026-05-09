@@ -41,6 +41,22 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeStatut,Traitee# "
                  + "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeStatut,Rejetee#",
         TargetItems = "Nature;Motif;DateSouhaitee", Enabled = false)]
+    // V1.6.2 — Badges colorés sur Statut (workflow attestation)
+    [Appearance("Demande_Badge_EnAttente",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeStatut,EnAttenteN1#"
+                 + " OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeStatut,EnAttenteN2#"
+                 + " OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeStatut,Soumise#"
+                 + " OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeStatut,EnTraitement#",
+        BackColor = "Moccasin", FontColor = "DarkOrange", FontStyle = DXFontStyle.Bold)]
+    [Appearance("Demande_Badge_Traitee",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeStatut,Traitee#",
+        BackColor = "PaleGreen", FontColor = "DarkGreen", FontStyle = DXFontStyle.Bold)]
+    [Appearance("Demande_Badge_Rejetee",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeStatut,Rejetee#",
+        BackColor = "LightCoral", FontColor = "DarkRed", FontStyle = DXFontStyle.Bold)]
     public class DemandeAttestation : BaseObject
     {
         public DemandeAttestation(Session session) : base(session) { }

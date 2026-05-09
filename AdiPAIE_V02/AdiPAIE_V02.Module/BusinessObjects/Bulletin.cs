@@ -35,6 +35,27 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     Enabled = false,
     Context = "DetailView"
 )]
+    // V1.6.2 — Badge statut coloré sur le bulletin (workflow paie)
+    [Appearance("Bulletin_Statut_Brouillon",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Brouillon#",
+        BackColor = "Gainsboro", FontColor = "DimGray", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("Bulletin_Statut_Valide",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Valide#",
+        BackColor = "LightSkyBlue", FontColor = "DarkBlue", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("Bulletin_Statut_Envoye",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Envoye#",
+        BackColor = "PaleGreen", FontColor = "DarkGreen", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("Bulletin_Statut_Comptabilise",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Comptabilise#",
+        BackColor = "Plum", FontColor = "Indigo", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("Bulletin_Statut_Cloture",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Cloture#",
+        BackColor = "DarkGray", FontColor = "White", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
     public class Bulletin : BaseObject
     {
         public Bulletin(Session session) : base(session) { }

@@ -1137,6 +1137,216 @@ Puis `git add Reports/BulletinPaie.repx && git commit`.
 [ Valider ]  [ Publier ]  [ Dépublier ]  [ Notifier ]  [ Clôturer ]  [ Imprimer ]  [ Recalc ]
 ```
 
+---
+
+## ✅ V1.5 / V1.5.1 / V1.5.2 — STABILISATION (2026-05-08 / 09)
+
+### V1.5 — Module Mouvements Intérim
+- Workflow : AC → AssistantRH → RH → DAF → Apply
+- 8 transitions audit-trailées dans `DemandeMouvementService`
+- Email notification AC fire-and-forget
+- StationOrigine/StationDestination capturées sur MouvementInterimaire (historique)
+
+### V1.5.1 — Dashboard Rémunération filtre Échelon
+- Filtre Échelon ajouté sur RemunerationFilterModel
+- Table ParEchelon (INTERNE only) dans le dashboard
+- ViewModel `EchelonOption(Guid, string Label)` pour bypass PersistentAlias
+
+### V1.5.2 — Quick Wins QW1-QW6 + xUnit foundation + Warnings cleanup
+- QW1 : `RolesGRHInitializer` static refactor (suppression doublons)
+- QW2 : Cleanup `[Browsable(false)]` sur propriétés calculées
+- QW3 : DPAPI LocalMachine pour password encryption
+- QW4 : `EmailSender` retry exponentiel + filter transient errors (SmtpException 4xx/5xx)
+- QW5 : `AlerteFinMissionInterimHostedService` cron 06:00 quotidien (alerte si DateFin ≤ 30j)
+- QW6 : 5 SQL indexes performance (Bulletin, Salarie, Pret, Conge, Mouvement)
+- xUnit 2.9 + FluentAssertions + Moq + DevExpress.Xpo (15 tests stabilité enums)
+- **Warnings cleanup Lot 1 (csproj)** : Nullable=annotations + NoWarn XAF0020;CA1416;XAF0022 → ~150 warnings éliminés
+- **Warnings cleanup Lot 2 (code)** : 26 corrections (CS0105 doublons using, CS0162 dead code, CS0169/CS0414 champs morts, CS0184 type checks impossibles, CS0618 obsolète, XAF0018 UnitOfWork, XAF0025 attrs XPO sur non-XPO)
+- **Validation finale : 0 warning, 0 erreur sur 4 projets** (Module + Tests + Win + Blazor.Server)
+- HEAD `dev` après V1.5.2 = `6c486cb`
+
+---
+
+## ✅ V1.6 — FICHE SALARIÉ ENRICHIE (2026-05-09)
+
+### Champs ajoutés
+- **Salarie.Telephone** (NVARCHAR(20)) — téléphone perso (différent de ContactUrgenceTel)
+- **Conjoint.DateNaissance** + Age calculé (oubli initial corrigé)
+
+### Nouvelle entité `Enfant`
+- Collection agrégée `Salarie.Enfants` (calque Conjoints)
+- Champs : NomComplet, DateNaissance, Sexe, Situation, ACharge
+- Age calculé à partir de DateNaissance
+- Enum `SituationEnfant` : NonScolarise / Eleve / Etudiant / Apprenti / Travailleur / SansActivite / Autre
+- Anticipe la logique TRIMF (parts fiscales : limite âge sauf étudiant/apprenti)
+- ImageName BO_Salutation, NavigationItem masqué (accès via Salarie)
+
+### Layout Salarie_DetailView
+- Onglet Famille : **Conjoints (50%) | Enfants (50%) côte à côte**
+- ListView Conjoints : ajout colonne DateNaissance + widths fixes
+- ListView Enfants : NomComplet, DateNaissance, Age, Sexe, Situation, ACharge avec widths fixes
+- **`CaptionLocation=Top`** sur rangées à 4 champs (Poste occupé, Classification, Salaire, Primes & avantages, Calculs fiscaux, Situation familiale) → labels au-dessus, plus de troncature horizontale
+- Telephone intégré dans le groupe Téléphone/Notes onglet Identification
+
+### Règle métier matricule
+- `Salarie.Matricule` verrouillé après création via `[Appearance(IsNewObject(this))]`
+- Justification : clé de mapping JDE + référencé dans bulletins/contrats/audit
+- Reste éditable en saisie initiale puis grisé à vie (préserve traçabilité)
+
+### Wizard création Salarié — TENTATIVE ABANDONNÉE
+- Conçu en 4 étapes (Identité / Contrat / Affectation / Récap)
+- Lookups ne se chargeaient pas correctement dans `NonPersistentObjectSpace` malgré `AdditionalObjectSpaces.Add(XPObjectSpace)`
+- Décision utilisateur : ne pas garder pour éviter régression — la fiche standard suffit
+
+### Migration auto XPO au démarrage
+- ALTER TABLE Salarie ADD Telephone NVARCHAR(20) NULL
+- ALTER TABLE Conjoint ADD DateNaissance datetime NULL
+- CREATE TABLE Enfant (Oid, OptimisticLockField, Salarie, NomComplet, DateNaissance, Sexe, Situation, ACharge, GCRecord)
+
+HEAD `dev` après V1.6 = `e424cbc`
+
+---
+
+## ✅ V1.6.1 — UX QUICK WINS FICHE SALARIÉ (2026-05-09)
+
+### Bandeau KPI en en-tête onglet Identification
+5 propriétés calculées NonPersistent sur Salarie :
+- `StatutAffichage` (badge coloré)
+- `AncienneteAffichage` (ex: "24 ans")
+- `SalaireBaseAffichage` (ex: "451 556 FCFA")
+- `EchelonAffichage` (code)
+- `SiteAffichage` (code)
+
+→ Aperçu instantané sans avoir à parcourir les 7 onglets
+
+### Badges colorés via `[Appearance]` sur Statut
+- 🟢 **Vert** (PaleGreen + DarkGreen bold) si IsActif et hors période d'essai
+- 🟠 **Orange** (Moccasin + DarkOrange bold) si DateConfirmation > today (période d'essai)
+- ⚪ **Gris** (Gainsboro + DimGray bold) si Inactif
+
+### Alertes visuelles sur dates critiques (5 règles)
+- 🔴 **Rouge** : CNI expirée (DateExpirationCNI < today)
+- 🟠 **Orange** : CNI expire ≤ 60 jours
+- 🔴 **Rouge** : Passeport expiré
+- 🟠 **Orange** : Passeport expire ≤ 90 jours
+- 🟠 **Orange** : Fin période d'essai ≤ 15 jours (DateConfirmation approche)
+
+### Layout en-tête enrichi
+- Photo agrandie (50% → 75% de sa colonne, RelativeSize 35 → 40)
+- Top row plus haut (30 → 40) — effet "fiche d'identité" marqué
+
+### Emojis sur les 7 onglets Salarie_DetailView
+- 👤 Identification / 📋 Contrat & Poste / 💰 Rémunération
+- 👨‍👩‍👧 Famille / 📄 Pièces d'identité / 🏦 Comptes bancaires / ℹ️ Informations RH
+
+### Type FontStyle correct pour XAF 25.1
+- `DevExpress.Drawing.DXFontStyle.Bold` (pas `System.Drawing.FontStyle`)
+
+HEAD `dev` après V1.6.1 = `8c4002a`
+
+---
+
+## ✅ V1.6.2 — PATTERN BADGES SUR 7 ENTITÉS WORKFLOW (2026-05-09)
+
+Application du pattern V1.6.1 (badges colorés sur Statut + alertes dates) à 7 entités à workflow :
+
+| Entité | Badges Statut | Alertes dates |
+|--------|--------------|---------------|
+| **Bulletin** | Brouillon (gris) / Validé (bleu) / Envoyé (vert) / Comptabilisé (violet) / Clôturé (gris foncé) | — |
+| **PeriodePaie** | Brouillon (gris) / Ouverte (vert) / Clôturée (gris foncé) | — |
+| **ContratInterim** | (existant FontColor) | 🔴 Mission dépassée • 🟠 Fin ≤ 7j urgent • 🟡 Fin 8-30j proche |
+| **CongeDemande** | Brouillon / En attente / Accordée (vert) / Refusée (rouge) / Annulée (gris foncé) | — |
+| **DemandeAttestation** | En attente (orange) / Traitée (vert) / Rejetée (rouge) | — |
+| **DemandeMouvementInterim** | Brouillon / En attente AC→AssistantRH→RH→DAF / Appliquée (vert) / Rejetée (rouge) / Annulée (gris foncé) | — |
+| **Pret** | Brouillon / En cours (bleu) / Terminé (vert) / Suspendu (orange) | — |
+| **EntretienAnnuel** | Brouillon-Planifié / En cours saisie / Soumise RH (vert) / Clôturé (gris foncé) | — |
+
+### Code couleur unifié (référence projet)
+- ⚪ **Gainsboro / DimGray** = Brouillon
+- 🔵 **LightSkyBlue / DarkBlue** = En cours / Validé
+- 🟠 **Moccasin / DarkOrange** = En attente validation
+- 🟢 **PaleGreen / DarkGreen** = Finalisé / Accordé / Actif
+- 🔴 **LightCoral / DarkRed** = Refusé / Expiré
+- ⚫ **DarkGray / White** = Clôturé / Annulé
+- 🟣 **Plum / Indigo** = Comptabilisé (paie)
+- 🟡 **LightSalmon / DarkRed** = Urgence (≤ 7 jours)
+
+### Règles d'application
+- Toujours `TargetItems = "Statut"` (badge sur la cellule, pas la ligne entière)
+- Toujours `FontStyle = DevExpress.Drawing.DXFontStyle.Bold` (visibilité)
+- Combinaison BackColor + FontColor pour contraste WCAG accessible
+
+### Convention pour futures entités à workflow
+1. Identifier l'enum de Statut dans `DomainEnums.cs`
+2. Appliquer 3-5 `[Appearance]` au niveau classe avec `TargetItems = "Statut"`
+3. Choisir les couleurs dans la palette unifiée ci-dessus
+4. Tester la visibilité en mode liste ET en mode détail
+
+### Permissions RH ajoutées (RolesGRHInitializer)
+Bug détecté : la "Consultation bulletins" RH n'affichait que Statut + NetAPayer
+parce que le rôle RH n'avait aucune permission explicite sur Bulletin/Salarie.
+Corrigé en ajoutant :
+- `Salarie` : rw (lire + corriger fiches salariés)
+- `Bulletin` : rwc (lire + valider + créer)
+- `BulletinLigne` : rw (détail des lignes de paie)
+- `PeriodePaie` : rw (gérer périodes)
+- `Conjoint` + `Enfant` : rwcd (famille / TRIMF)
+
+**Action requise** : après déploiement, relancer l'init des rôles
+(Paramètres de Paie → Administration → "Init. rôles GRH") OU laisser
+l'Updater le faire au prochain démarrage.
+
+### 🚧 ISSUE OUVERTE V1.6.2 — Multi-rôle RH + RH_Manager bloque colonnes Bulletin
+
+**Symptôme** : sur Consultation bulletins, les colonnes Matricule, NomComplet,
+BrutFiscal, BrutSocial, TRIMF restent invisibles pour un user qui a les 2 rôles
+RH + RH_Manager, malgré nos perms RH ajoutées.
+
+**Cause racine identifiée** :
+- `RH` dans `RolesGRHInitializer` = **AllowAllByDefault** (ligne Updater.cs:280)
+- `RH_Manager` dans `Updater.cs` = **DenyAllByDefault** (ligne 347)
+- En XAF multi-rôle : DenyAllByDefault l'emporte sur AllowAllByDefault pour les
+  membres non explicitement Allow dans le rôle Deny → toutes les colonnes que
+  RH_Manager n'a pas listées explicitement sont cachées.
+
+**Vérifié en DB** :
+- Type permissions RH(Bulletin r/w/c) + RH(Salarie r/w) → présentes ✓
+- Aucune Member permission Deny → cause = policy DenyAllByDefault de RH_Manager
+
+**Tentatives faites** :
+1. Ajout perms Type sur RH (Bulletin/Salarie/etc.) → en DB mais pas suffisant
+2. Logout/login + re-Init rôles → ne corrige pas
+3. Suppression role RH_Manager du user via SQL → à confirmer / non débuggé à fond
+
+**Solutions possibles à tester quand on y reviendra** :
+- A. Retirer définitivement RH_Manager des users qui ont déjà RH (RH a déjà
+  les dashboards via `GrantDashboardAccessToExistingRole("RH")` ligne 399)
+- B. Changer Updater.cs:347 → `RH_Manager.PermissionPolicy = AllowAllByDefault`
+- C. Ajouter dans RH_Manager les Member permissions manquantes (Bulletin.BrutFiscal,
+  Salarie.Matricule, etc.) — fastidieux
+
+**Option recommandée** : A (retirer RH_Manager pour les users qui ont déjà RH)
+puis investiguer si RH_Manager doit exister isolément pour d'autres users.
+
+HEAD `dev` après V1.6.2 = (à pousser)
+
+---
+
+## 📋 Roadmap post-V1.6.2
+
+### Court terme (V1.7)
+- CI/CD GitHub Actions (build + tests à chaque PR)
+- Tests d'intégration XPO sur `BulletinPublicationService` et `DemandeMouvementService`
+- Migration `Validator.RuleSet` → `IValidator` service (warning CS0618 actuellement supprimé via #pragma)
+- Migration `ReportDataProvider.ReportsStorage` → `IReportStorage` injecté
+
+### Moyen terme (V2.0)
+- Refacto wizards multi-popups vers `e.ShowViewParameters` (suppression XAF0022)
+- Évaluer un wizard de création Salarié full-Blazor (custom Razor component) plutôt que XAF NonPersistent
+
+### Tag de release
+- `v1.6.2` à poser sur `dev` après merge sur `main`
+
 Anciens boutons masqués : Valider+envoyer, Renvoyer PDF, Envoyer clé PDF.
 
 ### Menu Reports réactivé

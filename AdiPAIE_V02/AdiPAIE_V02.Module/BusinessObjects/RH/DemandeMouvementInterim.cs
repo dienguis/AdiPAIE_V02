@@ -53,6 +53,32 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
                  + "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,RejeteeDAF# "
                  + "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,Annulee#",
         FontColor = "Red", FontStyle = DevExpress.Drawing.DXFontStyle.Strikeout)]
+    // V1.6.2 — Badges colorés sur Statut (workflow AC → AssistantRH → RH → DAF)
+    [Appearance("DMI_Badge_Brouillon",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,Brouillon#",
+        BackColor = "Gainsboro", FontColor = "DimGray", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("DMI_Badge_EnAttente",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,SoumiseAssistantRH# "
+                 + "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,ValideeAssistantRH# "
+                 + "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,ValideeRH# "
+                 + "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,ValideeDAF#",
+        BackColor = "Moccasin", FontColor = "DarkOrange", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("DMI_Badge_Appliquee",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,Appliquee#",
+        BackColor = "PaleGreen", FontColor = "DarkGreen", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("DMI_Badge_Rejetee",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,RejeteeAssistantRH# "
+                 + "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,RejeteeRH# "
+                 + "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,RejeteeDAF#",
+        BackColor = "LightCoral", FontColor = "DarkRed", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("DMI_Badge_Annulee",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,Annulee#",
+        BackColor = "DarkGray", FontColor = "White", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
     public class DemandeMouvementInterim : BaseObject
     {
         public DemandeMouvementInterim(Session session) : base(session) { }

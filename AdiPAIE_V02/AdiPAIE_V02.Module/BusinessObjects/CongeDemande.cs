@@ -65,6 +65,29 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         Criteria = "Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Soumise#"
             + " AND Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Accordee#",
         Visibility = ViewItemVisibility.Hide, TargetItems = nameof(DateReprise))]
+    // V1.6.2 — Badges colorés sur la cellule Statut (workflow congés)
+    [Appearance("Conge_Badge_Brouillon",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Brouillon#",
+        BackColor = "Gainsboro", FontColor = "DimGray", FontStyle = DXFontStyle.Bold)]
+    [Appearance("Conge_Badge_EnAttente",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,EnAttenteN1#"
+                 + " OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,EnAttenteN2#"
+                 + " OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Soumise#",
+        BackColor = "Moccasin", FontColor = "DarkOrange", FontStyle = DXFontStyle.Bold)]
+    [Appearance("Conge_Badge_Accordee",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Accordee#",
+        BackColor = "PaleGreen", FontColor = "DarkGreen", FontStyle = DXFontStyle.Bold)]
+    [Appearance("Conge_Badge_Refusee",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Refusee#",
+        BackColor = "LightCoral", FontColor = "DarkRed", FontStyle = DXFontStyle.Bold)]
+    [Appearance("Conge_Badge_Annulee",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Annulee#",
+        BackColor = "DarkGray", FontColor = "White", FontStyle = DXFontStyle.Bold)]
     public class CongeDemande : BaseObject
     {
         public CongeDemande(Session session) : base(session) { }

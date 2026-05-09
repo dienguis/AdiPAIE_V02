@@ -48,6 +48,27 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [Appearance("Entretien_Style_Cloture", TargetItems = "*",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+EntretienStatut,Cloture#",
         FontColor = "Gray", FontStyle = DXFontStyle.Italic)]
+    // V1.6.2 — Badges colorés sur Statut (workflow entretien annuel)
+    [Appearance("Entretien_Badge_Brouillon",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+EntretienStatut,Brouillon#"
+                 + " OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+EntretienStatut,PlanifieRH#",
+        BackColor = "Gainsboro", FontColor = "DimGray", FontStyle = DXFontStyle.Bold)]
+    [Appearance("Entretien_Badge_EnCoursSaisie",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+EntretienStatut,SaisieManager#"
+                 + " OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+EntretienStatut,SaisieSalarie#"
+                 + " OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+EntretienStatut,ValidationN1#"
+                 + " OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+EntretienStatut,EnAttenteN2#",
+        BackColor = "Moccasin", FontColor = "DarkOrange", FontStyle = DXFontStyle.Bold)]
+    [Appearance("Entretien_Badge_SoumiseRH",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+EntretienStatut,SoumiseRH#",
+        BackColor = "PaleGreen", FontColor = "DarkGreen", FontStyle = DXFontStyle.Bold)]
+    [Appearance("Entretien_Badge_Cloture",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+EntretienStatut,Cloture#",
+        BackColor = "DarkGray", FontColor = "White", FontStyle = DXFontStyle.Bold)]
     public class EntretienAnnuel : BaseObject
     {
         public EntretienAnnuel(Session session) : base(session) { }

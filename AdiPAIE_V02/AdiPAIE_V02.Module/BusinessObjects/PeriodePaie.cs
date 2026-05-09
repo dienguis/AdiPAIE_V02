@@ -41,6 +41,19 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         Criteria = "Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PeriodePaieStatut,Brouillon#",
         TargetItems = "Company;Annee;Mois",
         Enabled = false)]
+    // V1.6.2 — Badge statut coloré (gris Brouillon / vert Ouverte / sombre Clôturée)
+    [Appearance("PeriodePaie_Statut_Brouillon",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PeriodePaieStatut,Brouillon#",
+        BackColor = "Gainsboro", FontColor = "DimGray", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("PeriodePaie_Statut_Ouverte",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PeriodePaieStatut,Ouverte#",
+        BackColor = "PaleGreen", FontColor = "DarkGreen", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("PeriodePaie_Statut_Cloturee",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PeriodePaieStatut,Cloturee#",
+        BackColor = "DarkGray", FontColor = "White", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
     public class PeriodePaie : BaseObject
     {
         public PeriodePaie(Session session) : base(session) { }

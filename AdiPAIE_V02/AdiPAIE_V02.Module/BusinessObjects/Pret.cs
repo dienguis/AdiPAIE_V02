@@ -1,5 +1,6 @@
 ﻿using AdiPAIE_V02.Module.Domain;
 using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Editors;
 using DevExpress.ExpressApp.Model;
@@ -20,6 +21,23 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     [ImageName("BO_Money_Bag")]  // V1.1 — icône XAF native (prêt = sac d'argent)
     [XafDisplayName("Prêt salarié")]
     [DefaultProperty(nameof(DisplayName))]
+    // V1.6.2 — Badges colorés sur Statut (vie du prêt)
+    [Appearance("Pret_Badge_Brouillon",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PretStatut,Brouillon#",
+        BackColor = "Gainsboro", FontColor = "DimGray", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("Pret_Badge_EnCours",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PretStatut,EnCours#",
+        BackColor = "LightSkyBlue", FontColor = "DarkBlue", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("Pret_Badge_Termine",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PretStatut,Termine#",
+        BackColor = "PaleGreen", FontColor = "DarkGreen", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("Pret_Badge_Suspendu",
+        TargetItems = "Statut",
+        Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PretStatut,Suspendu#",
+        BackColor = "Moccasin", FontColor = "DarkOrange", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
     public class Pret : BaseObject
     {
         public Pret(Session s) : base(s) { }

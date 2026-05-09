@@ -294,6 +294,22 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [Appearance("CI_Resilie", TargetItems = "*",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+ContratInterimStatut,Resilie#",
         FontColor = "Red")]
+    // V1.6.2 — Alertes visuelles fin de mission (sur DateFin uniquement, pas tout le contrat)
+    // Rouge : mission déjà finie (DateFin < today) — ignorer pour Termine/Resilie déjà gérés
+    [Appearance("CI_Mission_Depassee",
+        TargetItems = "DateFin",
+        Criteria = "DateFin < LocalDateTimeToday() AND Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+ContratInterimStatut,Termine# AND Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+ContratInterimStatut,Resilie#",
+        BackColor = "LightCoral", FontColor = "DarkRed", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    // Orange : fin dans <= 7 jours — urgence
+    [Appearance("CI_Mission_FinUrgente",
+        TargetItems = "DateFin",
+        Criteria = "DateFin >= LocalDateTimeToday() AND DateFin <= AddDays(LocalDateTimeToday(), 7)",
+        BackColor = "LightSalmon", FontColor = "DarkRed", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    // Jaune : fin dans 8-30 jours — anticipation
+    [Appearance("CI_Mission_FinProche",
+        TargetItems = "DateFin",
+        Criteria = "DateFin > AddDays(LocalDateTimeToday(), 7) AND DateFin <= AddDays(LocalDateTimeToday(), 30)",
+        BackColor = "Moccasin", FontColor = "DarkOrange", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
     [RuleCriteria("CI_DateFin_GTE_DateDebut", DefaultContexts.Save,
         "DateFin >= DateDebut",
         CustomMessageTemplate = "La date de fin doit être >= à la date de début.")]

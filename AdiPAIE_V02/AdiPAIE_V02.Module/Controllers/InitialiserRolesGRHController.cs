@@ -219,6 +219,21 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<DossierDocument>(rh, "rwcd");
             AddType<DossierSalarie>(rh, "rwcd");
 
+            // V1.6.2 — Permissions Bulletin + Salarie pour RH (manquaient)
+            // Sans ces accès, la "Consultation bulletins" RH n'affichait que
+            // Statut + NetAPayer (Salarie navigation hidden, BrutFiscal/Social hidden).
+            // RH a besoin du contexte salarié complet pour gérer la paie.
+            // IMPORTANT : après ces ajouts, le user RH doit se DECONNECTER puis
+            // se RECONNECTER (XAF cache les permissions au login).
+            // NB: AddType est idempotent côté XAF — re-runs sans effet si déjà présent.
+            // On incrémente nbPerms pour avoir un compteur visible (premier run).
+            AddType<Salarie>(rh, "rw");      nbPerms += 2; // Read + Write
+            AddType<Bulletin>(rh, "rwc");    nbPerms += 3; // Read + Write + Create
+            AddType<BulletinLigne>(rh, "rw"); nbPerms += 2;
+            AddType<PeriodePaie>(rh, "rw");  nbPerms += 2;
+            AddType<Conjoint>(rh, "rwcd");   nbPerms += 4; // Famille (TRIMF)
+            AddType<Enfant>(rh, "rwcd");     nbPerms += 4; // Famille V1.6
+
             // ══ DAF ══════════════════════════════════════════════
             var daf = GetOrCreate(os, "DAF", ref nbRoles);
             AddType<DemandeDeplacement>(daf, "r");
