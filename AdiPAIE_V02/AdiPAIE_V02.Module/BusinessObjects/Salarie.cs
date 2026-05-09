@@ -139,6 +139,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [RuleRequiredField]
         [RuleUniqueValue(DefaultContexts.Save,
             CustomMessageTemplate = "Ce matricule est déjà utilisé par un autre salarié.")]
+        // V1.6 — Matricule verrouillé après création :
+        // - clé de mapping JDE (le modifier romprait la liaison Répertoire d'adresses)
+        // - référencé dans bulletins, contrats, historiques, audit
+        // Reste éditable en saisie initiale (IsNewObject = true) puis grisé à vie.
+        [Appearance("Salarie_Matricule_LockAfterCreate",
+            Criteria = "Not IsNewObject(this)",
+            Enabled = false,
+            TargetItems = nameof(Matricule))]
         public string Matricule
         {
             get => matricule;
@@ -589,6 +597,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Association("Salarie-Conjoints"), Aggregated]
         public XPCollection<Conjoint> Conjoints
             => GetCollection<Conjoint>(nameof(Conjoints));
+
+        // V1.6 — Liste nominative des enfants (en complément du compteur NombreEnfant)
+        [Association("Salarie-Enfants"), Aggregated]
+        [XafDisplayName("Enfants")]
+        public XPCollection<Enfant> Enfants
+            => GetCollection<Enfant>(nameof(Enfants));
 
         [Association("Salarie-Prets")]
         public XPCollection<Pret> Prets

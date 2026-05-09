@@ -36,9 +36,29 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public string NomComplet { get => nom; set => SetPropertyValue(nameof(NomComplet), ref nom, value?.Trim()); }
         string nom;
 
+        // V1.6 — date de naissance (oubli initial corrigé)
+        [XafDisplayName("Date de naissance")]
+        public DateTime? DateNaissance { get => dn; set => SetPropertyValue(nameof(DateNaissance), ref dn, value); }
+        DateTime? dn;
+
         public DateTime? DateMariage { get => dm; set => SetPropertyValue(nameof(DateMariage), ref dm, value); }
         public DateTime? DateFinUnion { get => df; set => SetPropertyValue(nameof(DateFinUnion), ref df, value); }
         DateTime? dm; DateTime? df;
+
+        // V1.6 — âge calculé (lecture seule)
+        [NonPersistent]
+        [XafDisplayName("Âge")]
+        public int? Age
+        {
+            get
+            {
+                if (!DateNaissance.HasValue) return null;
+                var today = DateTime.Today;
+                var age = today.Year - DateNaissance.Value.Year;
+                if (DateNaissance.Value.Date > today.AddYears(-age)) age--;
+                return age < 0 ? 0 : age;
+            }
+        }
 
         public StatutConjoint Statut { get => statut; set => SetPropertyValue(nameof(Statut), ref statut, value); }
         StatutConjoint statut = StatutConjoint.Inactif;

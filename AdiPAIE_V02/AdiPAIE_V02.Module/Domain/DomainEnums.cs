@@ -32,6 +32,21 @@ namespace AdiPAIE_V02.Module.Domain
             Inactif = 2
         }
 
+        // V1.6 — Situation scolaire/professionnelle d'un enfant
+        // Utilisée pour la logique TRIMF (parts fiscales) selon âge + situation :
+        // - Au-delà d'un certain âge, l'enfant sort du quotient sauf s'il est étudiant/apprenti
+        // - Règles précises à valider avec RH (CGI Sénégal)
+        public enum SituationEnfant
+        {
+            NonScolarise = 0,    // tout-petit / non scolarisé
+            Eleve = 1,           // primaire / collège / lycée
+            Etudiant = 2,        // enseignement supérieur
+            Apprenti = 3,        // contrat d'apprentissage
+            Travailleur = 4,     // a un emploi (sort généralement du quotient)
+            SansActivite = 5,
+            Autre = 9
+        }
+
              public enum RubriqueCanonique
         {
             // Gains / indemnités

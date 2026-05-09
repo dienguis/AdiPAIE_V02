@@ -1095,11 +1095,23 @@
     </ListView>
     <ListView Id="Salarie_Conjoints_ListView" ClassName="AdiPAIE_V02.Module.BusinessObjects.Conjoint" IsNewNode="True">
       <Columns IsNewNode="True">
-        <ColumnInfo Id="NomComplet" IsNewNode="True" />
-        <ColumnInfo Id="DateMariage" IsNewNode="True" />
-        <ColumnInfo Id="DateFinUnion" IsNewNode="True" />
-        <ColumnInfo Id="Statut" IsNewNode="True" />
-        <ColumnInfo Id="ACharge" IsNewNode="True" />
+        <ColumnInfo Id="NomComplet" Width="180" Index="0" IsNewNode="True" />
+        <ColumnInfo Id="DateNaissance" Caption="Date naissance" Width="120" Index="1" IsNewNode="True" />
+        <ColumnInfo Id="DateMariage" Caption="Date mariage" Width="120" Index="2" IsNewNode="True" />
+        <ColumnInfo Id="DateFinUnion" Caption="Fin d'union" Width="120" Index="3" IsNewNode="True" />
+        <ColumnInfo Id="Statut" Width="100" Index="4" IsNewNode="True" />
+        <ColumnInfo Id="ACharge" Caption="À charge" Width="80" Index="5" IsNewNode="True" />
+      </Columns>
+    </ListView>
+    <!-- V1.6 — ListView des enfants (sous-collection de Salarie) -->
+    <ListView Id="Salarie_Enfants_ListView" ClassName="AdiPAIE_V02.Module.BusinessObjects.Enfant" IsNewNode="True">
+      <Columns IsNewNode="True">
+        <ColumnInfo Id="NomComplet" Caption="Nom complet" Width="180" Index="0" IsNewNode="True" />
+        <ColumnInfo Id="DateNaissance" Caption="Date naissance" Width="120" Index="1" IsNewNode="True" />
+        <ColumnInfo Id="Age" Caption="Âge" Width="60" Index="2" IsNewNode="True" />
+        <ColumnInfo Id="Sexe" Width="80" Index="3" IsNewNode="True" />
+        <ColumnInfo Id="Situation" Width="120" Index="4" IsNewNode="True" />
+        <ColumnInfo Id="ACharge" Caption="À charge" Width="80" Index="5" IsNewNode="True" />
       </Columns>
     </ListView>
     <ListView Id="Salarie_Contrats_ListView">
@@ -1121,6 +1133,7 @@
         <PropertyEditor Id="CaisseSecurite" Caption="N° Caisse Sécurité" />
         <PropertyEditor Id="ComptesBancaires" PropertyEditorType="DevExpress.ExpressApp.Editors.ListPropertyEditor" PropertyName="ComptesBancaires" IsNewNode="True" />
         <PropertyEditor Id="Conjoints" PropertyEditorType="DevExpress.ExpressApp.Editors.ListPropertyEditor" PropertyName="Conjoints" View="Salarie_Conjoints_ListView" IsNewNode="True" />
+        <PropertyEditor Id="Enfants" PropertyEditorType="DevExpress.ExpressApp.Editors.ListPropertyEditor" PropertyName="Enfants" View="Salarie_Enfants_ListView" IsNewNode="True" />
         <PropertyEditor Id="ContactUrgenceLien" PropertyName="ContactUrgenceLien" IsNewNode="True" />
         <PropertyEditor Id="ContactUrgenceNom" PropertyName="ContactUrgenceNom" IsNewNode="True" />
         <PropertyEditor Id="ContactUrgenceTel" PropertyName="ContactUrgenceTel" IsNewNode="True" />
@@ -1171,8 +1184,9 @@
                 <LayoutItem Id="Address2" ViewItem="Address2" Index="1" RelativeSize="50" IsNewNode="True" />
               </LayoutGroup>
               <LayoutGroup Id="Id_Contact" ShowCaption="True" Caption="Téléphone / Notes" Direction="Horizontal" Index="2" RelativeSize="35" IsNewNode="True">
-                <LayoutItem Id="PhoneNumbers" ShowCaption="True" ViewItem="PhoneNumbers" CaptionLocation="Top" Index="0" RelativeSize="40" IsNewNode="True" />
-                <LayoutItem Id="Notes" ViewItem="Notes" CaptionLocation="Top" Index="1" RelativeSize="60" IsNewNode="True" />
+                <LayoutItem Id="Telephone" ShowCaption="True" ViewItem="Telephone" CaptionLocation="Top" Index="0" RelativeSize="20" IsNewNode="True" />
+                <LayoutItem Id="PhoneNumbers" ShowCaption="True" ViewItem="PhoneNumbers" CaptionLocation="Top" Index="1" RelativeSize="20" IsNewNode="True" />
+                <LayoutItem Id="Notes" ViewItem="Notes" CaptionLocation="Top" Index="2" RelativeSize="60" IsNewNode="True" />
               </LayoutGroup>
               <LayoutGroup Id="Id_Audit" ShowCaption="False" Direction="Horizontal" Index="3" RelativeSize="10" IsNewNode="True">
                 <LayoutItem Id="CreePar" ViewItem="CreePar" Index="0" RelativeSize="34" IsNewNode="True" />
@@ -1189,10 +1203,10 @@
                 <LayoutItem Id="Anciennete" ViewItem="Anciennete" CaptionLocation="Top" Index="4" RelativeSize="20" IsNewNode="True" />
               </LayoutGroup>
               <LayoutGroup Id="Ctr_Poste" ShowCaption="True" Caption="Poste occupé" Direction="Horizontal" Index="1" RelativeSize="20" IsNewNode="True">
-                <LayoutItem Id="Fonction" ViewItem="Fonction" Index="0" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="Departement" ViewItem="Departement" Index="1" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="Site" ViewItem="Site" Index="2" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="Manager" ViewItem="Manager" Index="3" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="Fonction" ViewItem="Fonction" CaptionLocation="Top" Index="0" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="Departement" ViewItem="Departement" CaptionLocation="Top" Index="1" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="Site" ViewItem="Site" CaptionLocation="Top" Index="2" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="Manager" ViewItem="Manager" CaptionLocation="Top" Index="3" RelativeSize="25" IsNewNode="True" />
               </LayoutGroup>
               <LayoutGroup Id="Ctr_Contrats" ShowCaption="True" Caption="Contrats de travail" Direction="Vertical" Index="2" RelativeSize="60" IsNewNode="True">
                 <LayoutItem Id="Contrats" ViewItem="Contrats" Index="0" RelativeSize="100" IsNewNode="True" />
@@ -1200,24 +1214,24 @@
             </LayoutGroup>
             <LayoutGroup Id="Tab_Remuneration" ShowCaption="True" Caption="Rémunération" Index="2" RelativeSize="100" IsNewNode="True">
               <LayoutGroup Id="Rem_Classification" ShowCaption="True" Caption="Classification" Direction="Horizontal" Index="0" RelativeSize="20" IsNewNode="True">
-                <LayoutItem Id="Echelon" ViewItem="Echelon" Index="0" RelativeSize="34" IsNewNode="True" />
-                <LayoutItem Id="Categories" ViewItem="Categories" Index="1" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="Convention" ViewItem="Convention" Index="2" RelativeSize="33" IsNewNode="True" />
+                <LayoutItem Id="Echelon" ViewItem="Echelon" CaptionLocation="Top" Index="0" RelativeSize="34" IsNewNode="True" />
+                <LayoutItem Id="Categories" ViewItem="Categories" CaptionLocation="Top" Index="1" RelativeSize="33" IsNewNode="True" />
+                <LayoutItem Id="Convention" ViewItem="Convention" CaptionLocation="Top" Index="2" RelativeSize="33" IsNewNode="True" />
               </LayoutGroup>
               <LayoutGroup Id="Rem_Salaire" ShowCaption="True" Caption="Salaire" Direction="Horizontal" Index="1" RelativeSize="20" IsNewNode="True">
-                <LayoutItem Id="SalaireBase" ViewItem="SalaireBase" Index="0" RelativeSize="34" IsNewNode="True" />
-                <LayoutItem Id="IndemniteLogement" ViewItem="IndemniteLogement" Index="1" RelativeSize="33" IsNewNode="True" />
-                <LayoutItem Id="Base30Jour" ViewItem="Base30Jour" Index="2" RelativeSize="33" IsNewNode="True" />
+                <LayoutItem Id="SalaireBase" ViewItem="SalaireBase" CaptionLocation="Top" Index="0" RelativeSize="34" IsNewNode="True" />
+                <LayoutItem Id="IndemniteLogement" ViewItem="IndemniteLogement" CaptionLocation="Top" Index="1" RelativeSize="33" IsNewNode="True" />
+                <LayoutItem Id="Base30Jour" ViewItem="Base30Jour" CaptionLocation="Top" Index="2" RelativeSize="33" IsNewNode="True" />
               </LayoutGroup>
               <LayoutGroup Id="Rem_Primes" ShowCaption="True" Caption="Primes &amp; avantages" Direction="Horizontal" Index="2" RelativeSize="20" IsNewNode="True">
-                <LayoutItem Id="Sursalaire" ViewItem="Sursalaire" Index="0" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="PrimeTransport" ViewItem="PrimeTransport" Index="1" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="PossedeVehicule" ViewItem="PossedeVehicule" Index="2" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="AvantageVehicule" ViewItem="AvantageVehicule" Index="3" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="Sursalaire" ViewItem="Sursalaire" CaptionLocation="Top" Index="0" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="PrimeTransport" ViewItem="PrimeTransport" CaptionLocation="Top" Index="1" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="PossedeVehicule" ViewItem="PossedeVehicule" CaptionLocation="Top" Index="2" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="AvantageVehicule" ViewItem="AvantageVehicule" CaptionLocation="Top" Index="3" RelativeSize="25" IsNewNode="True" />
               </LayoutGroup>
               <LayoutGroup Id="Rem_Fiscal" ShowCaption="True" Caption="Calculs fiscaux" Direction="Horizontal" Index="3" RelativeSize="15" IsNewNode="True">
-                <LayoutItem Id="NombrePartsFiscales" ViewItem="NombrePartsFiscales" Index="0" RelativeSize="50" IsNewNode="True" />
-                <LayoutItem Id="TrimfParts" ViewItem="TrimfParts" Index="1" RelativeSize="50" IsNewNode="True" />
+                <LayoutItem Id="NombrePartsFiscales" ViewItem="NombrePartsFiscales" CaptionLocation="Top" Index="0" RelativeSize="50" IsNewNode="True" />
+                <LayoutItem Id="TrimfParts" ViewItem="TrimfParts" CaptionLocation="Top" Index="1" RelativeSize="50" IsNewNode="True" />
               </LayoutGroup>
               <LayoutGroup Id="Rem_Modeles" ShowCaption="True" Caption="Modèles &amp; Bulletins" Direction="Vertical" Index="4" RelativeSize="25" IsNewNode="True">
                 <LayoutItem Id="Modeles" ViewItem="Modeles" Index="0" RelativeSize="40" ShowCaption="True" CaptionLocation="Top" IsNewNode="True" />
@@ -1226,13 +1240,18 @@
             </LayoutGroup>
             <LayoutGroup Id="Tab_Famille" ShowCaption="True" Caption="Famille" Index="3" RelativeSize="100" IsNewNode="True">
               <LayoutGroup Id="Fam_Situation" ShowCaption="True" Caption="Situation familiale" Direction="Horizontal" Index="0" RelativeSize="20" IsNewNode="True">
-                <LayoutItem Id="SatutMarital" ViewItem="SatutMarital" Index="0" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="NbConjointsActuels" ViewItem="NbConjointsActuels" Index="1" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="NombreEnfant" ViewItem="NombreEnfant" Index="2" RelativeSize="25" IsNewNode="True" />
-                <LayoutItem Id="NbConjointsInactifsACharge" ViewItem="NbConjointsInactifsACharge" Index="3" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="SatutMarital" ViewItem="SatutMarital" CaptionLocation="Top" Index="0" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="NbConjointsActuels" ViewItem="NbConjointsActuels" CaptionLocation="Top" Index="1" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="NombreEnfant" ViewItem="NombreEnfant" CaptionLocation="Top" Index="2" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="NbConjointsInactifsACharge" ViewItem="NbConjointsInactifsACharge" CaptionLocation="Top" Index="3" RelativeSize="25" IsNewNode="True" />
               </LayoutGroup>
-              <LayoutGroup Id="Fam_Conjoints" ShowCaption="True" Caption="Conjoints" Direction="Vertical" Index="1" RelativeSize="80" IsNewNode="True">
-                <LayoutItem Id="Conjoints" ViewItem="Conjoints" Index="0" RelativeSize="100" IsNewNode="True" />
+              <LayoutGroup Id="Fam_Listes" ShowCaption="False" Direction="Horizontal" Index="1" RelativeSize="80" IsNewNode="True">
+                <LayoutGroup Id="Fam_Conjoints" ShowCaption="True" Caption="Conjoints" Direction="Vertical" Index="0" RelativeSize="50" IsNewNode="True">
+                  <LayoutItem Id="Conjoints" ViewItem="Conjoints" Index="0" RelativeSize="100" IsNewNode="True" />
+                </LayoutGroup>
+                <LayoutGroup Id="Fam_Enfants" ShowCaption="True" Caption="Enfants" Direction="Vertical" Index="1" RelativeSize="50" IsNewNode="True">
+                  <LayoutItem Id="Enfants" ViewItem="Enfants" Index="0" RelativeSize="100" IsNewNode="True" />
+                </LayoutGroup>
               </LayoutGroup>
             </LayoutGroup>
             <LayoutGroup Id="Tab_Pieces" ShowCaption="True" Caption="Pièces d'identité" Index="4" RelativeSize="100" IsNewNode="True">
