@@ -1173,8 +1173,8 @@
                 <LayoutItem Id="EchelonAffichage" ViewItem="EchelonAffichage" CaptionLocation="Top" Index="3" RelativeSize="15" IsNewNode="True" />
                 <LayoutItem Id="SiteAffichage" ViewItem="SiteAffichage" CaptionLocation="Top" Index="4" RelativeSize="20" IsNewNode="True" />
               </LayoutGroup>
-              <LayoutGroup Id="Id_TopRow" ShowCaption="False" Direction="Horizontal" Index="0" RelativeSize="30" IsNewNode="True">
-                <LayoutGroup Id="Id_Col1" ShowCaption="False" RelativeSize="65" IsNewNode="True">
+              <LayoutGroup Id="Id_TopRow" ShowCaption="False" Direction="Horizontal" Index="0" RelativeSize="40" IsNewNode="True">
+                <LayoutGroup Id="Id_Col1" ShowCaption="False" RelativeSize="60" IsNewNode="True">
                   <LayoutItem Id="Matricule" ViewItem="Matricule" Index="0" RelativeSize="15" IsNewNode="True" />
                   <LayoutGroup Id="Id_CiviliteSexe" ShowCaption="False" Direction="Horizontal" Index="1" RelativeSize="12" IsNewNode="True">
                     <LayoutItem Id="Civilite" ViewItem="Civilite" Index="0" RelativeSize="50" IsNewNode="True" />
@@ -1187,10 +1187,11 @@
                   <LayoutItem Id="Nationalite" ViewItem="Nationalite" Index="6" RelativeSize="13" IsNewNode="True" />
                   <LayoutItem Id="FilsDe" ViewItem="FilsDe" Index="7" RelativeSize="12" IsNewNode="True" />
                 </LayoutGroup>
-                <LayoutGroup Id="Id_Col2" ShowCaption="False" RelativeSize="35" IsNewNode="True">
-                  <LayoutItem Id="Photo" ShowCaption="False" ViewItem="Photo" Index="0" RelativeSize="50" IsNewNode="True" />
-                  <LayoutItem Id="Email" ViewItem="Email" Index="1" RelativeSize="15" IsNewNode="True" />
-                  <LayoutItem Id="IsActif" ViewItem="IsActif" Index="2" RelativeSize="15" IsNewNode="True" />
+                <LayoutGroup Id="Id_Col2" ShowCaption="False" RelativeSize="40" IsNewNode="True">
+                  <!-- V1.6.1 — Photo agrandie (75% de la colonne) pour effet "fiche d'identité" -->
+                  <LayoutItem Id="Photo" ShowCaption="False" ViewItem="Photo" Index="0" RelativeSize="75" IsNewNode="True" />
+                  <LayoutItem Id="Email" ViewItem="Email" CaptionLocation="Top" Index="1" RelativeSize="12" IsNewNode="True" />
+                  <LayoutItem Id="IsActif" ViewItem="IsActif" Index="2" RelativeSize="13" IsNewNode="True" />
                 </LayoutGroup>
               </LayoutGroup>
               <LayoutGroup Id="Id_Adresse" ShowCaption="True" Caption="Adresse" Direction="Horizontal" Index="1" RelativeSize="15" IsNewNode="True">

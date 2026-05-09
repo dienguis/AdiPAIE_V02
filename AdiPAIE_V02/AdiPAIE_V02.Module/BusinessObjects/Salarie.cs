@@ -99,6 +99,32 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         TargetItems = "StatutAffichage",
         Criteria = "IsActif = False",
         BackColor = "Gainsboro", FontColor = "DimGray", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    // V1.6.1 — Alertes visuelles sur dates critiques
+    // CNI expirée : rouge soutenu — action urgente
+    [Appearance("Salarie_CNI_Expiree",
+        TargetItems = "DateExpirationCNI",
+        Criteria = "Not IsNull(DateExpirationCNI) AND DateExpirationCNI < LocalDateTimeToday()",
+        BackColor = "LightCoral", FontColor = "DarkRed", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    // CNI expire bientôt (≤ 60 jours) : orange — anticipation
+    [Appearance("Salarie_CNI_BientotExpiree",
+        TargetItems = "DateExpirationCNI",
+        Criteria = "Not IsNull(DateExpirationCNI) AND DateExpirationCNI >= LocalDateTimeToday() AND DateExpirationCNI <= AddDays(LocalDateTimeToday(), 60)",
+        BackColor = "Moccasin", FontColor = "DarkOrange", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    // Passeport expiré : rouge
+    [Appearance("Salarie_Passeport_Expire",
+        TargetItems = "DateExpirationPasseport",
+        Criteria = "Not IsNull(DateExpirationPasseport) AND DateExpirationPasseport < LocalDateTimeToday()",
+        BackColor = "LightCoral", FontColor = "DarkRed", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    // Passeport expire bientôt (≤ 90 jours) : orange
+    [Appearance("Salarie_Passeport_BientotExpire",
+        TargetItems = "DateExpirationPasseport",
+        Criteria = "Not IsNull(DateExpirationPasseport) AND DateExpirationPasseport >= LocalDateTimeToday() AND DateExpirationPasseport <= AddDays(LocalDateTimeToday(), 90)",
+        BackColor = "Moccasin", FontColor = "DarkOrange", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    // Fin période d'essai dans ≤ 15 jours : orange — RH doit décider
+    [Appearance("Salarie_FinPeriodeEssai_Approche",
+        TargetItems = "DateConfirmation",
+        Criteria = "Not IsNull(DateConfirmation) AND DateConfirmation > LocalDateTimeToday() AND DateConfirmation <= AddDays(LocalDateTimeToday(), 15)",
+        BackColor = "Moccasin", FontColor = "DarkOrange", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
     [DeferredDeletion(false)]
     public class Salarie : Person
     {
