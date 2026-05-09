@@ -86,6 +86,19 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         DefaultContexts.Save,
         "IndemniteLogement >= 0 AND Sursalaire >= 0 AND PrimeTransport >= 0 AND AvantageVehicule >= 0",
         CustomMessageTemplate = "Les montants de rémunération ne peuvent pas être négatifs.")]
+    // V1.6.1 — Badge statut coloré (vert / orange / gris)
+    [Appearance("Salarie_Statut_Actif",
+        TargetItems = "StatutAffichage",
+        Criteria = "IsActif = True AND (IsNull(DateConfirmation) OR DateConfirmation <= LocalDateTimeToday())",
+        BackColor = "PaleGreen", FontColor = "DarkGreen", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("Salarie_Statut_PeriodeEssai",
+        TargetItems = "StatutAffichage",
+        Criteria = "IsActif = True AND DateConfirmation > LocalDateTimeToday()",
+        BackColor = "Moccasin", FontColor = "DarkOrange", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
+    [Appearance("Salarie_Statut_Inactif",
+        TargetItems = "StatutAffichage",
+        Criteria = "IsActif = False",
+        BackColor = "Gainsboro", FontColor = "DimGray", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
     [DeferredDeletion(false)]
     public class Salarie : Person
     {
@@ -382,6 +395,40 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // ── Rémunération ──────────────────────────────────────
         [NonPersistent]
         public int Anciennete => AncienneteHelper.NombreAnnee(DateEmbauche, DateTime.Today);
+
+        // V1.6.1 — KPI affichés en bandeau d'en-tête de la fiche
+        [NonPersistent]
+        [XafDisplayName("Ancienneté")]
+        public string AncienneteAffichage =>
+            DateEmbauche == default ? "—"
+            : $"{Anciennete} an{(Anciennete > 1 ? "s" : "")}";
+
+        [NonPersistent]
+        [XafDisplayName("Salaire base")]
+        public string SalaireBaseAffichage =>
+            SalaireBase <= 0m ? "—" : $"{SalaireBase:N0} FCFA";
+
+        [NonPersistent]
+        [XafDisplayName("Échelon")]
+        public string EchelonAffichage => Echelon?.Code ?? "—";
+
+        [NonPersistent]
+        [XafDisplayName("Site")]
+        public string SiteAffichage => Site?.Code ?? "—";
+
+        // V1.6.1 — Statut visuel (badge coloré dans le bandeau)
+        [NonPersistent]
+        [XafDisplayName("Statut")]
+        public string StatutAffichage
+        {
+            get
+            {
+                if (!IsActif) return "Inactif";
+                if (DateConfirmation.HasValue && DateConfirmation.Value > DateTime.Today)
+                    return "En période d'essai";
+                return "Actif";
+            }
+        }
 
         [VisibleInListView(false)]
         [Appearance("Salaire_ReadOnly_When_EchelonSet",

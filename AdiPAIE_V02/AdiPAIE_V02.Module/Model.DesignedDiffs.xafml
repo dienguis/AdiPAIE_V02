@@ -1134,6 +1134,12 @@
         <PropertyEditor Id="ComptesBancaires" PropertyEditorType="DevExpress.ExpressApp.Editors.ListPropertyEditor" PropertyName="ComptesBancaires" IsNewNode="True" />
         <PropertyEditor Id="Conjoints" PropertyEditorType="DevExpress.ExpressApp.Editors.ListPropertyEditor" PropertyName="Conjoints" View="Salarie_Conjoints_ListView" IsNewNode="True" />
         <PropertyEditor Id="Enfants" PropertyEditorType="DevExpress.ExpressApp.Editors.ListPropertyEditor" PropertyName="Enfants" View="Salarie_Enfants_ListView" IsNewNode="True" />
+        <!-- V1.6.1 — KPIs en bandeau d'en-tête (lecture seule) -->
+        <PropertyEditor Id="StatutAffichage" PropertyName="StatutAffichage" AllowEdit="False" IsNewNode="True" />
+        <PropertyEditor Id="AncienneteAffichage" PropertyName="AncienneteAffichage" AllowEdit="False" IsNewNode="True" />
+        <PropertyEditor Id="SalaireBaseAffichage" PropertyName="SalaireBaseAffichage" AllowEdit="False" IsNewNode="True" />
+        <PropertyEditor Id="EchelonAffichage" PropertyName="EchelonAffichage" AllowEdit="False" IsNewNode="True" />
+        <PropertyEditor Id="SiteAffichage" PropertyName="SiteAffichage" AllowEdit="False" IsNewNode="True" />
         <PropertyEditor Id="ContactUrgenceLien" PropertyName="ContactUrgenceLien" IsNewNode="True" />
         <PropertyEditor Id="ContactUrgenceNom" PropertyName="ContactUrgenceNom" IsNewNode="True" />
         <PropertyEditor Id="ContactUrgenceTel" PropertyName="ContactUrgenceTel" IsNewNode="True" />
@@ -1158,7 +1164,15 @@
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100">
           <TabbedGroup Id="Tabs_Salarie" CaptionLocation="Top" Index="0" RelativeSize="100" IsNewNode="True">
-            <LayoutGroup Id="Tab_Identification" ShowCaption="True" Caption="Identification" Index="0" RelativeSize="100" IsNewNode="True">
+            <LayoutGroup Id="Tab_Identification" ShowCaption="True" Caption="👤 Identification" Index="0" RelativeSize="100" IsNewNode="True">
+              <!-- V1.6.1 — Bandeau KPI : Statut + Ancienneté + Salaire + Échelon + Site -->
+              <LayoutGroup Id="Id_KPIs" ShowCaption="True" Caption="Aperçu" Direction="Horizontal" Index="-1" RelativeSize="10" IsNewNode="True">
+                <LayoutItem Id="StatutAffichage" ViewItem="StatutAffichage" CaptionLocation="Top" Index="0" RelativeSize="20" IsNewNode="True" />
+                <LayoutItem Id="AncienneteAffichage" ViewItem="AncienneteAffichage" CaptionLocation="Top" Index="1" RelativeSize="20" IsNewNode="True" />
+                <LayoutItem Id="SalaireBaseAffichage" ViewItem="SalaireBaseAffichage" CaptionLocation="Top" Index="2" RelativeSize="25" IsNewNode="True" />
+                <LayoutItem Id="EchelonAffichage" ViewItem="EchelonAffichage" CaptionLocation="Top" Index="3" RelativeSize="15" IsNewNode="True" />
+                <LayoutItem Id="SiteAffichage" ViewItem="SiteAffichage" CaptionLocation="Top" Index="4" RelativeSize="20" IsNewNode="True" />
+              </LayoutGroup>
               <LayoutGroup Id="Id_TopRow" ShowCaption="False" Direction="Horizontal" Index="0" RelativeSize="30" IsNewNode="True">
                 <LayoutGroup Id="Id_Col1" ShowCaption="False" RelativeSize="65" IsNewNode="True">
                   <LayoutItem Id="Matricule" ViewItem="Matricule" Index="0" RelativeSize="15" IsNewNode="True" />
@@ -1194,7 +1208,7 @@
                 <LayoutItem Id="PayslipKeyAssignedOn" ViewItem="PayslipKeyAssignedOn" Index="2" RelativeSize="33" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_Contrat" ShowCaption="True" Caption="Contrat &amp; Poste" Index="1" RelativeSize="100" IsNewNode="True">
+            <LayoutGroup Id="Tab_Contrat" ShowCaption="True" Caption="📋 Contrat &amp; Poste" Index="1" RelativeSize="100" IsNewNode="True">
               <LayoutGroup Id="Ctr_Dates" ShowCaption="True" Caption="Dates contractuelles" Direction="Horizontal" Index="0" RelativeSize="20" IsNewNode="True">
                 <LayoutItem Id="DateEmbauche" ViewItem="DateEmbauche" CaptionLocation="Top" Index="0" RelativeSize="20" IsNewNode="True" />
                 <LayoutItem Id="DateConfirmation" ViewItem="DateConfirmation" CaptionLocation="Top" Index="1" RelativeSize="20" IsNewNode="True" />
@@ -1212,7 +1226,7 @@
                 <LayoutItem Id="Contrats" ViewItem="Contrats" Index="0" RelativeSize="100" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_Remuneration" ShowCaption="True" Caption="Rémunération" Index="2" RelativeSize="100" IsNewNode="True">
+            <LayoutGroup Id="Tab_Remuneration" ShowCaption="True" Caption="💰 Rémunération" Index="2" RelativeSize="100" IsNewNode="True">
               <LayoutGroup Id="Rem_Classification" ShowCaption="True" Caption="Classification" Direction="Horizontal" Index="0" RelativeSize="20" IsNewNode="True">
                 <LayoutItem Id="Echelon" ViewItem="Echelon" CaptionLocation="Top" Index="0" RelativeSize="34" IsNewNode="True" />
                 <LayoutItem Id="Categories" ViewItem="Categories" CaptionLocation="Top" Index="1" RelativeSize="33" IsNewNode="True" />
@@ -1238,7 +1252,7 @@
                 <LayoutItem Id="Bulletins" ViewItem="Bulletins" Index="1" RelativeSize="60" ShowCaption="True" CaptionLocation="Top" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_Famille" ShowCaption="True" Caption="Famille" Index="3" RelativeSize="100" IsNewNode="True">
+            <LayoutGroup Id="Tab_Famille" ShowCaption="True" Caption="👨‍👩‍👧 Famille" Index="3" RelativeSize="100" IsNewNode="True">
               <LayoutGroup Id="Fam_Situation" ShowCaption="True" Caption="Situation familiale" Direction="Horizontal" Index="0" RelativeSize="20" IsNewNode="True">
                 <LayoutItem Id="SatutMarital" ViewItem="SatutMarital" CaptionLocation="Top" Index="0" RelativeSize="25" IsNewNode="True" />
                 <LayoutItem Id="NbConjointsActuels" ViewItem="NbConjointsActuels" CaptionLocation="Top" Index="1" RelativeSize="25" IsNewNode="True" />
@@ -1254,7 +1268,7 @@
                 </LayoutGroup>
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_Pieces" ShowCaption="True" Caption="Pièces d'identité" Index="4" RelativeSize="100" IsNewNode="True">
+            <LayoutGroup Id="Tab_Pieces" ShowCaption="True" Caption="📄 Pièces d'identité" Index="4" RelativeSize="100" IsNewNode="True">
               <LayoutGroup Id="Pc_CNI" ShowCaption="True" Caption="Carte Nationale d'Identité" Direction="Horizontal" Index="0" RelativeSize="20" IsNewNode="True">
                 <LayoutItem Id="NumeroCNI" ViewItem="NumeroCNI" Index="0" RelativeSize="50" IsNewNode="True" />
                 <LayoutItem Id="DateExpirationCNI" ViewItem="DateExpirationCNI" Index="1" RelativeSize="50" IsNewNode="True" />
@@ -1272,10 +1286,10 @@
                 <LayoutItem Id="PaysNaissance" ViewItem="PaysNaissance" Index="1" RelativeSize="50" IsNewNode="True" />
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_Comptes" ShowCaption="True" Caption="Comptes bancaires" Index="5" RelativeSize="100" IsNewNode="True">
+            <LayoutGroup Id="Tab_Comptes" ShowCaption="True" Caption="🏦 Comptes bancaires" Index="5" RelativeSize="100" IsNewNode="True">
               <LayoutItem Id="ComptesBancaires" ViewItem="ComptesBancaires" Index="0" RelativeSize="100" IsNewNode="True" />
             </LayoutGroup>
-            <LayoutGroup Id="Tab_InfoRH" ShowCaption="True" Caption="Informations RH" Index="6" RelativeSize="100" IsNewNode="True">
+            <LayoutGroup Id="Tab_InfoRH" ShowCaption="True" Caption="ℹ️ Informations RH" Index="6" RelativeSize="100" IsNewNode="True">
               <LayoutGroup Id="RH_Urgence" ShowCaption="True" Caption="Contact d'urgence" Direction="Horizontal" Index="0" RelativeSize="25" IsNewNode="True">
                 <LayoutItem Id="ContactUrgenceNom" ViewItem="ContactUrgenceNom" Index="0" RelativeSize="40" IsNewNode="True" />
                 <LayoutItem Id="ContactUrgenceLien" ViewItem="ContactUrgenceLien" Index="1" RelativeSize="30" IsNewNode="True" />
