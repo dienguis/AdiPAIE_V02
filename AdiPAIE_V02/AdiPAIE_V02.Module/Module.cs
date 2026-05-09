@@ -50,6 +50,11 @@ namespace AdiPAIE_V02.Module
             AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.StationService));
             AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.BusinessUnitStation));
 
+            // V1.7 — Annuaire famille hiérarchique (entité non-persistante).
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.FamilleAnnuaire));
+            // V1.7 — Provision congés annuelle (entité non-persistante).
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.ProvisionConges));
+
             // =================================
 
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.SystemModule.SystemModule));

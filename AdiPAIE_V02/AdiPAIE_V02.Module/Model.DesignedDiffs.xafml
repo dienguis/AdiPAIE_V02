@@ -84,6 +84,8 @@
         <Items IsNewNode="True">
           <Item Id="RH_Salaries" Caption="Salariés" ViewId="Salarie_ListView" Index="0" ImageName="BO_Employee" IsNewNode="True" />
           <Item Id="ContratSalarie_ListView" Caption="Contrats de travail" ViewId="ContratSalarie_ListView" Index="1" IsNewNode="True" />
+          <!-- V1.7 — Annuaire famille hiérarchique (Salarié → Conjoint → Enfant) -->
+          <Item Id="RH_AnnuaireFamille" Caption="Annuaire famille" ViewId="FamilleAnnuaire_ListView" Index="2" ImageName="BO_Salutation" IsNewNode="True" />
           <Item Id="RH_Avancements" Caption="Avancements / Promotions" ViewId="DemandeAvancement_ListView" Index="2" ImageName="Action_Forward" IsNewNode="True" />
           <Item Id="RH_HistoriquePostes" Caption="Historique de poste" ViewId="HistoriquePoste_ListView" Index="3" ImageName="BO_Audit" IsNewNode="True" />
           <Item Id="RH_Offboarding" Caption="Dossiers de départ" ViewId="DossierOffboarding_ListView" Index="4" ImageName="Action_Close" IsNewNode="True" />
@@ -94,8 +96,10 @@
       <Item Id="GRH_Conges" Caption="Congés et absences" Index="10" ImageName="BO_Scheduler" IsNewNode="True">
         <Items IsNewNode="True">
           <Item Id="GRH_DemandesConge" Caption="Demandes de congé" ViewId="CongeDemande_ListView" Index="0" ImageName="BO_Scheduler" IsNewNode="True" />
-          <Item Id="GRH_SoldesConges" Caption="Soldes de congés" ViewId="SoldeConge_ListView" Index="1" ImageName="BO_Scheduler" IsNewNode="True" />
-          <Item Id="GRH_PlanningConges" Caption="Planning des congés" ViewId="EvenementConge_ListView" Index="2" ImageName="BO_Scheduler" IsNewNode="True" />
+          <Item Id="GRH_SoldesConges" Caption="Soldes de congés (opérationnel RH)" ViewId="SoldeConge_ListView" Index="1" ImageName="BO_Scheduler" IsNewNode="True" />
+          <!-- V1.7 — Provision congés annuelle (calque règle CCT Sénégal Art. L.149) -->
+          <Item Id="GRH_ProvisionConges" Caption="Provision annuelle (DAF)" ViewId="ProvisionConges_ListView" Index="2" ImageName="BO_Calculator" IsNewNode="True" />
+          <Item Id="GRH_PlanningConges" Caption="Planning des congés" ViewId="EvenementConge_ListView" Index="3" ImageName="BO_Scheduler" IsNewNode="True" />
           <Item Id="JourFerie_ListView" Caption="Jours fériés" ViewId="JourFerie_ListView" Index="3" IsNewNode="True" />
           <Item Id="Param_CongeTypes" Caption="Types de congé" ViewId="CongeType_ListView" Index="4" IsNewNode="True" />
         </Items>
@@ -1864,6 +1868,79 @@
     <ListView Id="Site_ListView">
       <Columns>
         <ColumnInfo Id="Type" PropertyName="Type" Index="2" IsNewNode="True" />
+      </Columns>
+    </ListView>
+    <!-- ╔═══════════════════════════════════════════════════════════════════╗
+         ║  V1.7 — Provision congés annuelle (palier ancienneté ELTON)        ║
+         ║  Group by Année DESC + tri par Matricule                           ║
+         ╚═══════════════════════════════════════════════════════════════════╝ -->
+    <ListView Id="ProvisionConges_ListView" AllowEdit="False" AllowNew="False"
+              AllowDelete="False" AllowLink="False" IsGroupPanelVisible="True"
+              AutoExpandAllGroups="True">
+      <Columns>
+        <ColumnInfo Id="Annee" PropertyName="Annee"
+                    GroupIndex="0" SortIndex="0" SortOrder="Descending"
+                    Index="0" Width="80" IsNewNode="True" />
+        <ColumnInfo Id="Matricule" PropertyName="Matricule"
+                    SortIndex="1" SortOrder="Ascending"
+                    Index="1" Width="100" IsNewNode="True" />
+        <ColumnInfo Id="NomComplet" PropertyName="NomComplet"
+                    Index="2" Width="200" IsNewNode="True" />
+        <ColumnInfo Id="Sexe" PropertyName="Sexe"
+                    Index="3" Width="80" IsNewNode="True" />
+        <ColumnInfo Id="AncienneteAns" PropertyName="AncienneteAns"
+                    Caption="Ancienneté" Index="4" Width="90" IsNewNode="True" />
+        <ColumnInfo Id="NombreEnfants" PropertyName="NombreEnfants"
+                    Caption="Enfants" Index="5" Width="80" IsNewNode="True" />
+        <ColumnInfo Id="NbreMois" PropertyName="NbreMois"
+                    Caption="Mois" Index="6" Width="60" IsNewNode="True" />
+        <ColumnInfo Id="BaseProvision" PropertyName="BaseProvision"
+                    Caption="Base (j)" Index="7" Width="80" IsNewNode="True" />
+        <ColumnInfo Id="BonusAnciennete" PropertyName="BonusAnciennete"
+                    Caption="+Ancienneté" Index="8" Width="100" IsNewNode="True" />
+        <ColumnInfo Id="BonusEnfants" PropertyName="BonusEnfants"
+                    Caption="+Enfants" Index="9" Width="100" IsNewNode="True" />
+        <ColumnInfo Id="NbreJourTotal" PropertyName="NbreJourTotal"
+                    Caption="Total jours" Index="10" Width="100" IsNewNode="True" />
+        <ColumnInfo Id="BrutMensuelMoyen" PropertyName="BrutMensuelMoyen"
+                    Caption="Brut mensuel" Index="11" Width="130" IsNewNode="True" />
+        <ColumnInfo Id="ProvisionFCFA" PropertyName="ProvisionFCFA"
+                    Caption="Provision FCFA" Index="12" Width="140" IsNewNode="True" />
+        <ColumnInfo Id="SoldeReelAcquis" PropertyName="SoldeReelAcquis"
+                    Caption="Solde réel" Index="13" Width="100" IsNewNode="True" />
+        <ColumnInfo Id="Ecart" PropertyName="Ecart"
+                    Caption="Écart" Index="14" Width="80" IsNewNode="True" />
+        <ColumnInfo Id="CumulBrut" PropertyName="CumulBrut" Index="-1" IsNewNode="True" />
+      </Columns>
+    </ListView>
+    <!-- ╔═══════════════════════════════════════════════════════════════════╗
+         ║  V1.7 — Annuaire famille hiérarchique                              ║
+         ║  Group by MatriculeSalarie + tri intra-groupe Salarié→Conjoint→Enfant ║
+         ╚═══════════════════════════════════════════════════════════════════╝ -->
+    <ListView Id="FamilleAnnuaire_ListView" AllowEdit="False" AllowNew="False"
+              AllowDelete="False" AllowLink="False" IsGroupPanelVisible="True"
+              AutoExpandAllGroups="True">
+      <Columns>
+        <ColumnInfo Id="MatriculeSalarie" PropertyName="MatriculeSalarie"
+                    GroupIndex="0" SortIndex="0" SortOrder="Ascending"
+                    Index="0" Width="120" IsNewNode="True" />
+        <ColumnInfo Id="SalarieTitulaire" PropertyName="SalarieTitulaire"
+                    Index="-1" IsNewNode="True" />
+        <ColumnInfo Id="TypeMembre" PropertyName="TypeMembre"
+                    SortIndex="1" SortOrder="Ascending"
+                    Index="1" Width="120" IsNewNode="True" />
+        <ColumnInfo Id="NomComplet" PropertyName="NomComplet"
+                    Index="2" Width="220" IsNewNode="True" />
+        <ColumnInfo Id="DateNaissance" PropertyName="DateNaissance"
+                    Caption="Né(e) le" Index="3" Width="110" IsNewNode="True" />
+        <ColumnInfo Id="Age" PropertyName="Age"
+                    Caption="Âge" Index="4" Width="60" IsNewNode="True" />
+        <ColumnInfo Id="Sexe" PropertyName="Sexe"
+                    Index="5" Width="80" IsNewNode="True" />
+        <ColumnInfo Id="StatutDetail" PropertyName="StatutDetail"
+                    Caption="Statut / Situation" Index="6" Width="160" IsNewNode="True" />
+        <ColumnInfo Id="ACharge" PropertyName="ACharge"
+                    Caption="À charge" Index="7" Width="90" IsNewNode="True" />
       </Columns>
     </ListView>
   </Views>

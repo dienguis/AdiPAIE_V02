@@ -503,7 +503,9 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             var evt   = EnsureCongeType(os, "EVENT", "Événement familial",     FamilleConge.EvenementFamilial, true,  0m,  ImpactSalaireConge());
             var aut   = EnsureCongeType(os, "AUT",   "Autre absence",          FamilleConge.Autre,             false, 0m,  ImpactSalaireConge());
             var naut  = EnsureCongeType(os, "NAUT",  "Absence non autorisée",  FamilleConge.SansSolde,         false, 0m,  CongeImpactSalaire.Impaye);
-            var cpaye = EnsureCongeType(os, "CPAYE", "Congé payé annuel",      FamilleConge.Annuel,            true,  2.5m, ImpactSalaireConge());
+            // V1.7 — Conforme CCT Sénégal Loi 97-17 Art. L.149 : 2 j/mois = 24 j/an
+            // (la règle française de 2,5 j/mois = 30 j/an ne s'applique pas ici)
+            var cpaye = EnsureCongeType(os, "CPAYE", "Congé payé annuel",      FamilleConge.Annuel,            true,  2.0m, ImpactSalaireConge());
             var form  = EnsureCongeType(os, "FORM",  "Formation",              FamilleConge.Autre,             true,  0m,  ImpactSalaireConge());
             var mat   = EnsureCongeType(os, "MAT",   "Maternité",              FamilleConge.Maternite,         false, 0m,  ImpactSalaireConge());
             var pat   = EnsureCongeType(os, "PAT",   "Paternité",              FamilleConge.Maternite,         false, 0m,  ImpactSalaireConge());

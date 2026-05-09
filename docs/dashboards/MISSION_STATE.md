@@ -1347,6 +1347,160 @@ HEAD `dev` après V1.6.2 = (à pousser)
 ### Tag de release
 - `v1.6.2` à poser sur `dev` après merge sur `main`
 
+---
+
+## ✅ V1.7 — ANNUAIRE FAMILLE + PROVISION CONGÉS LÉGALE (2026-05-09)
+
+### 1. Annuaire famille hiérarchique (menu Gestion du personnel)
+- Entité non-persistante `FamilleAnnuaire` avec 1 ligne par membre
+  (Salarié / Conjoint / Enfant) groupée par MatriculeSalarie
+- Service `FamilleAnnuaireService.LoaderAnnuaire(persistentOs, nonPersistentOs)`
+- Contrôleur avec hook `ObjectsGetting` (pattern XAF canonique non-persistant)
+- Badges colorés palette projet :
+  - 🔵 Salarié (LightSkyBlue)
+  - 🟣 Conjoint (Plum)
+  - 🟠 Enfant (Moccasin)
+  - 🟢 ACharge=true (PaleGreen)
+- Permissions RH : `AddType<FamilleAnnuaire>(rh, "r")`
+- Visible : Matricule, Nom complet, Date naissance, Âge, Sexe, Statut, À charge
+
+### 2. Architecture des congés — VUE D'ENSEMBLE COMPLÈTE
+
+Le module Congés repose sur **2 vues complémentaires** qui partagent les mêmes
+données opérationnelles mais répondent à 2 besoins métiers distincts.
+
+#### A. `SoldeConge` — Vue OPÉRATIONNELLE RH (existant V1.4)
+
+**Localisation** : Menu **Congés et absences → Soldes de congés (opérationnel RH)**
+
+**Modèle de données** : Persistant, granularité (Salarié × Année × CongeType).
+```
+SoldeConge
+├── Salarie (FK)
+├── Annee (int)
+├── Type (FK CongeType)
+├── JoursAcquis     ← alimenté MOIS PAR MOIS par le cron
+├── JoursReportes   ← report N-1 lors de la clôture d'exercice
+├── JoursPris       ← décrémenté quand CongeDemande=Accordée et DateReprise passée
+├── JoursEnAttente  ← réservé sur soumission, libéré sur refus/annulation
+├── SoldeDisponible (computed) = Acquis + Reportés - Pris
+└── SoldeReel (computed)       = Acquis + Reportés - Pris - EnAttente
+```
+
+**Service** : `SoldeCongeCalculService` avec 8 méthodes :
+- `AcquerirMensuel(os, salarie, type, annee, mois)` — crédit idempotent
+- `AcquerirTousSalaries(os, annee, mois)` — batch mensuel (cron à brancher)
+- `Reporter(os, annee)` — clôture N → N+1
+- `VerifierSolde`, `ReserverJours`, `DebiterJours`, `AnnulerDebite`
+- `OuvrirNouvelExercice(os, annee)` — initialise pour une nouvelle année
+
+**Historique** : Chaque mouvement tracé dans `MouvementSolde` (table fille)
+avec `MouvementSoldeType` ∈ { AcquisitionMensuelle, PriseCongé, Report,
+AjustementManuel, AnnulationCongé, **Initialisation** }.
+
+#### B. `ProvisionConges` — Vue COMPTABLE DAF (V1.7 nouveau)
+
+**Localisation** : Menu **Congés et absences → Provision annuelle (DAF)**
+
+**Modèle de données** : Non-persistante, recalculée à la volée pour les 3
+dernières années (N-2, N-1, N), granularité (Salarié × Année).
+
+**Formule légale conforme Code du Travail Sénégal Loi 97-17 Art. L.149**
+(source : https://africapaierh.com/juridique/les-conges-payes-au-senegal/) :
+
+```
+NbreJourTotal = (2 × NbreMois)        ← Base CCT : 2 j ouvrables / mois travaillé
+              + BonusAnciennete       ← Palier ancienneté
+              + BonusEnfants          ← Mère de famille (3 règles cumulables)
+
+ProvisionFCFA = NbreJourTotal × (BrutMensuelMoyen / 22 jours ouvrés)
+              où BrutMensuelMoyen = Σ Gain rubriques BrutFiscal=true / 12
+```
+
+**Palier ancienneté** (corrigé conformément CCT, l'ancienne requête SQL
+ELTON avait une erreur sur > 25 ans) :
+- ≤ 10 ans : 0 jour
+- 11-15 ans : +1 jour
+- 16-20 ans : +2 jours
+- 21-25 ans : +3 jours
+- > 25 ans : **+7 jours** (PAS +6)
+
+**Bonus mère de famille** (3 règles CUMULABLES, femmes uniquement) :
+- **Règle A** : +1 j / enfant < 14 ans à l'état-civil (toutes mères)
+- **Règle B** : +2 j / enfant à charge si mère < 21 ans au 31/12
+- **Règle C** : +2 j / enfant mineur à partir du 4ème si mère > 21 ans
+
+**Réconciliation théorique vs réel** (colonnes V1.7) :
+- `SoldeReelAcquis` = Σ SoldeConge.JoursAcquis du salarié pour l'année
+- `Ecart` = NbreJourTotal (théorique) − SoldeReelAcquis
+- 🟢 vert si |Ecart| ≤ 1 jour (tolérance arrondi)
+- 🟥 rouge si |Ecart| > 1 jour (anomalie : cron en retard, ou bonus
+  ancienneté/enfants pas appliqué côté Solde, ou ajustement manuel non documenté)
+
+#### C. Quand utiliser laquelle ?
+
+| Use case | Vue à consulter |
+|----------|-----------------|
+| RH valide une demande (le salarié a-t-il assez de jours ?) | **Solde des congés** (SoldeReel) |
+| RH cherche le solde d'un salarié | **Solde des congés** |
+| DAF clôture l'exercice et passe la provision comptable | **Provision annuelle** (ProvisionFCFA) |
+| Audit conformité Code du Travail | **Provision annuelle** (formule explicite + sources) |
+| Réconciliation cohérence opérationnel ↔ comptable | **Provision annuelle** colonne Écart |
+| Calcul indemnité de départ congés non pris | Cumul **Solde des congés** + valorisation via Provision |
+
+### 3. ⚠️ MIGRATION PRODUCTION (V1.7.1 à venir)
+
+**Contexte** : La mise en production se fera sans récupération automatique de
+l'historique de congés depuis l'ancien système (JDE / paie historique).
+Il y aura donc un **ajustement manuel initial** par salarié pour caler
+les soldes au moment du go-live.
+
+**Architecture déjà prête** :
+- `MouvementSoldeType.Initialisation` (enum existant V1.4) prévu pour
+  tracer ces mouvements de cadrage initial
+- Champ `SoldeConge.JoursReportes` peut accueillir le solde initial
+  (équivalent d'un report N-1 fictif)
+
+**Processus de migration au go-live** (V1.7.1 — à coder) :
+1. RH récupère depuis l'ancien système la liste : Matricule + Solde acquis +
+   Solde reporté (au 31/12 de l'année précédente)
+2. Service `InitialiserSoldesProdService.ImporterDepuisExcel(file)` :
+   - Pour chaque salarié, créer `SoldeConge` (Année=N, Type=Annuel)
+   - Renseigner `JoursReportes` avec le solde historique
+   - Créer `MouvementSolde` avec `TypeMouvement=Initialisation`,
+     Commentaire = "Migration go-live AdiPAIE depuis [système précédent]
+     le [date]"
+3. La cron `AcquerirTousSalaries` continue à alimenter `JoursAcquis`
+   mensuellement à partir du mois courant
+4. Le tableau **Provision annuelle** affichera l'écart entre la formule
+   théorique pleine année et le réel (qui n'aura que les mois écoulés
+   depuis go-live) — **comportement attendu** pour l'année de transition
+
+**À NE PAS faire** :
+- ❌ Faire du backfill de `MouvementSolde` mois par mois pour tout
+  l'historique (perte de temps, données pas fiables côté ancien système)
+- ❌ Stocker le solde historique directement dans `JoursAcquis` (ça
+  fausserait les statistiques d'acquisition mensuelle)
+
+**Fichier import attendu** (CSV / Excel) :
+```
+Matricule;TypeCongeCode;JoursReportes;DateInitialisation;Commentaire
+99001;ANNUEL;18.5;2026-06-01;Migration JDE
+99002;ANNUEL;7.0;2026-06-01;Migration JDE
+...
+```
+
+### 4. Hypothèses ouvertes à valider avec RH ELTON
+
+- **Âge limite enfant à charge** : 14 ans (article CCT) — confirmer cap
+- **Père de famille** : a-t-il droit à un bonus ? (CCT muet, à valider)
+- **Période d'absence maladie ≤ 6 mois assimilée** : comment le cron
+  `AcquerirMensuel` gère ces mois (génération bulletin malgré absence) ?
+- **Plafond annuel** : 30 jours max ? Ou pas de cap (24 base + bonus
+  cumulés peuvent dépasser 30) ?
+
+HEAD `dev` après V1.7 = (à pousser)
+
 Anciens boutons masqués : Valider+envoyer, Renvoyer PDF, Envoyer clé PDF.
 
 ### Menu Reports réactivé

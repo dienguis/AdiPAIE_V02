@@ -233,6 +233,12 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<PeriodePaie>(rh, "rw");  nbPerms += 2;
             AddType<Conjoint>(rh, "rwcd");   nbPerms += 4; // Famille (TRIMF)
             AddType<Enfant>(rh, "rwcd");     nbPerms += 4; // Famille V1.6
+            // V1.7 — Annuaire famille hiérarchique
+            AddType<AdiPAIE_V02.Module.NonPersistent.FamilleAnnuaire>(rh, "r");
+            nbPerms += 1;
+            // V1.7 — Provision congés annuelle
+            AddType<AdiPAIE_V02.Module.NonPersistent.ProvisionConges>(rh, "r");
+            nbPerms += 1;
 
             // ══ DAF ══════════════════════════════════════════════
             var daf = GetOrCreate(os, "DAF", ref nbRoles);
