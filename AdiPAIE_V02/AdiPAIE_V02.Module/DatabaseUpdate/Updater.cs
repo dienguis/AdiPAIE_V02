@@ -819,6 +819,16 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                     "CREATE UNIQUE INDEX UX_Bulletin_Salarie_Annee_Mois "
                     + "ON Bulletin(Salarie, Annee, Mois) "
                     + "WHERE GCRecord IS NULL");
+
+                // V1.7.1 — Salarie.Email unique (filtré : NULL et vide tolérés en multiple,
+                // soft-deletes ignorés). Bloque les doublons même sur imports SQL directs.
+                // La normalisation (trim + lowercase) est faite dans Salarie.OnSaving.
+                ExecSqlIfIndexMissing(session,
+                    "UX_Salarie_Email",
+                    "Salarie",
+                    "CREATE UNIQUE INDEX UX_Salarie_Email "
+                    + "ON Salarie(Email) "
+                    + "WHERE Email IS NOT NULL AND Email <> '' AND GCRecord IS NULL");
             }
             catch (Exception ex)
             {

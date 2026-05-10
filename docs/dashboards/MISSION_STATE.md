@@ -1566,6 +1566,82 @@ legacy → connexion directe sans cocher `Trust server certificate` à chaque
 fois. À conserver pour le quotidien admin tant que SSMS 20+ n'est pas
 disponible.
 
+---
+
+## ✅ V1.7.1 — Unicité email Salarié (2026-05-10)
+
+### Besoin métier
+
+À la création d'un salarié, l'email doit être **unique** dans toute la base
+(insensible à la casse, après trim). Plusieurs salariés sans email restent
+toutefois autorisés (cas historique : anciens salariés sans adresse pro).
+
+### Implémentation à 2 niveaux
+
+#### Niveau 1 — Validation app `Salarie.OnSaving`
+
+Dans `BusinessObjects/Salarie.cs`, après la normalisation et la validation
+de format déjà existante, recherche d'un autre `Salarie` avec le même email
+(autre `Oid`) :
+
+```csharp
+var doublon = Session.FindObject<Salarie>(
+    CriteriaOperator.Parse("Email = ? AND Oid <> ?", Email, Oid));
+if (doublon != null)
+    throw new UserFriendlyException(
+        $"L'email « {Email} » est déjà utilisé par le salarié " +
+        $"{doublon.Matricule} – {doublon.FirstName} {doublon.LastName}. " +
+        $"L'email doit être unique pour chaque salarié.");
+```
+
+→ Message UX clair indiquant **qui** détient déjà cet email.
+
+#### Niveau 2 — Index SQL unique filtré (`Updater.EnsurePerformanceIndexes`)
+
+```sql
+CREATE UNIQUE INDEX UX_Salarie_Email
+ON Salarie(Email)
+WHERE Email IS NOT NULL AND Email <> '' AND GCRecord IS NULL
+```
+
+Filtre essentiel :
+- `Email IS NOT NULL AND Email <> ''` → plusieurs vides autorisés
+- `GCRecord IS NULL` → soft-deletes ignorés
+
+Bloque les doublons même via imports CSV directs ou SQL manuel.
+
+### Détection préalable des doublons existants
+
+Avant de pousser V1.7.1 en prod ELTON (fait via `.bak` template), lancer :
+
+```sql
+SELECT LOWER(LTRIM(RTRIM(Email))) AS EmailNormalise, COUNT(*) AS Nb,
+       STRING_AGG(Matricule + ' - ' + FirstName + ' ' + LastName, ' | ') AS Salaries
+FROM Salarie
+WHERE Email IS NOT NULL AND Email <> '' AND GCRecord IS NULL
+GROUP BY LOWER(LTRIM(RTRIM(Email)))
+HAVING COUNT(*) > 1;
+```
+
+Si doublons → vider l'email du mauvais salarié avant restart, sinon
+l'index échoue silencieusement (la protection app reste opérationnelle,
+mais la couche SQL est manquante).
+
+### Pourquoi pas un `[RuleUniqueValue]` direct sur Email ?
+
+`Salarie` hérite de `DevExpress.Persistent.BaseImpl.Person`, et `Email`
+est une propriété de la classe parent. Override par `new` casserait le
+mapping XPO. La validation `OnSaving` + index SQL filtré offre la même
+protection avec une meilleure UX (message contenant le matricule du
+salarié en doublon) et accepte les emails vides multiples.
+
+### Fichiers modifiés
+
+- `AdiPAIE_V02.Module/BusinessObjects/Salarie.cs` (OnSaving étendu)
+- `AdiPAIE_V02.Module/DatabaseUpdate/Updater.cs` (index `UX_Salarie_Email`)
+- `docs/deployment/DEPLOIEMENT_WINDOWS_SERVER_2022.md` (troubleshooting)
+- `docs/deployment/DEPLOIEMENT_WINDOWS_SERVER_2022.pdf` (régénéré)
+
 Anciens boutons masqués : Valider+envoyer, Renvoyer PDF, Envoyer clé PDF.
 
 ### Menu Reports réactivé

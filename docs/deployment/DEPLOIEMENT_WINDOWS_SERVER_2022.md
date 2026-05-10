@@ -2,8 +2,10 @@
 
 > **Cible** : serveur **`grh`** + **SQL Server Express 2025**
 > **Application** : SunuPaie (XAF Blazor Server, .NET 8)
-> **Version** : V1.7.0a (mai 2026) — déploiement validé en prod ELTON
+> **Version** : V1.7.1 (mai 2026) — déploiement validé en prod ELTON
 > **Auteur** : ELTON Oil Company / DSI
+> **Changelog v3** : V1.7.1 unicité email Salarié (validation app + index unique
+> filtré SQL) + script détection doublons.
 > **Changelog v2** : ajout section **8bis** méthode officielle "base template",
 > hotfix `Updater.cs` (`#if !RELEASE` retiré), pièges SSMS 22 vs 18.2 sur SQL 2025,
 > fix login `IIS APPPOOL\SunuPaiePool` post-restore, JSON escape dbconfig.
@@ -1047,6 +1049,43 @@ WHERE dp.name = 'IIS APPPOOL\SunuPaiePool';
 **Mauvaise** : `Driver={ODBC Driver 18 for SQL Server};Server=grh\SQLEXPRESS;...`
 
 **Bonne** : `Server=grh\SQLEXPRESS;Database=SunuPaie;Integrated Security=true;Encrypt=true;TrustServerCertificate=true`
+
+### Doublons d'email Salarié — l'index unique ne se crée pas
+
+**Symptôme** : à partir de V1.7.1, l'`Updater` tente de créer
+`UX_Salarie_Email` (index unique filtré). S'il y a des doublons d'email
+en base, la création échoue silencieusement (logs Debug uniquement).
+La protection app (Salarie.OnSaving) reste opérationnelle, mais l'intégrité
+SQL n'est pas garantie.
+
+**Détection préalable** (à lancer AVANT de déployer V1.7.1) :
+
+```sql
+USE SunuPaie;
+
+-- Doublons d'email parmi les salariés actifs (non null, non vides, non supprimés)
+SELECT
+    LOWER(LTRIM(RTRIM(Email))) AS EmailNormalise,
+    COUNT(*) AS Nb,
+    STRING_AGG(Matricule + ' - ' + FirstName + ' ' + LastName, ' | ') AS Salaries
+FROM Salarie
+WHERE Email IS NOT NULL
+  AND Email <> ''
+  AND GCRecord IS NULL
+GROUP BY LOWER(LTRIM(RTRIM(Email)))
+HAVING COUNT(*) > 1
+ORDER BY Nb DESC;
+```
+
+**Si doublons trouvés** : corriger via UPDATE ciblés (vider l'email du
+mauvais salarié, ou attribuer un email distinct) :
+
+```sql
+-- Exemple : vider l'email du salarié 99025 qui partage celui du 99001
+UPDATE Salarie SET Email = NULL WHERE Matricule = '99025';
+```
+
+Puis redémarrer le pool IIS → l'`Updater` créera l'index proprement.
 
 ### JSON parse error 'S' invalid escape dans dbconfig.json
 

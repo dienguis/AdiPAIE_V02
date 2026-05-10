@@ -983,11 +983,29 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             base.OnSaving();
             if (!IsDeleted && !string.IsNullOrWhiteSpace(Email))
             {
+                // Normalisation : trim + lowercase invariant (cohérence comparaison)
                 Email = Email.Trim().ToLowerInvariant();
+
+                // 1. Format email
                 if (!System.Text.RegularExpressions.Regex.IsMatch(Email,
                     @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                     throw new UserFriendlyException(
                         $"Format d'email invalide : « {Email} ». Exemple : prenom.nom@domaine.sn");
+
+                // 2. V1.7.1 — Unicité email dans toute la base
+                // Permet plusieurs emails vides/null mais bloque les doublons.
+                // Vérification au niveau Session : capture aussi les saisies
+                // simultanées dans la même transaction.
+                var doublon = Session.FindObject<Salarie>(
+                    DevExpress.Data.Filtering.CriteriaOperator.Parse(
+                        "Email = ? AND Oid <> ?",
+                        Email,
+                        Oid));
+                if (doublon != null)
+                    throw new UserFriendlyException(
+                        $"L'email « {Email} » est déjà utilisé par le salarié " +
+                        $"{doublon.Matricule} – {doublon.FirstName} {doublon.LastName}. " +
+                        $"L'email doit être unique pour chaque salarié.");
             }
         }
 
