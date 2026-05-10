@@ -1508,6 +1508,64 @@ Matricule;TypeCongeCode;JoursReportes;DateInitialisation;Commentaire
 
 HEAD `dev` après V1.7 = (à pousser)
 
+---
+
+## ✅ V1.7.0a — Hotfix critique déploiement prod (2026-05-10)
+
+### Bug découvert au 1er déploiement Windows Server 2022
+
+Sur la base fraîche créée par l'`Updater` XAF en prod (Release build),
+**aucun utilisateur Admin ni rôle Administrators n'était créé** → la page
+de login retournait `Login failed for 'Admin'. User name or password is
+incorrect.` quel que soit le mot de passe testé.
+
+### Cause racine
+
+Dans `AdiPAIE_V02.Module/DatabaseUpdate/Updater.cs`, le bloc qui crée le
+rôle `Administrators` + l'utilisateur `Admin` (mot de passe vide) était
+entouré d'une directive `#if !RELEASE / #endif`. Conséquence : ce code
+était **compilé en DEBUG mais EXCLU en RELEASE** (= production).
+
+```csharp
+#if !RELEASE                    // ⛔ exclu en prod !
+    var adminRole = CreateAdminRole();
+    var userManager = ObjectSpace.ServiceProvider.GetRequiredService<UserManager>();
+    if (userManager.FindUserByName<ApplicationUser>(ObjectSpace, "Admin") == null)
+        userManager.CreateUser<ApplicationUser>(ObjectSpace, "Admin", "", u => u.Roles.Add(adminRole));
+    ObjectSpace.CommitChanges();
+#endif
+```
+
+### Fix appliqué
+
+Suppression des directives `#if !RELEASE / #endif`. Le bloc est :
+- **Idempotent** : `FindUserByName` puis `FirstOrDefault` sur le rôle
+  garantissent qu'on ne recrée jamais ce qui existe déjà.
+- **Safe en prod** : login `Admin` créé **avec mot de passe vide** au
+  1er lancement → l'admin DOIT le changer immédiatement après login.
+
+### Workaround utilisé pendant la résolution
+
+L'utilisateur a contourné en **restaurant un .bak** d'une base de dev
+contenant déjà les tables Permission peuplées (Admin/Administrators).
+Cela a permis de valider toute la chaîne IIS / SQL / connection string
+avant le hotfix code.
+
+### Action requise post-déploiement
+
+Lors du **prochain déploiement sur une base vraiment vide** (nouveau
+client, nouvel environnement), l'`Updater` créera automatiquement
+l'utilisateur Admin. Aucun script SQL manuel n'est nécessaire.
+
+### Note : SSMS 18.2 vs SQL Express 2025
+
+Au passage, l'utilisateur a **désinstallé SSMS 22 et installé SSMS 18.2**
+pour contourner les soucis de TLS strict du driver `ODBC 18` avec les
+certificats auto-signés de SQL Server 2025. SSMS 18.2 utilise le driver
+legacy → connexion directe sans cocher `Trust server certificate` à chaque
+fois. À conserver pour le quotidien admin tant que SSMS 20+ n'est pas
+disponible.
+
 Anciens boutons masqués : Valider+envoyer, Renvoyer PDF, Envoyer clé PDF.
 
 ### Menu Reports réactivé

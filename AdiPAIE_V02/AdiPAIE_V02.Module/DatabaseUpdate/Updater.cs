@@ -688,39 +688,20 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
 //            }
 //#endif
 
-#if !RELEASE
+            // ═══════════════════════════════════════════════════════
+            // V1.7 — Seed Admin + rôle Administrators
+            // Anciennement entouré de #if !RELEASE → Admin n'était JAMAIS
+            // créé en production, conduisant à "Login failed for 'Admin'"
+            // sur une base fraîche. Maintenant exécuté dans TOUS les modes
+            // (DEBUG + RELEASE). Le bloc est idempotent : si Admin existe
+            // déjà, FindUserByName retourne non-null et on ne recrée rien.
+            // ═══════════════════════════════════════════════════════
             var adminRole = CreateAdminRole();
 
             UserManager userManager = ObjectSpace.ServiceProvider.GetRequiredService<UserManager>();
 
-            //if (TenantName != null)
-            //{
-            //    var defaultRole = CreateDefaultRole();
-
-            //    string userName = $"User@{TenantName}";
-            //    if (userManager.FindUserByName<ApplicationUser>(ObjectSpace, userName) == null)
-            //    {
-            //        string EmptyPassword = "";
-            //        _ = userManager.CreateUser<ApplicationUser>(ObjectSpace, userName, EmptyPassword, (user) =>
-            //        {
-            //            user.Roles.Add(defaultRole);
-            //        });
-            //    }
-            //}
-            //       string adminUserName = TenantName != null ? $"Admin@{TenantName}" : "Admin";
-
-
-            //if (userManager.FindUserByName<ApplicationUser>(ObjectSpace, adminUserName) == null)
-            //{
-            //    string EmptyPassword = "";
-            //    _ = userManager.CreateUser<ApplicationUser>(ObjectSpace, adminUserName, EmptyPassword, (user) =>
-            //    {
-            //        user.Roles.Add(adminRole);
-            //    });
-            //}
-
-         // ── Utilisateur Admin ─────────────────────────────
-string adminUserName = "Admin";
+            // ── Utilisateur Admin (mot de passe vide au 1er lancement) ──
+            string adminUserName = "Admin";
             if (userManager.FindUserByName<ApplicationUser>(
                     ObjectSpace, adminUserName) == null)
             {
@@ -733,7 +714,6 @@ string adminUserName = "Admin";
             }
 
             ObjectSpace.CommitChanges();
-#endif
           //ADIENG 27/08/2025 DEBUT  FIXER LES RUBRIQUES ESSENTIEL
           //  CreateReports();
 
