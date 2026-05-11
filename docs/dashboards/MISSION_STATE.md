@@ -1642,7 +1642,180 @@ salarié en doublon) et accepte les emails vides multiples.
 - `docs/deployment/DEPLOIEMENT_WINDOWS_SERVER_2022.md` (troubleshooting)
 - `docs/deployment/DEPLOIEMENT_WINDOWS_SERVER_2022.pdf` (régénéré)
 
-Anciens boutons masqués : Valider+envoyer, Renvoyer PDF, Envoyer clé PDF.
+---
+
+## ✅ V1.7.2 — 13ième MOIS + GRATIFICATION (2026-05-11)
+
+### Origine du besoin
+
+Question utilisateur initiale (2026-05-11) :
+> « il peut arriver dans l'année que des bonus soit payé qui peuvent être
+> égal à 2,5 ou 3 mois de salaire net ou brut ; au 31 décembre aussi il
+> peut y avoir un 13ième mois — comment on peut gérer cela ? »
+
+### Cadrage RH ELTON (grille validée 2026-05-11)
+
+Grille de cadrage Excel `docs/specifications/Grille_RH_Primes_13eMois_V1.7.2.xlsx`
+remplie par RRH + DAF. **Règles métier figées** :
+
+#### 13ième mois — Automatique, droit conventionnel pour tous
+
+| Règle | Valeur figée |
+|---|---|
+| Bénéficiaires | TOUS les salariés (sans condition d'ancienneté) |
+| Calcul | `BrutRecurrent × MoisPresence ÷ 12` |
+| Base | « Dernier brut récurrent perçu, hors congés et exceptionnels » |
+| Multiplicateur | 1 mois (100 %) |
+| Versement | Bulletin de **décembre** uniquement |
+| Fiscalité | IR + CSS + IPRES + IPM (tout soumis, **sans lissage**) |
+| Provision mensuelle | Sur **brut récurrent du mois en cours** (1/12) |
+| Prorata départ | `BR / 12 × MoisPresence` versé sur **STC** (PAS en décembre) |
+
+#### Gratification — Discrétionnaire, ad hoc
+
+| Règle | Valeur figée |
+|---|---|
+| Déclenchement | Décision DG (lien évaluations en V1.8+) |
+| Bénéficiaires | Liste manuelle saisie par RH |
+| Base | **Net OU Brut au choix de la saisie** (toujours hors congés) |
+| Multiplicateur | Libre (saisie numérique) |
+| Fréquence | Ad hoc, sans calendrier |
+| Fiscalité | Identique au 13ième mois |
+| Workflow | 1️⃣ RH saisit liste → 2️⃣ DAF valide montants → 3️⃣ **RH intègre bulletin** |
+| Reporting | A posteriori (pas de provision en amont) |
+
+### Architecture implémentée
+
+```
+┌─ BrutRecurrentService (V1.7.2a) ──────────────────────────┐
+│ Helper partagé, calcul du « brut récurrent »              │
+│ INCLUS : SB, Sursalaire, PrimeAnciennete, IndemniteLogement│
+│          PrimeTransport, AvantageNatureVehicule, customs   │
+│ EXCLUS : HS, congés (CONGE_*, CP_*), gratifications, 13ième│
+│ Méthodes : GetBrutRecurrent(bulletin),                    │
+│            GetDernierBrutRecurrent(salarie, annee, mois), │
+│            GetMoisPresence(salarie, annee),                │
+│            GetCumulBrutRecurrent(salarie, annee)           │
+└──────────────────┬─────────────────────────────────────────┘
+                   │
+        ┌──────────┴──────────┐
+        ▼                     ▼
+┌─ 13ième Mois (V1.7.2b)──┐ ┌─ Gratification (V1.7.2d) ─┐
+│ Entité TreiziemeMois    │ │ (à coder)                  │
+│   + workflow + badges   │ │ Workflow RH→DAF→RH         │
+│ TreiziemeMoisService    │ │ BaseCalcul Net/Brut/Forfait│
+│   .CalculerPourAnnee()  │ │                            │
+│   .CalculerProrataSTC() │ │                            │
+│ IntegrationService      │ │                            │
+│   bulletin décembre/STC │ │                            │
+│ Controller : 2 actions  │ │                            │
+│   "Calculer / Intégrer" │ │                            │
+└──────────┬──────────────┘ └────────────────────────────┘
+           │
+           ▼ (à coder)
+┌─ Provision DAF (V1.7.2c) ─┐
+│ Vue non-persistante       │
+│ ProvisionTreiziemeMois    │
+│ Cumul mensuel × salarié   │
+└───────────────────────────┘
+```
+
+### Enums ajoutés (`DomainEnums.cs`)
+
+```csharp
+public enum RubriqueCanonique
+{
+    // ... existants ...
+    HeuresSupplementaires = 600,
+    TreiziemeMois = 700,    // 🆕 V1.7.2
+    Gratification = 710     // 🆕 V1.7.2
+}
+
+public enum TreiziemeMoisStatut { Calcule, IntegreeBulletin, Annule }
+public enum GratificationStatut {
+    BrouillonRH, EnAttenteValidationDAF, ValideeDAF,
+    IntegreeBulletin, Payee, Annule
+}
+public enum GratificationBaseCalcul { BrutRecurrent, NetRecurrent, Forfait }
+```
+
+### Sémantique BulletinLigne 13EME générée
+
+| Champ XPO | Valeur | Affichage |
+|---|---|---|
+| `Rubrique` | rubrique `13EME` (canon `TreiziemeMois`) | « 13e mois » |
+| `Base` | `BrutRecurrentReference` | base brute |
+| `Taux` | `MoisPresence` (decimal) | mois présence |
+| `Montant` | `MontantBrut` (=Base×Taux÷12) | montant final |
+
+Note : `BulletinLigne` n'a pas de propriété `Quantite` (≠ erreur initiale).
+Les 3 valeurs utilisées sont `Base`, `Taux` et `Montant`.
+
+### État d'avancement V1.7.2 (2026-05-11 fin de journée)
+
+| Sous-tâche | Description | Statut |
+|---|---|---|
+| **#65 V1.7.2a** | BrutRecurrentService (helper) | ✅ Complété |
+| **#66 V1.7.2b** | Module 13ième (entité + service + bulletin + controller) | ✅ Complété |
+| **#67 V1.7.2c** | Provision 13ième mensuelle (vue DAF) | ✅ Complété |
+| **#68 V1.7.2d** | Module Gratification (entité + workflow + bulletin) | ✅ Complété |
+| **#69 V1.7.2e** | Reporting Gratification a posteriori | ✅ Complété |
+| **#70 V1.7.2f** | Help + MISSION_STATE final + commit + placement menu | ✅ Complété |
+| **#71 V1.7.2b-bis** | 13ième prorata sur STC (départ en cours d'année) | ⏸️ Reporté V1.7.3 (besoin point d'accroche STC existant) |
+
+### Fichiers créés / modifiés (état final V1.7.2)
+
+**Créés** :
+- `AdiPAIE_V02.Module/Services/BrutRecurrentService.cs`
+- `AdiPAIE_V02.Module/BusinessObjects/TreiziemeMois.cs`
+- `AdiPAIE_V02.Module/Services/TreiziemeMoisService.cs`
+- `AdiPAIE_V02.Module/Services/TreiziemeMoisIntegrationService.cs`
+- `AdiPAIE_V02.Module/Controllers/TreiziemeMoisController.cs`
+- `AdiPAIE_V02.Module/NonPersistent/ProvisionTreiziemeMois.cs`
+- `AdiPAIE_V02.Module/Services/ProvisionTreiziemeMoisService.cs`
+- `AdiPAIE_V02.Module/Controllers/ProvisionTreiziemeMoisController.cs`
+- `AdiPAIE_V02.Module/BusinessObjects/Gratification.cs`
+- `AdiPAIE_V02.Module/Services/GratificationService.cs`
+- `AdiPAIE_V02.Module/Controllers/GratificationController.cs`
+- `AdiPAIE_V02.Module/NonPersistent/RapportGratification.cs`
+- `AdiPAIE_V02.Module/Services/RapportGratificationService.cs`
+- `AdiPAIE_V02.Module/Controllers/RapportGratificationController.cs`
+- `AdiPAIE_V02.Blazor.Server/wwwroot/help/primes-13mois.html`
+- `docs/specifications/Grille_RH_Primes_13eMois_V1.7.2.xlsx`
+
+**Modifiés** :
+- `AdiPAIE_V02.Module/Domain/DomainEnums.cs` (ajout 3 enums + 2 codes canoniques)
+- `AdiPAIE_V02.Module/DatabaseUpdate/Updater.cs` (rubriques `13EME` + `GRATIF` marquées canon)
+- `AdiPAIE_V02.Module/BusinessObjects/Salarie.cs` (collections `TreiziemesMois` + `Gratifications`)
+- `AdiPAIE_V02.Blazor.Server/wwwroot/help/index.html` (card vers nouvelle page)
+
+### Pièges & décisions à retenir
+
+1. **`Quantite` n'existe pas sur `BulletinLigne`** → propriétés réelles =
+   `Base` (decimal), `Taux` (decimal?), `Montant` (decimal). Erreur de
+   build CS1061 rencontrée et corrigée.
+
+2. **Le bloc d'enum 700/710 n'impose PAS l'ordre d'affichage** sur le
+   bulletin. C'est `Rubrique.OrdreAffichage` qui pilote ça (rubrique
+   `13EME` placée à `ordre: 70`, entre indemnités et brut total).
+
+3. **Auto-exclusion 13ième / Gratification du brut récurrent** : géré
+   via `BrutRecurrentService.CodesExclus` (HashSet d'enum). Évite la
+   récursivité « un 13ième dans le BR du prochain 13ième ».
+
+4. **Idempotence partout** : `TreiziemeMoisService.CalculerPourAnnee()`
+   ne re-touche pas un calcul déjà `IntegreeBulletin`. L'intégration
+   à `BulletinLigne` met à jour la ligne existante au lieu de créer
+   un doublon.
+
+5. **STC départ en cours d'année (#71)** : un salarié sorti dans l'année
+   est EXCLU du calcul de décembre. Son prorata sera fait par
+   `TreiziemeMoisService.CalculerProrataSTC()` puis intégré sur le
+   bulletin de sortie via `IntegrationService.IntegrerSurSTC()`.
+   Point d'accroche dans le workflow STC existant à identifier
+   pour automatiser.
+
+---
 
 ### Menu Reports réactivé
 

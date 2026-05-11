@@ -66,7 +66,51 @@ namespace AdiPAIE_V02.Module.Domain
             CFCE = 311,
             RemboursementPret =500,
             RemboursementAvance =501,
-            HeuresSupplementaires = 600
+            HeuresSupplementaires = 600,
+            // V1.7.2 — Rubriques de bonus (hors brut récurrent par construction).
+            // Servent d'identifiants stables pour l'exclusion automatique dans
+            // BrutRecurrentService (évite la dépendance aux préfixes string).
+            TreiziemeMois = 700,
+            Gratification = 710
+        }
+
+        // V1.7.2 — Workflow du 13ième mois
+        public enum TreiziemeMoisStatut
+        {
+            // Calculé mais pas encore intégré à un bulletin
+            Calcule = 0,
+            // Intégré au bulletin de décembre (cas normal) ou au STC départ
+            IntegreeBulletin = 1,
+            // Annulé (utile si recalcul nécessaire)
+            Annule = 2
+        }
+
+        // V1.7.2 — Workflow de la Gratification (validation RH/DAF)
+        public enum GratificationStatut
+        {
+            // Saisi par RH, en attente de validation DAF
+            BrouillonRH = 0,
+            // En attente validation DAF (= soumis par RH)
+            EnAttenteValidationDAF = 1,
+            // Validé par le DAF, prêt à intégrer
+            ValideeDAF = 2,
+            // Intégré au bulletin par RH
+            IntegreeBulletin = 3,
+            // Bulletin payé (clôturé)
+            Payee = 4,
+            // Annulé/refusé
+            Annule = 5
+        }
+
+        // V1.7.2 — Base de calcul de la Gratification
+        public enum GratificationBaseCalcul
+        {
+            // Multiple du brut récurrent mensuel
+            BrutRecurrent = 0,
+            // Multiple du net récurrent (= BR - cotisations - impôt estimé)
+            NetRecurrent = 1,
+            // Forfait fixe en FCFA (saisie directe du montant)
+            Forfait = 2
         }
 
         public enum TypeHeureSupplementaire

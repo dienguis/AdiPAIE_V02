@@ -667,6 +667,18 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public XPCollection<Bulletin> Bulletins
             => GetCollection<Bulletin>(nameof(Bulletins));
 
+        // V1.7.2 — Historique des 13ièmes mois calculés / versés (1 par année)
+        [Association("Salarie-TreiziemeMois"), Aggregated]
+        [XafDisplayName("13ièmes mois")]
+        public XPCollection<TreiziemeMois> TreiziemesMois
+            => GetCollection<TreiziemeMois>(nameof(TreiziemesMois));
+
+        // V1.7.2 — Gratifications ad hoc (peut y avoir plusieurs / année)
+        [Association("Salarie-Gratifications"), Aggregated]
+        [XafDisplayName("Gratifications")]
+        public XPCollection<Gratification> Gratifications
+            => GetCollection<Gratification>(nameof(Gratifications));
+
         [Association("Salarie-Conjoints"), Aggregated]
         public XPCollection<Conjoint> Conjoints
             => GetCollection<Conjoint>(nameof(Conjoints));

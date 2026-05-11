@@ -528,8 +528,19 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 var rSB = EnsureRubrique(os, "SB", "Salaire de base", tBrute,
                                          ordre: 1, canon: RubriqueCanonique.SalaireDeBase,
                                          debitDefaut: c661100, creditDefaut: c421100);
+                // V1.7.2 — Marquage canonique TreiziemeMois (= 700)
+                // Permet l'auto-exclusion du brut récurrent pour ne pas se
+                // recalculer dans le calcul de l'année suivante.
+                // Ordre 70 (entre indemnités/HS et brut total) au lieu de 5.
                 var r13 = EnsureRubrique(os, "13EME", "13e mois", tBrute,
-                                         ordre: 5, debitDefaut: c661100, creditDefaut: c421100);
+                                         ordre: 70, canon: RubriqueCanonique.TreiziemeMois,
+                                         debitDefaut: c661100, creditDefaut: c421100);
+
+                // V1.7.2d — Rubrique Gratification (ad hoc, workflow RH/DAF)
+                // Ordre 75 (juste après 13ième, avant brut total)
+                var rGratif = EnsureRubrique(os, "GRATIF", "Gratification", tBrute,
+                                         ordre: 75, canon: RubriqueCanonique.Gratification,
+                                         debitDefaut: c661100, creditDefaut: c421100);
                 var rSURSAL = EnsureRubrique(os, "SURSAL", "Sursalaire", tBrute,
                                          ordre: 20, canon: RubriqueCanonique.Sursalaire,
                                          debitDefaut: c661100, creditDefaut: c421100);
