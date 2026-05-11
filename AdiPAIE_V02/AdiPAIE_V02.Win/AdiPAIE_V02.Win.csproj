@@ -29,32 +29,32 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.16.0" />
-    <PackageReference Include="DevExpress.ExpressApp" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Chart.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="25.1.9">
+    <PackageReference Include="DevExpress.ExpressApp" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Chart.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="25.1.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="DevExpress.ExpressApp.Dashboards.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.FileAttachment.Win" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.Dashboards.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.FileAttachment.Win" Version="25.1.10" />
 
-    <PackageReference Include="DevExpress.ExpressApp.Notifications.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Office.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.PivotChart.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.PivotGrid.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.ReportsV2.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Scheduler.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.ScriptRecorder.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.TreeListEditors.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Validation.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Win" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Win.Design" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="25.1.9" />
-    <PackageReference Include="DevExpress.Persistent.Base" Version="25.1.9" />
-    <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="25.1.9" />
-    <PackageReference Include="DevExpress.RichEdit.Export" Version="25.1.9" />
-    <PackageReference Include="DevExpress.Win.Design" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.Notifications.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Office.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.PivotChart.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.PivotGrid.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.ReportsV2.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Scheduler.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.ScriptRecorder.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.TreeListEditors.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Validation.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Win" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Win.Design" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="25.1.10" />
+    <PackageReference Include="DevExpress.Persistent.Base" Version="25.1.10" />
+    <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="25.1.10" />
+    <PackageReference Include="DevExpress.RichEdit.Export" Version="25.1.10" />
+    <PackageReference Include="DevExpress.Win.Design" Version="25.1.10" />
     <PackageReference Include="Microsoft.Graph" Version="5.93.0" />
     
   </ItemGroup>

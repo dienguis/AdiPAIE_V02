@@ -29,20 +29,20 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.16.0" />
-    <PackageReference Include="DevExpress.Drawing.Skia" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Blazor" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="25.1.9">
+    <PackageReference Include="DevExpress.Drawing.Skia" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Blazor" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="25.1.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="DevExpress.ExpressApp.Dashboards.Blazor" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.FileAttachment.Blazor" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Notifications.Blazor" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Office.Blazor" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.ReportsV2.Blazor" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Scheduler.Blazor" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="25.1.9" />
-    <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="25.1.9" />
+    <PackageReference Include="DevExpress.ExpressApp.Dashboards.Blazor" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.FileAttachment.Blazor" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Notifications.Blazor" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Office.Blazor" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.ReportsV2.Blazor" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Scheduler.Blazor" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="25.1.10" />
+    <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="25.1.10" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.4.1" />
     <PackageReference Include="Microsoft.Graph" Version="5.93.0" />
     

@@ -98,7 +98,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // Identification / contexte
         // ─────────────────────────────────────────────────────────
         int annee;
-        [RuleRequiredField]
+        // [RuleRequiredField] retiré : XAF0009 interdit sur value type (int).
         [RuleRange(2000, 2100,
             CustomMessageTemplate = "Année incohérente ({Annee}).")]
         [XafDisplayName("Année")]
@@ -111,7 +111,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         int moisPaiement;
-        [RuleRequiredField]
+        // [RuleRequiredField] retiré : XAF0009 interdit sur value type (int).
         [RuleRange(1, 12,
             CustomMessageTemplate = "Mois entre 1 et 12 ({MoisPaiement}).")]
         [XafDisplayName("Mois paiement")]
@@ -137,7 +137,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // Paramètres de calcul (saisis par RH)
         // ─────────────────────────────────────────────────────────
         GratificationBaseCalcul baseCalcul;
-        [RuleRequiredField]
+        // [RuleRequiredField] retiré : XAF0009 interdit sur value type (enum).
+        // AfterConstruction initialise à GratificationBaseCalcul.BrutRecurrent.
         [XafDisplayName("Base de calcul")]
         [ModelDefault("ImmediatePostData", "True")]
         [ToolTip("BrutRecurrent : multiple du brut hors congés. " +
@@ -199,7 +200,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // Workflow
         // ─────────────────────────────────────────────────────────
         GratificationStatut statut;
-        [RuleRequiredField]
+        // [RuleRequiredField] retiré : XAF0009 interdit sur value type (enum).
+        // AfterConstruction initialise à GratificationStatut.BrouillonRH.
         [XafDisplayName("Statut")]
         public GratificationStatut Statut
         {

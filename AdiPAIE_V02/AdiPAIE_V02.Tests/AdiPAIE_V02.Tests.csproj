@@ -23,7 +23,7 @@
     <PackageReference Include="FluentAssertions" Version="6.12.1" />
 
     <!-- DevExpress XPO pour tester avec InMemoryDataStore -->
-    <PackageReference Include="DevExpress.Xpo" Version="25.1.9" />
+    <PackageReference Include="DevExpress.Xpo" Version="25.1.10" />
   </ItemGroup>
 
   <ItemGroup>

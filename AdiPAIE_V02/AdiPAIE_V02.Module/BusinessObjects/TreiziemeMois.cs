@@ -77,7 +77,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // Identification
         // ─────────────────────────────────────────────────────────
         int annee;
-        [RuleRequiredField]
+        // [RuleRequiredField] retiré : XAF0009 interdit sur value type (int).
+        // Le RuleRange ci-dessous + l'init dans AfterConstruction suffisent.
         [RuleRange(2000, 2100,
             CustomMessageTemplate = "Année incohérente ({Annee}).")]
         [XafDisplayName("Année")]
@@ -141,7 +142,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // Workflow
         // ─────────────────────────────────────────────────────────
         TreiziemeMoisStatut statut;
-        [RuleRequiredField]
+        // [RuleRequiredField] retiré : XAF0009 interdit sur value type (enum).
+        // AfterConstruction initialise à TreiziemeMoisStatut.Calcule.
         [XafDisplayName("Statut")]
         public TreiziemeMoisStatut Statut
         {
