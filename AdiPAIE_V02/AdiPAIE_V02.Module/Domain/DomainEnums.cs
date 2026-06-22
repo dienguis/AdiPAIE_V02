@@ -781,6 +781,40 @@ namespace AdiPAIE_V02.Module.Domain
             [XafDisplayName("Clôturé")] Cloture = 5,
         }
 
+        // ── V1.8 — Mode de traitement des congés payés dans le bulletin ──
+        // Configurable par le RH dans ParametresPaie.
+        // BulletinUnique = pratique ELTON actuelle (1 bulletin avec rubrique
+        //                  "Congés" remplaçant les rubriques de salaire mensuel)
+        // BulletinSepare = 2 bulletins distincts (salaire normal + bulletin
+        //                  de congé) — option future à anticiper
+        public enum ModeBulletinConges
+        {
+            [XafDisplayName("Bulletin unique (recommandé)")] BulletinUnique = 0,
+            [XafDisplayName("Bulletin de congé séparé")] BulletinSepare = 1,
+        }
+
+        // ── V1.8 — Base de calcul de la CFCE (Sénégal) ──────────────
+        // Configurable par le DAF dans ParametresPaie.
+        // Divergence d'interprétation du Code Général des Impôts Sénégal :
+        //
+        //  AvecAvantagesNature  = la CFCE inclut les avantages en nature
+        //                         dans sa base (= position du DAF ELTON 2026,
+        //                         alignée sur IR/TRIMF/IRPP)
+        //
+        //  SansAvantagesNature  = la CFCE exclut les avantages en nature
+        //                         (= comportement de l'ancien système ELTON,
+        //                         bulletin réel DAF mai 2026)
+        //
+        // La paie réelle dépend du choix. Garder le même mode pour
+        // l'ensemble des salariés de l'entreprise.
+        public enum ModeBaseCFCE
+        {
+            [XafDisplayName("Avec avantages en nature")]
+            AvecAvantagesNature = 0,
+            [XafDisplayName("Sans avantages en nature")]
+            SansAvantagesNature = 1,
+        }
+
         // ── Disciplinaire ─────────────────────────────────────────
 
         public enum DisciplinaireStatut

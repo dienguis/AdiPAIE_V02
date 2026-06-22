@@ -25,6 +25,58 @@
     prorata du mois), validation RH puis DAF, clôture et désactivation
     du salarié.</p>
 
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div style="background:#fff8e1;border:2px solid #ffa726;border-radius:8px;padding:1em 1.5em;margin:1.5em 0;">
+        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) — Correction calcul ICCP</h2>
+
+        <p>L'<strong>Indemnité Compensatrice de Congés Payés</strong> (article 58
+        CCT Sénégal) versée au moment du départ a été corrigée pour s'aligner
+        sur la formule officielle d'allocation de congé :</p>
+
+        <table>
+            <tr><th></th><th>Avant V1.8 (sous-évalué)</th><th>Après V1.8 (corrigé)</th></tr>
+            <tr>
+                <td>Base</td>
+                <td>SalaireBase uniquement</td>
+                <td><strong>Brut imposable moyen 12 mois</strong> (inclut
+                    sursalaire, indemnités, avantages nature, etc.)</td>
+            </tr>
+            <tr>
+                <td>Diviseur</td>
+                <td>26</td>
+                <td><strong>24</strong> (= 2 j/mois × 12 = jours de congés
+                    annuels CCT)</td>
+            </tr>
+            <tr>
+                <td>Formule</td>
+                <td><code>SalaireBase × Solde / 26</code></td>
+                <td><code>(Σ brut 12 mois / 12) × Solde / 24</code></td>
+            </tr>
+        </table>
+
+        <h3 style="color:#e65100;">📊 Impact pour les forts cumuls</h3>
+        <p>Pour un salarié type DAF avec 220 jours de cumul et brut moyen
+        mensuel de 5 427 562 FCFA :</p>
+        <ul>
+            <li><strong>Avant V1.8</strong> (sur SalaireBase seul, ex: 432 000 FCFA) :
+                432 000 × 220 / 26 ≈ <strong>3,65 M FCFA</strong> (très sous-évalué)</li>
+            <li><strong>Après V1.8</strong> : 5 427 562 × 220 / 24 ≈
+                <strong>49,75 M FCFA</strong> (conforme CCT Art. 58)</li>
+        </ul>
+
+        <p>⚠️ <strong>Important</strong> : pour les dossiers d'offboarding déjà
+        clôturés avant V1.8, le calcul reste à l'ancienne valeur (pas de
+        recalcul rétroactif). Si nécessaire, rouvrir le dossier et relancer
+        "Calculer Solde Tout Compte".</p>
+
+        <h3 style="color:#e65100;">📋 Cas DAF / forts cumuls</h3>
+        <p>Pratique ELTON validée : les salariés à forts cumuls (DAF, top
+        management) ne touchent pas leur cumul en cours de carrière. Ils le
+        conservent et le perçoivent en bloc <strong>au moment du départ
+        retraite</strong> via l'ICCP calculée dans le STC.</p>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
     <div class="toc">
         <strong>📑 Étapes du processus</strong>
         <ol>

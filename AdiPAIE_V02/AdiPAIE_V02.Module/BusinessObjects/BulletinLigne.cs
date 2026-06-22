@@ -19,6 +19,22 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     [RuleCriteria("BL_Montants_NonNegatifs", DefaultContexts.Save,
         "Base >= 0 AND Montant >= 0 AND MontantEmployeur >= 0",
         CustomMessageTemplate = "Les montants d'une ligne de bulletin ne peuvent pas être négatifs.")]
+    // ─────────────────────────────────────────────────────────────
+    // V1.8 — Unicité (Bulletin, Rubrique)
+    // Une même rubrique ne peut apparaître qu'une seule fois sur un
+    // bulletin donné. Empêche les duplications accidentelles, notamment
+    // via le popup "Saisir un congé" qui pourrait sinon créer plusieurs
+    // lignes CONGE_PAYE / ICCP avec des motifs différents et cumuler à
+    // tort l'allocation. Pour modifier un montant, supprimer la ligne
+    // existante puis re-saisir, ou éditer directement la ligne.
+    // ─────────────────────────────────────────────────────────────
+    [RuleCombinationOfPropertiesIsUnique(
+        "BulletinLigne_Bulletin_Rubrique_Unique", DefaultContexts.Save,
+        "Bulletin;Rubrique",
+        CustomMessageTemplate =
+            "Une ligne avec la rubrique « {Rubrique} » existe déjà sur ce bulletin. " +
+            "Pour modifier le montant, éditez la ligne existante. Pour la remplacer, " +
+            "supprimez d'abord l'ancienne ligne puis créez la nouvelle.")]
     [Appearance(
     "BL_Disable_All_When_Not_Manual",
     // ➜ ligne non manuelle = grisée (lecture seule)

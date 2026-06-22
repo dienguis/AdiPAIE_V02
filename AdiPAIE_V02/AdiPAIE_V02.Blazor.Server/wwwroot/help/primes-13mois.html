@@ -48,6 +48,7 @@
             <li><a href="#m13-stc">13ième mois — Départ en cours d'année (STC)</a></li>
             <li><a href="#gratif-regles">Gratification — Règles & workflow</a></li>
             <li><a href="#gratif-saisie">Gratification — Étape par étape</a></li>
+            <li><a href="#gratif-stc">Gratification — Départ en cours d'année (STC)</a></li>
             <li><a href="#cas">Cas pratiques chiffrés (validés RH)</a></li>
             <li><a href="#faq">FAQ</a></li>
         </ol>
@@ -180,21 +181,62 @@
 
     <p>Si un salarié quitte l'entreprise en cours d'année (démission, licenciement,
     retraite, décès), son 13ième prorata est calculé <strong>à la date de sortie</strong> et
-    versé sur le bulletin de STC (Solde de Tout Compte), <strong>pas en décembre</strong>.</p>
+    versé sur le <strong>Solde de Tout Compte</strong>, <strong>pas en décembre</strong>.</p>
 
-    <p>Le service détecte automatiquement les sortants et les exclut de la liste
-    de décembre. Le calcul prorata est effectué via
-    <code>TreiziemeMoisService.CalculerProrataSTC()</code> avec :</p>
+    <h3>Workflow concret</h3>
+    <div class="workflow">
+        <div class="box">📂 Créer<br>DossierOffboarding</div>
+        <span class="arrow">→</span>
+        <div class="box">📅 Renseigner<br>DateSortie</div>
+        <span class="arrow">→</span>
+        <div class="box">💰 Calculer 13ième<br>prorata STC</div>
+        <span class="arrow">→</span>
+        <div class="box">✅ Indemnité<br>incluse dans<br>Total STC</div>
+    </div>
+
+    <h3>Étape par étape</h3>
+    <ol>
+        <li>Aller dans <strong>Gestion du personnel → Dossiers de départ</strong></li>
+        <li>Créer un nouveau dossier offboarding pour le salarié sortant</li>
+        <li>Renseigner :
+            <ul>
+                <li><strong>Salarié</strong> = X</li>
+                <li><strong>DateDebut</strong> = date de notification (démission/licenciement)</li>
+                <li><strong>DateSortie</strong> = date effective de sortie (ex 30/06/2026)</li>
+            </ul>
+        </li>
+        <li>Cliquer le bouton 💰 <strong>« Calculer 13ième prorata STC »</strong> dans la toolbar du dossier</li>
+        <li>Le service calcule automatiquement :
+            <ul>
+                <li><code>BrutRecurrent</code> = BR du dernier bulletin avant DateSortie (mai)</li>
+                <li><code>MoisPresence</code> = nombre de bulletins de l'année (6 si janv→juin)</li>
+                <li><code>Montant prorata</code> = BR × 6 ÷ 12</li>
+            </ul>
+        </li>
+        <li>Le champ <strong>Indemnité 13ième mois prorata</strong> du dossier est renseigné</li>
+        <li>Un <code>TreiziemeMois</code> est créé avec <code>EstSurSTC = true</code> pour traçabilité</li>
+        <li>Le <strong>TOTAL SOLDE DE TOUT COMPTE</strong> inclut maintenant le 13ième</li>
+        <li>Suivre le workflow normal du dossier : SoldeCalculé → ValidéRH → ValidéDAF → Clôturé</li>
+    </ol>
+
+    <h3>Garde-fous</h3>
     <ul>
-        <li><code>EstSurSTC = true</code> (marqueur)</li>
-        <li><code>BrutRecurrent</code> = BR du dernier bulletin avant sortie</li>
-        <li><code>MoisPresence</code> = mois travaillés dans l'année</li>
-        <li><code>Montant</code> = BR × MoisPresence ÷ 12</li>
+        <li>Si <strong>aucun bulletin</strong> dans l'année → action bloquée, message clair</li>
+        <li>Si dossier déjà <strong>Clôturé</strong> → recalcul refusé</li>
+        <li><strong>Idempotent</strong> : recliquer l'action met à jour la valeur sans dupliquer</li>
+        <li>Le batch de décembre <strong>exclut automatiquement les sortants</strong> (IsActif = false), donc pas de doublon possible</li>
     </ul>
 
-    <p><em>NB :</em> Le déclencheur exact (action manuelle, événement DateSortie, etc.)
-    sera spécifié dans une future version. À ce stade, il faut appeler le service
-    manuellement avant de finaliser le STC.</p>
+    <h3>Exemple chiffré</h3>
+    <p>Moussa NDIAYE démissionne le 30/06/2026.</p>
+    <ul>
+        <li>Brut récurrent mai 2026 : <strong>550 000 FCFA</strong></li>
+        <li>Bulletins janvier à juin : <strong>6 mois</strong></li>
+        <li>Prorata 13ième : <code>550 000 × 6 / 12 = <strong>275 000 FCFA</strong></code></li>
+    </ul>
+    <p>Le STC contiendra : indemnité congés + indemnité préavis + salaire prorata juin +
+    <strong>275 000 FCFA</strong> (13ième prorata) + éventuellement gratifications prorata
+    (voir section suivante).</p>
 
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <h2 id="gratif-regles">🎉 Gratification — Règles & workflow</h2>
@@ -265,6 +307,70 @@
         <li>La gratification passe en <span class="badge b-vert">IntégréeBulletin</span></li>
         <li>Tous les champs deviennent en lecture seule (sauf le passage final en Payée)</li>
     </ul>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="gratif-stc">🚪 Gratification — Départ en cours d'année (STC)</h2>
+
+    <p>Cas typique : le DG a décidé d'une gratification (résultats N-1, fin
+    d'année, bonus performance) pour un salarié. RH a saisi la gratification,
+    le DAF l'a validée, mais le bulletin du mois cible n'est pas encore créé
+    (ex : gratif fin d'année prévue pour décembre, le salarié part en juin).</p>
+
+    <p>Dans ce cas, la gratification doit être <strong>versée au prorata</strong> sur le
+    Solde de Tout Compte (cohérence avec la règle du 13ième mois).</p>
+
+    <h3>Workflow concret</h3>
+    <div class="workflow">
+        <div class="box">📂 DossierOffboarding<br>du salarié</div>
+        <span class="arrow">→</span>
+        <div class="box">💰 Calculer gratifications<br>prorata STC</div>
+        <span class="arrow">→</span>
+        <div class="box">✅ Gratifications<br>marquées IntegreeBulletin<br>+ inscrites au STC</div>
+    </div>
+
+    <h3>Étape par étape</h3>
+    <ol>
+        <li>Pré-requis : les gratifications du salarié doivent être en statut
+            <span class="badge b-bleu">Validée DAF</span> (validées mais non encore intégrées)</li>
+        <li>Sur le dossier d'offboarding du salarié, cliquer le bouton
+            💰 <strong>« Calculer gratifications prorata STC »</strong></li>
+        <li>Le service :
+            <ul>
+                <li>Liste toutes les gratifications <code>ValideeDAF</code> du salarié pour l'année</li>
+                <li>Pour chacune : applique le prorata <code>MontantCalcule × MoisPresence ÷ 12</code></li>
+                <li>Somme totale → inscrite dans <strong>Indemnité gratifications prorata</strong> du dossier</li>
+                <li>Marque les gratifications concernées comme <span class="badge b-vert">IntégréeBulletin</span></li>
+                <li>Ajoute un commentaire détaillant le calcul prorata</li>
+            </ul>
+        </li>
+        <li>Le <strong>TOTAL SOLDE DE TOUT COMPTE</strong> inclut désormais les gratifications</li>
+    </ol>
+
+    <h3>Garde-fous</h3>
+    <ul>
+        <li>Si <strong>aucune gratification ValideeDAF</strong> → indemnité = 0, message info</li>
+        <li>Si dossier déjà <strong>Clôturé</strong> → action refusée</li>
+        <li>Les gratifications déjà <code>IntegreeBulletin</code> ne sont pas reproratisées (idempotent)</li>
+        <li>Si le batch d'intégration mensuelle tourne après le STC : la gratification est déjà
+            <code>IntegreeBulletin</code> → pas de doublon, pas d'intégration au bulletin standard</li>
+    </ul>
+
+    <h3>Exemple chiffré</h3>
+    <p>Fatou SOW démissionne le 30/06/2026.</p>
+    <ul>
+        <li>Le DG avait décidé une gratification de fin d'année : 1,5 × BR (= 420 000 × 1,5 = 630 000 FCFA)</li>
+        <li>RH avait saisi, DAF avait validé → statut <code>ValideeDAF</code></li>
+        <li>Bulletins janvier à juin : <strong>6 mois</strong></li>
+        <li>Prorata gratification : <code>630 000 × 6 / 12 = <strong>315 000 FCFA</strong></code></li>
+    </ul>
+    <p>Le STC contiendra ainsi 315 000 FCFA de gratification prorata, en plus du 13ième
+    prorata et des autres indemnités classiques.</p>
+
+    <h3>Cas avec plusieurs gratifications</h3>
+    <p>Si le salarié a plusieurs gratifications ValideeDAF dans l'année (ex : prime
+    bilan trimestriel + prime fin d'année), elles sont <strong>toutes</strong> proratisées
+    et leur somme est inscrite dans l'indemnité STC. Le rapport affiché à l'écran
+    détaille chacune (multiplicateur, mois cible, prorata calculé).</p>
 
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <h2 id="cas">🧮 Cas pratiques chiffrés (validés RH)</h2>

@@ -21,7 +21,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     /// Workflow : Initié → EnCours → SoldeCalculé → ValidéRH → ValidéDAF → Clôturé
     ///
     /// Calcul solde de tout compte (droit sénégalais) :
-    ///   - Congés non pris : SoldeDisponible × (SalaireBase / 26)
+    ///   - V1.8 : Indemnité Compensatrice de Congés Payés (ICCP) — CCT Art. 58
+    ///     = (Σ Brut imposable 12 derniers mois / 12) × CongesDisponibles / 24
+    ///     (anciennement SalaireBase × jours / 26 — sous-évalué)
     ///   - Indemnité de préavis (si licenciement)
     ///   - Indemnité de licenciement (si licenciement > 1 an)
     ///   - Dernier salaire au prorata
@@ -222,12 +224,46 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         decimal autresElements;
 
+        // V1.7.2 — Prorata 13ième mois sur STC départ en cours d'année
+        // = BrutRecurrent × MoisPresence / 12 (cf. règle RH ELTON validée)
+        // Renseigné via l'action "Calculer 13ième prorata STC".
+        [ModelDefault("DisplayFormat", "N0")]
+        [XafDisplayName("Indemnité 13ième mois prorata (FCFA)")]
+        [VisibleInListView(false)]
+        [ToolTip("Calculée automatiquement via l'action « Calculer 13ième prorata STC ». " +
+                 "Formule : Brut récurrent × Mois de présence dans l'année ÷ 12.")]
+        public decimal Indemnite13iemeMois
+        {
+            get => indemnite13iemeMois;
+            set => SetPropertyValue(nameof(Indemnite13iemeMois), ref indemnite13iemeMois, value);
+        }
+        decimal indemnite13iemeMois;
+
+        // V1.7.2 — Prorata des gratifications validées DAF mais non encore
+        // intégrées au bulletin (cas typique : DG a décidé une gratification
+        // sur résultats N-1, le salarié part avant le versement).
+        // Formule : Σ Gratification.MontantCalcule × MoisPresence / 12
+        // Renseigné via l'action "Calculer gratifications prorata STC".
+        [ModelDefault("DisplayFormat", "N0")]
+        [XafDisplayName("Indemnité gratifications prorata (FCFA)")]
+        [VisibleInListView(false)]
+        [ToolTip("Calculée automatiquement via l'action « Calculer gratifications " +
+                 "prorata STC ». Prend les gratifications validées DAF non " +
+                 "encore intégrées, applique le prorata sur les mois de présence.")]
+        public decimal IndemniteGratifications
+        {
+            get => indemniteGratifications;
+            set => SetPropertyValue(nameof(IndemniteGratifications), ref indemniteGratifications, value);
+        }
+        decimal indemniteGratifications;
+
         [NonPersistent]
         [ModelDefault("DisplayFormat", "N0")]
         [XafDisplayName("TOTAL SOLDE DE TOUT COMPTE (FCFA)")]
         public decimal TotalSoldeToutCompte =>
             IndemniteCongés + IndemnitePreavis + IndemniteLicenciement
-            + SalaireProrata + AutresElements;
+            + SalaireProrata + Indemnite13iemeMois + IndemniteGratifications
+            + AutresElements;
 
         // ── Statut ────────────────────────────────────────────────────
         [XafDisplayName("Statut")]
@@ -343,8 +379,20 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         public void CalculerSoldeToutCompte()
         {
-            // 1. Indemnité congés non pris = jours × (salaire / 26)
-            var tauxJournalier = SalaireBase > 0 ? SalaireBase / 26m : 0m;
+            // ─────────────────────────────────────────────────────────────
+            // 1. INDEMNITÉ COMPENSATRICE DE CONGÉS PAYÉS (ICCP)
+            //    V1.8 — Conforme CCT Sénégal Art. 58 + pratique ELTON validée
+            //    Formule : (Σ Brut imposable 12 derniers mois / 12) × Solde / 24
+            //
+            //    Le diviseur 24 correspond aux "jours de congés concernés"
+            //    CCT Art. 57 (= 2j × 12 mois). Aligné sur le calcul de
+            //    l'allocation de congé en cours de carrière (cohérence
+            //    paie / provision / ICCP).
+            // ─────────────────────────────────────────────────────────────
+            decimal brutMoyen12Mois = CalculerBrutImposableMoyen12Mois();
+            decimal tauxJournalier = brutMoyen12Mois > 0
+                ? brutMoyen12Mois / 24m
+                : 0m;
             IndemniteCongés = Math.Round(CongesDisponibles * tauxJournalier, 0);
 
             // 2. Indemnité de préavis (si licenciement)
@@ -380,6 +428,61 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
                 (SalaireBase + IndemniteLogement) / 30m * joursSortie, 0);
 
             Statut = OffboardingStatut.SoldeCalcule;
+        }
+
+        /// <summary>
+        /// V1.8 — Calcule la moyenne du brut imposable du salarié sur les
+        /// 12 derniers mois précédant la date de sortie.
+        ///
+        /// Logique alignée sur <c>ProvisionCongesService</c> :
+        ///   Cumul = Σ (BulletinLigne.Montant) où Rubrique.BrutFiscal = true
+        ///                                    ET TypeCalcul = Gain
+        ///   Moyenne = Cumul / 12
+        ///
+        /// Cas du salarié avec moins de 12 mois d'historique : on divise
+        /// quand même par 12 (réponse RH du 10/06/2026 :
+        /// "indemnité calculée sur la base du brut perçu sur la période
+        /// de référence / 12"). Cela traduit le fait que les droits acquis
+        /// sont eux-mêmes proportionnels à la durée travaillée.
+        /// </summary>
+        private decimal CalculerBrutImposableMoyen12Mois()
+        {
+            if (Salarie == null) return 0m;
+
+            // Période de référence : 12 mois rolling juste avant DateSortie
+            var debut = DateSortie.AddMonths(-12);
+            var fin = DateSortie;
+            // Bulletin n'a pas de champ Date persistant — on filtre via Annee + Mois
+            // (sortable en (Annee*100 + Mois) pour ordre chronologique)
+            int debutCle = debut.Year * 100 + debut.Month;
+            int finCle = fin.Year * 100 + fin.Month;
+
+            var bulletins = new XPQuery<Bulletin>(Session)
+                .Where(b => b.Salarie != null
+                         && b.Salarie.Oid == Salarie.Oid)
+                .ToList()
+                .Where(b =>
+                {
+                    int cle = b.Annee * 100 + b.Mois;
+                    return cle >= debutCle && cle < finCle;
+                })
+                .ToList();
+
+            if (bulletins.Count == 0) return 0m;
+
+            decimal cumulBrut = 0m;
+            foreach (var b in bulletins)
+            {
+                foreach (var l in b.Lignes)
+                {
+                    bool estBrutFiscal = l.Rubrique?.BrutFiscal ?? false;
+                    if (estBrutFiscal &&
+                        l.TypeCalcul == RubriqueTypeCalcul.Gain)
+                        cumulBrut += l.Montant;
+                }
+            }
+
+            return Math.Round(cumulBrut / 12m, 0);
         }
 
         public override string ToString() => DisplayName;

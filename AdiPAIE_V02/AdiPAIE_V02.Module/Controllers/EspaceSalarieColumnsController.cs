@@ -54,8 +54,16 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             base.OnActivated();
 
-            // Seulement pour les salariés connectés (pas admin pur)
-            if (!EspaceSalarieHelper.EstSalarieConnecte(ObjectSpace))
+            // V1.8 — Bug corrigé : on utilisait EstSalarieConnecte qui retournait
+            // true pour TOUT user lié à un Salarie (même les managers RH/DAF/DG/Admin
+            // qui ont leur Email = UserName). Conséquence : les colonnes
+            // "RH" du Bulletin_ListView (BrutFiscal, BrutSocial, Matricule,
+            // FullName, TRIMF_Mois) étaient masquées pour ces managers.
+            //
+            // Maintenant on utilise DoitRestreindreEspaceSalarie qui exclut les
+            // rôles managers (RH/DAF/DG/Admin) du masquage. Un salarié pur garde
+            // bien sa vue épurée.
+            if (!EspaceSalarieHelper.DoitRestreindreEspaceSalarie(ObjectSpace))
                 return;
 
             // Récupérer l'ID de la vue courante

@@ -474,7 +474,9 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             catch { /* Ne pas bloquer le démarrage si l'auto-fill échoue */ }
 
             // 2) Seed conditionnel : seulement si l’option UI est cochée
-            if (p.ActiverSeedDemo)
+            // V1.7.2 — Propriété renommée ActiverSeedDemo → ActiverSeedReferentiel
+            // (colonne SQL inchangée grâce à [Persistent("ActiverSeedDemo")]).
+            if (p.ActiverSeedReferentiel)
             {
                 // IMPORTANT : SeedDemoData doit être idempotent (ne rien dupliquer)
                 SeedDemoData(os);
@@ -516,7 +518,8 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 // ==================
                 var tBrute = EnsureTypeRef(os, "BRUTE", "Éléments bruts", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, true, true);
                 var tIndImpos = EnsureTypeRef(os, "INDEM_IMPOSA", "Indemnités imposables", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, true, true);
-                var tAvNatureImpos = EnsureTypeRef(os, "AvNatImpos", "Av Nature Impos", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, true, false);
+                // V1.7.2 — Code en MAJUSCULES uniquement (regex [A-Z0-9_]{2,20})
+                var tAvNatureImpos = EnsureTypeRef(os, "AV_NAT_IMPOS", "Av Nature Impos", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, true, false);
                 var tIndNonImp = EnsureTypeRef(os, "INDEM_NON_IMPOSA", "Indemnités non imposables", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, false, true);
                 var tCotSoc = EnsureTypeRef(os, "COTSOC", "Cotisations sociales", gCotSocial, RubriqueTypeCalcul.Retenue, SensAssiette.Moins, false, false);
                 var tCotFis = EnsureTypeRef(os, "COTFISC", "Cotisation fiscales", gRetFiscal, RubriqueTypeCalcul.Retenue, SensAssiette.Moins, false, false);
@@ -1332,16 +1335,24 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         }
 
         // ===========================
-        // V1.1 — Lecture du flag SeedDemoData (sans dépendance NuGet)
+        // V1.7.2 — Safe by default : le seed démo est DÉSACTIVÉ par défaut
         // ===========================
         /// <summary>
-        /// Détermine si le seed démo doit être créé au démarrage.
-        /// Sources lues dans cet ordre (priorité décroissante) :
-        ///   1. Variable d'environnement <c>DASHBOARDS_SEED_DEMO</c>
-        ///   2. Bloc "Dashboards":"SeedDemoData" dans appsettings.json (parse simple)
-        ///   3. Défaut : TRUE (utile en dev)
-        /// En prod : positionner DASHBOARDS_SEED_DEMO=false dans les variables
-        /// système OU mettre <c>"SeedDemoData": false</c> dans appsettings.json.
+        /// Détermine si le seed démo (DEMO_*) doit être créé au démarrage.
+        ///
+        /// ⚠️ V1.7.2 — CHANGEMENT DE COMPORTEMENT :
+        ///   Auparavant le seed démo était ACTIF par défaut (utile en dev mais
+        ///   dangereux en prod). Désormais il est DÉSACTIVÉ par défaut pour
+        ///   éviter toute pollution accidentelle de la base de production.
+        ///
+        /// Pour ACTIVER explicitement le seed démo (dev/QA uniquement) :
+        ///   1. Variable d'environnement <c>DASHBOARDS_SEED_DEMO=true</c>
+        ///      OU
+        ///   2. Bloc <c>"SeedDemoData": true</c> dans appsettings.json
+        ///
+        /// En PROD : ne rien faire. Le défaut est sûr — aucune donnée DEMO_*
+        /// ne sera jamais réinjectée même si on oublie de configurer.
+        ///
         /// Pas de dépendance Microsoft.Extensions.Configuration → évite d'ajouter
         /// un nouveau package NuGet au projet Module.
         /// </summary>
@@ -1349,29 +1360,30 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         {
             try
             {
-                // Priorité 1 : variable d'environnement
+                // Priorité 1 : variable d'environnement (opt-in explicite)
                 var env = Environment.GetEnvironmentVariable("DASHBOARDS_SEED_DEMO");
                 if (!string.IsNullOrWhiteSpace(env))
                     return env.Equals("true", StringComparison.OrdinalIgnoreCase);
 
-                // Priorité 2 : appsettings.json (parsing simple par regex)
+                // Priorité 2 : appsettings.json (opt-in explicite via "SeedDemoData": true)
                 var basePath = System.IO.Directory.GetCurrentDirectory();
                 var path     = System.IO.Path.Combine(basePath, "appsettings.json");
                 if (System.IO.File.Exists(path))
                 {
                     var content = System.IO.File.ReadAllText(path);
-                    // Recherche tolérante : "SeedDemoData": false (avec/sans espaces)
+                    // Recherche tolérante : "SeedDemoData": true (avec/sans espaces)
                     if (System.Text.RegularExpressions.Regex.IsMatch(
                             content,
-                            @"""SeedDemoData""\s*:\s*false",
+                            @"""SeedDemoData""\s*:\s*true",
                             System.Text.RegularExpressions.RegexOptions.IgnoreCase))
-                        return false;
+                        return true;
                 }
 
-                // Défaut
-                return true;
+                // Défaut V1.7.2 : DÉSACTIVÉ (production-safe)
+                // Aucun DEMO_* ne sera créé sauf opt-in explicite ci-dessus.
+                return false;
             }
-            catch { return true; }   // fail open en dev
+            catch { return false; }   // fail closed : sûr par défaut
         }
 
         // ===========================

@@ -193,35 +193,68 @@ namespace AdiPAIE_V02.Module.Controllers
 
         /// <summary>
         /// Renvoie true si l'utilisateur doit être restreint dans l'espace salarié.
-        /// C'est-à-dire : il est lié à un salarié ET il n'a PAS le rôle RH.
+        /// C'est-à-dire : il est lié à un salarié ET il n'a PAS de rôle "manager"
+        /// (RH/DAF/DG/Admin).
         ///
         /// L'employé (ex: dienguis) reste restreint dans "Mon espace".
-        /// Le RH (rh@elton.sn) n'est jamais restreint (besoin d'accès complet
-        /// aux vues Paie même s'il est aussi lié à un salarié).
+        /// Les managers ne sont jamais restreints (besoin d'accès complet
+        /// aux vues Paie même s'ils sont aussi liés à un salarié).
+        ///
+        /// V1.8 — Utilise SecuritySystem.CurrentUser (toujours dispo dans la
+        /// session XAF) au lieu de FindUserByName(objectSpace, userName) qui
+        /// peut échouer silencieusement en SecuredObjectSpace combo RH+Employé.
+        /// Conséquence : le filtre Bulletin se déclenchait à tort pour un user
+        /// RH+Employé qui se voyait alors limité à ses propres bulletins.
         /// </summary>
         public static bool DoitRestreindreEspaceSalarie(IObjectSpace objectSpace)
         {
             if (!EstSalarieConnecte(objectSpace)) return false;
 
-            if (objectSpace == null) return false;
+            // V1.8 — Liste des rôles "managers" qui ne doivent jamais être
+            // restreints à leurs propres données, même s'ils sont aussi
+            // liés à un salarié.
+            var rolesManagers = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                { "RH", "DAF", "DG", "Admin", "Administrators", "DRH" };
 
-            var userName = SecuritySystem.CurrentUserName;
-            if (string.IsNullOrEmpty(userName)) return false;
+            // V1.8 — Lecture directe via SecuritySystem.CurrentUser :
+            // c'est l'objet user en session, pas besoin de re-requêter la BDD.
+            // Disponible quels que soient les droits Read sur ApplicationUser.
+            try
+            {
+                var currentUser = SecuritySystem.CurrentUser
+                    as DevExpress.Persistent.BaseImpl.PermissionPolicy.PermissionPolicyUser;
+                if (currentUser?.Roles != null)
+                {
+                    bool isManager = currentUser.Roles
+                        .OfType<DevExpress.Persistent.BaseImpl.PermissionPolicy.PermissionPolicyRole>()
+                        .Any(r => !string.IsNullOrEmpty(r.Name)
+                               && rolesManagers.Contains(r.Name));
+                    if (isManager) return false;
+                }
+            }
+            catch
+            {
+                // Si on n'arrive pas à lire les rôles via SecuritySystem,
+                // on tente le fallback historique via FindUserByName.
+            }
 
-            var user = FindUserByName(objectSpace, userName);
+            // Fallback historique (peut échouer en SecuredObjectSpace) :
+            // si on n'a pas pu déterminer les rôles par SecuritySystem, on
+            // tente une lecture en base.
+            try
+            {
+                var userName = SecuritySystem.CurrentUserName;
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    var user = FindUserByName(objectSpace, userName);
+                    if (user != null && user.Roles.Any(r => rolesManagers.Contains(r.Name)))
+                        return false;
+                }
+            }
+            catch { /* non bloquant */ }
 
-            // Si on ne peut pas lire l'ApplicationUser (sécurité XAF : le rôle Employe
-            // n'a pas de permission Read sur ApplicationUser), on RESTREINT par défaut.
-            // C'est le comportement sûr : un salarié dont on ne peut pas vérifier
-            // les rôles voit uniquement ses propres données.
-            // Les utilisateurs RH/Admin ont AllowAllByDefault ou IsAdministrative=true,
-            // donc FindUserByName les trouvera toujours.
-            if (user == null) return true;
-
-            // Le rôle RH a besoin d'un accès complet — ne pas restreindre
-            if (user.Roles.Any(r => r.Name == "RH"))
-                return false;
-
+            // Par défaut : restreindre (l'user est salarié et on ne lui a
+            // pas détecté de rôle manager — c'est un employé "lambda").
             return true;
         }
 

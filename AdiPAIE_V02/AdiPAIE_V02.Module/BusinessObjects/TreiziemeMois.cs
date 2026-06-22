@@ -1,4 +1,5 @@
 using AdiPAIE_V02.Module.Domain;
+using AdiPAIE_V02.Module.Services;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
@@ -10,6 +11,7 @@ using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
@@ -71,6 +73,45 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             DateCalcul = DateTime.Now;
             try { CalculePar = DevExpress.ExpressApp.SecuritySystem.CurrentUserName; } catch { }
             EstSurSTC = false;
+
+            // V1.7.2 — Initialiser l'année sur la PeriodePaie ouverte
+            // (évite la saisie sur une année invalide / clôturée).
+            // Fallback : année courante.
+            var periodeOuverte = PeriodePaieHelper.GetPeriodeOuverte(Session);
+            Annee = periodeOuverte?.Annee ?? DateTime.Today.Year;
+        }
+
+        // ═════════════════════════════════════════════════════════════
+        // V1.7.2 — Contrainte stricte sur la période ouverte
+        // Le 13ième s'intègre au bulletin de décembre.
+        // → La période de paie (Annee, 12) DOIT exister et être Ouverte.
+        //
+        // Exceptions :
+        //   - Records déjà IntegreeBulletin : figés, plus de revalidation
+        //   - Records Annule : autorisation à tout moment
+        //   - EstSurSTC : géré par STC service (calcul prorata départ)
+        // ═════════════════════════════════════════════════════════════
+        protected override void OnSaving()
+        {
+            base.OnSaving();
+            if (IsDeleted) return;
+            if (Statut == TreiziemeMoisStatut.IntegreeBulletin) return;
+            if (Statut == TreiziemeMoisStatut.Annule) return;
+            if (EstSurSTC) return;
+
+            var periode = Session.Query<PeriodePaie>()
+                .FirstOrDefault(p => p.Annee == Annee && p.Mois == 12);
+
+            if (periode == null)
+                throw new DevExpress.ExpressApp.UserFriendlyException(
+                    $"Aucune période de paie n'existe pour décembre {Annee}. " +
+                    $"Créez et ouvrez la période avant de calculer le 13ième mois.");
+
+            if (periode.Statut != PeriodePaieStatut.Ouverte)
+                throw new DevExpress.ExpressApp.UserFriendlyException(
+                    $"La période de paie de décembre {Annee} doit être OUVERTE " +
+                    $"pour calculer le 13ième mois (statut actuel : {periode.Statut}). " +
+                    $"Ouvrez la période avant la saisie.");
         }
 
         // ─────────────────────────────────────────────────────────

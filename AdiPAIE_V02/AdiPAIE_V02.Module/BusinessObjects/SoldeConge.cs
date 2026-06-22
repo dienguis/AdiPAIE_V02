@@ -153,6 +153,55 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(Statut), ref statut, value);
         }
 
+        // ═════════════════════════════════════════════════════════════════
+        //  V1.8 — Traçabilité initialisation manuelle (mise en prod)
+        //
+        //  À la mise en production, le RH saisit le solde cumulé connu de
+        //  chaque salarié à une date donnée (qui peut varier d'un salarié
+        //  à l'autre selon le fichier source Excel).
+        //
+        //  Les 3 champs ci-dessous permettent :
+        //   - de tracer la DATE à laquelle le solde a été constaté
+        //   - de marquer les soldes "à vérifier" (16 lignes bleues du
+        //     fichier Excel ELTON pour lesquels le RH ne connaît pas
+        //     la valeur)
+        //   - de tracer la source (Excel, ancien système, saisie manuelle)
+        // ═════════════════════════════════════════════════════════════════
+
+        DateTime? soldeArreteAu;
+        [XafDisplayName("Solde arrêté au")]
+        [ToolTip("Date à laquelle le solde initial a été constaté (lecture " +
+                 "directe du fichier Excel RH ou de l'ancien système). " +
+                 "Permet de connaître la date de référence du solde reporté.")]
+        public DateTime? SoldeArreteAu
+        {
+            get => soldeArreteAu;
+            set => SetPropertyValue(nameof(SoldeArreteAu), ref soldeArreteAu, value);
+        }
+
+        bool soldeAVerifier;
+        [XafDisplayName("Solde à vérifier")]
+        [ToolTip("Cocher si la valeur saisie est incertaine et doit être " +
+                 "validée ultérieurement par le RH (cas des lignes en " +
+                 "bleu du fichier Excel ELTON pour lesquelles aucun " +
+                 "solde fiable n'est connu).")]
+        public bool SoldeAVerifier
+        {
+            get => soldeAVerifier;
+            set => SetPropertyValue(nameof(SoldeAVerifier), ref soldeAVerifier, value);
+        }
+
+        string sourceInitialisation;
+        [Size(120)]
+        [XafDisplayName("Source initialisation")]
+        [ToolTip("Origine de la donnée initiale (ex: 'Excel Planning Congés 2026', " +
+                 "'Ancien système BultinMensuel', 'Saisie manuelle RH').")]
+        public string SourceInitialisation
+        {
+            get => sourceInitialisation;
+            set => SetPropertyValue(nameof(SourceInitialisation), ref sourceInitialisation, value?.Trim());
+        }
+
         // ── Collection mouvements ─────────────────────────────
         [Association("SoldeConge-Mouvements"), Aggregated]
         [XafDisplayName("Mouvements")]

@@ -25,6 +25,87 @@
     événement familial, sans solde, récupération), leur validation
     hiérarchique à 2 niveaux, et le suivi des soldes par type de congé.</p>
 
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div style="background:#fff8e1;border:2px solid #ffa726;border-radius:8px;padding:1em 1.5em;margin:1.5em 0;">
+        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) — Nouveautés majeures congés</h2>
+
+        <h3 style="color:#e65100;">📐 Formule officielle de l'indemnité de congé (CCT Sénégal Art. 57)</h3>
+        <p>L'indemnité versée quand un salarié part en congé suit désormais la
+        formule exacte définie par la Convention Collective Sénégal article 57 :</p>
+        <pre style="background:#fffefa;padding:1em;border:1px solid #ffcc80;">
+Allocation = (Σ Brut imposable 12 derniers mois ÷ 12) × (Jours dus ÷ 24)
+                          ↑                                       ↑
+                  Brut mensuel moyen           24 = jours de congés concernés
+                                                 (= 2 j/mois × 12 mois CCT)
+
+Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
+        </pre>
+        <p><strong>Exemple</strong> : pour un salarié avec brut moyen mensuel
+        de 5 427 562 FCFA et 26 jours dus (24 + 2 bonus ancienneté 16-20 ans) :</p>
+        <ul>
+            <li>Allocation = 5 427 562 × 26 / 24 = <strong>5 879 859 FCFA</strong></li>
+        </ul>
+
+        <h3 style="color:#e65100;">🎯 Bonus ancienneté — seuils inclusifs ≥</h3>
+        <table>
+            <tr><th>Ancienneté</th><th>Bonus</th><th>Exemple</th></tr>
+            <tr><td>&lt; 10 ans</td><td>0 j</td><td>9 ans, 11 mois → 0 j</td></tr>
+            <tr><td>≥ 10 ans</td><td>+1 j</td><td>10 ans pile → +1 j (inclusif)</td></tr>
+            <tr><td>≥ 15 ans</td><td>+2 j</td><td>15 ans pile → +2 j</td></tr>
+            <tr><td>≥ 20 ans</td><td>+3 j</td><td>20 ans pile → +3 j</td></tr>
+            <tr><td>≥ 25 ans</td><td><strong>+7 j</strong></td><td>convention ELTON plus favorable que CCT (+6)</td></tr>
+        </table>
+
+        <h3 style="color:#e65100;">👩 Bonus mère de famille — règles B et C uniquement</h3>
+        <ul>
+            <li><strong>Règle B</strong> — Mère &lt; 21 ans : +2 j par enfant à charge</li>
+            <li><strong>Règle C</strong> — Mère ≥ 21 ans : +2 j par enfant mineur <strong>à partir du 4e</strong></li>
+            <li>⛔ <em>L'ancienne règle A (1j/enfant&lt;14ans) a été supprimée : non conforme CCT L150</em></li>
+        </ul>
+
+        <h3 style="color:#e65100;">🖱️ Nouveau bouton "Saisir un congé" (fiche Salarié)</h3>
+        <p>Sur le DetailView d'un salarié, le RH dispose d'un nouveau bouton
+        qui ouvre un popup pour :</p>
+        <ul>
+            <li><strong>Allocation de congé</strong> : le salarié part en congé
+                → ajoute la rubrique <code>CONGE_PAYE</code> (code 23) au bulletin</li>
+            <li><strong>Rachat ICCP</strong> : compensation monétaire sans départ
+                → ajoute la rubrique <code>ICCP</code> "Indemnité de congés compensatrice"</li>
+        </ul>
+        <p>Le popup propose 2 modes de calcul :</p>
+        <ul>
+            <li><strong>AUTO</strong> : calcul automatique depuis l'historique
+                des bulletins (si ≥ 12 bulletins disponibles)</li>
+            <li><strong>MANUEL</strong> : saisie directe du montant (utile pour
+                les saisies rétroactives où AdiPAIE n'a pas l'historique)</li>
+        </ul>
+        <p><strong>Checkbox "Basculer en bulletin de congé"</strong> (cochée par défaut) :
+        quand le salarié part en congé tout le mois, supprime automatiquement
+        les rubriques de salaire normal (SB, Sursalaire, Indemnité logement,
+        Prime transport, etc.) avant d'ajouter l'indemnité de congé. Les
+        avantages en nature et les cotisations sont conservés.</p>
+
+        <h3 style="color:#e65100;">🖱️ Nouveau bouton "Saisir solde initial" (mise en prod)</h3>
+        <p>Pour la mise en production, le RH initialise le solde de chaque
+        salarié à partir du fichier Excel RH. Saisie de :</p>
+        <ul>
+            <li>Type de congé + Année</li>
+            <li>Jours reportés (peut être négatif pour les salariés ayant pris
+                des jours en avance)</li>
+            <li>Date d'arrêté du solde</li>
+            <li>Flag "à vérifier" pour les soldes incertains</li>
+            <li>Source + commentaire libre</li>
+        </ul>
+
+        <h3 style="color:#e65100;">🔒 Contrainte d'unicité Bulletin + Rubrique</h3>
+        <p>Une même rubrique ne peut désormais apparaître qu'<strong>une seule
+        fois</strong> par bulletin (ex: pas de 2 lignes CONGE_PAYE sur le
+        bulletin de mai). Empêche les doublons accidentels via le popup. Pour
+        modifier un montant existant, éditer directement la ligne dans le
+        bulletin.</p>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
     <div class="toc">
         <strong>📑 Étapes du processus</strong>
         <ol>

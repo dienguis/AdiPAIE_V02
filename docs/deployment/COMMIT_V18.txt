@@ -1,0 +1,258 @@
+V1.8 — Refonte calcul congés + ICCP + RBAC autonomes + Net hors AvNature
+
+Préparation mise en production ELTON. Refonte du calcul des indemnités de
+congé et de l'ICCP pour aligner sur la CCT Sénégal Art. 57/58 et la pratique
+réelle ELTON validée par le RH. Plus correctifs RBAC pour décombiner les rôles
+managers (RH/DAF/DG) du rôle Employé.
+
+═══════════════════════════════════════════════════════════════════════════
+BLOC A — Corrections moteur de paie (formule CCT Sénégal)
+═══════════════════════════════════════════════════════════════════════════
+
+- ProvisionCongesService : diviseur 22 → 24 (= 2 j/mois × 12 jours CCT)
+- ProvisionCongesService.CalculerBonusAnciennete : seuils inclusifs (>=)
+  + bonus 25+ ans à 7 (convention ELTON plus favorable que CCT +6)
+- ProvisionCongesService.CalculerBonusEnfants : suppression de la "règle A"
+  (1j/enfant <14ans) — pas dans CCT L150. Garde règles B et C.
+- DossierOffboarding.CalculerSoldeToutCompte : ICCP refait avec
+  (Σ brut imposable 12 mois / 12) × Solde / 24 au lieu de SalaireBase × Solde / 26
+- DossierOffboarding.CalculerBrutImposableMoyen12Mois : nouvelle méthode privée
+
+═══════════════════════════════════════════════════════════════════════════
+BLOC B — Modèle enrichi pour la mise en prod
+═══════════════════════════════════════════════════════════════════════════
+
+- SoldeConge : ajout SoldeArreteAu (DateTime?), SoldeAVerifier (bool),
+  SourceInitialisation (string)
+- ParametresPaie : ajout ModeBulletinConges (enum) + ModeBaseCFCE (enum)
+- DomainEnums : ajout enums ModeBulletinConges, ModeBaseCFCE
+- SeedService : nouvelle rubrique ICCP "Indemnité de congés compensatrice"
+  (ordre 24, après CONGE_PAYE ordre 23) avec TypeRef AV_NAT_IMPOS
+- SeedService : nouveau TypeRef AV_NAT_NON_IMP (avantages nature non imposables)
+- SeedService : AV_TEL corrigé — passe de tBrute à tAvNatureImpos
+
+═══════════════════════════════════════════════════════════════════════════
+BLOC C — Service métier + Popups UI
+═══════════════════════════════════════════════════════════════════════════
+
+- BulletinCongeService (NEW) : calcul allocation + génération lignes bulletin
+  * CalculerAllocationAuto : formule CCT (Σ brut 12 mois / 12) × jours / 24
+  * CreerLigneAllocationConge / CreerLigneRachatICCP
+  * NettoyerRubriquesSalaireMensuel : bascule bulletin mensuel → bulletin
+    de congé en supprimant SB, SURSAL, LOGT, TRANS, ANC, HS, etc.
+- SaisieCongeRequest (NEW) : DTO popup avec modes AUTO/MANUEL +
+  TypeOperation (Allocation/Rachat ICCP) + checkbox basculer en bulletin congé
+- SaisieCongeController (NEW) : action "Saisir un congé" sur fiche Salarié
+- SaisieSoldeInitialRequest (NEW) : DTO popup initialisation solde
+- SaisieSoldeInitialController (NEW) : action "Saisir solde initial"
+
+═══════════════════════════════════════════════════════════════════════════
+BLOC D — Boutons DetailView Bulletin
+═══════════════════════════════════════════════════════════════════════════
+
+- BulletinRecalcController : refactor en 2 actions distinctes
+  * "Recharger bulletin" → RecalculerDepuisParametrage (lourd, avec confirm)
+  * "Recalculer cotisations" (NEW) → RecalculerSurGrilleExistante (léger,
+    préserve les rubriques manuelles)
+- BulletinAjouterLigneController (NEW) : workaround bug XAF Blazor sur
+  collections Aggregated — action "Ajouter une ligne" dans la barre Edit
+  qui ouvre un popup BulletinLigne avec Bulletin pré-rempli
+
+═══════════════════════════════════════════════════════════════════════════
+BLOC E — Fixes RBAC critiques
+═══════════════════════════════════════════════════════════════════════════
+
+- HideEspaceSalarieController (NEW) : masque "Mon espace" pour RH/DAF/DG
+  via modification runtime du Model.NavigationItems (le Deny déclaratif
+  XAF Blazor ne fonctionne pas pour les sub-items quand un autre rôle
+  Allow). OnDeactivated restore Visible=true pour éviter persistance dans
+  ModelDifference user.
+- InitialiserRolesGRHController : permissions ajoutées
+  * RH : BulletinLigne rw → rwcd ; CongeDemande rw → rwcd ;
+    DemandeDeplacement rw → rwcd
+  * DAF : CongeDemande r → rwcd ; DemandeAttestation rwcd (nouveau) ;
+    DemandeDeplacement r → rwcd
+  * DG : CongeDemande r → rwcd ; DemandeAttestation r → rwcd ;
+    DemandeDeplacement r → rwcd
+- EspaceSalarieHelper.DoitRestreindreEspaceSalarie : utilise
+  SecuritySystem.CurrentUser (au lieu de FindUserByName qui peut échouer
+  en SecuredObjectSpace combo RH+Employé)
+- BulletinEspaceSalarieReadOnlyController : EstSalarieConnecte →
+  DoitRestreindreEspaceSalarie (le DetailView Bulletin passait en
+  lecture seule pour les managers liés à un Salarié — bug critique)
+- EspaceSalarieColumnsController : même fix (masquait les colonnes
+  Bulletin_ListView pour les managers)
+
+═══════════════════════════════════════════════════════════════════════════
+BLOC F — Modèle et UI
+═══════════════════════════════════════════════════════════════════════════
+
+- BulletinLigne : RuleCombinationOfPropertiesIsUnique sur (Bulletin, Rubrique)
+  → empêche les double-saisies de rubriques sur un même bulletin
+- Bulletin.CalculerBaseCFCE_SelonParametres : nouvelle méthode qui lit
+  ParametresPaie.ModeBaseCFCE pour déterminer si la CFCE inclut ou non
+  les avantages en nature (configurable par le DAF)
+- Bulletin.RecalculerTotauxDepuisLignes : V1.8.1 — Net APayer exclut
+  maintenant les avantages en nature (gainsAvantagesNature séparé).
+  Avant : Net incluait les 20 000 d'avantage à tort.
+- Bulletin.UpdateSyntheseFiscale : V1.8.1 — Cumuls YTD
+  (BrutFiscal/BrutSocial/NetAPayer) calculés via LINQ XPO + valeur
+  courante en mémoire au lieu de Session.Evaluate (qui ne voit pas
+  les modifs non commitées)
+- ParametresPaie : format affichage IMAB et Réduction familiale corrigés
+  (p0 → N0, valeur en base inchangée, juste affichage 30 % au lieu de 3 000 %)
+
+═══════════════════════════════════════════════════════════════════════════
+BLOC G — Help mis à jour (encadrés orange "V1.8 juin 2026")
+═══════════════════════════════════════════════════════════════════════════
+
+- wwwroot/help/conges.html : formule CCT Art. 57, bonus ancienneté/mère,
+  popups saisir solde initial + saisir un congé, contrainte d'unicité
+- wwwroot/help/prets.html : procédure reprise prêt en cours (taux=0%,
+  PrincipalConstant) + exemple chiffré
+- wwwroot/help/parametrage.html : ModeBaseCFCE, ModeBulletinConges,
+  correctifs format affichage, rubrique ICCP
+- wwwroot/help/offboarding.html : correction ICCP (brut moyen 12 mois × solde / 24)
+  + impact pour forts cumuls (DAF 220 j)
+
+═══════════════════════════════════════════════════════════════════════════
+BLOC H — Déploiement
+═══════════════════════════════════════════════════════════════════════════
+
+- docs/deployment/Deploy-AdiPAIE-V18.ps1 (NEW) : script PowerShell
+  automatisant les 7 étapes (vérifs → backup config + BDD → stop IIS →
+  copie build → restore config → cleanup cache → restart). Mode -DryRun
+  disponible. Procédure de rollback documentée.
+- docs/deployment/COMMIT_V18.txt (NEW) : ce fichier (message de commit)
+- docs/dashboards/MISSION_STATE.md : nouvelle section V1.8 (~290 lignes)
+  avec contexte, décisions métier, procédure déploiement, tests validés,
+  issues résiduelles V1.9
+
+═══════════════════════════════════════════════════════════════════════════
+DÉCISIONS MÉTIER VALIDÉES AVEC LE RH
+═══════════════════════════════════════════════════════════════════════════
+
+- Formule indemnité = (Σ brut 12 mois / 12) × jours / 24
+- Diviseur provision comptable = 24 (aligné sur paie réelle)
+- Bonus 25+ ans = +7 (convention ELTON plus favorable que CCT +6)
+- Bonus mère règle A (1j/<14ans) supprimée (pas dans CCT)
+- 16 lignes "bleues" Excel : démarrer avec solde "à vérifier"
+- 5 bulletins de congé Janv-Mai 2026 : saisis manuellement par RH
+- Mode bulletin congé : Unique (mais paramétrable pour évolution future)
+- Code rubrique rachat : ICCP (distinct de CONGE_PAYE)
+- Soldes négatifs autorisés (cas Gueladio BA -8 j)
+- RH n'a pas besoin de "Mon espace" : décombiner du rôle Employé
+
+═══════════════════════════════════════════════════════════════════════════
+PROCÉDURE DE DÉPLOIEMENT POST-MERGE
+═══════════════════════════════════════════════════════════════════════════
+
+1. Audit duplications BulletinLigne (la contrainte unicité bloquera sinon) :
+   SELECT b.Annee, b.Mois, s.Matricule, r.Code, COUNT(*)
+   FROM BulletinLigne bl
+   INNER JOIN Bulletin b ON b.Oid = bl.Bulletin
+   INNER JOIN Salarie s ON s.Oid = b.Salarie
+   INNER JOIN Rubrique r ON r.Oid = bl.Rubrique
+   WHERE bl.GCRecord IS NULL AND b.GCRecord IS NULL
+   GROUP BY b.Annee, b.Mois, s.Matricule, r.Code
+   HAVING COUNT(*) > 1;
+
+2. Lancer Deploy-AdiPAIE-V18.ps1 (BACKUP + Stop IIS + copie + restart)
+
+3. Premier accès : Updater XAF ajoute les colonnes SQL automatiquement
+   (SoldeConge.SoldeArreteAu/SoldeAVerifier/SourceInitialisation,
+   ParametresPaie.ModeBulletinConges/ModeBaseCFCE)
+
+4. Login admin → ParametresPaie → "Init. rôles GRH"
+   (re-pose les permissions Create sur BulletinLigne, CongeDemande,
+   DemandeDeplacement pour RH/DAF/DG)
+
+5. Login admin → ParametresPaie → "Recharger le référentiel paie"
+   (crée la rubrique ICCP et le TypeRef AV_NAT_NON_IMP)
+
+6. SQL post-déploiement pour corriger AV_TEL existante :
+   UPDATE Rubrique SET TypeRef = (SELECT Oid FROM RubriqueTypeRef WHERE Code='AV_NAT_IMPOS'),
+       BrutFiscal = 1, BrutSocial = 0
+   WHERE Code = 'AV_TEL';
+
+7. Décombiner les users RH+Employé (optionnel mais recommandé) :
+   DELETE FROM PermissionPolicyUserUsers_PermissionPolicyRoleRoles
+   WHERE Roles = (SELECT Oid FROM PermissionPolicyRole WHERE Name = 'Employe')
+     AND Users IN (
+         SELECT u.Oid FROM PermissionPolicyUser u
+         INNER JOIN PermissionPolicyUserUsers_PermissionPolicyRoleRoles ur ON ur.Users = u.Oid
+         INNER JOIN PermissionPolicyRole r ON r.Oid = ur.Roles
+         WHERE u.GCRecord IS NULL AND r.Name IN ('RH','DAF','DG')
+     );
+
+8. (Si bugs d'affichage chez certains users) :
+   DELETE FROM ModelDifferenceAspect;
+   DELETE FROM ModelDifference;
+
+═══════════════════════════════════════════════════════════════════════════
+FICHIERS IMPACTÉS
+═══════════════════════════════════════════════════════════════════════════
+
+Modifiés (16) :
+- Services/ProvisionCongesService.cs
+- Services/SeedService.cs
+- BusinessObjects/Bulletin.cs
+- BusinessObjects/BulletinLigne.cs
+- BusinessObjects/SoldeConge.cs
+- BusinessObjects/ParametresPaie.cs
+- BusinessObjects/RH/DossierOffboarding.cs
+- Domain/DomainEnums.cs
+- Controllers/InitialiserRolesGRHController.cs
+- Controllers/BulletinRecalcController.cs
+- Controllers/BulletinEspaceSalarieReadOnlyController.cs
+- Controllers/EspaceSalarieColumnsController.cs
+- Controllers/EspaceSalarieHelper.cs
+- Model.DesignedDiffs.xafml
+- wwwroot/help/{conges,prets,parametrage,offboarding}.html (4 fichiers)
+- docs/dashboards/MISSION_STATE.md
+
+Créés (9) :
+- Services/BulletinCongeService.cs
+- NonPersistent/SaisieSoldeInitialRequest.cs
+- NonPersistent/SaisieCongeRequest.cs
+- Controllers/SaisieSoldeInitialController.cs
+- Controllers/SaisieCongeController.cs
+- Controllers/HideEspaceSalarieController.cs
+- Controllers/BulletinAjouterLigneController.cs
+- docs/deployment/Deploy-AdiPAIE-V18.ps1
+- docs/deployment/COMMIT_V18.txt
+
+═══════════════════════════════════════════════════════════════════════════
+TESTS VALIDÉS EN RECETTE
+═══════════════════════════════════════════════════════════════════════════
+
+- Build sans erreur ni warning
+- Allocation de congé Abdoulaye 2026 = 5 879 859 FCFA (cohérent fichier RH)
+- Bouton "Saisir un congé" (mode AUTO + MANUEL)
+- Bouton "Saisir solde initial"
+- Bouton "Recharger bulletin" + ConfirmationMessage
+- Bouton "Recalculer cotisations" (préserve lignes manuelles)
+- Bouton "Ajouter une ligne" sur DetailView Bulletin
+- Combo RH+Employé : "Mon espace" masqué, toutes colonnes visibles,
+  actions Edit présentes
+- Contrainte d'unicité BulletinLigne fonctionnelle
+- Format affichage IMAB : 30 % au lieu de 3 000 %
+- Net à payer exclut maintenant les avantages en nature (cas DAF)
+- Cumuls YTD (BrutFiscal, BrutSocial, NetAPayer) à jour en temps réel
+
+═══════════════════════════════════════════════════════════════════════════
+ISSUES RÉSIDUELLES POUR V1.9
+═══════════════════════════════════════════════════════════════════════════
+
+1. EstSalarieConnecte → DoitRestreindreEspaceSalarie : 12 autres
+   occurrences à auditer au cas par cas dans 7 controllers Espace Salarié
+2. Bouton "Nouveau" natif grille Aggregated Bulletin.Lignes : non résolu
+   (bug XAF Blazor). Workaround = action "Ajouter une ligne" dans la barre Edit.
+3. HideEspaceSalarieController : approche runtime via réflexion. Si
+   DevExpress publie un fix sur les Deny Navigation Permissions, revenir
+   à l'approche déclarative.
+4. Reprise des prêts : si bug d'arrondi persiste, ajouter action dédiée
+   "Reprendre un prêt en cours" avec saisie explicite de la mensualité.
+5. ModelDifference : prévoir bouton "Vider mes customisations" pour user.
+6. AV_TEL existant en BDD : SQL one-shot à exécuter post-déploiement
+   (cf. étape 6 procédure)

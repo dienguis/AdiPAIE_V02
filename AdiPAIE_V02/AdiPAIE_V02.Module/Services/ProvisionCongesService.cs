@@ -1,12 +1,20 @@
 // =============================================================================
-//  ProvisionCongesService.cs — V1.7 — Calcul provision congés annuelle
+//  ProvisionCongesService.cs — V1.8 — Calcul provision congés annuelle
 //
-//  Reproduit la requête SQL ELTON ancienne paie en LINQ XPO :
+//  Reproduit la requête SQL ELTON ancienne paie en LINQ XPO, alignée
+//  CCT Sénégal (articles 55, 57, 58) ET pratique ELTON validée RH (juin 2026) :
 //    - Base : 2 jours / mois travaillé (= NbreMois × 2)
-//    - Bonus ancienneté : 0 / +1 / +2 / +3 / +6 selon palier
-//    - Bonus mère : 1 jour / enfant à charge < 14 ans (Sexe = Feminin)
+//    - Bonus ancienneté (seuils inclusifs ≥) : 0 / +1 / +2 / +3 / +7
+//        (ELTON applique +7 à partir de 25 ans, plus favorable que CCT
+//         qui prévoit +6 — convention d'entreprise plus favorable légale)
+//    - Bonus mère (CCT L150, femmes uniquement) :
+//        • Règle B : mère < 21 ans → +2 j / enfant à charge
+//        • Règle C : mère ≥ 21 ans → +2 j / enfant mineur à partir du 4e
+//        (la règle A "+1 j / enfant <14 ans" a été supprimée — non CCT)
 //    - Brut imposable mensuel = Σ Gain BrutFiscal=true / 12
-//    - Provision FCFA = NbreJourTotal × (BrutMensuelMoyen / 22)
+//    - Provision FCFA = NbreJourTotal × (BrutMensuelMoyen / 24)
+//        (24 = "nombre de jours de congés concernés" CCT Art. 57,
+//         aligné sur la formule de paie réelle ELTON)
 //
 //  Pour chaque (Salarié × Année) ayant au moins un bulletin.
 // =============================================================================
@@ -23,8 +31,13 @@ namespace AdiPAIE_V02.Module.Services
 {
     public static class ProvisionCongesService
     {
-        private const decimal JoursOuvresMois = 22m;
-        private const int AgeLimiteEnfantACharge = 14;
+        // V1.8 — Aligné CCT Art. 57 + fichier Congés.xlsx ELTON :
+        // l'allocation de congé = 1/12 des sommes perçues, et le supplément
+        // est calculé sur la base "nombre de jours concernés" = 24 j
+        // (= 2 j/mois × 12 mois = durée du congé standard CCT).
+        // Le diviseur précédent 22 (jours ouvrés CCT) sur-évaluait la
+        // provision de ~8 % par rapport au paiement réel.
+        private const decimal JoursOuvresMois = 24m;
         private const int JoursParMoisTravaille = 2;
 
         /// <summary>
@@ -124,37 +137,43 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ──────────────────────────────────────────────────────────────
-        //  Bonus ancienneté — Code du Travail Sénégal Loi 97-17, Art. L.149
-        //  Source : https://africapaierh.com/juridique/les-conges-payes-au-senegal/
+        //  Bonus ancienneté — Convention ELTON (validée RH juin 2026)
+        //  Référence : CCT Sénégal Loi 97-17, Art. L.149 + convention
+        //  d'entreprise ELTON plus favorable que la CCT pour la dernière
+        //  tranche (la CCT prévoit +6 j à 25+ ans, ELTON donne +7 j —
+        //  les conventions d'entreprise plus favorables sont légales).
         //
-        //    ≤ 10 ans : 0 jour
-        //    > 10 ans : +1 jour
-        //    > 15 ans : +2 jours
-        //    > 20 ans : +3 jours
-        //    > 25 ans : +7 jours (PAS +6 — erreur dans l'ancienne requête SQL ELTON)
+        //  V1.8 — Seuils INCLUSIFS "vers le haut" (validation RH explicite) :
+        //  un salarié pile à 10 ans bénéficie du bonus tranche 10-15 (+1 j).
+        //
+        //    < 10 ans  : 0 jour
+        //    ≥ 10 ans  : +1 jour
+        //    ≥ 15 ans  : +2 jours
+        //    ≥ 20 ans  : +3 jours
+        //    ≥ 25 ans  : +7 jours (convention ELTON plus favorable)
         // ──────────────────────────────────────────────────────────────
         public static int CalculerBonusAnciennete(int anciennete)
         {
-            if (anciennete <= 10) return 0;
-            if (anciennete <= 15) return 1;
-            if (anciennete <= 20) return 2;
-            if (anciennete <= 25) return 3;
-            return 7; // > 25 ans (corrigé conformément CCT Sénégal officielle)
+            if (anciennete >= 25) return 7;
+            if (anciennete >= 20) return 3;
+            if (anciennete >= 15) return 2;
+            if (anciennete >= 10) return 1;
+            return 0;
         }
 
         // ──────────────────────────────────────────────────────────────
-        //  Bonus mère de famille — CCT Sénégal Loi 97-17, Art. L.149
-        //  Source : https://africapaierh.com/juridique/les-conges-payes-au-senegal/
+        //  Bonus mère de famille — CCT Sénégal Loi 97-17, Art. L.150
         //
-        //  3 règles CUMULABLES, applicables uniquement aux femmes salariées :
+        //  V1.8 — Validation RH ELTON : SEULEMENT 2 règles (la "règle A"
+        //  +1j/enfant <14 ans qui figurait avant n'est PAS dans la CCT
+        //  et a été supprimée).
         //
-        //    Règle A (toutes mères) :
-        //      +1 jour / enfant < 14 ans enregistré à l'état-civil
+        //  Femmes salariées uniquement :
         //
         //    Règle B (mère < 21 ans au dernier jour période de référence) :
         //      +2 jours / enfant à charge (sans condition d'âge enfant)
         //
-        //    Règle C (mère > 21 ans au dernier jour période de référence) :
+        //    Règle C (mère ≥ 21 ans au dernier jour période de référence) :
         //      +2 jours / enfant mineur à charge À PARTIR DU 4ème enfant
         //      (le 1er, 2ème, 3ème enfant ne donnent pas la règle C)
         // ──────────────────────────────────────────────────────────────
@@ -204,17 +223,13 @@ namespace AdiPAIE_V02.Module.Services
                 ageMere = a < 0 ? 0 : a;
             }
 
-            // ── RÈGLE A : 1 jour / enfant < 14 ans ─────────────────────
-            // Pour les enfants sans date de naissance, on ne peut pas appliquer
-            // (par défaut on les compte pas dans la règle A pour éviter sur-bonus)
-            int bonusA = enfantsACharge.Count(e => e.Age.HasValue && e.Age.Value < AgeLimiteEnfantACharge);
-            totalBonus += bonusA;
+            // ── V1.8 : Règle A SUPPRIMÉE (n'existe pas dans CCT L150) ─
 
             // ── RÈGLE B / C selon âge de la mère ──────────────────────
             if (!ageMere.HasValue)
             {
-                // Birthday inconnue : on ne peut pas appliquer B/C → on s'arrête
-                return totalBonus;
+                // Birthday inconnue : on ne peut pas appliquer B/C → 0
+                return 0;
             }
 
             if (ageMere.Value < 21)

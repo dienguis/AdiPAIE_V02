@@ -372,3 +372,7 @@ FodyWeavers.xsd
 # LibreOffice/OpenOffice lock files
 .~lock.*#
 
+
+# Fichiers Excel de données réelles ELTON (volumineux + sensibles, gérés hors Git)
+/Congés*.xlsx
+/Congés*.xls

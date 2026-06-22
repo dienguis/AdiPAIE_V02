@@ -56,8 +56,19 @@
 
 1. **IIS 10** + features WebSocket / ASP.NET Core
 2. **ASP.NET Core 8.0 Hosting Bundle**
-3. **SQL Server 2022 Express** (gratuit, jusqu'à 10 GB par DB)
-4. **SQL Server Management Studio** (SSMS, optionnel mais utile)
+3. **SQL Server 2022 Express** (gratuit, jusqu'à 10 GB par DB) — ou SQL Express 2025
+4. **SQL Server Management Studio** (SSMS, optionnel mais utile — préférer **SSMS 18.2** sur SQL 2025, cf. § 12)
+5. **LibreOffice** (utilisé par DevExpress pour la conversion Excel/PDF des bulletins, exports dashboards, livre de paie)
+   - **Téléchargement** : <https://www.libreoffice.org/download/download/>
+   - **Chemin d'installation par défaut Windows** : `C:\Program Files\LibreOffice\`
+   - **Binaire utilisé par l'app** : `C:\Program Files\LibreOffice\program\soffice.exe`
+   - **Variable d'environnement à vérifier** : `PATH` doit contenir
+     `C:\Program Files\LibreOffice\program\` (l'installateur le fait
+     normalement, sinon le rajouter manuellement)
+   - **Version testée en prod ELTON** : LibreOffice 7.6 LTS (ou supérieure)
+   - ⚠️ Sans LibreOffice → erreurs silencieuses au moment de générer un
+     PDF de bulletin ou un export Excel d'un dashboard (l'app continue
+     mais le fichier de sortie est vide ou corrompu).
 
 ---
 
@@ -518,10 +529,58 @@ L'**Updater XAF** (`Updater.cs`) s'exécute automatiquement :
    - Configurer SMTP (pour les notifications)
    - Configurer la société (Raison sociale, NINEA, RC, signataire)
 3. **Init. rôles GRH** (bouton dans Paramètres) → message "X permission(s) ajoutée(s)"
+   - **Créé automatiquement les 8 rôles GRH** (V1.7.2+) :
+
+   | Rôle | Profil métier | Permissions principales |
+   |---|---|---|
+   | **Employe** | Salarié standard | Lecture/écriture sur SES propres congés, missions, attestations, entretiens |
+   | **Responsable** | N+1 | Validation des demandes de son équipe (congés, missions, entretiens) |
+   | **AssistantRH** | Support RH | Saisie 1ère étape mouvements intérim, suivi missions |
+   | **AssistantCommercial** | Initiateur mouvements intérim | Création/suivi des demandes de personnel intérimaire |
+   | **RH** | Gestion paie et RH | Salariés, bulletins, congés, conjoints/enfants, dossiers, attestations |
+   | **DAF** | Validation financière | Validation montants (mouvements intérim, gratifications, STC), provisions |
+   | **DG** 🆕 | **Directeur Général** | **Lecture stratégique 360° + signature finale DossierOffboarding** |
+   | **Comptable** | Suivi comptable | Confirmation des dépenses validées (déplacements, prêts) |
+
+   📌 **Rôle DG (V1.7.2)** : profil de supervision pure (pas de saisie opérationnelle).
+   Le DG voit l'ensemble du métier en lecture, et signe le dossier de départ en
+   dernière étape (après validation DAF). Voir le tableau des permissions
+   détaillées dans `RolesGRHInitializer.cs` ligne 244-296.
+
 4. Créer les **utilisateurs** :
    - **Administration → Utilisateurs → Nouveau**
-   - Assigner **un seul rôle principal** par user (RH OU DAF OU AssistantRH...)
-   - **Éviter de cumuler RH + RH_Manager** sur un même user (cf. issue V1.6.2 résolue)
+
+   📌 **Règle de cumul de rôles** :
+   - **TOUS les utilisateurs humains** (qui sont aussi salariés) **doivent**
+     avoir le rôle `Employe` pour accéder à leur **espace personnel**
+     (mes bulletins, mes congés, mes attestations, mes entretiens, mes missions).
+   - **+ leur rôle métier** parmi : `RH` / `DAF` / `DG` / `AssistantRH` /
+     `AssistantCommercial` / `Comptable` / `Responsable`.
+   - Les rôles XAF sont **additifs** : les permissions se cumulent sans conflit.
+
+   | User type | Rôles à cumuler |
+   |---|---|
+   | Salarié lambda | `Employe` |
+   | Manager N+1 d'une équipe | `Employe` + `Responsable` |
+   | RH opérationnel | `Employe` + `RH` |
+   | DAF | `Employe` + `DAF` |
+   | **Directeur Général** | **`Employe` + `DG`** |
+   | Comptable | `Employe` + `Comptable` |
+   | Assistant RH | `Employe` + `AssistantRH` |
+   | Assistant Commercial intérim | `Employe` + `AssistantCommercial` |
+
+   ⚠️ **Exclusions à éviter** :
+   - Ne JAMAIS cumuler `RH` + `RH_Manager` sur un même user (cf. issue V1.6.2 résolue)
+   - Ne pas mettre `Administrators` sur les users métier (réservé aux administrateurs techniques)
+
+   📋 **Exemple — création du user DG ELTON** :
+   1. Administration → Utilisateurs → Nouveau
+   2. UserName : `mansour.dg` (ou email), Email : `mansour@elton.sn`
+   3. Salarie : pointer vers la fiche salarié du DG dans Salariés
+   4. Roles : cocher **`Employe`** ET **`DG`** (les deux !)
+   5. Save
+   6. Le DG se connecte → voit son espace perso (Mes bulletins, etc.) + son menu
+      supervision (Liste de tous les salariés, Bulletins, etc.)
 
 ### Test smoke en RH
 
@@ -746,13 +805,61 @@ Importer le `.pfx` via `mmc → Certificats → Local Computer → Personal → 
 ### Pare-feu
 
 ```powershell
-# Ouvrir port 80 (HTTP) et 443 (HTTPS)
-New-NetFirewallRule -DisplayName "IIS HTTP" -Direction Inbound -Protocol TCP -LocalPort 80 -Action Allow
-New-NetFirewallRule -DisplayName "IIS HTTPS" -Direction Inbound -Protocol TCP -LocalPort 443 -Action Allow
+# Ouvrir port 80 (HTTP) et 443 (HTTPS) entrants
+New-NetFirewallRule -DisplayName "IIS HTTP (port 80)" `
+    -Direction Inbound -Protocol TCP -LocalPort 80 -Action Allow `
+    -Profile Any -Enabled True
+New-NetFirewallRule -DisplayName "IIS HTTPS (port 443)" `
+    -Direction Inbound -Protocol TCP -LocalPort 443 -Action Allow `
+    -Profile Any -Enabled True
+
+# Autoriser le ping ICMPv4 entrant (très utile pour diagnostiquer
+# l'accessibilité du serveur depuis les postes clients).
+# Sans cette règle, le port 80 peut fonctionner mais `ping grh`
+# échoue avec "Délai d'attente de la demande dépassé" — ce qui
+# induit RH/DSI en erreur lors d'un diagnostic réseau.
+New-NetFirewallRule -DisplayName "ICMPv4 Echo Request (ping)" `
+    -Direction Inbound -Protocol ICMPv4 -IcmpType 8 -Action Allow `
+    -Profile Any -Enabled True
 
 # Si SQL doit etre accessible depuis d'autres serveurs
-New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action Allow
+New-NetFirewallRule -DisplayName "SQL Server (port 1433)" `
+    -Direction Inbound -Protocol TCP -LocalPort 1433 -Action Allow `
+    -Profile Any -Enabled True
 ```
+
+### Diagnostic d'accessibilité depuis un poste client
+
+Procédure de vérification à donner aux postes RH/DAF lors du premier
+accès à `http://grh` :
+
+```powershell
+# 1. Résolution DNS — doit retourner l'IP du serveur (ex 192.168.1.178)
+nslookup grh
+
+# 2. Ping ICMP — doit répondre si la règle ICMPv4 ci-dessus est créée
+ping grh
+
+# 3. Test du port 80 (HTTP) — le plus important
+Test-NetConnection -ComputerName grh -Port 80
+# ou plus court :  tnc grh -Port 80
+# Doit retourner : TcpTestSucceeded : True
+
+# 4. Test HTTP réel
+Invoke-WebRequest -Uri "http://grh" -UseBasicParsing -TimeoutSec 10
+# Doit retourner : StatusCode 200 (page de login XAF)
+
+# 5. Ouverture navigateur
+Start-Process "http://grh"
+```
+
+| Symptôme | Cause probable | Fix |
+|---|---|---|
+| `nslookup grh` échoue | DNS non configuré OU `grh` absent du DNS | Ajouter dans le DNS d'entreprise, ou ligne dans `C:\Windows\System32\drivers\etc\hosts` côté client : `192.168.1.178  grh` |
+| `nslookup grh` OK, `ping grh` timeout | Pare-feu Windows Server bloque ICMPv4 | Créer la règle `ICMPv4 Echo Request (ping)` ci-dessus |
+| `ping grh` OK, `tnc grh -Port 80` False | Pare-feu Windows Server bloque port 80 OU IIS non démarré | Créer la règle `IIS HTTP (port 80)` + `Start-Website -Name SunuPaie` |
+| Tout OK mais HTTP 503 | App pool arrêté | `Start-WebAppPool -Name SunuPaiePool` |
+| HTTP 200 mais page blanche | WebSocket pas activé | `Install-WindowsFeature Web-WebSockets` puis IIS reset |
 
 ### Hardening IIS (best practices)
 
@@ -872,6 +979,262 @@ VALUES (NEWID(), @SoldeOid,
 | Comptes bancaires | JDE | Import wizard | 100+ |
 | Soldes congés | JDE | Script SQL ou V1.7.1 | 100+ |
 | Historique bulletins | ❌ NON migré | Reste dans JDE | — |
+| **Report `BulletinPaie`** | Base de dev `AdiPAIE_V02_company1` | **Requête SQL** | 1 ligne |
+
+### Nettoyage des données DEMO_* injectées par DemoDataSeeder
+
+Si la base a été initialisée avec `DASHBOARDS_SEED_DEMO=true` (ou setting
+`SeedDemoData: true`), le `DemoDataSeeder` a créé des Unités Organisationnelles,
+Segments et Salariés démo avec le **préfixe `DEMO_`** dans leurs codes/matricules.
+
+⚠️ **Différence importante** :
+- Le bouton **"Activer le seed du référentiel paie"** (Paramètres globaux)
+  crée le **paramétrage officiel** ELTON (rubriques, échelons, comptes, barèmes).
+  **À conserver** en prod.
+- Le `DemoDataSeeder` crée des **données fictives** (UO, segments, salariés DEMO_*).
+  **À supprimer ou nettoyer** avant la mise en service réelle.
+
+#### Option A — Garder les UO/segments mais retirer le préfixe `DEMO_`
+
+Pratique si la structure organisationnelle créée par le seeder convient
+pour ELTON (E-Service, Espace Auto, Piste, Segments BTP/Consommateurs, etc.) :
+
+```sql
+USE SunuPaie;
+GO
+
+-- 1. APERÇU : ce qui sera modifié (lecture seule)
+SELECT Code AS AvantUpdate,
+       STUFF(Code, 1, 5, '') AS ApresUpdate,
+       Nom, [Type]
+FROM dbo.UniteOrganisationnelle
+WHERE Code LIKE 'DEMO\_%' ESCAPE '\'
+  AND GCRecord IS NULL
+ORDER BY Code;
+
+-- 2. APPLIQUER (retirer "DEMO_" — 5 caractères)
+UPDATE dbo.UniteOrganisationnelle
+SET Code = STUFF(Code, 1, 5, '')
+WHERE Code LIKE 'DEMO\_%' ESCAPE '\'
+  AND GCRecord IS NULL;
+
+-- 3. VÉRIFICATION post-update
+SELECT Code, Nom, [Type], NbLevel
+FROM dbo.UniteOrganisationnelle
+WHERE GCRecord IS NULL
+ORDER BY Code;
+```
+
+Résultat type :
+- `DEMO_BU_ESERVICE` → `BU_ESERVICE`
+- `DEMO_BU_ESPACE_AUTO` → `BU_ESPACE_AUTO`
+- `DEMO_SEG_BTP` → `SEG_BTP`
+- etc.
+
+#### Option B — Diagnostiquer toutes les tables avec préfixe `DEMO_`
+
+Le `DemoDataSeeder` peut avoir tagué plusieurs tables. Pour les recenser :
+
+```sql
+USE SunuPaie;
+
+-- Lister toutes les tables ayant une colonne "Code" avec des DEMO_*
+DECLARE @sql NVARCHAR(MAX) = N'';
+SELECT @sql = STRING_AGG(
+    'SELECT ''' + t.name + ''' AS TableName, ''' + c.name + ''' AS ColumnName,
+            COUNT(*) AS NbDemoRecords
+     FROM dbo.' + QUOTENAME(t.name) + '
+     WHERE ' + QUOTENAME(c.name) + ' LIKE ''DEMO\_%'' ESCAPE ''\''',
+    ' UNION ALL '
+)
+FROM sys.tables t
+INNER JOIN sys.columns c ON c.object_id = t.object_id
+INNER JOIN sys.types ty ON ty.user_type_id = c.user_type_id
+WHERE c.name IN ('Code', 'Matricule')
+  AND ty.name IN ('nvarchar', 'varchar')
+  AND EXISTS (SELECT 1 FROM sys.columns gc
+              WHERE gc.object_id = t.object_id AND gc.name = 'GCRecord');
+
+EXEC sp_executesql @sql;
+```
+
+Pour chaque table avec un comptage > 0, adapter et lancer le UPDATE :
+
+```sql
+-- Template
+DECLARE @table SYSNAME = 'NomDeLaTableICI';     -- À adapter
+DECLARE @col SYSNAME = 'Code';                  -- ou 'Matricule'
+DECLARE @sql NVARCHAR(MAX) = N'
+    UPDATE dbo.' + QUOTENAME(@table) + N'
+    SET ' + QUOTENAME(@col) + N' = STUFF(' + QUOTENAME(@col) + N', 1, 5, '''')
+    WHERE ' + QUOTENAME(@col) + N' LIKE ''DEMO\_%'' ESCAPE ''\''
+      AND GCRecord IS NULL;
+    SELECT @@ROWCOUNT AS NbRowsUpdated;';
+EXEC sp_executesql @sql;
+```
+
+#### Option C — Supprimer entièrement les données DEMO_*
+
+Si vous ne voulez **rien garder** des données démo (ELTON gère sa propre
+structure) :
+
+```sql
+USE SunuPaie;
+
+-- Soft-delete : XPO honore le GCRecord pour ne pas casser les FK
+UPDATE dbo.UniteOrganisationnelle
+SET GCRecord = CAST(0x7FFFFFFF AS int)
+WHERE Code LIKE 'DEMO\_%' ESCAPE '\'
+  AND GCRecord IS NULL;
+
+UPDATE dbo.Salarie
+SET GCRecord = CAST(0x7FFFFFFF AS int)
+WHERE Matricule LIKE 'DEMO\_%' ESCAPE '\'
+  AND GCRecord IS NULL;
+```
+
+#### Désactiver le DemoDataSeeder pour les futurs déploiements
+
+Pour empêcher la réinjection de `DEMO_*` au prochain démarrage :
+
+```powershell
+# Sur le serveur grh, en ADMIN
+[System.Environment]::SetEnvironmentVariable("DASHBOARDS_SEED_DEMO", $null, "Machine")
+```
+
+Et vérifier dans `C:\inetpub\wwwroot\SunuPaie\appsettings.json` :
+
+```json
+{
+  "SunuPaie": {
+    "SeedDemoData": false
+  }
+}
+```
+
+Puis `Restart-WebAppPool -Name "SunuPaiePool"`.
+
+---
+
+### Migration du rapport BulletinPaie depuis la base de dev
+
+Le rapport `BulletinPaie` (template REPX du bulletin de salaire) est
+généralement **conçu et stylé** sur la base de dev `AdiPAIE_V02_company1`
+(charte ELTON, logo, mise en page A4). Il doit être copié vers la base
+de production `SunuPaie_Prod` (ou `SunuPaie` en local grh) pour que
+l'impression des bulletins fonctionne avec le bon design.
+
+⚠️ **Contexte** : l'Updater XAF (V1.4.3+) crée automatiquement un
+rapport par défaut depuis le REPX embarqué dans l'assembly via
+`SeedBulletinReportIfMissing()`. Mais s'il a été modifié dans le
+designer XAF sur la base de dev, ces modifications doivent être
+explicitement copiées vers la prod.
+
+#### Schéma réel de la table `ReportDataV2` (XAF 25.x)
+
+| Colonne | Type | Rôle |
+|---------|------|------|
+| `Oid` | uniqueidentifier | Clé primaire |
+| `Name` | nvarchar | **Nom du rapport** (ex : `BulletinPaie`) |
+| `Content` | varbinary(max) | Contenu REPX binaire (le « template » du rapport) |
+| `ObjectTypeName` | nvarchar | Type de l'objet source (ex : `AdiPAIE_V02.Module.BusinessObjects.Bulletin`) |
+| `ParametersObjectTypeName` | nvarchar | Type des paramètres |
+| `IsInplaceReport` | bit | Rapport « inline » ou pas |
+| `PredefinedReportType` | nvarchar | Catégorie XAF prédéfinie |
+| `OptimisticLockField` | int | Verrou optimiste XPO |
+| `GCRecord` | int | Marqueur de soft-delete (NULL = actif) |
+
+#### Requête SQL — Copie du rapport (même serveur SQL)
+
+```sql
+-- Pré-requis : les 2 bases sont sur la même instance SQL Server.
+-- Sinon, exporter le Content en bytes via SSMS et le réinjecter.
+
+USE SunuPaie_Prod;
+GO
+
+-- 1. Sauvegarder l'existant (au cas où on doit rollback)
+IF NOT EXISTS (SELECT 1 FROM sys.objects
+               WHERE name = 'ReportDataV2_Backup' AND type = 'U')
+    SELECT * INTO dbo.ReportDataV2_Backup
+    FROM dbo.ReportDataV2
+    WHERE Name = 'BulletinPaie' AND GCRecord IS NULL;
+
+-- 2. Mise à jour du Content + métadonnées depuis la source dev
+UPDATE rTarget
+SET
+    rTarget.Content                  = rSource.Content,
+    rTarget.ObjectTypeName           = rSource.ObjectTypeName,
+    rTarget.ParametersObjectTypeName = rSource.ParametersObjectTypeName,
+    rTarget.IsInplaceReport          = rSource.IsInplaceReport,
+    rTarget.PredefinedReportType     = rSource.PredefinedReportType
+FROM SunuPaie_Prod.dbo.ReportDataV2              AS rTarget
+INNER JOIN AdiPAIE_V02_company1.dbo.ReportDataV2 AS rSource
+    ON rSource.Name = rTarget.Name
+WHERE rTarget.Name = 'BulletinPaie'
+  AND rTarget.GCRecord IS NULL
+  AND rSource.GCRecord IS NULL;
+
+-- 3. Vérification : taille du Content (doit être > 50 Ko)
+SELECT
+    Name,
+    DATALENGTH(Content) AS ContentSizeBytes,
+    ObjectTypeName,
+    IsInplaceReport,
+    PredefinedReportType
+FROM dbo.ReportDataV2
+WHERE Name = 'BulletinPaie' AND GCRecord IS NULL;
+```
+
+#### Si le rapport n'existe pas encore dans la cible
+
+Lancer d'abord l'app une fois (`Restart-WebAppPool` + visiter `http://grh/`)
+pour que l'Updater crée le rapport par défaut (cf. `SeedBulletinReportIfMissing()`
+dans `Updater.cs`). Puis appliquer la requête UPDATE ci-dessus.
+
+Sinon, un INSERT direct :
+
+```sql
+USE SunuPaie_Prod;
+
+INSERT INTO dbo.ReportDataV2
+    (Oid, Name, Content, ObjectTypeName, ParametersObjectTypeName,
+     IsInplaceReport, PredefinedReportType, OptimisticLockField, GCRecord)
+SELECT
+    NEWID(),                   -- nouvel Oid (évite collision FK)
+    Name,
+    Content,
+    ObjectTypeName,
+    ParametersObjectTypeName,
+    IsInplaceReport,
+    PredefinedReportType,
+    0,                         -- OptimisticLockField initial
+    NULL                       -- GCRecord NULL = enregistrement actif
+FROM AdiPAIE_V02_company1.dbo.ReportDataV2
+WHERE Name = 'BulletinPaie'
+  AND GCRecord IS NULL;
+```
+
+#### Rollback si problème
+
+```sql
+USE SunuPaie_Prod;
+
+UPDATE rTarget
+SET rTarget.Content        = rBackup.Content,
+    rTarget.ObjectTypeName = rBackup.ObjectTypeName
+FROM dbo.ReportDataV2 AS rTarget
+INNER JOIN dbo.ReportDataV2_Backup AS rBackup
+    ON rBackup.Name = rTarget.Name
+WHERE rTarget.Name = 'BulletinPaie';
+```
+
+#### Test post-migration
+
+1. Restart `SunuPaiePool` (`Restart-WebAppPool -Name SunuPaiePool`)
+2. Login Admin → Paie → Consultation bulletins
+3. Ouvrir un bulletin → **Imprimer**
+4. Vérifier le PDF généré : logo ELTON, mise en page, polices, libellés
 
 ---
 
@@ -953,6 +1316,44 @@ Puis le user fait **logout + login**.
 
 Migration vers SQL Server Standard nécessaire. Coût licence Microsoft.
 En attendant : purger les vieux audits (`AuditDataItemPersistent` > 2 ans).
+
+### `ping grh` échoue depuis les postes clients
+
+**Symptôme** : depuis un poste RH/DAF :
+
+```
+PS> nslookup grh
+Nom :     grh.elton.sn
+Address:  192.168.1.178       ← DNS OK
+
+PS> ping grh
+Délai d'attente de la demande dépassé.
+Délai d'attente de la demande dépassé.
+Délai d'attente de la demande dépassé.
+```
+
+**Cause** : le pare-feu Windows Server bloque les requêtes ICMPv4 entrantes
+par défaut sur Windows Server 2022. Le DNS fonctionne (résolution `grh →
+192.168.1.178`) mais le serveur ne répond pas aux échos ping.
+
+⚠️ **Important** : ce blocage du ping n'empêche PAS HTTP de fonctionner.
+Beaucoup de RH/DSI concluent à tort que « le serveur est down » alors qu'il
+faut simplement tester avec :
+
+```powershell
+Test-NetConnection -ComputerName grh -Port 80     # le vrai test
+Start-Process "http://grh"                         # ouvrir au navigateur
+```
+
+**Fix (sur le serveur grh, PowerShell admin)** :
+
+```powershell
+New-NetFirewallRule -DisplayName "ICMPv4 Echo Request (ping)" `
+    -Direction Inbound -Protocol ICMPv4 -IcmpType 8 -Action Allow `
+    -Profile Any -Enabled True
+```
+
+Cette règle est désormais incluse dans le script standard de § 9 (Pare-feu).
 
 ### Login failed for 'Admin' sur base fraîche
 

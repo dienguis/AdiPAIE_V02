@@ -24,6 +24,69 @@
     <strong>cotisations sociales</strong> (IPRES, CSS, CFCE), et la
     configuration <strong>SMTP</strong> pour les notifications.</p>
 
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div style="background:#fff8e1;border:2px solid #ffa726;border-radius:8px;padding:1em 1.5em;margin:1.5em 0;">
+        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) — Nouveaux paramètres</h2>
+
+        <h3 style="color:#e65100;">⚙️ Onglet Fiscalité — Mode base CFCE</h3>
+        <p>Détermine si les <strong>avantages en nature</strong> (véhicule,
+        téléphone, logement) sont inclus ou non dans la base de calcul de la
+        CFCE (Contribution Forfaitaire à la Charge de l'Employeur) :</p>
+        <ul>
+            <li><strong>Avec avantages en nature</strong> (défaut V1.8, position
+                DAF actuel ELTON) : la CFCE est calculée sur le brut fiscal
+                complet, aligné sur IR / TRIMF / IRPP.
+                Plus simple à justifier auprès du fisc.</li>
+            <li><strong>Sans avantages en nature</strong> (ancien système ELTON) :
+                la CFCE exclut les avantages en nature. Donne une base CFCE
+                identique à celle de l'ancien système (utile pour audit
+                cohérence ancien/nouveau).</li>
+        </ul>
+        <p>⚠️ Le changement prend effet sur les bulletins <strong>recalculés
+        APRÈS</strong> la modification (pas les bulletins déjà clôturés).
+        Garder le même mode pour l'ensemble des salariés.</p>
+
+        <h3 style="color:#e65100;">⚙️ Onglet Référentiel paie — Mode bulletin de congé</h3>
+        <p>Détermine comment le bulletin est généré quand un salarié part en
+        congé tout le mois :</p>
+        <ul>
+            <li><strong>Bulletin unique</strong> (défaut V1.8, pratique ELTON
+                actuelle) : un seul bulletin mensuel avec la rubrique
+                <code>CONGE_PAYE</code> qui remplace les rubriques de salaire
+                (SB, sursalaire, indemnités). Conforme article 56 CCT Sénégal
+                ("l'employeur doit porter sur le bulletin de paye du
+                travailleur la mention des dates de départ et de reprise").</li>
+            <li><strong>Bulletin de congé séparé</strong> (option future) : deux
+                bulletins distincts (salaire normal + bulletin de congé).
+                Anticipation d'une évolution éventuelle des pratiques internes.</li>
+        </ul>
+
+        <h3 style="color:#e65100;">🐛 Correctifs format affichage</h3>
+        <ul>
+            <li><strong>IR – IMAB (% abattement)</strong> : le format affichait
+                3 000 % au lieu de 30 %. La valeur stockée est correcte (30) ;
+                seul l'affichage était buggé. Corrigé en V1.8.</li>
+            <li><strong>Réduction familiale – % par défaut</strong> : même bug,
+                même correctif.</li>
+        </ul>
+
+        <h3 style="color:#e65100;">🆕 Nouvelle rubrique <code>ICCP</code></h3>
+        <p>"Indemnité de congés compensatrice" — rubrique distincte de
+        <code>CONGE_PAYE</code> (code 23) pour permettre de tracer dans le
+        reporting :</p>
+        <ul>
+            <li><strong>CONGE_PAYE</strong> : versée quand le salarié part en
+                congé physique</li>
+            <li><strong>ICCP</strong> : compensation monétaire des jours non
+                pris (rachat ponctuel ou départ retraite)</li>
+        </ul>
+        <p>Soumise aux mêmes cotisations (IPRES/CSS/IR/TRIMF/CFCE) que
+        <code>CONGE_PAYE</code>. Créée automatiquement au prochain rechargement
+        du référentiel paie (bouton "Recharger le référentiel" sur
+        ParametresPaie).</p>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
     <div class="toc">
         <strong>📑 Sections</strong>
         <ol>

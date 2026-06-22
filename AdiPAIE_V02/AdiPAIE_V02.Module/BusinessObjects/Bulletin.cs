@@ -367,6 +367,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             decimal gains = 0m, retFisc = 0m, cotSoc = 0m, autresRet = 0m;
             decimal bf = 0m, bs = 0m;
 
+            // V1.8.1 — Suivi des avantages en nature pour les exclure du Net.
+            // Les avantages en nature (véhicule, téléphone, logement, etc.)
+            // sont imposables IR/TRIMF/CFCE mais NE SONT PAS du cash à
+            // encaisser par le salarié. Ils ne doivent donc pas entrer dans
+            // le Net à payer. La détection se fait via le code TypeRef qui
+            // commence par "AV_NAT" (cohérent avec le calcul de la base CFCE).
+            decimal gainsAvantagesNature = 0m;
+
             foreach (var l in Lignes)
             {
                 var r = l.Rubrique;
@@ -376,7 +384,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 switch (r.TypeCalcul)
                 {
                     case RubriqueTypeCalcul.Gain:
-                        gains += m; break;
+                        gains += m;
+                        // V1.8.1 — Compter à part les avantages en nature
+                        if (EstAvantageEnNature(r))
+                            gainsAvantagesNature += m;
+                        break;
                     case RubriqueTypeCalcul.Retenue:
                         var grp = r.SectionImpression ?? "";
                         if (grp.Contains("Retenues Fiscales", StringComparison.OrdinalIgnoreCase))
@@ -398,7 +410,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             TotalAutresRetenues = autresRet;
             BrutFiscal = bf;
             BrutSocial = bs;
-            NetAPayer = gains - (retFisc + cotSoc + autresRet);
+            // V1.8.1 — Net = gains HORS avantages en nature - retenues
+            // (les avantages en nature ne sont pas du cash à verser)
+            NetAPayer = (gains - gainsAvantagesNature) - (retFisc + cotSoc + autresRet);
         }
 
         protected override void OnSaving()
@@ -631,7 +645,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 var bs = CalculerBrutSocial();
 
                 CalculerIPRES_CSS(bs);
-                CalculerCFCE(bf);                 // CFCE (employeur seul)
+                // V1.8 — Base CFCE configurable dans ParametresPaie :
+                //   AvecAvantagesNature  = brut fiscal complet (recommandé DAF actuel)
+                //   SansAvantagesNature  = base dédiée hors Av Nature (ancien système ELTON)
+                CalculerCFCE(CalculerBaseCFCE_SelonParametres(bf));
                 CalculerTRIMF_Baremise(bf);
 
                 CalculerIRPP(bf);
@@ -857,6 +874,61 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             => Lignes.Where(l => l.Rubrique?.BrutSocial == true && l.Rubrique.TypeCalcul != RubriqueTypeCalcul.Retenue)
                      .Sum(l => N(l.Montant));
 
+        /// <summary>
+        /// V1.8 — Base CFCE selon le paramètre <c>ParametresPaie.ModeBaseCFCE</c> :
+        ///   AvecAvantagesNature  → renvoie le brut fiscal complet (par défaut)
+        ///   SansAvantagesNature  → renvoie la base dédiée hors avantages nature
+        ///
+        /// Permet au DAF de basculer entre les 2 interprétations du Code
+        /// Général des Impôts Sénégal sans modifier le code.
+        /// </summary>
+        private decimal CalculerBaseCFCE_SelonParametres(decimal brutFiscalComplet)
+        {
+            try
+            {
+                var prm = new XPQuery<ParametresPaie>(Session).FirstOrDefault();
+                var mode = prm?.ModeBaseCFCE
+                    ?? DomainEnums.ModeBaseCFCE.AvecAvantagesNature;
+
+                return mode == DomainEnums.ModeBaseCFCE.SansAvantagesNature
+                    ? CalculerBaseCFCE_HorsAvantagesNature()
+                    : brutFiscalComplet;
+            }
+            catch
+            {
+                // En cas de problème lecture paramètre : on retombe sur le
+                // comportement par défaut (avec avantages nature).
+                return brutFiscalComplet;
+            }
+        }
+
+        /// <summary>
+        /// Base CFCE dédiée qui EXCLUT les avantages en nature.
+        /// Utilisée uniquement si <c>ParametresPaie.ModeBaseCFCE = SansAvantagesNature</c>.
+        /// Conforme à l'ancien système ELTON (bulletin DAF mai 2026 :
+        /// CFCE base = 5 879 859 hors Av Nature véhicule 20 000).
+        /// </summary>
+        private decimal CalculerBaseCFCE_HorsAvantagesNature()
+        {
+            return Lignes
+                .Where(l => l.Rubrique?.BrutFiscal == true
+                         && l.Rubrique.TypeCalcul != RubriqueTypeCalcul.Retenue
+                         && !EstAvantageEnNature(l.Rubrique))
+                .Sum(l => N(l.Montant));
+        }
+
+        /// <summary>
+        /// Détermine si une rubrique est un avantage en nature (imposable
+        /// ou non) — donc à exclure de la base CFCE.
+        /// On se base sur le code du TypeRef (commence par "AV_NAT").
+        /// </summary>
+        private static bool EstAvantageEnNature(Rubrique r)
+        {
+            var codeTypeRef = r?.TypeRef?.Code;
+            if (string.IsNullOrEmpty(codeTypeRef)) return false;
+            return codeTypeRef.StartsWith("AV_NAT", StringComparison.OrdinalIgnoreCase);
+        }
+
         // Cotisations sociales
         private void CalcCotisationDouble(BulletinLigne l, decimal assiette)
         {
@@ -905,7 +977,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             if (af != null) CalcCotisationDouble(af, brutSocial);
         }
 
-        // CFCE : part employeur uniquement, base = Brut Fiscal (non tronquée)
+        // CFCE : part employeur uniquement, base = brut fiscal HORS
+        //        avantages en nature (cf. CalculerBaseCFCE V1.8).
+        //        Le paramètre s'appelle historiquement brutSocial mais
+        //        reçoit en réalité la base CFCE dédiée depuis V1.8.
         private void CalculerCFCE(decimal brutSocial)
         {
             // Trouve la rubrique CFCE soit par canonique, soit par code
@@ -1351,25 +1426,49 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                     "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND Rubrique.Canonique = ?",
                     Salarie, Annee, Mois, RubriqueCanonique.IPRES_RC));
 
-            BrutFiscal_CumulAnnee = SumMontantByCriteria(
-                   CriteriaOperator.Parse(
-                       "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND " +
-                       "Rubrique.BrutFiscal = True AND Rubrique.TypeCalcul <> ?",
-                       Salarie, Annee, Mois, RubriqueTypeCalcul.Retenue));
+            // V1.8.1 — Bug fix : SumMontantByCriteria utilise Session.Evaluate
+            // qui ne voit pas les BulletinLigne ajoutées en mémoire (ex : ligne
+            // d'avantage en nature ajoutée manuellement). Résultat : Cumul YTD
+            // Brut Fiscal/Social en retard d'une modification.
+            //
+            // Solution : calculer via XPQuery sur les Bulletin (qui ont déjà
+            // leurs propriétés BrutFiscal/BrutSocial calculées en mémoire pour
+            // les bulletins dirty).
+            var sommeBrutFiscalAutres = new XPQuery<Bulletin>(Session)
+                .Where(b => b.Salarie != null
+                         && b.Salarie.Oid == Salarie.Oid
+                         && b.Annee == Annee
+                         && b.Mois <= Mois
+                         && b.Oid != this.Oid)
+                .Sum(b => b.BrutFiscal);
+            BrutFiscal_CumulAnnee = sommeBrutFiscalAutres + BrutFiscal;
 
-            BrutSocial_CumulAnnee = SumMontantByCriteria(
-                CriteriaOperator.Parse(
-                    "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND " +
-                    "Rubrique.BrutSocial = True AND Rubrique.TypeCalcul <> ?",
-                    Salarie, Annee, Mois, RubriqueTypeCalcul.Retenue));
-            NetAPayer_CumulAnnee = Convert.ToDecimal(
-    Session.Evaluate(
-        typeof(Bulletin),
-        CriteriaOperator.Parse("Sum(Iif(IsNull(NetAPayer), 0, NetAPayer))"),
-        CriteriaOperator.Parse("Salarie = ? AND Annee = ? AND Mois <= ?", Salarie, Annee, Mois)
-    ) ?? 0m
-);
+            var sommeBrutSocialAutres = new XPQuery<Bulletin>(Session)
+                .Where(b => b.Salarie != null
+                         && b.Salarie.Oid == Salarie.Oid
+                         && b.Annee == Annee
+                         && b.Mois <= Mois
+                         && b.Oid != this.Oid)
+                .Sum(b => b.BrutSocial);
+            BrutSocial_CumulAnnee = sommeBrutSocialAutres + BrutSocial;
+            // V1.8.1 — Bug fix : Session.Evaluate lisait les valeurs déjà
+            // commitées en BDD, sans tenir compte des modifications en
+            // mémoire du bulletin courant (ex : ajout d'une ligne d'avantage
+            // en nature qui change le NetAPayer). Résultat : Cumul YTD
+            // affichait l'ancien total au lieu du nouveau.
+            //
+            // Solution : on calcule la somme des AUTRES bulletins de l'année
+            // via XPQuery (qui voit les objets dirty), puis on ajoute le
+            // NetAPayer courant en mémoire.
+            var sommeAutresBulletins = new XPQuery<Bulletin>(Session)
+                .Where(b => b.Salarie != null
+                         && b.Salarie.Oid == Salarie.Oid
+                         && b.Annee == Annee
+                         && b.Mois <= Mois
+                         && b.Oid != this.Oid)
+                .Sum(b => b.NetAPayer);
 
+            NetAPayer_CumulAnnee = sommeAutresBulletins + NetAPayer;
         }
 
 

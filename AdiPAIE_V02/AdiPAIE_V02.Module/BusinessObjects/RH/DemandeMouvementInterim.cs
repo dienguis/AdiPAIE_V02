@@ -91,6 +91,23 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             DateSouhaitee = DateTime.Today.AddDays(7);
             try { SaisiPar = DevExpress.ExpressApp.SecuritySystem.CurrentUserName; } catch { }
             Reference = $"DMI-{DateTime.Today:yyyy}-{Guid.NewGuid().ToString()[..6].ToUpper()}";
+
+            // V1.7.2 — Auto-remplir Initiateur avec le Salarie de l'user courant.
+            // Permet à l'AssistantCommercial de créer une demande sans avoir
+            // d'accès lookup sur tous les Salaries (sécurité paie).
+            try
+            {
+                var userName = DevExpress.ExpressApp.SecuritySystem.CurrentUserName;
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    var salarieCourant = Session.FindObject<BusinessObjects.Salarie>(
+                        DevExpress.Data.Filtering.CriteriaOperator.Parse(
+                            "Email = ?", userName));
+                    if (salarieCourant != null)
+                        Initiateur = salarieCourant;
+                }
+            }
+            catch { /* non bloquant */ }
         }
 
         // ── Référence ─────────────────────────────────────────────────

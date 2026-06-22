@@ -1,4 +1,5 @@
 using AdiPAIE_V02.Module.Domain;
+using AdiPAIE_V02.Module.Services;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
@@ -10,6 +11,7 @@ using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
@@ -90,8 +92,53 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             try { CreePar = DevExpress.ExpressApp.SecuritySystem.CurrentUserName; } catch { }
             BaseCalcul = GratificationBaseCalcul.BrutRecurrent;
             Multiplicateur = 1m;
-            Annee = DateTime.Today.Year;
-            MoisPaiement = DateTime.Today.Month;
+
+            // V1.7.2 — Initialiser Année + Mois sur la PeriodePaie ouverte
+            // (évite la saisie sur un mois clôturé ou inexistant).
+            // Fallback : mois courant si aucune période n'est ouverte.
+            var periodeOuverte = PeriodePaieHelper.GetPeriodeOuverte(Session);
+            if (periodeOuverte != null)
+            {
+                Annee = periodeOuverte.Annee;
+                MoisPaiement = periodeOuverte.Mois;
+            }
+            else
+            {
+                Annee = DateTime.Today.Year;
+                MoisPaiement = DateTime.Today.Month;
+            }
+        }
+
+        // ═════════════════════════════════════════════════════════════
+        // V1.7.2 — Contrainte stricte sur la période ouverte
+        // La gratification s'intègre au bulletin du MoisPaiement.
+        // → La période de paie (Annee, MoisPaiement) DOIT exister et être Ouverte.
+        //
+        // Exceptions :
+        //   - Records IntegreeBulletin / Payee : figés, plus de revalidation
+        //   - Records Annule : autorisation à tout moment (clôture sans paiement)
+        // ═════════════════════════════════════════════════════════════
+        protected override void OnSaving()
+        {
+            base.OnSaving();
+            if (IsDeleted) return;
+            if (Statut == GratificationStatut.IntegreeBulletin) return;
+            if (Statut == GratificationStatut.Payee) return;
+            if (Statut == GratificationStatut.Annule) return;
+
+            var periode = Session.Query<PeriodePaie>()
+                .FirstOrDefault(p => p.Annee == Annee && p.Mois == MoisPaiement);
+
+            if (periode == null)
+                throw new DevExpress.ExpressApp.UserFriendlyException(
+                    $"Aucune période de paie n'existe pour {MoisPaiement:00}/{Annee}. " +
+                    $"Créez et ouvrez la période avant la saisie de la gratification.");
+
+            if (periode.Statut != PeriodePaieStatut.Ouverte)
+                throw new DevExpress.ExpressApp.UserFriendlyException(
+                    $"La période {MoisPaiement:00}/{Annee} doit être OUVERTE pour " +
+                    $"saisir une gratification (statut actuel : {periode.Statut}). " +
+                    $"Ouvrez la période avant la saisie.");
         }
 
         // ─────────────────────────────────────────────────────────
@@ -151,9 +198,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         decimal multiplicateur;
+        [DbType("decimal(18,2)")]
+        [EditorAlias(EditorAliases.DecimalPropertyEditor)]
         [XafDisplayName("Multiplicateur")]
         [ModelDefault("DisplayFormat", "{0:N2}")]
-        [ToolTip("Multiple du salaire (ex 2,5 = 2,5 mois). " +
+        [ModelDefault("EditMask", "n2")]
+        [ToolTip("Multiple du salaire (ex 2,5 = 2,5 mois ; 0,5 = 1/2 mois). " +
                  "Ignoré si BaseCalcul = Forfait.")]
         public decimal Multiplicateur
         {
@@ -210,7 +260,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         Bulletin bulletinLie;
-        [VisibleInListView(false)]
+        // V1.7.2 — Cache du DetailView (rempli auto par GratificationService
+        // .IntegrerAuBulletin qui résout le bulletin de la période ouverte).
+        // Visible uniquement dans la ListView pour traçabilité après intégration.
+        [VisibleInDetailView(false)]
+        [VisibleInListView(true)]
         [XafDisplayName("Bulletin de versement")]
         public Bulletin BulletinLie
         {

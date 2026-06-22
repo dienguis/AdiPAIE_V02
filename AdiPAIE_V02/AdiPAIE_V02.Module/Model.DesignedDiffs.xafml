@@ -2,7 +2,13 @@
 <Application xmlns="http://schemas.devexpress.com/eXpressApp/2005/01/Model.xafml" Title="SunuPaie" DateTimeFormat="dd/MM/yyyy" DateEditMask="dd/MM/yyyy">
   <ActionDesign>
     <Actions>
-      <Action Id="Bulletin_RecalculerMaintenant" PaintStyle="Caption" ImageName="btn_recalculer" Caption="Recalculer" />
+      <!-- V1.8 — Renommée de "Recalculer" en "Recharger bulletin" car
+           l'action ré-injecte les rubriques de salaire depuis le profil
+           (= méthode lourde Bulletin.RecalculerDepuisParametrage). -->
+      <Action Id="Bulletin_RecalculerMaintenant" PaintStyle="Caption" ImageName="btn_recalculer" Caption="Recharger bulletin" />
+      <!-- V1.8 — Nouvelle action "légère" : recalcule juste les cotisations
+           sur la grille existante, sans toucher aux rubriques de gain. -->
+      <Action Id="Bulletin_RecalculerCotisations" PaintStyle="Caption" ImageName="Action_Refresh" Caption="Recalculer cotisations" />
       <Action Id="Cancel" PaintStyle="Default" />
       <Action Id="ChargerDepuisModele" PaintStyle="Caption" ImageName="btn_charger" Caption="Charger modèle" />
       <Action Id="CloneObject" PaintStyle="Default" />
@@ -78,6 +84,11 @@
           <Item Id="RH_EcheancesPrets" Caption="Échéances prêts" ViewId="PretEcheance_ListView" Index="4" IsNewNode="True" />
           <Item Id="SimulationSursalaire_ListView" Caption="Simulations de paie" ViewId="SimulationSursalaire_ListView" Index="5" ImageName="Business_Calculator" IsNewNode="True" />
           <Item Id="Paie_GenererBulletins" Caption="Générer les bulletins" ViewId="Salarie_Generation_ListView" Index="6" ImageName="Action_Printing_Preview" Visible="False" IsNewNode="True" />
+          <!-- V1.7.2 — 13ième mois & Gratifications -->
+          <Item Id="Paie_TreiziemeMois" Caption="13ième mois" ViewId="TreiziemeMois_ListView" Index="7" ImageName="BO_Money" IsNewNode="True" />
+          <Item Id="Paie_ProvisionTreiziemeMois" Caption="Provision 13ième (DAF)" ViewId="ProvisionTreiziemeMois_ListView" Index="8" ImageName="BO_Calculator" IsNewNode="True" />
+          <Item Id="Paie_Gratifications" Caption="Gratifications" ViewId="Gratification_ListView" Index="9" ImageName="BO_Money" IsNewNode="True" />
+          <Item Id="Paie_RapportGratifications" Caption="Rapport gratifications" ViewId="RapportGratification_ListView" Index="10" ImageName="BO_Report" IsNewNode="True" />
         </Items>
       </Item>
       <Item Id="Ressources humaines" Caption="Gestion du personnel" Index="5" ImageName="BO_Employee" IsNewNode="True">
@@ -316,6 +327,11 @@
         <PropertyEditor Id="TotalCotisationsSociales" DisplayFormat="{0:N0}" EditMask="N0" AllowEdit="False" />
         <PropertyEditor Id="TotalGains" DisplayFormat="{0:N0}" EditMask="N0" AllowEdit="False" />
         <PropertyEditor Id="TotalRetenuesFiscales" DisplayFormat="{0:N0}" EditMask="N0" AllowEdit="False" />
+        <!-- V1.8 — Tentative initiale retirée : forcer la vue dédiée
+             Bulletin_Lignes_ListView via PropertyEditor cassait le
+             rendu du DetailView. Le bouton "Nouveau" est désormais
+             contourné par l'action "Ajouter une ligne" dans la barre
+             Edit (cf. BulletinAjouterLigneController). -->
       </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100">
@@ -445,7 +461,11 @@
         <PropertyEditor Id="Taux" DisplayFormat="{0:n2}" />
       </Items>
     </DetailView>
-    <ListView Id="BulletinLigne_ListView">
+    <ListView Id="BulletinLigne_ListView" AllowNew="True" AllowEdit="True" AllowDelete="True">
+      <!-- V1.8 — AllowNew/AllowEdit/AllowDelete explicitement à True pour
+           que le bouton "Nouveau" apparaisse sur la grille des lignes dans
+           le DetailView du Bulletin (sans cet attribut, XAF Blazor pouvait
+           masquer le bouton selon le contexte d'utilisation imbriquée). -->
       <Columns>
         <ColumnInfo Id="IsSystem" Index="-1" Visible="False" />
         <ColumnInfo Id="OrdreLigne" SortIndex="2" SortOrder="Ascending" Index="-1" Width="120" Visible="False" />
@@ -796,8 +816,9 @@
                   <LayoutItem Id="IR_Regularisation_MoisDepart" ViewItem="IR_Regularisation_MoisDepart" RelativeSize="63.333333333333336" Index="1" IsNewNode="True" />
                 </LayoutGroup>
               </LayoutGroup>
-              <LayoutGroup Id="Fisc_Divers" ShowCaption="True" Caption="Options" Direction="Vertical" RelativeSize="14.263803680981596" Index="2" IsNewNode="True">
-                <LayoutItem Id="R_IR_TronquerBaseAuxMille" ViewItem="R_IR_TronquerBaseAuxMille" RelativeSize="100" Index="0" IsNewNode="True" />
+              <LayoutGroup Id="Fisc_Divers" ShowCaption="True" Caption="Options" Direction="Horizontal" RelativeSize="14.263803680981596" Index="2" IsNewNode="True">
+                <LayoutItem Id="R_IR_TronquerBaseAuxMille" ViewItem="R_IR_TronquerBaseAuxMille" RelativeSize="50" Index="0" IsNewNode="True" />
+                <LayoutItem Id="ModeBaseCFCE" ViewItem="ModeBaseCFCE" RelativeSize="50" Index="1" IsNewNode="True" />
               </LayoutGroup>
               <LayoutGroup Id="Fisc_Red" ShowCaption="True" Caption="Réduction familiale" Direction="Horizontal" RelativeSize="45.5521472392638" Index="3" IsNewNode="True">
                 <LayoutItem Id="R_IR_ReductionFamille_MaxParPart_Annuel" ViewItem="R_IR_ReductionFamille_MaxParPart_Annuel" RelativeSize="33.55481727574751" Index="0" IsNewNode="True" />
@@ -900,8 +921,9 @@
                 </LayoutGroup>
               </LayoutGroup>
             </LayoutGroup>
-            <LayoutGroup Id="Tab_Seed" ShowCaption="True" Caption="Données démo" RelativeSize="100" Index="9" IsNewNode="True">
-              <LayoutItem Id="ActiverSeedDemo" ViewItem="ActiverSeedDemo" RelativeSize="100" Index="0" IsNewNode="True" />
+            <LayoutGroup Id="Tab_Seed" ShowCaption="True" Caption="Référentiel paie" RelativeSize="100" Index="9" IsNewNode="True">
+              <LayoutItem Id="ActiverSeedReferentiel" ViewItem="ActiverSeedReferentiel" RelativeSize="50" Index="0" IsNewNode="True" />
+              <LayoutItem Id="ModeBulletinConges" ViewItem="ModeBulletinConges" RelativeSize="50" Index="1" IsNewNode="True" />
             </LayoutGroup>
             <LayoutGroup Id="Tab_Templates" ShowCaption="True" Caption="Templates documents" RelativeSize="100" Index="10" IsNewNode="True">
               <LayoutGroup Id="Tmpl_Attestations" ShowCaption="True" Caption="Attestations" Direction="Vertical" RelativeSize="30.828220858895705" Index="0" IsNewNode="True">
@@ -981,7 +1003,7 @@
         <ColumnInfo Id="TemplateEntretienAnnuel" Index="-1" />
         <ColumnInfo Id="TemplateEtatFrais" Index="-1" />
         <ColumnInfo Id="TemplateOrdreMission" Index="-1" />
-        <ColumnInfo Id="ActiverSeedDemo" Width="201" />
+        <ColumnInfo Id="ActiverSeedReferentiel" Width="201" />
       </Columns>
     </ListView>
     <ListView Id="Party_PhoneNumbers_ListView">
@@ -1430,6 +1452,28 @@
         <ColumnInfo Id="NetAPayer" PropertyName="NetAPayer" Index="3" Width="140" IsNewNode="True" />
         <ColumnInfo Id="DatePublication" PropertyName="DatePublication" Index="4" Width="140" IsNewNode="True" />
       </Columns>
+      <!-- V1.7.2 — Cacher les actions RH (Publier/Dépublier/Notifier/Valider/Exports)
+           sur l'espace salarié. Ces actions restent visibles sur la vue
+           "Bulletin_ListView" pour les rôles RH/DAF. -->
+      <HiddenActions IsNewNode="True">
+        <ActionLink Id="PublierBulletin" IsNewNode="True" />
+        <ActionLink Id="DepublierBulletin" IsNewNode="True" />
+        <ActionLink Id="RenotifierBulletin" IsNewNode="True" />
+        <ActionLink Id="ValiderBulletin" IsNewNode="True" />
+        <ActionLink Id="CloturerBulletin" IsNewNode="True" />
+        <ActionLink Id="ReouvrirBulletin" IsNewNode="True" />
+        <ActionLink Id="ImprimerBulletin" IsNewNode="True" />
+        <ActionLink Id="ExporterBulletinsMoisCourant" IsNewNode="True" />
+        <ActionLink Id="ExporterBulletinsSelection" IsNewNode="True" />
+        <ActionLink Id="EnvoyerBulletinEmail" IsNewNode="True" />
+        <ActionLink Id="RenvoyerBulletin" IsNewNode="True" />
+        <ActionLink Id="ValiderEtEnvoyer" IsNewNode="True" />
+        <ActionLink Id="Bulletin_RecalculerMaintenant" IsNewNode="True" />
+        <ActionLink Id="Bulletin_RecalculerCotisations" IsNewNode="True" />
+        <ActionLink Id="Bulletin_AjouterHS" IsNewNode="True" />
+        <ActionLink Id="NormalizeBulletinLines" IsNewNode="True" />
+        <ActionLink Id="ToggleBulletinScope" IsNewNode="True" />
+      </HiddenActions>
     </ListView>
     <ListView Id="Salarie_Paie_ListView" ClassName="AdiPAIE_V02.Module.BusinessObjects.Salarie" AllowNew="False" AllowDelete="False" Caption="Liste des Salariés actifs" Filter="[IsActif] = True" ImageName="Employees" IsNewNode="True">
       <Columns IsNewNode="True">

@@ -1,11 +1,33 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
+using DevExpress.Xpo;
+using System.Linq;
+using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.Services
 {
     public static class PeriodePaieHelper
     {
+        /// <summary>
+        /// V1.7.2 — Retourne la période de paie actuellement OUVERTE (la plus
+        /// récente si plusieurs). Utilisée pour initialiser intelligemment
+        /// les nouveaux 13ièmes mois / gratifications afin d'éviter qu'un
+        /// utilisateur les saisisse sur un mois clôturé ou inexistant.
+        ///
+        /// Retourne null si aucune période n'est ouverte.
+        /// </summary>
+        public static PeriodePaie GetPeriodeOuverte(Session session)
+        {
+            if (session == null) return null;
+            return session.Query<PeriodePaie>()
+                .Where(p => p.Statut == PeriodePaieStatut.Ouverte)
+                .OrderByDescending(p => p.Annee)
+                .ThenByDescending(p => p.Mois)
+                .FirstOrDefault();
+        }
+
+
         /// <summary>
         /// Crée (si manquantes) les périodes d'une année.
         /// </summary>

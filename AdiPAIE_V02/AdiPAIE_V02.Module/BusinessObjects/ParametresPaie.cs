@@ -24,15 +24,64 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public string DisplayName => (string)EvaluateAlias(nameof(DisplayName));
 
         // ── ONGLET 1 : Général ──────────────────────────────────────
-        // ============== SEED / Démo ====================
+        // ============== SEED / Référentiel paie ====================
+        //
+        // V1.7.2 — Renommé de "ActiverSeedDemo" vers "ActiverSeedReferentiel"
+        // pour refléter la réalité : cette case déclenche le seed du
+        // RÉFÉRENTIEL DE PAIE (conventions, catégories, échelons, comptes,
+        // groupes, types de rubrique, rubriques officielles, barèmes
+        // TRIMF + IR). Elle NE crée AUCUN salarié démo.
+        //
+        // Les VRAIES données démo (salariés DEMO_*, bulletins fictifs, etc.)
+        // sont gérées séparément par DemoDataSeeder.EnsureAll() qui est
+        // contrôlé par la variable d'environnement DASHBOARDS_SEED_DEMO
+        // ou le setting "SeedDemoData" dans appsettings.json (cf. méthode
+        // IsDemoSeedEnabled() dans Updater.cs).
+        //
+        // [Persistent("ActiverSeedDemo")] préserve le nom de colonne SQL
+        // pour ne pas casser les bases existantes — la propriété C# devient
+        // ActiverSeedReferentiel mais la colonne SQL reste ActiverSeedDemo.
         [Category("Général")]
-        [XafDisplayName("Activer le jeu de données démo")]
-        public bool ActiverSeedDemo
+        [XafDisplayName("Activer le seed du référentiel paie")]
+        [ToolTip("Coche cette case avant le 1er démarrage pour initialiser " +
+                 "le référentiel ELTON : conventions, catégories, échelons, " +
+                 "plan comptable, rubriques (SB, IPRES, CSS, TRIMF, IR…), " +
+                 "barèmes fiscaux. " +
+                 "Idempotent : ne crée que ce qui manque. " +
+                 "Ne crée PAS de salariés démo. " +
+                 "Décocher après init pour accélérer le démarrage.")]
+        [Persistent("ActiverSeedDemo")]
+        public bool ActiverSeedReferentiel
         {
             get => actSeed;
-            set => SetPropertyValue(nameof(ActiverSeedDemo), ref actSeed, value);
+            set => SetPropertyValue(nameof(ActiverSeedReferentiel), ref actSeed, value);
         }
         bool actSeed;
+
+        // ─────────────────────────────────────────────────────────────
+        // V1.8 — Mode de traitement des congés dans le bulletin
+        //
+        // Pratique ELTON actuelle = BulletinUnique : 1 seul bulletin
+        // mensuel avec la rubrique "Congés" (code 23) qui remplace les
+        // rubriques de salaire normal pendant le mois de congé.
+        //
+        // BulletinSepare = 2 bulletins distincts (salaire normal + congé).
+        // Option prévue par anticipation à la demande du RH (juin 2026)
+        // pour permettre une évolution future sans modification de code.
+        // ─────────────────────────────────────────────────────────────
+        [Category("Général")]
+        [XafDisplayName("Mode bulletin de congé")]
+        [ToolTip("Détermine si l'allocation de congé est intégrée au bulletin " +
+                 "mensuel (pratique actuelle ELTON) ou émise sur un bulletin " +
+                 "de congé séparé. Modifiable à tout moment, prend effet sur " +
+                 "les bulletins générés après le changement.")]
+        public AdiPAIE_V02.Module.Domain.DomainEnums.ModeBulletinConges ModeBulletinConges
+        {
+            get => modeBulletinConges;
+            set => SetPropertyValue(nameof(ModeBulletinConges), ref modeBulletinConges, value);
+        }
+        AdiPAIE_V02.Module.Domain.DomainEnums.ModeBulletinConges modeBulletinConges
+            = AdiPAIE_V02.Module.Domain.DomainEnums.ModeBulletinConges.BulletinUnique;
 
         // ============== Signataire (états / PDF) =======
         [Size(120)]
@@ -149,9 +198,41 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         bool irTroncMille;
 
+        // ─────────────────────────────────────────────────────────────
+        // V1.8 — Base de calcul de la CFCE (Sénégal)
+        //
+        // Divergence d'interprétation : l'ancien système ELTON excluait
+        // les avantages en nature de la base CFCE (le DAF de mai 2026 avait
+        // CFCE base = 5 879 859 hors avantage véhicule 20 000). Le DAF
+        // actuel considère que la CFCE doit inclure les avantages nature
+        // (aligné sur IR/TRIMF/IRPP, plus simple à justifier auprès du fisc).
+        //
+        // Par défaut : AvecAvantagesNature (position DAF actuel).
+        // Modifier ici si l'audit fiscal demande l'inverse.
+        // ─────────────────────────────────────────────────────────────
+        [Category("Fiscalité")]
+        [XafDisplayName("CFCE – Mode base de calcul")]
+        [ToolTip("Détermine si les avantages en nature (véhicule, téléphone, " +
+                 "logement) sont inclus ou non dans la base de calcul de la " +
+                 "CFCE. À aligner avec la position du DAF / audit fiscal. " +
+                 "Le changement prend effet sur les bulletins recalculés " +
+                 "APRÈS la modification (pas les bulletins déjà clôturés).")]
+        public AdiPAIE_V02.Module.Domain.DomainEnums.ModeBaseCFCE ModeBaseCFCE
+        {
+            get => modeBaseCFCE;
+            set => SetPropertyValue(nameof(ModeBaseCFCE), ref modeBaseCFCE, value);
+        }
+        AdiPAIE_V02.Module.Domain.DomainEnums.ModeBaseCFCE modeBaseCFCE
+            = AdiPAIE_V02.Module.Domain.DomainEnums.ModeBaseCFCE.AvecAvantagesNature;
+
         [Category("Fiscalité")]
         [DbType("decimal(18,2)")]
-        [ModelDefault("DisplayFormat", "p0"), ModelDefault("EditMask", "p0")]
+        // V1.8 — Le format "p0" multipliait par 100 → 30 affiché comme 3 000 %.
+        // Correction : on stocke et affiche la valeur brute (ex: 30 pour 30%).
+        // Le label "(% abattement annuel)" indique déjà qu'il s'agit d'un %.
+        [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [ToolTip("Taux d'abattement IMAB en pourcentage (saisir la valeur brute : " +
+                 "30 pour 30 %, 25 pour 25 %, etc.). Par défaut au Sénégal : 30 %.")]
         [XafDisplayName("IR – IMAB (% abattement annuel)")]
         public decimal R_IR_Abattement_TauxPercent
         {
@@ -205,7 +286,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // ============== IR : Réduction familiale =========
         [Category("Fiscalité")]
         [DbType("decimal(18,2)")]
-        [ModelDefault("DisplayFormat", "p0"), ModelDefault("EditMask", "p0")]
+        // V1.8 — Idem IMAB : format "p0" multipliait par 100, on stocke
+        // et affiche la valeur brute (ex: 30 pour 30%).
+        [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
+        [ToolTip("Pourcentage de réduction familiale par défaut (saisir la " +
+                 "valeur brute : 30 pour 30 %).")]
         [XafDisplayName("Réduction familiale – % par défaut")]
         public decimal R_IR_ReductionFamille_Pourcentage
         {

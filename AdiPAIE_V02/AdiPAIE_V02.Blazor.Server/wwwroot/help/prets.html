@@ -28,6 +28,89 @@
     suivi du remboursement, suspension/reprise, et clôture en fin
     d'amortissement.</p>
 
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div style="background:#fff8e1;border:2px solid #ffa726;border-radius:8px;padding:1em 1.5em;margin:1.5em 0;">
+        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) — Reprise d'un prêt en cours (mise en prod)</h2>
+
+        <p>Quand vous reprenez dans AdiPAIE un prêt déjà en cours d'amortissement
+        depuis l'ancien système, suivez <strong>impérativement</strong> cette
+        procédure pour éviter les écarts de mensualité :</p>
+
+        <table>
+            <tr><th>Champ</th><th>Valeur à saisir</th><th>Pourquoi</th></tr>
+            <tr>
+                <td><code>MontantPrincipal</code></td>
+                <td><strong>Solde restant TTC</strong> lu sur l'ancien système
+                    (= capital restant + intérêts résiduels)</td>
+                <td>C'est ce qu'il reste à rembourser globalement</td>
+            </tr>
+            <tr>
+                <td><code>TauxAnnuelPercent</code></td>
+                <td><strong>0 %</strong></td>
+                <td>⚠️ <strong>Crucial</strong> : les intérêts sont déjà inclus
+                    dans le solde restant. Si vous laissez le taux d'origine
+                    (ex: 8 %), AdiPAIE rajoute des intérêts par-dessus → la
+                    mensualité sera trop grosse.</td>
+            </tr>
+            <tr>
+                <td><code>DureeMois</code></td>
+                <td>Nombre <strong>entier</strong> de mois restants</td>
+                <td>Si la date de fin tombe mi-mois (ex: 4,5 mois), arrondir au
+                    plus proche puis ajuster manuellement la dernière échéance
+                    après génération</td>
+            </tr>
+            <tr>
+                <td><code>ModeAmortissement</code></td>
+                <td><strong>PrincipalConstant</strong></td>
+                <td>Étalement linéaire : chaque échéance = Solde / DureeMois.
+                    La dernière mensualité absorbe le reliquat exact.</td>
+            </tr>
+            <tr>
+                <td><code>DateDebut</code></td>
+                <td>Date de la <strong>première échéance restante</strong>
+                    (= 1er mois où la retenue va commencer dans AdiPAIE)</td>
+                <td>≠ date de signature du prêt original</td>
+            </tr>
+        </table>
+
+        <h3 style="color:#e65100;">📊 Exemple chiffré</h3>
+        <p>Prêt initial : 1 000 000 FCFA, 12 mois à 8 %/an, signé en janvier 2026.<br>
+        Reste à payer au 1er juillet 2026 : <strong>530 000 FCFA TTC</strong>
+        sur 6 mois restants.</p>
+
+        <p>✅ <strong>Saisie correcte</strong> :</p>
+        <ul>
+            <li>MontantPrincipal = <strong>530 000</strong></li>
+            <li>TauxAnnuelPercent = <strong>0</strong></li>
+            <li>DureeMois = <strong>6</strong></li>
+            <li>ModeAmortissement = <strong>PrincipalConstant</strong></li>
+            <li>DateDebut = <strong>01/07/2026</strong></li>
+        </ul>
+        <p>→ Échéances générées : 5 mensualités de 88 333 FCFA + 1 dernière à 88 335 FCFA (reliquat). Total = exactement 530 000.</p>
+
+        <p>❌ <strong>Erreur fréquente</strong> : laisser TauxAnnuelPercent = 8% →
+        AdiPAIE calcule des intérêts sur les 530 000, mensualité = ~91 000 FCFA
+        au lieu de 88 333. Le salarié rembourse <strong>plus que prévu</strong>.</p>
+
+        <h3 style="color:#e65100;">💡 Conseils pratiques</h3>
+        <ul>
+            <li>Pour <strong>tracer l'origine</strong> du prêt, renseigner le
+                champ <code>Référence</code> avec un suffixe "ANC-" :
+                <code>ANC-PRET-001</code>, <code>ANC-AVANCE-042</code>, etc.</li>
+            <li>Pour <strong>vérifier</strong> que l'échéancier est correct :
+                après génération, ouvrir l'onglet "Échéances" du prêt et
+                contrôler que la somme totale = solde initial saisi.</li>
+            <li>En cas d'<strong>écart de quelques FCFA</strong> sur la dernière
+                échéance : c'est normal (arrondi à l'entier sur chaque
+                mensualité), la dernière absorbe le reliquat.</li>
+            <li>Si la durée restante est <strong>décimale</strong> (ex: 4,5 mois),
+                préférer arrondir à 5 mois et laisser la dernière mensualité
+                plus petite, plutôt qu'arrondir à 4 mois et avoir une dernière
+                mensualité plus grosse que les autres.</li>
+        </ul>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
     <div class="toc">
         <strong>📑 Étapes du processus</strong>
         <ol>
