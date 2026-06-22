@@ -2414,11 +2414,13 @@ Script automatisé disponible : `docs/deployment/Commit-V18.ps1`
 | Élément | Valeur |
 |---|---|
 | Branche | `dev` |
-| Hash | `201ad09` |
+| Hash initial | `201ad09` (avant amend) |
+| Hash final | `4bd896e` (après amend incluant MISSION_STATE.md) |
 | Date | 22 juin 2026 |
-| Fichiers changés | 48 |
-| Insertions | +6 531 |
+| Fichiers changés | 49 (48 code/docs + MISSION_STATE.md) |
+| Insertions | +6 531 (+ deltas amend) |
 | Suppressions | -333 |
+| Remote | `origin/dev` (pushé avec `--force-with-lease`) |
 | Titre | `V1.8 — Refonte calcul congés + ICCP + RBAC autonomes + Net hors AvNature` |
 
 **Procédure exécutée** :
