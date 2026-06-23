@@ -2522,3 +2522,97 @@ ascendante sur libellé commençant par "Cadre" hors "Non").
   bulletin → ligne IPRES_RC disparaît
 - Cas limite : `Categories.Intitule = null` ou vide → pas de crash, retourne `false`
 
+---
+
+## 🔧 V1.8.2 — HOTFIX IR calculé avec des parts fiscales figées (22 juin 2026)
+
+### Bug
+
+Cas réel : **Papa Souleymane DIOP** (matricule 420023, AM3) — fiche salarié
+indique `NombrePartsFiscales = 3,5` mais le bulletin janvier 2026 calcule
+l'IR avec **3 parts** au lieu de 3,5.
+
+| Élément | Ancien système | AdiPAIE V1.8.1 | Écart |
+|---|---|---|---|
+| Brut fiscal | 965 547 | 965 547 | 0 ✓ |
+| Parts utilisées | 3,5 | **3,0** ❌ | -0,5 |
+| Réduction familiale (annuelle) | 994 680 (30%) | 828 900 (25%) | -165 780 |
+| Retenue IR mensuelle | 193 410 | **207 225** | **+13 815** |
+| Net à payer | 643 139 | 629 324 | -13 815 |
+
+### Cause racine
+
+`Bulletin.CalculerIRPP()` lignes 1285-1288 (V1.8.1) :
+
+```csharp
+decimal parts = (ir.Taux.HasValue && ir.Taux.Value > 0m)
+    ? ir.Taux.Value                                          // 1. existant prioritaire
+    : Math.Max(1m, Salarie?.NombrePartsFiscales ?? 1m);      // 2. fallback fiche
+ir.Taux = parts;
+```
+
+Le code prenait `ir.Taux` (le champ Taux de la ligne IR du bulletin) **en
+priorité** s'il était déjà renseigné. Si la ligne IR avait été créée avec un
+Taux figé (par un précédent calcul, un BulletinModele, un import, ou un
+ajout manuel), ce Taux restait verrouillé **à jamais**, même si le RH mettait
+ensuite à jour `NombrePartsFiscales` sur la fiche salarié.
+
+Pour Papa Souleymane DIOP, la ligne IR avait été créée à 3 parts à une époque
+antérieure. Le RH a corrigé la fiche à 3,5 (suite naissance / changement de
+situation familiale), mais le bulletin a continué à utiliser 3 parts au
+recalcul → réduction 25% au lieu de 30% → +13 815 FCFA d'IR.
+
+### Correctif
+
+| Fichier | Modification |
+|---|---|
+| `BusinessObjects/Bulletin.cs` — `CalculerIRPP()` | La fiche salarié est **toujours** la source de vérité : `parts = Math.Max(1m, Salarie?.NombrePartsFiscales ?? 1m)`. `ir.Taux` n'est plus qu'un reflet d'affichage écrasé à chaque recalcul. |
+
+Note : `SimulationSursalaire.cs` n'est pas affecté — il lit directement
+`Salarie.NombrePartsFiscales` (pas via une ligne figée).
+
+### Comportement avant / après
+
+| Cas | Avant V1.8.2 | Après V1.8.2 |
+|---|---|---|
+| RH met à jour NombrePartsFiscales sur la fiche | Bulletin existant garde l'ancienne valeur | Prochain recalcul prend la nouvelle |
+| Bulletin créé à neuf | ir.Taux null → fallback fiche ✓ | ir.Taux écrasé par fiche ✓ |
+| Bulletin importé avec Taux=1 | Reste à 1 part (faux) | Écrasé par fiche au 1er recalcul ✓ |
+| Override manuel par l'admin | Possible (ir.Taux respecté) | Plus possible — toujours écrasé. Si besoin futur d'override, ajouter un flag `IsManual` (V1.9). |
+
+### Procédure post-déploiement V1.8.2
+
+1. `dotnet build` (vérification)
+2. Déploiement IIS
+3. **Pour tous les bulletins déjà calculés avec un Taux IR incorrect** :
+   - Ouvrir le bulletin → cliquer **"Recharger bulletin"** → le calcul
+     réécrit ir.Taux avec la valeur courante de NombrePartsFiscales
+   - Ou en masse : audit SQL puis "Recalculer cotisations" en batch
+4. **Audit SQL pour identifier les bulletins impactés** :
+
+```sql
+-- Bulletins où le Taux IR diffère du NombrePartsFiscales actuel du salarié
+SELECT
+    b.Annee, b.Mois, s.Matricule, s.Prenom + ' ' + s.Nom AS Salarie,
+    bl.Taux AS Parts_Bulletin,
+    s.NombrePartsFiscales AS Parts_Fiche,
+    bl.Montant AS IR_Calcule,
+    b.Oid AS Bulletin_Oid
+FROM BulletinLigne bl
+INNER JOIN Bulletin b ON b.Oid = bl.Bulletin
+INNER JOIN Salarie s ON s.Oid = b.Salarie
+INNER JOIN Rubrique r ON r.Oid = bl.Rubrique
+INNER JOIN RubriqueCanonique rc ON rc.Oid = r.Canonique
+WHERE bl.GCRecord IS NULL AND b.GCRecord IS NULL
+  AND rc.Code = 'IRPP'  -- adapter au code canonique réel
+  AND ABS(ISNULL(bl.Taux, 0) - ISNULL(s.NombrePartsFiscales, 0)) > 0.001
+ORDER BY b.Annee DESC, b.Mois DESC, s.Matricule;
+```
+
+### Tests à valider en recette
+
+- Bulletin Papa Souleymane DIOP recalculé → ir.Taux = 3,5 et IR = 193 410 ✓
+- Changer NombrePartsFiscales sur une fiche → recalcul bulletin → IR mis à jour
+- Bulletin nouvellement créé pour un salarié à 2 parts → IR cohérent
+- Salarié sans NombrePartsFiscales défini → fallback à 1 part (pas de crash)
+

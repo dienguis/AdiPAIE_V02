@@ -1282,10 +1282,20 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             var p = new XPQuery<ParametresPaie>(Session).FirstOrDefault();
             var bareme = GetBaremeIR();
 
-            decimal parts = (ir.Taux.HasValue && ir.Taux.Value > 0m)
-                ? ir.Taux.Value
-                : Math.Max(1m, Salarie?.NombrePartsFiscales ?? 1m);
-            ir.Taux = parts; // affichage des parts utilisées
+            // V1.8.2 — Bug fix : avant on prenait ir.Taux EN PRIORITÉ s'il
+            // existait, sinon fallback sur Salarie.NombrePartsFiscales. Effet
+            // pervers : si la ligne IR avait été créée avec un Taux (parts)
+            // figé (ex: bulletin précédent, BulletinModele, import), le
+            // recalcul gardait cette valeur EN PERMANENCE même si le RH avait
+            // mis à jour NombrePartsFiscales sur la fiche salarié.
+            // Cas réel ELTON : Papa Souleymane DIOP, fiche = 3,5 parts mais
+            // bulletin V1.8 calculait avec 3 parts (réduc familiale 25% au
+            // lieu de 30%) → IR à 207 225 au lieu de 193 410.
+            //
+            // Maintenant : la fiche salarié est TOUJOURS la source de vérité.
+            // ir.Taux est juste un reflet d'affichage écrasé à chaque recalcul.
+            decimal parts = Math.Max(1m, Salarie?.NombrePartsFiscales ?? 1m);
+            ir.Taux = parts; // affichage des parts utilisées (toujours = NombrePartsFiscales)
 
             var baseMensuelle = (p?.R_IR_TronquerBaseAuxMille ?? true) ? TroncMille(brutFiscal) : brutFiscal;
 
