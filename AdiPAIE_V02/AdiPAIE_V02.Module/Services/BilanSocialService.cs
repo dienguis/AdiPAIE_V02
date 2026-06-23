@@ -499,10 +499,20 @@ namespace AdiPAIE_V02.Module.Services
                s.Nationalite.ToUpperInvariant().Contains("SENE") ||
                s.Nationalite.ToUpperInvariant().Contains("SN");
 
+        // V1.8.1 — Détection « cadre » via le drapeau Categories.EstCadre
+        // d'abord, avec fallback sur l'ancienne heuristique. Avant :
+        // cat.Contains("CADRE") matchait à tort "NON CADRE" → tous les
+        // non-cadres comptés comme cadres dans le bilan social.
         private static string GetStatutLabel(Salarie s)
         {
-            var cat = s.Categories?.Intitule?.ToUpperInvariant() ?? "";
-            if (cat.Contains("CADRE")) return "Cadres";
+            if (s?.Categories?.EstCadre == true) return "Cadres";
+
+            var cat = s?.Categories?.Intitule?.ToUpperInvariant() ?? "";
+            // Sécurité : un libellé contenant "NON" ne peut pas être cadre
+            bool aMotNon = System.Text.RegularExpressions.Regex.IsMatch(
+                cat, @"\bNON\b");
+
+            if (!aMotNon && cat.TrimStart().StartsWith("CADRE")) return "Cadres";
             if (cat.Contains("MAITRISE") || cat.Contains("MAÎTRISE")) return "Maitrise";
             if (cat.Contains("EMPLOYE") || cat.Contains("EMPLOYÉ")) return "Employes";
             return "Ouvriers";

@@ -948,10 +948,34 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             if (!l.OrdreCalcul.HasValue) l.OrdreCalcul = l.Rubrique?.OrdreAffichage;
         }
 
+        // ---------------------------------------------------------------------
+        // V1.8.1 — Détection « cadre » via drapeau explicite sur Categories
+        //
+        // AVANT (V1.8) : on cherchait le mot "cadre" dans le libellé via
+        // IndexOf, ce qui matchait à tort "Non cadre" / "Non-cadre".
+        // Conséquence : IPRES Régime Cadre appliqué à tort à des non-cadres.
+        //
+        // MAINTENANT : on lit le booléen Categories.EstCadre, coché manuellement
+        // par le RH. Fallback sur l'ancienne heuristique uniquement si le
+        // booléen est faux ET que le libellé commence par "Cadre" (compat
+        // ascendante pour les catégories pas encore migrées).
+        // ---------------------------------------------------------------------
         private bool EstCadre(Salarie s)
         {
-            var lib = s?.Categories?.Intitule ?? s?.Echelon?.Categories?.Intitule;
-            return lib != null && lib.IndexOf("cadre", StringComparison.OrdinalIgnoreCase) >= 0;
+            var cat = s?.Categories ?? s?.Echelon?.Categories;
+            if (cat == null) return false;
+            if (cat.EstCadre) return true;
+
+            // Compat ascendante : tant que le RH n'a pas migré toutes ses
+            // catégories, on accepte aussi les libellés qui commencent par
+            // "Cadre" et ne contiennent pas "Non". À retirer en V1.9.
+            var lib = (cat.Intitule ?? "").Trim();
+            if (string.IsNullOrEmpty(lib)) return false;
+            if (System.Text.RegularExpressions.Regex.IsMatch(
+                    lib, @"\bnon\b",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                return false;
+            return lib.StartsWith("cadre", StringComparison.OrdinalIgnoreCase);
         }
 
         private void CalculerIPRES_CSS(decimal brutSocial)
@@ -967,7 +991,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             }
             else if (rc != null)
             {
-                rc.Base = 0m; rc.Taux = 0m; rc.Montant = 0m; rc.MontantEmployeur = 0m; rc.IsSystem = true;
+                // V1.8.1 — On supprime carrément la ligne IPRES_RC pour les
+                // non-cadres (avant on la laissait à 0, ce qui polluait le
+                // bulletin avec une ligne vide). Comportement attendu : aucune
+                // trace d'IPRES Régime Cadre sur le bulletin d'un non-cadre.
+                Lignes.Remove(rc);
+                rc.Delete();
             }
 
             var at = EnsureLine(RubriqueCanonique.CSS_AccidentTravail);

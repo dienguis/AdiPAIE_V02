@@ -65,6 +65,30 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(Convention), ref convention, value);
         }
 
+        // ---------------------------------------------------------------------
+        // V1.8.1 — Drapeau explicite « Catégorie cadre »
+        //
+        // Pourquoi : la détection de cadre se faisait par recherche du mot
+        // "cadre" dans le libellé (IndexOf), ce qui matchait à tort les
+        // libellés "Non cadre" / "Non-cadre" → IPRES Régime Cadre appliqué à
+        // tort à des non-cadres.
+        //
+        // À cocher manuellement par le RH pour chaque catégorie qui doit
+        // déclencher la cotisation IPRES_RC (en plus du régime général).
+        // Un Updater initialise automatiquement les valeurs existantes selon
+        // la convention "libellé commence par 'cadre' ET ne contient pas 'non'".
+        // ---------------------------------------------------------------------
+        private bool estCadre;
+        [XafDisplayName("Catégorie cadre ?")]
+        [ToolTip("Cocher si cette catégorie déclenche la cotisation IPRES Régime Cadre " +
+                 "(en plus du régime général). Décocher pour les catégories non-cadre " +
+                 "(employés, ouvriers, agents de maîtrise, etc.).")]
+        public bool EstCadre
+        {
+            get => estCadre;
+            set => SetPropertyValue(nameof(EstCadre), ref estCadre, value);
+        }
+
         [Association("Categories-Echelons")]
         public XPCollection<Echelons> Echelons
         {

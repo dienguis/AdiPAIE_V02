@@ -765,6 +765,20 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             // enrichies (les V1.5 DemandeMouvementInterim notamment).
             // ═══════════════════════════════════════════════════════
             EnsureRolesGRHInitialized();
+
+            // ═══════════════════════════════════════════════════════
+            // V1.8.1 — Initialisation Categories.EstCadre
+            //
+            // Pré-coche EstCadre = true pour les catégories dont le libellé
+            // commence par "Cadre" (et ne contient pas "Non"). Le RH peut
+            // ensuite ajuster manuellement via l'UI XAF (Référentiels →
+            // Catégories).
+            //
+            // Idempotent : ne touche QUE les catégories où EstCadre = false
+            // ET dont le libellé matche la convention. Une catégorie déjà
+            // cochée par le RH ne sera jamais décochée par cet updater.
+            // ═══════════════════════════════════════════════════════
+            EnsureCategoriesEstCadreInitialized();
         }
 
         /// <summary>
@@ -789,6 +803,51 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             {
                 System.Diagnostics.Debug.WriteLine(
                     $"[V1.5.2 RolesGRH] Auto-init non bloquant : {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// V1.8.1 — Pré-initialise <see cref="Categories.EstCadre"/> pour les
+        /// catégories existantes en base, selon la convention :
+        /// libellé COMMENCE par "Cadre" (ignore case) ET ne contient pas "Non".
+        /// Idempotent : on ne MET QUE de FAUX à VRAI. Une catégorie déjà cochée
+        /// par le RH n'est jamais décochée par cet updater.
+        /// </summary>
+        private void EnsureCategoriesEstCadreInitialized()
+        {
+            try
+            {
+                var rxNon = new System.Text.RegularExpressions.Regex(
+                    @"\bnon\b",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                int nbToggled = 0;
+                var allCats = ObjectSpace.GetObjects<Categories>();
+                foreach (var c in allCats)
+                {
+                    if (c.EstCadre) continue;                       // déjà coché → on respecte
+                    if (string.IsNullOrWhiteSpace(c.Intitule)) continue;
+
+                    var lib = c.Intitule.Trim();
+                    if (rxNon.IsMatch(lib)) continue;               // "Non cadre" → reste false
+                    if (!lib.StartsWith("cadre", StringComparison.OrdinalIgnoreCase))
+                        continue;                                    // libellé ne commence pas par "Cadre"
+
+                    c.EstCadre = true;
+                    nbToggled++;
+                }
+
+                if (nbToggled > 0)
+                {
+                    ObjectSpace.CommitChanges();
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[V1.8.1 Categories.EstCadre] Auto-init : {nbToggled} catégorie(s) cochée(s).");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[V1.8.1 Categories.EstCadre] Auto-init non bloquant : {ex.Message}");
             }
         }
 

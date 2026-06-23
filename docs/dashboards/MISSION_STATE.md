@@ -2455,4 +2455,70 @@ travail, remplacé par `docs/deployment/COMMIT_V18.txt` versionné).
   actuel suffit : action "Ajouter une ligne")
 - Reset ModelDifference par-user (bouton admin "Vider mes customisations")
 - Action "Reprendre un prêt en cours" avec saisie explicite de la mensualité
+- Retrait du fallback heuristique `EstCadre` (libellé commence par "Cadre")
+  une fois toutes les catégories migrées sur le booléen explicite — voir
+  V1.8.1 ci-dessous
+
+---
+
+## 🔧 V1.8.1 — HOTFIX IPRES Régime Cadre faussement appliqué aux non-cadres (22 juin 2026)
+
+### Bug
+
+Sur un bulletin de salarié non-cadre, le système ajoutait à tort la cotisation
+**IPRES Régime Cadre** (IPRES_RC) en plus de l'IPRES Régime Général. Cause
+racine dans `Bulletin.EstCadre(Salarie)` :
+
+```csharp
+return lib != null && lib.IndexOf("cadre", StringComparison.OrdinalIgnoreCase) >= 0;
+```
+
+`IndexOf("cadre")` est une recherche de sous-chaîne. Le libellé **"Non cadre"**
+contient bien la chaîne "cadre" → le test retourne `true` → le salarié est
+traité comme cadre → IPRES_RC appliqué à tort.
+
+### Correctif
+
+**Approche** : ajout d'un drapeau booléen explicite `EstCadre` sur l'entité
+`Categories`, et bascule de la détection sur ce drapeau (avec fallback compat
+ascendante sur libellé commençant par "Cadre" hors "Non").
+
+| Fichier | Modification |
+|---|---|
+| `BusinessObjects/Categories.cs` | Nouveau champ `EstCadre` (bool) avec `XafDisplayName` et `ToolTip` |
+| `BusinessObjects/Bulletin.cs` — `EstCadre(Salarie s)` | Lit `Categories.EstCadre` en priorité. Fallback : `Intitule.StartsWith("cadre")` ET pas de mot `\bnon\b` |
+| `BusinessObjects/Bulletin.cs` — `CalculerIPRES_CSS` | Pour les non-cadres, **supprime** la ligne IPRES_RC (`Lignes.Remove(rc)` + `rc.Delete()`) au lieu de la laisser à zéro |
+| `DatabaseUpdate/Updater.cs` — `EnsureCategoriesEstCadreInitialized()` | Pré-coche `EstCadre = true` pour les catégories existantes dont le libellé commence par "Cadre" (hors "Non"). Idempotent : ne décoche jamais une catégorie déjà cochée |
+| `docs/deployment/sql/V181_INIT_EstCadre.sql` (NEW) | SQL one-shot de secours si l'updater n'a pas tourné, avec audit avant/après + bloc commenté pour effacer les lignes IPRES_RC mal créées |
+
+### Comportement avant / après
+
+| Cas | Avant V1.8.1 | Après V1.8.1 |
+|---|---|---|
+| Salarié catégorie "Cadre" | IPRES_RG + IPRES_RC ✓ | IPRES_RG + IPRES_RC ✓ |
+| Salarié catégorie "Cadre supérieur" | IPRES_RG + IPRES_RC ✓ | IPRES_RG + IPRES_RC ✓ |
+| Salarié catégorie "Non cadre" | IPRES_RG + IPRES_RC ❌ (bug) | IPRES_RG seul ✓ |
+| Salarié catégorie "Employé" / "Ouvrier" | IPRES_RG seul ✓ | IPRES_RG seul ✓ |
+| Bulletin existant avec ligne IPRES_RC à 0 | Ligne visible (Base=0) | Ligne **supprimée** au prochain recalcul |
+
+### Procédure de déploiement V1.8.1
+
+1. `dotnet build` (vérification compilation)
+2. Déploiement IIS (cf. `Deploy-AdiPAIE-V18.ps1`)
+3. Au premier démarrage XAF :
+   - colonne `EstCadre` ajoutée automatiquement à la table `Categories`
+   - Updater `EnsureCategoriesEstCadreInitialized` pré-coche les catégories
+4. **Vérification RH** : Référentiels → Catégories → contrôler la colonne
+   "Catégorie cadre ?" et corriger manuellement si besoin
+5. (Si auto-init non effective) Exécuter `V181_INIT_EstCadre.sql`
+6. **Recalculer les bulletins** des non-cadres impactés via le bouton
+   "Recalculer cotisations" pour purger les lignes IPRES_RC mal créées
+
+### Tests à valider en recette
+
+- Salarié "Non cadre" → bulletin sans ligne IPRES_RC
+- Salarié "Cadre" → bulletin avec lignes IPRES_RG + IPRES_RC correctement calculées
+- Bascule manuelle d'une catégorie de `EstCadre=true` → `false` → recalcul
+  bulletin → ligne IPRES_RC disparaît
+- Cas limite : `Categories.Intitule = null` ou vide → pas de crash, retourne `false`
 

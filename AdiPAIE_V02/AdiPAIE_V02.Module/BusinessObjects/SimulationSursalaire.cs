@@ -606,10 +606,23 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // ===== Helpers d’accès aux données ====================================
 
+        // V1.8.1 — Détection « cadre » via drapeau Categories.EstCadre.
+        // Avant : IndexOf("cadre") matchait à tort "Non cadre" → IPRES_RC à tort.
+        // Voir Bulletin.cs / Categories.cs pour la version de référence.
         private static bool EstCadre(Salarie salarie)
         {
-            var lib = salarie?.Categories?.Intitule ?? salarie?.Echelon?.Categories?.Intitule;
-            return lib != null && lib.IndexOf("cadre", StringComparison.OrdinalIgnoreCase) >= 0;
+            var cat = salarie?.Categories ?? salarie?.Echelon?.Categories;
+            if (cat == null) return false;
+            if (cat.EstCadre) return true;
+
+            // Compat ascendante : libellé commence par "Cadre" ET sans "Non"
+            var lib = (cat.Intitule ?? "").Trim();
+            if (string.IsNullOrEmpty(lib)) return false;
+            if (System.Text.RegularExpressions.Regex.IsMatch(
+                    lib, @"\bnon\b",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                return false;
+            return lib.StartsWith("cadre", StringComparison.OrdinalIgnoreCase);
         }
 
         private static Rubrique TrouverRubrique(Session session, RubriqueCanonique canonique)
