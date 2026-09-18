@@ -41,7 +41,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         Criteria = "Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PeriodePaieStatut,Brouillon#",
         TargetItems = "Company;Annee;Mois",
         Enabled = false)]
-    // V1.6.2 — Badge statut coloré (gris Brouillon / vert Ouverte / sombre Clôturée)
+    // V1.6.2 - Badge statut coloré (gris Brouillon / vert Ouverte / sombre Clôturée)
     [Appearance("PeriodePaie_Statut_Brouillon",
         TargetItems = "Statut",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PeriodePaieStatut,Brouillon#",

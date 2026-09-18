@@ -13,10 +13,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
     /// Controller offboarding.
     ///
     /// Workflow :
-    ///   1. Calculer solde — calcule automatiquement tous les éléments
-    ///   2. Valider RH     — approuve le solde calculé
-    ///   3. Valider DAF    — validation financière finale
-    ///   4. Clôturer       — désactive le salarié, pose DateSortie, archive
+    ///   1. Calculer solde - calcule automatiquement tous les éléments
+    ///   2. Valider RH     - approuve le solde calculé
+    ///   3. Valider DAF    - validation financière finale
+    ///   4. Clôturer       - désactive le salarié, pose DateSortie, archive
     /// </summary>
     public class OffboardingController
         : ObjectViewController<DetailView, DossierOffboarding>
@@ -76,18 +76,18 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
                 AuditService.Enregistrer(Application, "DossierOffboarding", "Calculer STC",
                     d.Oid.ToString(), d.DisplayName,
-                    $"Total STC : {d.TotalSoldeToutCompte:N0} FCFA — Congés: {d.IndemniteCongés:N0}, Préavis: {d.IndemnitePreavis:N0}, Licenciement: {d.IndemniteLicenciement:N0}",
+                    $"Total STC : {d.TotalSoldeToutCompte:N0} FCFA - Congés: {d.IndemniteCongés:N0}, Préavis: {d.IndemnitePreavis:N0}, Licenciement: {d.IndemniteLicenciement:N0}",
                     nouveauStatut: "Solde calculé");
 
                 // Email → RH : STC calculé, à valider
                 WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
                     WorkflowEmailHelper.ExtraireEmailsRH(Application),
-                    $"[AdiPAIE] STC calculé — {d.Salarie?.FullName}",
+                    $"[AdiPAIE] STC calculé - {d.Salarie?.FullName}",
                     WorkflowEmailHelper.HtmlTableau("Solde de tout compte calculé",
                         "Le STC est prêt pour validation RH.",
                         new[] {
-                            ("Salarié", d.Salarie?.FullName ?? "—"),
-                            ("Motif", d.MotifDepart?.ToString() ?? "—"),
+                            ("Salarié", d.Salarie?.FullName ?? "-"),
+                            ("Motif", d.MotifDepart?.ToString() ?? "-"),
                             ("Total STC", $"{d.TotalSoldeToutCompte:N0} FCFA"),
                             ("Congés", $"{d.IndemniteCongés:N0} FCFA"),
                             ("Préavis", $"{d.IndemnitePreavis:N0} FCFA"),
@@ -122,13 +122,13 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 // Email → DAF : STC validé RH, en attente DAF
                 WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
                     WorkflowEmailHelper.ExtraireEmailsDAF(Application),
-                    $"[AdiPAIE] STC validé RH — {d.Salarie?.FullName}",
-                    WorkflowEmailHelper.HtmlTableau("Solde de tout compte — Validation DAF requise",
+                    $"[AdiPAIE] STC validé RH - {d.Salarie?.FullName}",
+                    WorkflowEmailHelper.HtmlTableau("Solde de tout compte - Validation DAF requise",
                         "Le RH a validé le STC. Merci de procéder à la validation financière.",
                         new[] {
-                            ("Salarié", d.Salarie?.FullName ?? "—"),
+                            ("Salarié", d.Salarie?.FullName ?? "-"),
                             ("Total STC", $"{d.TotalSoldeToutCompte:N0} FCFA"),
-                            ("Validé RH par", d.ValideRHPar ?? "—"),
+                            ("Validé RH par", d.ValideRHPar ?? "-"),
                         }));
 
                 Application.ShowViewStrategy?.ShowMessage(
@@ -158,13 +158,13 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 // Email → RH : DAF a validé, prêt à clôturer
                 WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
                     WorkflowEmailHelper.ExtraireEmailsRH(Application),
-                    $"[AdiPAIE] STC validé DAF — {d.Salarie?.FullName}",
-                    WorkflowEmailHelper.HtmlTableau("Solde de tout compte — Validation DAF effectuée",
+                    $"[AdiPAIE] STC validé DAF - {d.Salarie?.FullName}",
+                    WorkflowEmailHelper.HtmlTableau("Solde de tout compte - Validation DAF effectuée",
                         "Le DAF a validé le STC. Le dossier peut être clôturé.",
                         new[] {
-                            ("Salarié", d.Salarie?.FullName ?? "—"),
+                            ("Salarié", d.Salarie?.FullName ?? "-"),
                             ("Total STC", $"{d.TotalSoldeToutCompte:N0} FCFA"),
-                            ("Validé DAF par", d.ValideDAFPar ?? "—"),
+                            ("Validé DAF par", d.ValideDAFPar ?? "-"),
                         }));
 
                 Application.ShowViewStrategy?.ShowMessage(
@@ -208,7 +208,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                         WorkflowEmailHelper.HtmlTableau("Dossier de sortie clôturé",
                             "Votre dossier de départ a été finalisé. Veuillez vous rapprocher du service RH pour les modalités de règlement.",
                             new[] {
-                                ("Nom", d.Salarie.FullName ?? "—"),
+                                ("Nom", d.Salarie.FullName ?? "-"),
                                 ("Date de sortie", $"{d.DateSortie:dd/MM/yyyy}"),
                                 ("Total STC", $"{d.TotalSoldeToutCompte:N0} FCFA"),
                             }));
@@ -217,11 +217,11 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 // Email → Comptable : salarié sorti, STC à régler
                 WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
                     WorkflowEmailHelper.ExtraireEmailsComptable(Application),
-                    $"[AdiPAIE] STC à régler — {d.Salarie.FullName}",
-                    WorkflowEmailHelper.HtmlTableau("Solde de tout compte — À régler",
+                    $"[AdiPAIE] STC à régler - {d.Salarie.FullName}",
+                    WorkflowEmailHelper.HtmlTableau("Solde de tout compte - À régler",
                         "Le dossier de sortie est clôturé. Merci de procéder au règlement.",
                         new[] {
-                            ("Salarié", d.Salarie.FullName ?? "—"),
+                            ("Salarié", d.Salarie.FullName ?? "-"),
                             ("Date de sortie", $"{d.DateSortie:dd/MM/yyyy}"),
                             ("Total STC", $"{d.TotalSoldeToutCompte:N0} FCFA"),
                         }));

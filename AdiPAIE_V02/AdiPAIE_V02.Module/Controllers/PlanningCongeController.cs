@@ -136,7 +136,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 ObjectSpace.CommitChanges();
                 View.Refresh();
                 Application.ShowViewStrategy?.ShowMessage(
-                    $"Planning synchronisé — {nb} événement(s) créés/mis à jour.",
+                    $"Planning synchronisé - {nb} événement(s) créés/mis à jour.",
                     InformationType.Success, 4000, InformationPosition.Top);
             }
             catch (Exception ex)
@@ -148,7 +148,7 @@ namespace AdiPAIE_V02.Module.Controllers
         }
 
         // ════════════════════════════════════════════════════════
-        // MÉTHODES STATIQUES — appelables depuis d'autres controllers
+        // MÉTHODES STATIQUES - appelables depuis d'autres controllers
         // ════════════════════════════════════════════════════════
 
         /// <summary>

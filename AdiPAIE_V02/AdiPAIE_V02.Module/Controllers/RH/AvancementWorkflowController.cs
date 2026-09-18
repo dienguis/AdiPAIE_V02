@@ -93,17 +93,17 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                         new[]
                         {
                             ("Référence",    d.Reference),
-                            ("Salarié",      d.Salarie?.FullName ?? "—"),
+                            ("Salarié",      d.Salarie?.FullName ?? "-"),
                             ("Type",         d.TypeAvancement.ToString()),
                             ("Date d'effet", d.DateEffet.ToString("dd/MM/yyyy")),
-                            ("Fonction actuelle", d.FonctionActuelle?.Intitule ?? "—"),
-                            ("Nouvelle fonction", d.NouvelleFonction?.Intitule ?? "—"),
+                            ("Fonction actuelle", d.FonctionActuelle?.Intitule ?? "-"),
+                            ("Nouvelle fonction", d.NouvelleFonction?.Intitule ?? "-"),
                             ("Salaire actuel",    d.SalaireActuel.ToString("N0") + " FCFA"),
                             ("Nouveau salaire",   d.NouveauSalaireBase.ToString("N0") + " FCFA"),
                             ("Variation",         d.VariationSalairePercent.ToString("N1") + " %"),
                         });
                     WorkflowEmailHelper.EnvoyerEmailsAsync(Application, rhEmails,
-                        $"[AdiPAIE] Avancement à approuver — {d.Salarie?.FullName}", body);
+                        $"[AdiPAIE] Avancement à approuver - {d.Salarie?.FullName}", body);
                 }
 
                 AuditService.Enregistrer(Application, "DemandeAvancement", "Soumettre",
@@ -140,18 +140,18 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 if (rhEmails.Any())
                 {
                     var body = WorkflowEmailHelper.HtmlTableau(
-                        "Avancement approuvé — à appliquer",
+                        "Avancement approuvé - à appliquer",
                         "La demande a été approuvée. Vous pouvez maintenant l'appliquer.",
                         new[]
                         {
                             ("Référence",    d.Reference),
-                            ("Salarié",      d.Salarie?.FullName ?? "—"),
+                            ("Salarié",      d.Salarie?.FullName ?? "-"),
                             ("Approuvé par", dg?.FullName ?? "Direction"),
                             ("Date d'effet", d.DateEffet.ToString("dd/MM/yyyy")),
                             ("Nouveau salaire", d.NouveauSalaireBase.ToString("N0") + " FCFA"),
                         });
                     WorkflowEmailHelper.EnvoyerEmailsAsync(Application, rhEmails,
-                        $"[AdiPAIE] Avancement approuvé — {d.Salarie?.FullName}", body);
+                        $"[AdiPAIE] Avancement approuvé - {d.Salarie?.FullName}", body);
                 }
 
                 AuditService.Enregistrer(Application, "DemandeAvancement", "Approuver",
@@ -198,7 +198,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     InformationType.Warning, 3000, InformationPosition.Top);
             };
 
-            // ── Appliquer (RH) — MAJ fiche salarié ────────────
+            // ── Appliquer (RH) - MAJ fiche salarié ────────────
             appliquerAction = new SimpleAction(this,
                 "Avancement_Appliquer", PredefinedCategory.Edit)
             {
@@ -240,7 +240,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         }
 
         // ════════════════════════════════════════════════════════
-        // HANDLER APPLIQUER — cœur du module
+        // HANDLER APPLIQUER - cœur du module
         // ════════════════════════════════════════════════════════
         void AppliquerAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
@@ -274,11 +274,11 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 }
 
                 // ── 3. Mettre à jour le statut avancement ─────────
-                var detailsChangement = $"Fonction: {sal.Fonction?.Intitule ?? "—"}, " +
+                var detailsChangement = $"Fonction: {sal.Fonction?.Intitule ?? "-"}, " +
                     $"Salaire: {sal.SalaireBase:N0} FCFA, " +
                     $"Indemnité: {sal.IndemniteLogement:N0} FCFA, " +
-                    $"Département: {sal.Departement?.Nom ?? "—"}, " +
-                    $"Échelon: {sal.Echelon?.Code ?? "—"}";
+                    $"Département: {sal.Departement?.Nom ?? "-"}, " +
+                    $"Échelon: {sal.Echelon?.Code ?? "-"}";
 
                 d.Statut = AvancementStatut.Applique;
                 d.DateApplication = DateTime.Now;
@@ -287,9 +287,9 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 // ── 4. Notification in-app au salarié ─────────────
                 var notif = ObjectSpace.CreateObject<NotificationSalarie>();
                 notif.Salarie = sal;
-                notif.Titre = $"Votre avancement a été appliqué — {d.TypeAvancement}";
+                notif.Titre = $"Votre avancement a été appliqué - {d.TypeAvancement}";
                 notif.Corps = $"À compter du {d.DateEffet:dd/MM/yyyy}, votre situation est mise à jour : "
-                                + $"Fonction : {sal.Fonction?.Intitule ?? "—"}, "
+                                + $"Fonction : {sal.Fonction?.Intitule ?? "-"}, "
                                 + $"Salaire : {sal.SalaireBase:N0} FCFA.";
                 notif.Categorie = "Avancement";
                 notif.Priorite = NotificationPriorite.Important;

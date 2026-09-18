@@ -1,5 +1,5 @@
 // =============================================================================
-//  SalarieCreerGratificationController.cs — V1.7.2d
+//  SalarieCreerGratificationController.cs - V1.7.2d
 //
 //  Action sur la ListView des salariés actifs : "Nouvelle gratification".
 //
@@ -33,7 +33,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
         public SalarieCreerGratificationController()
         {
-            // V1.7.2 — Catégorie Edit (toolbar) au lieu de RecordEdit
+            // V1.7.2 - Catégorie Edit (toolbar) au lieu de RecordEdit
             // (qui rend aussi en row-link redondant avec la toolbar).
             creerGratifAction = new SimpleAction(this,
                 "Salarie_CreerGratification", PredefinedCategory.Edit)

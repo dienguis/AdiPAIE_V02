@@ -36,7 +36,7 @@ namespace AdiPAIE_V02.Module
             //AdditionalExportedTypes.Add(typeof(SimulationSursalaire));
             AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.SimulationSursalaire));
 
-            // V1.5.2 — Enregistrement explicite des entités utilisées par les
+            // V1.5.2 - Enregistrement explicite des entités utilisées par les
             // hosted services AlerteInterimaireService et AlerteFinMissionInterimHostedService.
             // Évite ArgumentException "class is not registered" au démarrage
             // (race condition entre BackgroundService start et XAF bootstrap).
@@ -50,10 +50,19 @@ namespace AdiPAIE_V02.Module
             AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.StationService));
             AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.BusinessObjects.RH.BusinessUnitStation));
 
-            // V1.7 — Annuaire famille hiérarchique (entité non-persistante).
+            // V1.7 - Annuaire famille hiérarchique (entité non-persistante).
             AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.FamilleAnnuaire));
-            // V1.7 — Provision congés annuelle (entité non-persistante).
+            // V1.7 - Provision congés annuelle (entité non-persistante).
             AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.ProvisionConges));
+
+            // V1.8 - Popups saisie solde initial + saisie congé.
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.SaisieSoldeInitialRequest));
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.SaisieCongeRequest));
+            // V1.8.5 - Popup solde anticipé prêt.
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.SoldeAnticipePretRequest));
+            // V1.8.7 - Menu Contrôle d'intégrité (ListView non-persistante).
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.AnomalieIntegrite));
+            // V1.9 - ImportInterimaireRequest est BaseObject (persistant), auto-découvert.
 
             // =================================
 
@@ -65,7 +74,7 @@ namespace AdiPAIE_V02.Module
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.CloneObject.CloneObjectModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.ConditionalAppearance.ConditionalAppearanceModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Dashboards.DashboardsModule));
-            // RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Kpi.KpiModule)); // Désactivé temporairement — conflit version 25.1.9 vs 25.1.10
+            // RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Kpi.KpiModule)); // Désactivé temporairement - conflit version 25.1.9 vs 25.1.10
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Notifications.NotificationsModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Office.OfficeModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.PivotChart.PivotChartModuleBase));

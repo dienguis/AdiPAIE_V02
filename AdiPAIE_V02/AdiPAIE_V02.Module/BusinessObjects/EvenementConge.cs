@@ -88,7 +88,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // ════════════════════════════════════════════════════════
-        // IEvent — interface obligatoire pour le SchedulerControl
+        // IEvent - interface obligatoire pour le SchedulerControl
         // ════════════════════════════════════════════════════════
 
         // ── Factory ───────────────────────────────────────────
@@ -115,7 +115,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             evt.StartOn = demande.DateDebut.Date;
             evt.EndOn = demande.DateFin.Date.AddDays(1); // Exclusif dans Scheduler
             evt.AllDay = true;
-            evt.Subject = $"{demande.Salarie.FullName} — {demande.Type?.Libelle ?? "Congé"}"
+            evt.Subject = $"{demande.Salarie.FullName} - {demande.Type?.Libelle ?? "Congé"}"
                                + $" ({demande.DureeJours:N0}j)";
             evt.Description = $"Du {demande.DateDebut:dd/MM/yyyy} au {demande.DateFin:dd/MM/yyyy}\n"
                                + $"Type : {demande.Type?.Libelle}\n"

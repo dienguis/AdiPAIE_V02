@@ -42,11 +42,11 @@ namespace AdiPAIE_V02.Module.Controllers
                 if (p != null)
                     WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
                         WorkflowEmailHelper.ExtraireEmailsRH(Application),
-                        $"[AdiPAIE] Période de paie ouverte — {p.DisplayName}",
+                        $"[AdiPAIE] Période de paie ouverte - {p.DisplayName}",
                         WorkflowEmailHelper.HtmlTableau("Période de paie ouverte",
                             "La période est ouverte. Vous pouvez créer et calculer les bulletins.",
                             new[] {
-                                ("Période", p.DisplayName ?? "—"),
+                                ("Période", p.DisplayName ?? "-"),
                                 ("Début", $"{p.DateDebut:dd/MM/yyyy}"),
                                 ("Fin", $"{p.DateFin:dd/MM/yyyy}"),
                             }));
@@ -110,11 +110,11 @@ namespace AdiPAIE_V02.Module.Controllers
                         .Concat(WorkflowEmailHelper.ExtraireEmailsComptable(Application))
                         .Distinct().ToList();
                     WorkflowEmailHelper.EnvoyerEmailsAsync(Application, dests,
-                        $"[AdiPAIE] Période de paie clôturée — {p.DisplayName}",
+                        $"[AdiPAIE] Période de paie clôturée - {p.DisplayName}",
                         WorkflowEmailHelper.HtmlTableau("Période de paie clôturée",
                             "La période a été clôturée définitivement. Les bulletins sont verrouillés.",
                             new[] {
-                                ("Période", p.DisplayName ?? "—"),
+                                ("Période", p.DisplayName ?? "-"),
                                 ("Début", $"{p.DateDebut:dd/MM/yyyy}"),
                                 ("Fin", $"{p.DateFin:dd/MM/yyyy}"),
                             }));

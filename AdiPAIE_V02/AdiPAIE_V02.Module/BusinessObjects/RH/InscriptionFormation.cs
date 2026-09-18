@@ -136,7 +136,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
                 ref commentaireEvaluation, value?.Trim());
         }
 
-        // ── Évaluation à chaud — champs détaillés du formulaire ──
+        // ── Évaluation à chaud - champs détaillés du formulaire ──
         // Ce que la formation va apporter (question ouverte)
         string apportAttendu;
         [Size(1000)]
@@ -148,7 +148,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(ApportAttendu), ref apportAttendu, value?.Trim());
         }
 
-        // Critère 2 — Adéquation avec les objectifs
+        // Critère 2 - Adéquation avec les objectifs
         EvaluationFormationNote? noteAdequationObjectifs;
         [XafDisplayName("Adéquation avec les objectifs")]
         [Category("Évaluation à chaud")]
@@ -158,7 +158,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(NoteAdequationObjectifs), ref noteAdequationObjectifs, value);
         }
 
-        // Critère 3 — Apport immédiat pour le poste
+        // Critère 3 - Apport immédiat pour le poste
         EvaluationFormationNote? noteApportPoste;
         [XafDisplayName("Apport immédiat pour le poste")]
         [Category("Évaluation à chaud")]
@@ -168,7 +168,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(NoteApportPoste), ref noteApportPoste, value);
         }
 
-        // Critère 4 — Progression / rythme / alternance théorie-pratique
+        // Critère 4 - Progression / rythme / alternance théorie-pratique
         EvaluationFormationNote? noteProgression;
         [XafDisplayName("Progression (rythme, alternance théorie/pratique)")]
         [Category("Évaluation à chaud")]
@@ -178,7 +178,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(NoteProgression), ref noteProgression, value);
         }
 
-        // Critère 5 — Clarté du contenu
+        // Critère 5 - Clarté du contenu
         EvaluationFormationNote? noteClarteContenu;
         [XafDisplayName("Clarté du contenu")]
         [Category("Évaluation à chaud")]
@@ -188,7 +188,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(NoteClarteContenu), ref noteClarteContenu, value);
         }
 
-        // Critère 7 — Disponibilité de l'animateur
+        // Critère 7 - Disponibilité de l'animateur
         EvaluationFormationNote? noteDisponibiliteAnimateur;
         [XafDisplayName("Disponibilité de l'animateur")]
         [Category("Évaluation à chaud")]
@@ -198,7 +198,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(NoteDisponibiliteAnimateur), ref noteDisponibiliteAnimateur, value);
         }
 
-        // Critère 8 — Niveau vs groupe
+        // Critère 8 - Niveau vs groupe
         EvaluationFormationNote? noteNiveauGroupe;
         [XafDisplayName("Votre niveau par rapport au groupe")]
         [Category("Évaluation à chaud")]
@@ -208,7 +208,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(NoteNiveauGroupe), ref noteNiveauGroupe, value);
         }
 
-        // Critère 9 — Supports de formation
+        // Critère 9 - Supports de formation
         EvaluationFormationNote? noteSupports;
         [XafDisplayName("Supports de formation transmis")]
         [Category("Évaluation à chaud")]
@@ -270,7 +270,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Affichage ─────────────────────────────────────────
         [NonPersistent]
         public string DisplayInscription =>
-            $"{Salarie?.FullName} — {SessionFormation?.Intitule}";
+            $"{Salarie?.FullName} - {SessionFormation?.Intitule}";
 
         // ── Suivi post-formation (collection inverse) ────────
         [Association("InscriptionFormation-Suivi"), Aggregated]

@@ -1,6 +1,6 @@
 // ============================================================
 //  BilanSocialController.cs
-//  AdiPAIE V02 — Bilan Social annuel (DTSS Sénégal)
+//  AdiPAIE V02 - Bilan Social annuel (DTSS Sénégal)
 //  Bouton accessible depuis Périodes de paie.
 //
 //  Workflow en 2 étapes (wizard) :
@@ -37,14 +37,14 @@ namespace AdiPAIE_V02.Module.Controllers
                 ImageName = "BO_Report",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage,
                 ToolTip = "Génère le Bilan Social annuel (formulaire DTSS Sénégal) au format Word.",
-                // Pas besoin de sélection — le bilan est annuel
+                // Pas besoin de sélection - le bilan est annuel
                 SelectionDependencyType = SelectionDependencyType.Independent
             };
             _action.Execute += OnExecute;
         }
 
         // ──────────────────────────────────────────────────────────────
-        //  ÉTAPE 1 — Popup de sélection de l'année
+        //  ÉTAPE 1 - Popup de sélection de l'année
         // ──────────────────────────────────────────────────────────────
         private void OnExecute(object sender, SimpleActionExecuteEventArgs e)
         {
@@ -57,7 +57,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             var selDv = Application.CreateDetailView(selOs, selection, true);
             selDv.ViewEditMode = DevExpress.ExpressApp.Editors.ViewEditMode.Edit;
-            selDv.Caption = "Bilan Social — Choix de l'année";
+            selDv.Caption = "Bilan Social - Choix de l'année";
 
             var svp = new ShowViewParameters
             {
@@ -80,7 +80,7 @@ namespace AdiPAIE_V02.Module.Controllers
         }
 
         // ──────────────────────────────────────────────────────────────
-        //  ÉTAPE 2 — Popup formulaire pré-rempli (année figée)
+        //  ÉTAPE 2 - Popup formulaire pré-rempli (année figée)
         // ──────────────────────────────────────────────────────────────
         private void OuvrirFormulairePopup(int annee)
         {
@@ -103,7 +103,7 @@ namespace AdiPAIE_V02.Module.Controllers
             // ── Ouvrir le formulaire en popup ───────────────────────────
             var dv = Application.CreateDetailView(formOs, formulaire, true);
             dv.ViewEditMode = DevExpress.ExpressApp.Editors.ViewEditMode.Edit;
-            dv.Caption = $"Bilan Social {annee} — Vérifier et compléter";
+            dv.Caption = $"Bilan Social {annee} - Vérifier et compléter";
 
             var svp = new ShowViewParameters
             {
@@ -142,7 +142,7 @@ namespace AdiPAIE_V02.Module.Controllers
                         $"Généré pour {formulaire.RaisonSociale}");
 
                     Application.ShowViewStrategy?.ShowMessage(
-                        $"Bilan Social {formulaire.Annee} généré — téléchargement en cours.",
+                        $"Bilan Social {formulaire.Annee} généré - téléchargement en cours.",
                         InformationType.Success, 4000, InformationPosition.Top);
                 }
                 catch (UserFriendlyException) { throw; }

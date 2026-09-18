@@ -316,7 +316,7 @@ namespace AdiPAIE_V02.Module.Services
                 var finM = new DateTime(a, m, DateTime.DaysInMonth(a, m));
 
                 // Effectif à fin de mois :
-                // Actif OU (parti après finM) — on exclut les DateSortie < SqlMinDate (= jamais parti)
+                // Actif OU (parti après finM) - on exclut les DateSortie < SqlMinDate (= jamais parti)
                 int eff = os.GetObjectsQuery<Salarie>()
                     .Count(s => s.DateEmbauche <= finM
                         && (s.IsActif || s.DateSortie < SqlMinDate || s.DateSortie > finM));

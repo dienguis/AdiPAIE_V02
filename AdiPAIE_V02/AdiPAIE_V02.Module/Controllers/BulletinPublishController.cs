@@ -1,21 +1,21 @@
 // =============================================================================
-//  BulletinPublishController.cs — V1.4.3
+//  BulletinPublishController.cs - V1.4.3
 //
 //  Trois actions sur la liste/détail Bulletin (côté RH) :
 //
-//    1. Publier      — passe le bulletin Validé → Envoyé (Publié) :
+//    1. Publier      - passe le bulletin Validé → Envoyé (Publié) :
 //                      génère le PDF, l'archive, envoie l'email de notification.
 //                      Sélection multiple OK (publication en lot).
 //
-//    2. Dépublier    — repasse Envoyé → Validé. Le bulletin n'est plus
+//    2. Dépublier    - repasse Envoyé → Validé. Le bulletin n'est plus
 //                      consultable côté Espace Salarié. Le PDF archivé est
 //                      conservé pour traçabilité (ré-utilisé à la republication).
 //
-//    3. Re-notifier  — renvoie l'email d'information au salarié sans
+//    3. Re-notifier  - renvoie l'email d'information au salarié sans
 //                      regénérer le PDF (utile si le salarié a perdu le mail
 //                      ou si SMTP était KO au moment de la publication).
 //
-//  Toute la logique métier est dans BulletinPublicationService — ce controller
+//  Toute la logique métier est dans BulletinPublicationService - ce controller
 //  ne fait que la collecte UI + dispatch vers le service.
 // =============================================================================
 using AdiPAIE_V02.Module.BusinessObjects;
@@ -82,7 +82,7 @@ namespace AdiPAIE_V02.Module.Controllers
         }
 
         // =====================================================================
-        // PUBLIER — single ou bulk (async pour ne pas bloquer l'UI Blazor)
+        // PUBLIER - single ou bulk (async pour ne pas bloquer l'UI Blazor)
         // =====================================================================
         private async void OnPublier(object sender, SimpleActionExecuteEventArgs e)
         {
@@ -152,7 +152,7 @@ namespace AdiPAIE_V02.Module.Controllers
         }
 
         // =====================================================================
-        // DEPUBLIER — single ou bulk
+        // DEPUBLIER - single ou bulk
         // =====================================================================
         private void OnDepublier(object sender, SimpleActionExecuteEventArgs e)
         {
@@ -200,7 +200,7 @@ namespace AdiPAIE_V02.Module.Controllers
         }
 
         // =====================================================================
-        // NOTIFIER — single ou bulk (async pour ne pas bloquer l'UI Blazor)
+        // NOTIFIER - single ou bulk (async pour ne pas bloquer l'UI Blazor)
         // =====================================================================
         private async void OnRenotifier(object sender, SimpleActionExecuteEventArgs e)
         {

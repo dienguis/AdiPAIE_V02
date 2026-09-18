@@ -1,5 +1,5 @@
 // =============================================================================
-//  FamilleAnnuaire.cs — V1.7 — Annuaire famille hiérarchique pour RH
+//  FamilleAnnuaire.cs - V1.7 - Annuaire famille hiérarchique pour RH
 //
 //  Entité NON persistante affichée dans une ListView XAF groupée par matricule
 //  du salarié. Une ligne par membre de la famille (salarié / conjoint / enfant).
@@ -43,7 +43,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
     [XafDisplayName("Annuaire famille")]
     [ImageName("BO_Salutation")]
     [DefaultProperty(nameof(NomComplet))]
-    // V1.7 — Badges colorés par type de membre (palette unifiée projet)
+    // V1.7 - Badges colorés par type de membre (palette unifiée projet)
     [Appearance("Famille_Type_Salarie",
         TargetItems = nameof(TypeMembre),
         Criteria = "TypeMembre = ##Enum#AdiPAIE_V02.Module.NonPersistent.TypeMembreFamille,Salarie#",

@@ -24,10 +24,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     /// Compte bancaire de domiciliation d'un salarié.
     /// Mode : MontantFixe, Pourcentage ou Reliquat (un seul reliquat par salarié).
     /// Le champ Valeur contient le montant FCFA ou le % selon le mode choisi.
-    /// Si Mode = Reliquat, Valeur est ignoré — le compte reçoit Net - déjà alloué.
+    /// Si Mode = Reliquat, Valeur est ignoré - le compte reçoit Net - déjà alloué.
     /// </summary>
     [DefaultClassOptions]
-    [ImageName("BO_Bank_Account")]  // V1.1 — icône XAF native (compte bancaire)
+    [ImageName("BO_Bank_Account")]  // V1.1 - icône XAF native (compte bancaire)
     [XafDisplayName("Compte bancaire")]
     [DefaultProperty(nameof(DisplayCompte))]
     [Appearance("Compte_Reliquat_DisableValeur",
@@ -192,14 +192,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                     ModeVirement.MontantFixe => $"{Valeur:N0} FCFA",
                     ModeVirement.Pourcentage => $"{Valeur:N0} %",
                     ModeVirement.Reliquat => "Reliquat",
-                    _ => "—"
+                    _ => "-"
                 };
             }
         }
 
         [NonPersistent]
         public string DisplayCompte =>
-            $"{Banque ?? "—"} — {NumeroCompte ?? "—"} ({DisplayRepartition})";
+            $"{Banque ?? "-"} - {NumeroCompte ?? "-"} ({DisplayRepartition})";
 
         public override string ToString() => DisplayCompte;
 

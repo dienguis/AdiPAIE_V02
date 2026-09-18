@@ -1,6 +1,6 @@
 // =============================================================================
 //  BilanSocialDashboardService.cs
-//  Tableau N°6 (Bilan Social Mensuel) — implémentation XPO, INTERNE uniquement.
+//  Tableau N°6 (Bilan Social Mensuel) - implémentation XPO, INTERNE uniquement.
 //
 //  Construit une vue 12 mois × indicateurs clés :
 //    - Effectif fin mois          (Salarie : DateEmbauche/DateSortie)
@@ -8,15 +8,15 @@
 //    - Départs                    (Salarie.DateSortie  dans le mois)
 //    - Masse Salariale            (Bulletin.BrutFiscal)
 //    - Charges Patronales         (BulletinLigne.MontantEmployeur)
-//    - Coût Employeur             (Masse + Charges) — calculé côté DTO
-//    - Employés absents           (CongeDemande Accordee — distinct par mois)
-//    - Jours d'absence            (CongeDemande Accordee — somme DureeJours par mois)
+//    - Coût Employeur             (Masse + Charges) - calculé côté DTO
+//    - Employés absents           (CongeDemande Accordee - distinct par mois)
+//    - Jours d'absence            (CongeDemande Accordee - somme DureeJours par mois)
 //    - Ligne TOTAL en queue
 //
 //  Indicateurs N/A (entités non présentes ou hors périmètre actuel) :
 //    Mouvements emplois, Mesures disciplinaires, Accidents (travail/trajet),
 //    Maladies professionnelles, Budget Formation, Heures Formation, Employés Formés.
-//    → renvoyés en `null` pour distinguer de zéro réel ; le Razor affiche « — ».
+//    → renvoyés en `null` pour distinguer de zéro réel ; le Razor affiche « - ».
 // =============================================================================
 
 using System;
@@ -61,7 +61,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        //  Calcul principal — 12 mois + ligne Total
+        //  Calcul principal - 12 mois + ligne Total
         // ═════════════════════════════════════════════════════════════════════
         private static BilanSocialDto Compute(BilanSocialFilterModel filter, IObjectSpace os)
         {
@@ -224,7 +224,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             };
 
             // ── 5. Ligne complémentaire « dont Intérimaires » (option B) ──
-            //   Hors DTSS officiel — vue managériale globale.
+            //   Hors DTSS officiel - vue managériale globale.
             var dontInterimaires = ComputeDontInterimaires(filter, os);
 
             return new BilanSocialDto

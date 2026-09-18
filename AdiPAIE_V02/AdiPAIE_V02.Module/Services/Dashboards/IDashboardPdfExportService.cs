@@ -1,7 +1,7 @@
 // =============================================================================
 //  IDashboardPdfExportService.cs
 //  Service partagé d'export PDF (.pdf) des 6 tableaux de bord RH.
-//  Utilise QuestPDF (à ajouter au .csproj — voir CHANGELOG Étape 7.3).
+//  Utilise QuestPDF (à ajouter au .csproj - voir CHANGELOG Étape 7.3).
 // =============================================================================
 
 using AdiPAIE_V02.Module.Models.Dashboards;

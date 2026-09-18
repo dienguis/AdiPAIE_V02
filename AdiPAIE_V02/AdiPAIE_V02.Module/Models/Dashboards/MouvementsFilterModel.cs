@@ -1,6 +1,6 @@
 // =============================================================================
 //  MouvementsFilterModel.cs
-//  Tableau N°3 (Mouvements — Arrivées / Départs).
+//  Tableau N°3 (Mouvements - Arrivées / Départs).
 //
 //  Sources de données validées :
 //    INTERNE :

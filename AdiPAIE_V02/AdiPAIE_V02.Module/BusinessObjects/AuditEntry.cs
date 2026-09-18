@@ -1,5 +1,5 @@
 // AdiPAIE_V02.Module/BusinessObjects/AuditEntry.cs
-// Journal d'audit — traçabilité de toutes les modifications métier
+// Journal d'audit - traçabilité de toutes les modifications métier
 using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
@@ -15,7 +15,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     /// Enregistre chaque action significative effectuée dans l'application :
     /// création, modification, validation, clôture, suppression, etc.
     ///
-    /// Lecture seule — les entrées ne sont jamais modifiées ni supprimées.
+    /// Lecture seule - les entrées ne sont jamais modifiées ni supprimées.
     /// </summary>
     [DefaultClassOptions]
     [XafDisplayName("Journal d'audit")]
@@ -145,7 +145,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // ── Propriété calculée ───────────────────────────────────
         [NonPersistent]
         public string Resume =>
-            $"{DateAction:dd/MM/yyyy HH:mm} — {Utilisateur} — {Action} — {NomEntite} : {ObjectLabel}";
+            $"{DateAction:dd/MM/yyyy HH:mm} - {Utilisateur} - {Action} - {NomEntite} : {ObjectLabel}";
 
         public override string ToString() => Resume;
 

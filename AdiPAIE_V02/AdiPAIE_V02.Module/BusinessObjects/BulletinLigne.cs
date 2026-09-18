@@ -20,7 +20,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         "Base >= 0 AND Montant >= 0 AND MontantEmployeur >= 0",
         CustomMessageTemplate = "Les montants d'une ligne de bulletin ne peuvent pas être négatifs.")]
     // ─────────────────────────────────────────────────────────────
-    // V1.8 — Unicité (Bulletin, Rubrique)
+    // V1.8 - Unicité (Bulletin, Rubrique)
     // Une même rubrique ne peut apparaître qu'une seule fois sur un
     // bulletin donné. Empêche les duplications accidentelles, notamment
     // via le popup "Saisir un congé" qui pourrait sinon créer plusieurs

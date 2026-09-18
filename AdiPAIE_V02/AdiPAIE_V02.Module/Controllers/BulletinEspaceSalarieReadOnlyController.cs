@@ -34,7 +34,7 @@ namespace AdiPAIE_V02.Module.Controllers
             "ChargerDepuisModele",
             "RemplacerDepuisModele",
             "RemplacerLignesModeleSeulement",
-            // V1.4.3 — actions RH publication à masquer côté salarié
+            // V1.4.3 - actions RH publication à masquer côté salarié
             "PublierBulletin",
             "DepublierBulletin",
             "RenotifierBulletin",
@@ -64,7 +64,7 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             base.OnActivated();
 
-            // V1.8 — Bug corrigé : on utilisait EstSalarieConnecte qui retournait
+            // V1.8 - Bug corrigé : on utilisait EstSalarieConnecte qui retournait
             // true pour TOUT user lié à un Salarie (même les managers RH/DAF/DG/Admin
             // qui ont aussi un Salarie associé via leur email). Conséquence : le
             // DetailView du Bulletin passait en lecture seule pour ces managers,

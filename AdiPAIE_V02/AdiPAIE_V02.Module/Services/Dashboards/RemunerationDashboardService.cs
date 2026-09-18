@@ -1,6 +1,6 @@
 // =============================================================================
 //  RemunerationDashboardService.cs
-//  Tableau N°4 (Rémunération — Égalité des salaires) — implémentation XPO.
+//  Tableau N°4 (Rémunération - Égalité des salaires) - implémentation XPO.
 //
 //  INTERNE :
 //    Source = Bulletin (filtré par Annee + GCRecord IS NULL)
@@ -60,7 +60,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        //  INTERNE — Bulletin / BulletinLigne / Salarie
+        //  INTERNE - Bulletin / BulletinLigne / Salarie
         // ═════════════════════════════════════════════════════════════════════
         private RemunerationDto ComputeForInterne(RemunerationFilterModel filter, IObjectSpace os)
         {
@@ -146,7 +146,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 .OrderByDescending(r => r.Total)
                 .ToList();
 
-            // ── 7b. V1.5 — Tableau « Égalité par Échelon » ──────────────
+            // ── 7b. V1.5 - Tableau « Égalité par Échelon » ──────────────
             var rowsEchelon = allBulletins
                 .GroupBy(b => b.Salarie?.Echelon?.DisplayName ?? "(Non renseigné)")
                 .Select(g => BuildEgaliteRow(g.Key, g.ToList(), SelectMontant, totalBrut))
@@ -261,7 +261,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        //  EXTERNE — ContratInterim
+        //  EXTERNE - ContratInterim
         //  V1.1 (Sprint 1C) : utilise le nouveau modèle Site + Unités au lieu
         //  de Station + BU. Les contrats sans Site V1.1 ne sont pas comptés
         //  (le seed démo + les nouvelles saisies utilisent forcément Site V1.1).
@@ -451,7 +451,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             catch { return true; }
         }
 
-        /// <summary>Accès défensif au Département (Salarie) — propriété optionnelle.</summary>
+        /// <summary>Accès défensif au Département (Salarie) - propriété optionnelle.</summary>
         private static string? SafeDepartementNom(Salarie? s)
         {
             if (s == null) return null;
@@ -490,7 +490,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         /// <summary>
-        /// V1.1 — retourne tous les sites actifs triés par type
+        /// V1.1 - retourne tous les sites actifs triés par type
         /// (Stations en premier, puis Siège, puis Dépôts) pour faciliter
         /// la navigation dans les dropdowns dashboards.
         /// </summary>
@@ -498,7 +498,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         {
             try
             {
-                // V1.1 — tri par TypeSite (Stations en 1er, puis Siège, puis Dépôts) puis Nom
+                // V1.1 - tri par TypeSite (Stations en 1er, puis Siège, puis Dépôts) puis Nom
                 var actifs = os.GetObjectsQuery<Site>().Where(s => s.Actif)
                     .ToList()
                     .OrderBy(s => (int)s.Type)        // StationService=0, Siege=1, Depot=2, Autre=99
@@ -541,7 +541,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         /// <summary>
-        /// V1.1 — retourne les unités organisationnelles. Si siteOid donné,
+        /// V1.1 - retourne les unités organisationnelles. Si siteOid donné,
         /// filtre uniquement celles rattachées à ce site. Sinon retourne tout.
         /// </summary>
         public List<UniteOrganisationnelle> GetUnitesPourSite(IObjectSpace os, Guid? siteOid)

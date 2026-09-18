@@ -1,6 +1,6 @@
 // =============================================================================
 //  ISuiviAbsencesDashboardService.cs
-//  Tableau N°5 (Suivi des Absences) — INTERNE uniquement.
+//  Tableau N°5 (Suivi des Absences) - INTERNE uniquement.
 // =============================================================================
 
 using System.Collections.Generic;

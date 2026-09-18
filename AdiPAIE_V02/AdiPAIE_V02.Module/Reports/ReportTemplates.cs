@@ -67,7 +67,7 @@ namespace AdiPAIE_V02.Module.Reports
 
             reportHeader.Controls.Add(new XRLabel
             {
-                Text = "Bulletin de paie – A4",
+                Text = "Bulletin de paie - A4",
                 Font = new DXFont("Segoe UI", 14, DXFontStyle.Bold),
                 BoundsF = new System.Drawing.RectangleF(190, 0, rpt.PageWidth - rpt.Margins.Left - rpt.Margins.Right - 190, 26)
             });

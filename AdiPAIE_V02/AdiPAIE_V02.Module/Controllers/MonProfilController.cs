@@ -1,5 +1,5 @@
 // =============================================================================
-//  MonProfilController.cs — V1.7.2
+//  MonProfilController.cs - V1.7.2
 //
 //  Action globale (WindowController) "Changer mon mot de passe" dans la toolbar
 //  principale de SunuPaie, accessible à tous les users connectés.
@@ -7,7 +7,7 @@
 //  Pourquoi cette approche (et pas le DetailView ApplicationUser direct)
 //  --------------------------------------------------------------------
 //  Le DetailView ApplicationUser de XAF Blazor affiche tous les champs en
-//  password-mask (*******) car ApplicationUser a des champs sensibles —
+//  password-mask (*******) car ApplicationUser a des champs sensibles -
 //  UX déroutante pour les RH/DAF/DG.
 //
 //  À la place, on ouvre un PopupWindow dédié avec 3 champs clairs :

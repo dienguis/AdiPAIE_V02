@@ -15,7 +15,7 @@ namespace AdiPAIE_V02.Module.Controllers
     /// <summary>
     /// WindowController global avec PopupWindowShowAction pour le Rapport CEO.
     ///
-    /// ⚠️ V1.1 (mai 2026) — DÉPRÉCIÉ
+    /// ⚠️ V1.1 (mai 2026) - DÉPRÉCIÉ
     /// Cette fonctionnalité est REMPLACÉE par les 6 dashboards RH analytiques
     /// (cf. Module Tableaux de Bord RH, route /dashboards). L'action est
     /// masquée partout (Active = false via clé "Deprecated_ReplacedByDashboards")
@@ -26,7 +26,7 @@ namespace AdiPAIE_V02.Module.Controllers
     public class RapportCEOController : WindowController
     {
         private const string HideKey = "RapportCEO_HiddenOnListViews";
-        // V1.1 — clé pour signaler la dépréciation et masquer partout
+        // V1.1 - clé pour signaler la dépréciation et masquer partout
         private const string DeprecatedKey = "Deprecated_ReplacedByDashboards";
 
         private PopupWindowShowAction _rapportAction;
@@ -48,7 +48,7 @@ namespace AdiPAIE_V02.Module.Controllers
         protected override void OnActivated()
         {
             base.OnActivated();
-            // V1.1 — Action désactivée partout (remplacée par les dashboards RH)
+            // V1.1 - Action désactivée partout (remplacée par les dashboards RH)
             // Le code reste fonctionnel mais l'action XAF n'apparaît plus en UI.
             if (_rapportAction != null)
                 _rapportAction.Active.SetItemValue(DeprecatedKey, false);
@@ -183,7 +183,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
                 // 6. Confirmation
                 var formats = (pdf ? "PDF" : "") + (pdf && excel ? " + " : "") + (excel ? "Excel" : "");
-                ShowMsg($"Rapport CEO généré ({formats}) — {mois:D2}/{annee}.",
+                ShowMsg($"Rapport CEO généré ({formats}) - {mois:D2}/{annee}.",
                     InformationType.Success);
             }
             catch (UserFriendlyException ex)

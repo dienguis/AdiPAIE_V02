@@ -1,10 +1,10 @@
 // =============================================================================
-//  RapportGratificationController.cs — V1.7.2e
+//  RapportGratificationController.cs - V1.7.2e
 //
 //  Hook NonPersistentObjectSpace pour peupler la ListView de
 //  RapportGratification.
 //
-//  Charge N et N-1 par défaut — filtrage UI possible.
+//  Charge N et N-1 par défaut - filtrage UI possible.
 // =============================================================================
 
 using AdiPAIE_V02.Module.BusinessObjects;
@@ -58,7 +58,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             using var persistentOs = Application.CreateObjectSpace(typeof(Salarie));
 
-            // Charge N et N-1 par défaut — l'utilisateur filtre dans la UI
+            // Charge N et N-1 par défaut - l'utilisateur filtre dans la UI
             int anneeCourante = DateTime.Today.Year;
             var allLignes = new System.Collections.Generic.List<RapportGratification>();
 

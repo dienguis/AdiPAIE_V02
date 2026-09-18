@@ -20,7 +20,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 {
     //[NavigationItem("Référentiel")]
     [DefaultClassOptions]
-    [ImageName("BO_List")]  // V1.1 — icône XAF native (rubrique = ligne de paie)
+    [ImageName("BO_List")]  // V1.1 - icône XAF native (rubrique = ligne de paie)
     [DefaultProperty(nameof(DisplayName))]
     public class Rubrique : BaseObject
     {
@@ -41,7 +41,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [RuleRequiredField, Size(20)]
         [Indexed(Unique = true)]
         [RuleRegularExpression(@"^[A-Z0-9_]{2,20}$",
-            CustomMessageTemplate = "Code en MAJUSCULES, 2–20 caractères (A-Z, 0-9, _).")]
+            CustomMessageTemplate = "Code en MAJUSCULES, 2-20 caractères (A-Z, 0-9, _).")]
         public string Code
         {
             get => code;

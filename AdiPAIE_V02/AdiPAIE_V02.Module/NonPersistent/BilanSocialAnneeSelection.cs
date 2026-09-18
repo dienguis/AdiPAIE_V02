@@ -13,7 +13,7 @@ using System;
 namespace AdiPAIE_V02.Module.NonPersistent
 {
     [DomainComponent]
-    [XafDisplayName("Bilan Social — Choix de l'année")]
+    [XafDisplayName("Bilan Social - Choix de l'année")]
     public class BilanSocialAnneeSelection : NonPersistentBaseObject
     {
         [XafDisplayName("Année du bilan")]

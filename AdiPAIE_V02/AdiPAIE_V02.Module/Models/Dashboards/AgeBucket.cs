@@ -1,6 +1,6 @@
 // =============================================================================
 //  AgeBucket.cs
-//  Tableau N°1 (Effectif détaillé) — tranches d'âge utilisées par les axes
+//  Tableau N°1 (Effectif détaillé) - tranches d'âge utilisées par les axes
 //  des tableaux et du bar chart empilé Femmes / Hommes.
 //
 //  Tranches définies par la mission (cf. spec Tableau N°1) :

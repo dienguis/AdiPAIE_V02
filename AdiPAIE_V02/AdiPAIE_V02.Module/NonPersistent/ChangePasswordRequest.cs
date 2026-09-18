@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace AdiPAIE_V02.Module.NonPersistent
 {
     /// <summary>
-    /// V1.7.2 — Entité non-persistante pour la saisie d'un changement de
+    /// V1.7.2 - Entité non-persistante pour la saisie d'un changement de
     /// mot de passe par l'utilisateur connecté lui-même.
     ///
     /// Tous les champs sont en PasswordPropertyEditor pour masquer

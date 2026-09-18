@@ -1,5 +1,5 @@
 // =============================================================================
-//  EntretienOffreEtPeriodeEssai.cs — V1.4 (mai 2026)
+//  EntretienOffreEtPeriodeEssai.cs - V1.4 (mai 2026)
 //
 //  - Entretien      : un rendez-vous mené sur une candidature (1..N par candidature)
 //  - OffreEmploi    : proposition formelle envoyée au candidat (0..1 par candidature
@@ -160,7 +160,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.Recrutement
 
         [VisibleInListView(false)]
         public string DisplayName =>
-            $"{(Candidature?.Candidat?.NomComplet ?? "?")} — {Type} ({DateEntretien:dd/MM/yyyy})";
+            $"{(Candidature?.Candidat?.NomComplet ?? "?")} - {Type} ({DateEntretien:dd/MM/yyyy})";
 
         public override string ToString() => DisplayName ?? "";
     }
@@ -309,7 +309,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.Recrutement
 
         [VisibleInListView(false)]
         public string DisplayName =>
-            $"Offre {(Candidature?.Candidat?.NomComplet ?? "?")} — {SalaireProposeMensuel:N0} FCFA [{Statut}]";
+            $"Offre {(Candidature?.Candidat?.NomComplet ?? "?")} - {SalaireProposeMensuel:N0} FCFA [{Statut}]";
 
         public override string ToString() => DisplayName ?? "";
     }
@@ -482,7 +482,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.Recrutement
                 var nom = Salarie != null
                     ? $"{Salarie.LastName} {Salarie.FirstName}".Trim()
                     : "?";
-                return $"PE {nom} — {DateDebut:dd/MM/yyyy} [{Statut}]";
+                return $"PE {nom} - {DateDebut:dd/MM/yyyy} [{Statut}]";
             }
         }
 

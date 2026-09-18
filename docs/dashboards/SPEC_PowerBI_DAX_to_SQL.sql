@@ -1,7 +1,7 @@
 -- ============================================================
 -- SPEC_PowerBI_DAX_to_SQL.sql
 --
--- Cahier des charges fourni par l'utilisateur (Abdoulaye Dieng) — équivalents
+-- Cahier des charges fourni par l'utilisateur (Abdoulaye Dieng) - équivalents
 -- SQL des mesures DAX PowerBI à reproduire dans le custom dashboard SunuPaie
 -- (.NET 8 / Blazor / DevExpress XAF 25.1.10 / XPO).
 --
@@ -174,7 +174,7 @@ GROUP BY cat.[Intitule]
 ORDER BY cat.[Intitule];
 
 -- ============================================================
--- 9. RÉCAP MENSUEL (12 mois x indicateurs) — Tableau 6
+-- 9. RÉCAP MENSUEL (12 mois x indicateurs) - Tableau 6
 -- ============================================================
 WITH MonthlyData AS (
     SELECT
@@ -213,7 +213,7 @@ FROM MonthlyData md
 ORDER BY md.[Annee], md.[Mois];
 
 -- ============================================================
--- 10. DÉCOMPOSITION PAR FAMILLE DE RUBRIQUE — Tableau 4
+-- 10. DÉCOMPOSITION PAR FAMILLE DE RUBRIQUE - Tableau 4
 -- ============================================================
 SELECT
     CASE rtr.[Code]

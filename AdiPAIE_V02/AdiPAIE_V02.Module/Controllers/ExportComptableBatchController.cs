@@ -10,7 +10,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.Controllers
 {
     /// <summary>
-    /// Controller d'export comptable — visible uniquement sur la ListView des bulletins.
+    /// Controller d'export comptable - visible uniquement sur la ListView des bulletins.
     ///
     /// Corrections :
     ///   - ViewController → ObjectViewController ListView Bulletin (anti-bouton parasite)

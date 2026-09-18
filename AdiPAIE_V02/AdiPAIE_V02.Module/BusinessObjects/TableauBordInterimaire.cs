@@ -9,7 +9,7 @@ using System.ComponentModel;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     /// <summary>
-    /// Objet non-persistant — Tableau de Bord Intérimaires.
+    /// Objet non-persistant - Tableau de Bord Intérimaires.
     /// Design inspiré du dashboard de référence avec KPIs, graphiques et distributions.
     /// </summary>
     [DomainComponent]

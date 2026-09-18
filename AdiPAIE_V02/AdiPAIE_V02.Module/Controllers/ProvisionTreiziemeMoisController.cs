@@ -1,5 +1,5 @@
 // =============================================================================
-//  ProvisionTreiziemeMoisController.cs — V1.7.2c
+//  ProvisionTreiziemeMoisController.cs - V1.7.2c
 //
 //  Hook NonPersistentObjectSpace pour peupler la ListView de
 //  ProvisionTreiziemeMois à l'ouverture.
@@ -59,7 +59,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             using var persistentOs = Application.CreateObjectSpace(typeof(Salarie));
 
-            // Charge N et N-1 par défaut — filtrage UI possible
+            // Charge N et N-1 par défaut - filtrage UI possible
             int anneeCourante = DateTime.Today.Year;
             var allLignes = new System.Collections.Generic.List<ProvisionTreiziemeMois>();
 

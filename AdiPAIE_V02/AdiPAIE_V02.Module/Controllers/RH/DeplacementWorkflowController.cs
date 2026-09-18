@@ -17,7 +17,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
     /// Refactorisé : toutes les notifications email passent par WorkflowEmailHelper
     /// qui gère correctement INonSecuredObjectSpaceFactory sur le thread UI.
     /// Les méthodes locales ExtraireSender / ExtraireEmailsRH / EnvoyerAsync
-    /// ont été supprimées — elles dupliquaient WorkflowEmailHelper et causaient
+    /// ont été supprimées - elles dupliquaient WorkflowEmailHelper et causaient
     /// des erreurs en Blazor.
     ///
     /// Règle fondamentale conservée :
@@ -61,7 +61,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 // Notification in-app N+1
                 if (d.ValideurN1?.Oid is Guid oidN1)
                     _Notifier(oidN1,
-                        $"Demande de déplacement à valider — {info.Salarie}",
+                        $"Demande de déplacement à valider - {info.Salarie}",
                         $"{info.Salarie} souhaite effectuer un déplacement : {info.Objet}. "
                         + $"Départ : {info.Depart}, Retour : {info.Retour} ({info.Jours} j).");
 
@@ -77,7 +77,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 if (!string.IsNullOrWhiteSpace(d.ValideurN1?.Email))
                     WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
                         new[] { d.ValideurN1.Email },
-                        $"[AdiPAIE] Demande de déplacement à valider — {info.Salarie}",
+                        $"[AdiPAIE] Demande de déplacement à valider - {info.Salarie}",
                         WorkflowEmailHelper.HtmlTableau(
                             "Demande de déplacement à valider",
                             $"{info.Salarie} souhaite effectuer un déplacement : {info.Objet}.",
@@ -114,7 +114,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 UpdateStates(); View.Refresh();
 
                 WorkflowEmailHelper.EnvoyerEmailsAsync(Application, rhEmails,
-                    $"[AdiPAIE] Demande à traiter — {info.Salarie}",
+                    $"[AdiPAIE] Demande à traiter - {info.Salarie}",
                     WorkflowEmailHelper.HtmlTableau(
                         "Demande de déplacement validée par N+1",
                         $"Demande de {info.Salarie} ({info.Objet}) validée par {nom1}. "
@@ -211,7 +211,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 UpdateStates(); View.Refresh();
 
                 WorkflowEmailHelper.EnvoyerEmailsAsync(Application, rhEmails,
-                    $"[AdiPAIE] Ordre de mission à approuver — {info.Salarie}",
+                    $"[AdiPAIE] Ordre de mission à approuver - {info.Salarie}",
                     WorkflowEmailHelper.HtmlTableau(
                         "Ordre de mission à approuver",
                         $"La note de frais de {info.Salarie} ({info.Objet}) est prête. "
@@ -253,9 +253,9 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 UpdateStates(); View.Refresh();
 
                 WorkflowEmailHelper.EnvoyerEmailsAsync(Application, dafEmails,
-                    $"[AdiPAIE] Ordre de mission approuvé — {info.Salarie}",
+                    $"[AdiPAIE] Ordre de mission approuvé - {info.Salarie}",
                     WorkflowEmailHelper.HtmlTableau(
-                        "Ordre de mission approuvé — décaissement requis",
+                        "Ordre de mission approuvé - décaissement requis",
                         $"Veuillez procéder au décaissement pour la mission de {info.Salarie} : "
                         + $"{info.Objet}. Montant : {info.Frais}. N° {info.Ordre}.",
                         Lignes(info)));
@@ -295,7 +295,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 UpdateStates(); View.Refresh();
 
                 WorkflowEmailHelper.EnvoyerEmailsAsync(Application, rhEmails,
-                    $"[AdiPAIE] Ordre rejeté — {info.Salarie}",
+                    $"[AdiPAIE] Ordre rejeté - {info.Salarie}",
                     WorkflowEmailHelper.HtmlTableau(
                         "Ordre de mission rejeté par le RH",
                         $"L'ordre de mission de {info.Salarie} a été rejeté. "
@@ -349,12 +349,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();
 
-                // Email comptable (sans pièce jointe — IEmailSender ne supporte pas
+                // Email comptable (sans pièce jointe - IEmailSender ne supporte pas
                 // les PJ en async cross-thread, les documents sont accessibles dans l'appli)
                 WorkflowEmailHelper.EnvoyerEmailsAsync(Application, comptableEmails,
-                    $"[AdiPAIE] Décaissement validé — {info.Salarie}",
+                    $"[AdiPAIE] Décaissement validé - {info.Salarie}",
                     WorkflowEmailHelper.HtmlTableau(
-                        "Décaissement validé — opération à enregistrer",
+                        "Décaissement validé - opération à enregistrer",
                         $"Veuillez enregistrer l'opération comptable pour la mission de "
                         + $"{info.Salarie} : {info.Objet}. Montant : {info.Frais}. "
                         + $"N° {info.Ordre}.",
@@ -654,25 +654,25 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 notif.Corps = corps;
                 notif.Categorie = "Mission";
                 notif.Priorite = NotificationPriorite.Important;
-                // Pas de CommitChanges ici — l'appelant commite juste après
+                // Pas de CommitChanges ici - l'appelant commite juste après
             }
             catch (Exception ex) { DevExpress.Persistent.Base.Tracing.Tracer.LogError("Erreur controller deplacement : " + ex.Message); }
         }
 
-        // ── Données de la demande (primitives — safe pour Task.Run) ───
+        // ── Données de la demande (primitives - safe pour Task.Run) ───
         private record DemandeInfo(
             string Salarie, string Objet,
             string Depart, string Retour, string Jours,
             string Frais, string Ordre);
 
         private static DemandeInfo Info(DemandeDeplacement d) => new(
-            Salarie: d.Salarie?.FullName ?? "—",
-            Objet: d.Objet ?? "—",
+            Salarie: d.Salarie?.FullName ?? "-",
+            Objet: d.Objet ?? "-",
             Depart: d.DateDepart.ToString("dd/MM/yyyy"),
             Retour: d.DateRetour.ToString("dd/MM/yyyy"),
             Jours: d.NombreJours.ToString(),
             Frais: d.TotalFrais.ToString("N0") + " FCFA",
-            Ordre: d.NumeroOrdre ?? "—");
+            Ordre: d.NumeroOrdre ?? "-");
 
         private static (string, string)[] Lignes(DemandeInfo i) => new[]
         {
@@ -709,7 +709,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 var doc = ObjectSpace.CreateObject<DossierDocument>();
                 doc.Dossier = dossier;
                 doc.Categorie = DossierCategorieDocument.Autre;
-                doc.Titre = $"Ordre de mission {d.NumeroOrdre} — {d.Objet}";
+                doc.Titre = $"Ordre de mission {d.NumeroOrdre} - {d.Objet}";
                 doc.SourceAuto = "Généré automatiquement à la clôture de la mission";
                 doc.DateDocument = DateTime.Today;
             }

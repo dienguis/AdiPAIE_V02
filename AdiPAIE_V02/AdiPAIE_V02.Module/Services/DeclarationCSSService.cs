@@ -96,7 +96,7 @@ namespace AdiPAIE_V02.Module.Services
             var ws = wb.Worksheets.Add($"CSS {nomMois} {annee}");
 
             // En-tête
-            ws.Cell(1, 1).Value = $"BORDEREAU CSS — {nomMois.ToUpper()} {annee}";
+            ws.Cell(1, 1).Value = $"BORDEREAU CSS - {nomMois.ToUpper()} {annee}";
             ws.Cell(1, 1).Style.Font.Bold = true;
             ws.Cell(1, 1).Style.Font.FontSize = 14;
             ws.Cell(1, 1).Style.Font.FontColor = BG_HEADER;

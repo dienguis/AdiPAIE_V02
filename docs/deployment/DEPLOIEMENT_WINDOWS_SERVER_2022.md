@@ -2,7 +2,7 @@
 
 > **Cible** : serveur **`grh`** + **SQL Server Express 2025**
 > **Application** : SunuPaie (XAF Blazor Server, .NET 8)
-> **Version** : V1.7.1 (mai 2026) — déploiement validé en prod ELTON
+> **Version** : V1.7.1 (mai 2026) - déploiement validé en prod ELTON
 > **Auteur** : ELTON Oil Company / DSI
 > **Changelog v3** : V1.7.1 unicité email Salarié (validation app + index unique
 > filtré SQL) + script détection doublons.
@@ -56,8 +56,8 @@
 
 1. **IIS 10** + features WebSocket / ASP.NET Core
 2. **ASP.NET Core 8.0 Hosting Bundle**
-3. **SQL Server 2022 Express** (gratuit, jusqu'à 10 GB par DB) — ou SQL Express 2025
-4. **SQL Server Management Studio** (SSMS, optionnel mais utile — préférer **SSMS 18.2** sur SQL 2025, cf. § 12)
+3. **SQL Server 2022 Express** (gratuit, jusqu'à 10 GB par DB) - ou SQL Express 2025
+4. **SQL Server Management Studio** (SSMS, optionnel mais utile - préférer **SSMS 18.2** sur SQL 2025, cf. § 12)
 5. **LibreOffice** (utilisé par DevExpress pour la conversion Excel/PDF des bulletins, exports dashboards, livre de paie)
    - **Téléchargement** : <https://www.libreoffice.org/download/download/>
    - **Chemin d'installation par défaut Windows** : `C:\Program Files\LibreOffice\`
@@ -263,7 +263,7 @@ dotnet build --no-incremental --configuration Release AdiPAIE_V02.sln
    - **Configuration** : `Release`
    - **Target Framework** : `net8.0`
    - **Deployment Mode** :
-     - ✅ **Framework-Dependent** (recommandé — léger, ~50 MB, requiert .NET 8 sur grh)
+     - ✅ **Framework-Dependent** (recommandé - léger, ~50 MB, requiert .NET 8 sur grh)
      - OU **Self-Contained** si grh n'a pas .NET 8 (~150 MB, embarque le runtime)
    - **Target Runtime** : `win-x64`
    - ✅ Cocher **Produce single file** = NON (laisser décoché)
@@ -379,14 +379,14 @@ Get-WebsiteState -Name "SunuPaie"          # Started
 
 ## 7. Configuration connection string
 
-### 🎯 Architecture — Où l'app lit-elle la connection string ?
+### 🎯 Architecture - Où l'app lit-elle la connection string ?
 
 SunuPaie utilise un **bootstrap intelligent** (`DbConfigHelper.cs`) avec **2 emplacements** :
 
 | Emplacement | Rôle | Survie aux MAJ ? |
 |-------------|------|------------------|
 | `C:\inetpub\wwwroot\SunuPaie\dbconfig.json` | **Template** copié à l'install (legacy bin path) | ❌ Écrasé à chaque déploiement |
-| **`C:\ProgramData\AdiPAIE_V02\dbconfig.json`** | **Production** — chemin réel utilisé par l'app | ✅ **Préservé entre les MAJ** |
+| **`C:\ProgramData\AdiPAIE_V02\dbconfig.json`** | **Production** - chemin réel utilisé par l'app | ✅ **Préservé entre les MAJ** |
 
 **Au 1er démarrage**, si `ProgramData\AdiPAIE_V02\dbconfig.json` n'existe pas :
 - L'app copie le template depuis `wwwroot\SunuPaie\dbconfig.json` vers `ProgramData`
@@ -414,7 +414,7 @@ icacls "C:\ProgramData\AdiPAIE_V02"
 
 ### Configurer la connection string
 
-#### Option 1 — Pré-remplir directement dans ProgramData (recommandé prod)
+#### Option 1 - Pré-remplir directement dans ProgramData (recommandé prod)
 
 Sur **grh**, créer manuellement le fichier `C:\ProgramData\AdiPAIE_V02\dbconfig.json` :
 
@@ -435,7 +435,7 @@ Sur **grh**, créer manuellement le fichier `C:\ProgramData\AdiPAIE_V02\dbconfig
 - Le mot de passe chiffré est lié à la **machine grh** : impossible de le déchiffrer sur un autre serveur (sécurité by design)
 - Si tu changes de serveur, il faut remettre le mot de passe en clair, l'app le re-chiffrera au démarrage
 
-#### Option 2 — Laisser le template dans bin et l'app fait la copie
+#### Option 2 - Laisser le template dans bin et l'app fait la copie
 
 1. Pré-éditer `C:\Dev\Publish_V1.7\dbconfig.json` AVANT de copier les fichiers
 2. Le template sera copié automatiquement vers ProgramData au 1er lancement
@@ -467,7 +467,7 @@ notepad C:\ProgramData\AdiPAIE_V02\dbconfig.json
 # 2. Remettre le mot de passe en CLAIR (supprimer le prefixe DPAPI:)
 # 3. Sauvegarder
 
-# 4. Recycler le pool — l'app re-chiffrera le mot de passe au prochain run
+# 4. Recycler le pool - l'app re-chiffrera le mot de passe au prochain run
 Restart-WebAppPool -Name "SunuPaiePool"
 ```
 
@@ -573,7 +573,7 @@ L'**Updater XAF** (`Updater.cs`) s'exécute automatiquement :
    - Ne JAMAIS cumuler `RH` + `RH_Manager` sur un même user (cf. issue V1.6.2 résolue)
    - Ne pas mettre `Administrators` sur les users métier (réservé aux administrateurs techniques)
 
-   📋 **Exemple — création du user DG ELTON** :
+   📋 **Exemple - création du user DG ELTON** :
    1. Administration → Utilisateurs → Nouveau
    2. UserName : `mansour.dg` (ou email), Email : `mansour@elton.sn`
    3. Salarie : pointer vers la fiche salarié du DG dans Salariés
@@ -608,7 +608,7 @@ L'approche **"créer en dev, restaurer en prod"** déplace toute l'initialisatio
 côté machine de développement (où on peut debugger F5) et ne fait en prod qu'une
 opération SQL Server triviale et idempotente.
 
-### Étape 1 — Créer la base "template" en dev
+### Étape 1 - Créer la base "template" en dev
 
 Dans SSMS local (machine de développement) :
 
@@ -618,12 +618,12 @@ DROP DATABASE IF EXISTS SunuPaie_Template;
 CREATE DATABASE SunuPaie_Template;
 ```
 
-### Étape 2 — Pointer l'app dev vers cette base
+### Étape 2 - Pointer l'app dev vers cette base
 
 Modifier temporairement `appsettings.json` (ou la connection string `dbconfig.json`
 locale) pour pointer sur `SunuPaie_Template`.
 
-### Étape 3 — Lancer en DEBUG dans Visual Studio
+### Étape 3 - Lancer en DEBUG dans Visual Studio
 
 Appuyer **F5** → l'`Updater` crée :
 - Toutes les tables métier (Salarie, Bulletin, Conjoint, Enfant, etc.)
@@ -635,7 +635,7 @@ Appuyer **F5** → l'`Updater` crée :
 
 **Vérification immédiate** : login `Admin` / *(vide)* sur l'app dev → ✅ accès complet.
 
-### Étape 4 (optionnel) — Nettoyer les données démo
+### Étape 4 (optionnel) - Nettoyer les données démo
 
 Si vous voulez une base "vierge de données opérationnelles" mais avec
 schéma + Admin + rôles + référentiels prêts pour un client neuf :
@@ -665,7 +665,7 @@ DELETE FROM UniteOrganisationnelle;
 --   ParametreGlobal, Departement, Fonction, etc.
 ```
 
-### Étape 5 — Backup .bak
+### Étape 5 - Backup .bak
 
 ```sql
 BACKUP DATABASE SunuPaie_Template
@@ -676,12 +676,12 @@ NAME = 'SunuPaie Template V1.7 - schema + Admin + roles + referentiels';
 
 Le `.bak` fait typiquement 5 à 30 MB compressé.
 
-### Étape 6 — Transférer le .bak sur le serveur grh
+### Étape 6 - Transférer le .bak sur le serveur grh
 
 Via partage réseau, RDP copier-coller, OneDrive, ou clé USB.
 Cible : `C:\Temp\SunuPaie_Template_V1.7.bak` sur le serveur.
 
-### Étape 7 — Restaurer sur grh
+### Étape 7 - Restaurer sur grh
 
 Sur le serveur, dans SSMS connecté à `grh\SQLEXPRESS` (ou via `sqlcmd`) :
 
@@ -709,7 +709,7 @@ WITH MOVE 'SunuPaie_Template'
 ALTER DATABASE SunuPaie SET MULTI_USER;
 ```
 
-### Étape 8 — Recréer le user IIS dans la base restaurée
+### Étape 8 - Recréer le user IIS dans la base restaurée
 
 Le RESTORE remet l'état exact de la base de dev → le mapping vers
 `IIS APPPOOL\SunuPaiePool` est devenu **orphan** (le SID ne correspond plus).
@@ -735,7 +735,7 @@ WHERE dp.name = 'IIS APPPOOL\SunuPaiePool';
 -- Doit retourner : IIS APPPOOL\SunuPaiePool | db_owner
 ```
 
-### Étape 9 — Restart IIS et test login
+### Étape 9 - Restart IIS et test login
 
 ```powershell
 Restart-WebAppPool -Name "SunuPaiePool"
@@ -743,7 +743,7 @@ Restart-WebAppPool -Name "SunuPaiePool"
 
 Naviguer vers `http://grh/` → page de login XAF → `Admin` / *(vide)* → ✅ connecté.
 
-### Étape 10 — Sécurisation immédiate
+### Étape 10 - Sécurisation immédiate
 
 1. **Changer le mot de passe Admin** dans Administration → Utilisateurs
 2. Configurer SMTP, société, signataire dans Paramètres globaux
@@ -771,7 +771,7 @@ Naviguer vers `http://grh/` → page de login XAF → `Admin` / *(vide)* → ✅
 
 ### Activer HTTPS (recommandé fortement)
 
-#### Option A — Certificat auto-signé (test/intranet)
+#### Option A - Certificat auto-signé (test/intranet)
 
 ```powershell
 # Generer un cert auto-signe pour grh
@@ -794,11 +794,11 @@ $binding.AddSslCertificate($thumbprint, "My")
 # Voir module URL Rewrite IIS
 ```
 
-#### Option B — Certificat Let's Encrypt (production)
+#### Option B - Certificat Let's Encrypt (production)
 
 Utiliser **win-acme** : https://www.win-acme.com/
 
-#### Option C — Certificat entreprise (fourni par DSI)
+#### Option C - Certificat entreprise (fourni par DSI)
 
 Importer le `.pfx` via `mmc → Certificats → Local Computer → Personal → Import`, puis bind comme option A.
 
@@ -816,7 +816,7 @@ New-NetFirewallRule -DisplayName "IIS HTTPS (port 443)" `
 # Autoriser le ping ICMPv4 entrant (très utile pour diagnostiquer
 # l'accessibilité du serveur depuis les postes clients).
 # Sans cette règle, le port 80 peut fonctionner mais `ping grh`
-# échoue avec "Délai d'attente de la demande dépassé" — ce qui
+# échoue avec "Délai d'attente de la demande dépassé" - ce qui
 # induit RH/DSI en erreur lors d'un diagnostic réseau.
 New-NetFirewallRule -DisplayName "ICMPv4 Echo Request (ping)" `
     -Direction Inbound -Protocol ICMPv4 -IcmpType 8 -Action Allow `
@@ -834,13 +834,13 @@ Procédure de vérification à donner aux postes RH/DAF lors du premier
 accès à `http://grh` :
 
 ```powershell
-# 1. Résolution DNS — doit retourner l'IP du serveur (ex 192.168.1.178)
+# 1. Résolution DNS - doit retourner l'IP du serveur (ex 192.168.1.178)
 nslookup grh
 
-# 2. Ping ICMP — doit répondre si la règle ICMPv4 ci-dessus est créée
+# 2. Ping ICMP - doit répondre si la règle ICMPv4 ci-dessus est créée
 ping grh
 
-# 3. Test du port 80 (HTTP) — le plus important
+# 3. Test du port 80 (HTTP) - le plus important
 Test-NetConnection -ComputerName grh -Port 80
 # ou plus court :  tnc grh -Port 80
 # Doit retourner : TcpTestSucceeded : True
@@ -937,7 +937,7 @@ Voir la doc complète dans **Aide → Congés → Étape 6 et Migration prod**.
 | Salariés | Paramètres → **Importer salariés** | `ImportSalarieService` |
 | Comptes bancaires | Paramètres → **Importer comptes bancaires** | `ImportCompteBancaireService` |
 | Conjoints | Paramètres → **Importer conjoints** | `ImportConjointService` |
-| Soldes congés initiaux | ⏳ V1.7.1 (à venir) — manuel SQL en attendant | (à coder) |
+| Soldes congés initiaux | ⏳ V1.7.1 (à venir) - manuel SQL en attendant | (à coder) |
 | Bulletins intérim | Paie → **Wizard import bulletins intérim** | `BulletinInterimImportService` |
 
 ### Script SQL pour init soldes congés (en attendant V1.7.1)
@@ -978,7 +978,7 @@ VALUES (NEWID(), @SoldeOid,
 | Enfants | JDE | Saisie manuelle (V1.6) | ~250 |
 | Comptes bancaires | JDE | Import wizard | 100+ |
 | Soldes congés | JDE | Script SQL ou V1.7.1 | 100+ |
-| Historique bulletins | ❌ NON migré | Reste dans JDE | — |
+| Historique bulletins | ❌ NON migré | Reste dans JDE | - |
 | **Report `BulletinPaie`** | Base de dev `AdiPAIE_V02_company1` | **Requête SQL** | 1 ligne |
 
 ### Nettoyage des données DEMO_* injectées par DemoDataSeeder
@@ -994,7 +994,7 @@ Segments et Salariés démo avec le **préfixe `DEMO_`** dans leurs codes/matric
 - Le `DemoDataSeeder` crée des **données fictives** (UO, segments, salariés DEMO_*).
   **À supprimer ou nettoyer** avant la mise en service réelle.
 
-#### Option A — Garder les UO/segments mais retirer le préfixe `DEMO_`
+#### Option A - Garder les UO/segments mais retirer le préfixe `DEMO_`
 
 Pratique si la structure organisationnelle créée par le seeder convient
 pour ELTON (E-Service, Espace Auto, Piste, Segments BTP/Consommateurs, etc.) :
@@ -1012,7 +1012,7 @@ WHERE Code LIKE 'DEMO\_%' ESCAPE '\'
   AND GCRecord IS NULL
 ORDER BY Code;
 
--- 2. APPLIQUER (retirer "DEMO_" — 5 caractères)
+-- 2. APPLIQUER (retirer "DEMO_" - 5 caractères)
 UPDATE dbo.UniteOrganisationnelle
 SET Code = STUFF(Code, 1, 5, '')
 WHERE Code LIKE 'DEMO\_%' ESCAPE '\'
@@ -1031,7 +1031,7 @@ Résultat type :
 - `DEMO_SEG_BTP` → `SEG_BTP`
 - etc.
 
-#### Option B — Diagnostiquer toutes les tables avec préfixe `DEMO_`
+#### Option B - Diagnostiquer toutes les tables avec préfixe `DEMO_`
 
 Le `DemoDataSeeder` peut avoir tagué plusieurs tables. Pour les recenser :
 
@@ -1073,7 +1073,7 @@ DECLARE @sql NVARCHAR(MAX) = N'
 EXEC sp_executesql @sql;
 ```
 
-#### Option C — Supprimer entièrement les données DEMO_*
+#### Option C - Supprimer entièrement les données DEMO_*
 
 Si vous ne voulez **rien garder** des données démo (ELTON gère sa propre
 structure) :
@@ -1144,7 +1144,7 @@ explicitement copiées vers la prod.
 | `OptimisticLockField` | int | Verrou optimiste XPO |
 | `GCRecord` | int | Marqueur de soft-delete (NULL = actif) |
 
-#### Requête SQL — Copie du rapport (même serveur SQL)
+#### Requête SQL - Copie du rapport (même serveur SQL)
 
 ```sql
 -- Pré-requis : les 2 bases sont sur la même instance SQL Server.
@@ -1240,7 +1240,7 @@ WHERE rTarget.Name = 'BulletinPaie';
 
 ## 12. Troubleshooting & erreurs fréquentes
 
-### Le site ne démarre pas — HTTP 500.30
+### Le site ne démarre pas - HTTP 500.30
 
 **Cause** : ASP.NET Core Hosting Bundle pas installé OU mauvaise version
 
@@ -1252,7 +1252,7 @@ dotnet --list-runtimes
 # Si absent, reinstaller le Hosting Bundle
 ```
 
-### HTTP 500.19 — config error
+### HTTP 500.19 - config error
 
 **Cause** : `web.config` corrompu OU pool d'app mal configuré
 
@@ -1276,7 +1276,7 @@ a connection to SQL Server.
 4. Pare-feu : ouvrir port 1433
 5. Login `sa` désactivé : utiliser `Set-LoginEnabled -LoginName 'sa' -Enabled $true`
 
-### WebSocket failed — Blazor n'arrive pas à se connecter
+### WebSocket failed - Blazor n'arrive pas à se connecter
 
 **Symptôme** : page blanche, errors console "WebSocket connection failed"
 
@@ -1288,7 +1288,7 @@ Get-WindowsFeature Web-WebSockets
 # Si "Removed" : Install-WindowsFeature -Name Web-WebSockets
 ```
 
-### Permissions RH — colonnes Bulletin invisibles
+### Permissions RH - colonnes Bulletin invisibles
 
 Cf. **issue V1.6.2 résolue** (cause = double rôle RH + RH_Manager). Solution :
 
@@ -1451,7 +1451,7 @@ WHERE dp.name = 'IIS APPPOOL\SunuPaiePool';
 
 **Bonne** : `Server=grh\SQLEXPRESS;Database=SunuPaie;Integrated Security=true;Encrypt=true;TrustServerCertificate=true`
 
-### Doublons d'email Salarié — l'index unique ne se crée pas
+### Doublons d'email Salarié - l'index unique ne se crée pas
 
 **Symptôme** : à partir de V1.7.1, l'`Updater` tente de créer
 `UX_Salarie_Email` (index unique filtré). S'il y a des doublons d'email
@@ -1567,7 +1567,7 @@ Start-WebAppPool -Name "SunuPaiePool"
 - **Documentation produit** : `wwwroot/help/` (accessible depuis l'app via icône Aide)
 - **Architecture détaillée** : `docs/dashboards/MISSION_STATE.md`
 - **Sources légales paie Sénégal** :
-  - [AfricaPaieRH — Congés payés Sénégal](https://africapaierh.com/juridique/les-conges-payes-au-senegal/)
+  - [AfricaPaieRH - Congés payés Sénégal](https://africapaierh.com/juridique/les-conges-payes-au-senegal/)
   - Code du Travail Sénégal Loi 97-17 du 1er décembre 1997
 
 ---
@@ -1605,4 +1605,4 @@ Start-WebAppPool -Name "SunuPaiePool"
 
 **🎉 Bonne mise en production !**
 
-*Guide V1.7 — mai 2026 — ELTON Oil Company / AdiPAIE V02*
+*Guide V1.7 - mai 2026 - ELTON Oil Company / AdiPAIE V02*

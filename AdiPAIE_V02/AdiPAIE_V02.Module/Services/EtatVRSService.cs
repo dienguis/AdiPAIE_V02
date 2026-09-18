@@ -178,7 +178,7 @@ namespace AdiPAIE_V02.Module.Services
             var nomMois = NomMoisFr(mois);
 
             // Ligne 1 : Titre
-            ws.Cell(1, 1).Value = $"ÉTAT VRS — {nomMois.ToUpper()} {annee}";
+            ws.Cell(1, 1).Value = $"ÉTAT VRS - {nomMois.ToUpper()} {annee}";
             ws.Cell(1, 1).Style.Font.Bold = true;
             ws.Cell(1, 1).Style.Font.FontSize = 14;
             ws.Cell(1, 1).Style.Font.FontColor = BG_HEADER;

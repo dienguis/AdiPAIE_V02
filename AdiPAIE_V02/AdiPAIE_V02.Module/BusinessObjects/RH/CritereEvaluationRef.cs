@@ -37,7 +37,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         [Size(20)]
         [Indexed(Unique = true)]
         [RuleRegularExpression(@"^[A-Z0-9_]{2,20}$",
-            CustomMessageTemplate = "Code en MAJUSCULES, 2–20 caractères (A-Z, 0-9, _).")]
+            CustomMessageTemplate = "Code en MAJUSCULES, 2-20 caractères (A-Z, 0-9, _).")]
         [XafDisplayName("Code")]
         public string Code
         {

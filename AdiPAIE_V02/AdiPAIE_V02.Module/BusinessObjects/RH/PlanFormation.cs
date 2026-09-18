@@ -15,7 +15,7 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 namespace AdiPAIE_V02.Module.BusinessObjects.RH
 {
     /// <summary>
-    /// Plan annuel de formation — approuvé par la direction avant exécution.
+    /// Plan annuel de formation - approuvé par la direction avant exécution.
     ///
     /// Cycle : Brouillon → Soumis → Approuvé → En cours → Clôturé
     /// </summary>

@@ -1,6 +1,6 @@
 // =============================================================================
 //  EffectifDetailleFilterModel.cs
-//  Tableau N°1 (Effectif détaillé) — filtres saisis par l'utilisateur.
+//  Tableau N°1 (Effectif détaillé) - filtres saisis par l'utilisateur.
 //
 //  Périmètre : Personnel INTERNE uniquement (Salarie).
 //  Filtres mission : Année (multi), Site, Genre, Type de contrat.

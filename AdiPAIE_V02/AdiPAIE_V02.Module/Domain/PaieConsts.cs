@@ -8,7 +8,7 @@ namespace AdiPAIE_V02.Module.Domain
     {
         public static class ValeursDefaut
         {
-            // Sénégal – à paramétrer au besoin
+            // Sénégal - à paramétrer au besoin
             public const decimal AvantageVehicule_Montant = 20_000m;
         }
         public static class Groupes
@@ -40,7 +40,7 @@ namespace AdiPAIE_V02.Module.Domain
             
         }
 
-        // Barème annuel DPP(progressif) — valeurs de ton tableau
+        // Barème annuel DPP(progressif) - valeurs de ton tableau
         public static readonly (decimal Min, decimal Max, decimal Taux)[] IR_DPP_TRANCHES =
         {
             (       0m,    630_000m,  0m),

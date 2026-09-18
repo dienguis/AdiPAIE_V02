@@ -1,5 +1,5 @@
 // AdiPAIE_V02.Module/BusinessObjects/RH/DossierDisciplinaire.cs
-// Gestion des procédures disciplinaires — droit du travail sénégalais
+// Gestion des procédures disciplinaires - droit du travail sénégalais
 using AdiPAIE_V02.Module.BusinessObjects;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ConditionalAppearance;
@@ -17,7 +17,7 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 namespace AdiPAIE_V02.Module.BusinessObjects.RH
 {
     /// <summary>
-    /// Dossier disciplinaire — suivi d'une procédure disciplinaire.
+    /// Dossier disciplinaire - suivi d'une procédure disciplinaire.
     ///
     /// Droit sénégalais (Code du Travail) :
     ///   - Faute simple → avertissement / blâme
@@ -266,7 +266,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Propriétés calculées ──────────────────────────────────────
         [NonPersistent]
         public string DisplayName =>
-            $"{Salarie?.FullName ?? "—"} — {Categorie} ({DateOuverture:dd/MM/yyyy})";
+            $"{Salarie?.FullName ?? "-"} - {Categorie} ({DateOuverture:dd/MM/yyyy})";
 
         public override string ToString() => DisplayName;
     }

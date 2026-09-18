@@ -1,0 +1,322 @@
+V1.9 - Correctifs post-V1.8 + Import Excel intérimaires + Nettoyage tirets
+
+Consolidation de 9 sous-versions post-commit V1.8 (4bd896e) menant à la
+mise en prod. Inclut : 7 hotfixes moteur paie, 1 gros feature (menu Controle
+d'integrite), 1 gros feature (import Excel 800 interimaires), nettoyage des
+tirets longs sur tout le codebase.
+
+============================================================================
+V1.8.1 - Fix IPRES Regime Cadre faussement applique aux non-cadres
+============================================================================
+
+Bug : Bulletin.EstCadre utilisait IndexOf("cadre") -> matchait "Non cadre"
+      -> IPRES_RC applique a tort aux non-cadres.
+
+Fix :
+- Categories.EstCadre (bool) : drapeau explicite RH
+- Bulletin.EstCadre : lit le booleen, fallback regex StartsWith + exclusion \bnon\b
+- Bulletin.CalculerIPRES_CSS : supprime la ligne IPRES_RC pour les non-cadres
+- Fix collateral dans SimulationSursalaire.EstCadre et BilanSocialService.GetStatutLabel
+- Updater EnsureCategoriesEstCadreInitialized : pre-coche EstCadre sur libelles existants
+- SQL V181_INIT_EstCadre.sql : script one-shot de secours
+
+============================================================================
+V1.8.2 - Fix IR calcule avec parts fiscales figees sur la ligne
+============================================================================
+
+Bug : Bulletin.CalculerIRPP prenait ir.Taux en priorite -> figeait le
+      nombre de parts. Si NombrePartsFiscales etait mis a jour sur la fiche
+      salarie apres creation du bulletin, le recalcul gardait l'ancienne
+      valeur a jamais.
+
+Cas reel : Papa Souleymane DIOP (3,5 parts fiche, 3 parts bulletin)
+- IR V1.8.1 : 207 225 (reduction 25%)
+- IR V1.8.2 : 193 410 (reduction 30%, conforme ancien systeme)
+- Net a payer : +13 815 FCFA
+
+Fix : la fiche salarie est toujours la source de verite.
+      ir.Taux est un reflet d'affichage ecrase a chaque recalcul.
+
+SimulationSursalaire non affecte (lit directement NombrePartsFiscales).
+
+============================================================================
+V1.8.3 - Rubriques de regul manuelle (IR + TRIMF)
+============================================================================
+
+Ajoute 4 nouvelles rubriques + 1 TypeRef au seed pour saisie manuelle des
+regularisations d'IR et de TRIMF (cas retroactifs, corrections d'erreur) :
+
+- REGUL_IR_RET   (810) : Regul. Impot IR a prelever  - Retenue - 447100 credit
+- REGUL_IR_GAIN  (811) : Regul. Impot IR a rembourser - Gain    - 447100 debit
+- REGUL_TRIMF_RET (812): Regul. TRIMF a prelever      - Retenue - 447200 credit
+- REGUL_TRIMF_GAIN (813): Regul. TRIMF a rembourser   - Gain    - 447200 debit
+- TypeRef REGUL_GAIN : Gain, ni brut fiscal ni brut social
+
+Aucune logique de calcul auto modifiee. Le RH utilise ces rubriques via
+"Ajouter une ligne" sur le DetailView Bulletin.
+
+SQL V183_CREATE_RegulRubriques.sql : script alternatif pour creer sans redeployer.
+
+============================================================================
+V1.8.4 - Prime de transport hors IPRES + Proratisation des 6 rubriques
+============================================================================
+
+Directives RH ELTON :
+
+1. TRANS ne doit pas etre dans la base IPRES (brut social).
+   Fix : override BrutSocial=false sur la rubrique TRANS dans SeedService.
+
+2. Proratiser sur JoursTravailles/30 les 6 rubriques mensuelles (pour un
+   salarie n'ayant pas fait 30 jours dans le mois) :
+   * Salaire de base (deja proratise avant)
+   * Sursalaire (NOUVEAU)
+   * Prime d'anciennete (base = SB proratise, NOUVEAU)
+   * Indemnite de logement (deja proratise avant)
+   * Avantage vehicule (NOUVEAU)
+   * Prime de transport (NOUVEAU)
+   Le 13e mois est EXCLU (deja proratise annuellement par TreiziemeMoisService).
+
+SQL V184_FIX_TRANS_HorsIPRES.sql : script pour corriger TRANS en base sans
+redeployer + audit des bulletins impactes.
+
+============================================================================
+V1.8.5 - Solde anticipe d'un pret
+============================================================================
+
+Cas : pret de 5M avec 750k restant, salarie souhaite tout rembourser sur
+      un bulletin donne.
+
+Fichiers crees :
+- NonPersistent/SoldeAnticipePretRequest.cs : DTO popup
+- Controllers/PretSolderAnticipeController.cs : action "Solder anticipe"
+  sur DetailView Pret. Visible si Statut = EnCours AND ResteARegler > 0.
+
+Comportement :
+- Cree une PretEcheance exceptionnelle avec MontantCapital = ResteARegler
+- ANNULE toutes les autres echeances Prevue restantes (sinon double
+  prelevement sur le meme bulletin)
+- Le calcul du bulletin ramasse automatiquement l'echeance de solde
+- Pret.RecalculerEtat passe le pret a Termine apres validation
+
+============================================================================
+V1.8.6 - Validation/Cloture en masse + workflow bulletin strict
+============================================================================
+
+3 bugs corriges d'un coup :
+
+1. ValiderBulletin etait RequireSingleObject -> RequireMultipleObjects
+   + boucle sur SelectedObjects (validation en masse enfin possible)
+
+2. CloturerAction_Execute utilisait FirstOrDefault -> 1 seul cloture
+   meme si N selectionnes (bug cache !). Fix : boucle sur SelectedObjects.
+
+3. La cloture ne verifiait PAS le statut Valide -> un Brouillon pouvait
+   sauter directement en Cloture, sans ValiderRemboursementsPrets ->
+   echeances de prets restaient Prevue et se re-facturaient sur le mois
+   suivant (DOUBLE PRELEVEMENT).
+   Fix : refus strict si Statut != Valide, message clair.
+
+Reouverture idem : boucle sur SelectedObjects, skip silencieux si deja
+en Brouillon.
+
+Workflow strict impose : Brouillon -> Valide -> Cloture (sans saut).
+
+============================================================================
+V1.8.7 - Menu Controle d'integrite + rubriques REGUL_PRET
+============================================================================
+
+Nouveau menu Admin -> Controle d'integrite qui scanne automatiquement la
+BDD et propose des corrections en 1 clic.
+
+Fichiers crees (4) :
+- NonPersistent/AnomalieIntegrite.cs : entite non-persistante affichee
+  en ListView (Categorie, Severite, Type, Description, Objet, Action)
+- Services/IntegriteService.cs : 5 detecteurs auto (BulletinsFantomes,
+  DoublesPrelevementsPret, BulletinLignesDupliquees, CategoriesEstCadreIncoherentes,
+  TauxIRDivergent)
+- Controllers/ControleIntegriteController.cs : pattern XAF ObjectsGetting
+  + actions Actualiser / Corriger (batch, avec confirmations)
+- Model.DesignedDiffs.xafml : entree nav "Controle d'integrite" sous Admin
+
+Rubriques ajoutees au seed :
+- REGUL_PRET_RET  (814) : Retenue, compte 272800 credit
+- REGUL_PRET_GAIN (815) : Gain,    compte 272800 debit
+  Utile pour rembourser un trop-preleve suite aux bugs pre-V1.8.6.
+
+============================================================================
+V1.8.8 - Suspension cotisations sociales (conge maternite)
+============================================================================
+
+Cas : salariee en conge maternite qui a quand meme travaille 16 jours.
+      Le RH veut un bulletin sans trace IPRES/CSS pour ce mois.
+
+Fichier modifie :
+- BusinessObjects/Bulletin.cs : + SuspendreCotisationsSociales (bool)
+  + MotifSuspensionCotisations (string, obligatoire si suspendu).
+  Validation OnSaving : motif obligatoire.
+  CalculerIPRES_CSS respecte le flag : supprime IPRES_RG, IPRES_RC,
+  CSS_AT, CSS_AF si actif et ne les recree pas.
+
+Reste calcule meme en suspension : TRIMF, IR, CFCE.
+
+Migration BDD automatique par XAF au demarrage (2 nouvelles colonnes).
+
+============================================================================
+V1.9 - Import Excel liste effectif interimaires
+============================================================================
+
+Charge la liste globale preso-reseau (Excel du RH) - 747 interimaires,
+14 colonnes. Cree fiches Interimaire + ContratInterim actif en 1 passe.
+
+Nouveaux champs sur Interimaire :
+- MatriculeAgence (unique, indexe) : matricule fourni par l'agence
+- SexeInterim (Sexe? enum reutilise)
+- Categorie (string 20)
+- DateEntreeAgence (DateTime?) + AncienneteAns (calcule)
+
+Fichiers crees (3) :
+- Services/Interim/InterimaireImportService.cs : parse ClosedXML + normalisation
+  en dur + creation idempotente. Classe ResultatImportInterimaires + rapport.
+- NonPersistent/ImportInterimaireRequest.cs : entite PERSISTANTE (BaseObject
+  avec FileData Aggregated). Historique des imports trace en base.
+- Controllers/InterimaireImportController.cs : action "Importer liste effectif"
+  sur ListView Interimaire, popup avec dry-run par defaut.
+
+Normalisations en dur :
+- Agence : "SEN INTERIM" / "SEN INTERIM" / "SEN. INTERIM" -> "SEN INTERIM"
+- BU : "E.SERVICES" / "E-SERVICES" / "E. SERVICES" -> "E-SERVICES"
+       "DEPOT" (sans accent), "CONTROLE" (sans accent)
+- Categorie : regex \d+EM?E?[AB]? -> "Neme X"
+- Sexe : H/M -> Masculin, F -> Feminin
+- Dates : datetime ou string dd/MM/yyyy
+
+Doublons intra-fichier : skip du 2e+, rapport liste les cas.
+Doublons intra-BDD : skip silencieux (import 100% idempotent).
+
+Referentiels manquants (Site, BU, Agence) crees automatiquement.
+
+V1.9.1 : Fix crash "String or binary data would be truncated" sur
+         insertion FileData. Le controller detache le binaire (Fichier=null)
+         avant commit, stocke juste FichierNom.
+
+V1.9.2 : Fix collision "IMP-DIOURBEL" pour plusieurs sites avec meme nom.
+         Ajout de 3 caches locaux (cacheSites, cacheBUs, cacheAgences) +
+         2 HashSet (codesSitesUtilises, codesBUsUtilises) pour eviter les
+         duplications quand XPQuery ne voit pas encore les objets en session.
+
+V1.9.3 : Effet de l'import rendu visible.
+- Site.cs : + EffectifActuelInterim + EffectifSalariesInternes (calcules)
+- Interimaire.AffectationActuelle : utilise Site+Unites (V1.1) en priorite,
+  fallback sur Station/BU legacy
+- Menu GRH Interimaires -> Sites/Stations redirige vers Site_ListView V1.1
+  (au lieu de StationService_ListView deprecated)
+- ListView Site : ajout colonnes EffectifActuelInterim et EffectifSalariesInternes
+
+============================================================================
+NETTOYAGE - Suppression des tirets longs et box-drawing (17 sept 2026)
+============================================================================
+
+Directive RH : eliminer les caracteres typiquement IA dans le code
+et les libelles affiches (em-dash, en-dash, box-drawing).
+
+Remplacements globaux :
+- Em-dash  U+2014 (-) -> tiret simple (-)
+- En-dash  U+2013 (-) -> tiret simple (-)
+- Box light U+2500 (-) -> tiret simple (-)
+- Box heavy U+2501 (-) -> tiret simple (-)
+- Box double U+2550 (=) -> egal simple (=)
+- Bullet U+2022 (*) -> asterisque (*)
+- Arrows -> -> <- <-> ASCII
+
+Volumes :
+- Code C# .Module : 1 185 occurrences dans 264 fichiers (commentaires,
+  ToString, DisplayName, XafDisplayName, Subject, messages, exceptions)
+- Docs (md/txt/sql/html) : 3 022 occurrences dans 11 fichiers
+
+Cas visible pour le RH : BusinessUnitStation.ToString() affichait
+"BOUTIQUE - Oasis Cap des Biches" avec em-dash -> maintenant "BOUTIQUE -
+Oasis Cap des Biches" avec tiret ASCII.
+
+============================================================================
+FICHIERS IMPACTES (total 25+ nouveaux + 275+ modifies)
+============================================================================
+
+Nouveaux fichiers (15) :
+- Services/Interim/InterimaireImportService.cs (V1.9)
+- Services/IntegriteService.cs (V1.8.7)
+- Controllers/PretSolderAnticipeController.cs (V1.8.5)
+- Controllers/InterimaireImportController.cs (V1.9)
+- Controllers/ControleIntegriteController.cs (V1.8.7)
+- NonPersistent/SoldeAnticipePretRequest.cs (V1.8.5)
+- NonPersistent/AnomalieIntegrite.cs (V1.8.7)
+- NonPersistent/ImportInterimaireRequest.cs (V1.9)
+- docs/deployment/sql/V181_INIT_EstCadre.sql
+- docs/deployment/sql/V183_CREATE_RegulRubriques.sql
+- docs/deployment/sql/V184_FIX_TRANS_HorsIPRES.sql
+- docs/deployment/COMMIT_V19.txt (ce fichier)
+
+Fichiers metier principaux modifies :
+- BusinessObjects/Bulletin.cs (V1.8.1/V1.8.2/V1.8.4/V1.8.8)
+- BusinessObjects/Categories.cs (V1.8.1)
+- BusinessObjects/SimulationSursalaire.cs (V1.8.1)
+- BusinessObjects/Site.cs (V1.9.3)
+- BusinessObjects/RH/Interimaire.cs (V1.9 + V1.9.3)
+- BusinessObjects/RH/StationService.cs (nettoyage tirets)
+- Services/BilanSocialService.cs (V1.8.1)
+- Services/SeedService.cs (V1.8.3/V1.8.4/V1.8.7)
+- DatabaseUpdate/Updater.cs (V1.8.1 EnsureCategoriesEstCadreInitialized)
+- Controllers/BulletinValiderEnvoyerController.cs (V1.8.6)
+- Controllers/BulletinCloturePretController.cs (V1.8.6)
+- Model.DesignedDiffs.xafml (V1.8.7 nav + V1.9.3 Site_ListView)
+- Module.cs (enregistrements types V1.8/V1.8.5/V1.8.7)
+
+Docs :
+- docs/dashboards/MISSION_STATE.md (sections V1.8.1 -> V1.9)
+
+============================================================================
+PROCEDURE DE DEPLOIEMENT V1.9
+============================================================================
+
+1. Backup complet BDD prod avant tout.
+
+2. dotnet build sur poste dev (verifie compilation).
+
+3. Deploiement code : Deploy-AdiPAIE-V18.ps1 (existant, reutilise).
+
+4. Migration BDD automatique par XAF Updater au 1er demarrage :
+   - Categories.EstCadre (V1.8.1)
+   - Bulletin.SuspendreCotisationsSociales + MotifSuspensionCotisations (V1.8.8)
+   - Interimaire.MatriculeAgence + SexeInterim + Categorie + DateEntreeAgence (V1.9)
+   - Table ImportInterimaireRequest (V1.9)
+
+5. SQL manuels post-deploiement :
+   - V184_FIX_TRANS_HorsIPRES.sql (obligatoire si TRANS existe deja)
+   - V181_INIT_EstCadre.sql (optionnel, si l'auto-init du Updater ne couvre pas
+     tous les cas)
+   - V183_CREATE_RegulRubriques.sql (deja execute en dev, verifier si prod
+     ou passer par "Recharger le referentiel paie")
+
+6. UI Admin post-demarrage :
+   - ParametresPaie -> Init. roles GRH (permissions AnomalieIntegrite,
+     ImportInterimaireRequest, REGUL_PRET_*)
+   - ParametresPaie -> Recharger le referentiel paie (cree REGUL_PRET_RET/GAIN,
+     REGUL_GAIN, ICCP, AV_NAT_NON_IMP si absents)
+
+7. Verifications rapides (checklist recette) :
+   - Bulletin non-cadre : plus d'IPRES_RC (V1.8.1)
+   - Papa Souleymane DIOP : Recharger bulletin -> parts 3,5, IR 193 410 (V1.8.2)
+   - Bulletin avec 15 jours : Sursalaire/Anciennete/Vehicule/Transport tous /2 (V1.8.4)
+   - Pret EnCours : nouvelle action "Solder anticipe" visible (V1.8.5)
+   - Selection 3 Brouillons -> Valider -> 3 valides d'un coup (V1.8.6)
+   - Brouillon -> Cloturer -> refus explicite "validez d'abord" (V1.8.6)
+   - Administration -> Controle d'integrite : page s'ouvre correctement (V1.8.7)
+   - Bulletin : cocher "Suspendre cotisations sociales" + motif -> IPRES/CSS
+     disparaissent (V1.8.8)
+   - GRH Interimaires -> Importer liste effectif : import 747 interimaires
+     en dry-run puis reel (V1.9)
+   - GRH Interimaires -> Sites/Stations : liste des 49 sites crees avec
+     colonne EffectifActuelInterim remplie (V1.9.3)
+   - Verifier absence de tirets longs "-" dans les libelles affiches
+     (BUSINESS UNIT, DisplayName, etc.)
+
+============================================================================

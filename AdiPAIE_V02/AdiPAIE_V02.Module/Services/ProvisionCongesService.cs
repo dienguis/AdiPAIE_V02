@@ -1,16 +1,16 @@
 // =============================================================================
-//  ProvisionCongesService.cs — V1.8 — Calcul provision congés annuelle
+//  ProvisionCongesService.cs - V1.8 - Calcul provision congés annuelle
 //
 //  Reproduit la requête SQL ELTON ancienne paie en LINQ XPO, alignée
 //  CCT Sénégal (articles 55, 57, 58) ET pratique ELTON validée RH (juin 2026) :
 //    - Base : 2 jours / mois travaillé (= NbreMois × 2)
 //    - Bonus ancienneté (seuils inclusifs ≥) : 0 / +1 / +2 / +3 / +7
 //        (ELTON applique +7 à partir de 25 ans, plus favorable que CCT
-//         qui prévoit +6 — convention d'entreprise plus favorable légale)
+//         qui prévoit +6 - convention d'entreprise plus favorable légale)
 //    - Bonus mère (CCT L150, femmes uniquement) :
 //        • Règle B : mère < 21 ans → +2 j / enfant à charge
 //        • Règle C : mère ≥ 21 ans → +2 j / enfant mineur à partir du 4e
-//        (la règle A "+1 j / enfant <14 ans" a été supprimée — non CCT)
+//        (la règle A "+1 j / enfant <14 ans" a été supprimée - non CCT)
 //    - Brut imposable mensuel = Σ Gain BrutFiscal=true / 12
 //    - Provision FCFA = NbreJourTotal × (BrutMensuelMoyen / 24)
 //        (24 = "nombre de jours de congés concernés" CCT Art. 57,
@@ -31,7 +31,7 @@ namespace AdiPAIE_V02.Module.Services
 {
     public static class ProvisionCongesService
     {
-        // V1.8 — Aligné CCT Art. 57 + fichier Congés.xlsx ELTON :
+        // V1.8 - Aligné CCT Art. 57 + fichier Congés.xlsx ELTON :
         // l'allocation de congé = 1/12 des sommes perçues, et le supplément
         // est calculé sur la base "nombre de jours concernés" = 24 j
         // (= 2 j/mois × 12 mois = durée du congé standard CCT).
@@ -113,8 +113,8 @@ namespace AdiPAIE_V02.Module.Services
                 // ── Matérialiser la ligne ──────────────────────────────────
                 var ligneProv = nonPersistentOs.CreateObject<ProvisionConges>();
                 ligneProv.Annee = annee;
-                ligneProv.Matricule = salarie.Matricule ?? "—";
-                ligneProv.NomComplet = salarie.FullName ?? "—";
+                ligneProv.Matricule = salarie.Matricule ?? "-";
+                ligneProv.NomComplet = salarie.FullName ?? "-";
                 ligneProv.Sexe = salarie.Sexe.ToString();
                 ligneProv.AncienneteAns = salarie.Anciennete;
                 ligneProv.NombreEnfants = salarie.NombreEnfant;
@@ -137,13 +137,13 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ──────────────────────────────────────────────────────────────
-        //  Bonus ancienneté — Convention ELTON (validée RH juin 2026)
+        //  Bonus ancienneté - Convention ELTON (validée RH juin 2026)
         //  Référence : CCT Sénégal Loi 97-17, Art. L.149 + convention
         //  d'entreprise ELTON plus favorable que la CCT pour la dernière
-        //  tranche (la CCT prévoit +6 j à 25+ ans, ELTON donne +7 j —
+        //  tranche (la CCT prévoit +6 j à 25+ ans, ELTON donne +7 j -
         //  les conventions d'entreprise plus favorables sont légales).
         //
-        //  V1.8 — Seuils INCLUSIFS "vers le haut" (validation RH explicite) :
+        //  V1.8 - Seuils INCLUSIFS "vers le haut" (validation RH explicite) :
         //  un salarié pile à 10 ans bénéficie du bonus tranche 10-15 (+1 j).
         //
         //    < 10 ans  : 0 jour
@@ -162,9 +162,9 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ──────────────────────────────────────────────────────────────
-        //  Bonus mère de famille — CCT Sénégal Loi 97-17, Art. L.150
+        //  Bonus mère de famille - CCT Sénégal Loi 97-17, Art. L.150
         //
-        //  V1.8 — Validation RH ELTON : SEULEMENT 2 règles (la "règle A"
+        //  V1.8 - Validation RH ELTON : SEULEMENT 2 règles (la "règle A"
         //  +1j/enfant <14 ans qui figurait avant n'est PAS dans la CCT
         //  et a été supprimée).
         //
@@ -202,7 +202,7 @@ namespace AdiPAIE_V02.Module.Services
                     enfantsACharge.Add((e.DateNaissance, ageEnfant));
                 }
             }
-            catch { /* collection inaccessible — laisse vide */ }
+            catch { /* collection inaccessible - laisse vide */ }
 
             // Fallback : si pas de collection Enfants détaillée mais NombreEnfant > 0,
             // on suppose tous les enfants à charge mais sans âge connu

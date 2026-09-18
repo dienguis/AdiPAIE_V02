@@ -1,5 +1,5 @@
 // =============================================================================
-//  IConformiteSenegalDashboardService.cs — V1.2 Sprint 5
+//  IConformiteSenegalDashboardService.cs - V1.2 Sprint 5
 // =============================================================================
 
 using AdiPAIE_V02.Module.Models.Dashboards;

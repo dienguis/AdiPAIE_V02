@@ -39,7 +39,7 @@ namespace AdiPAIE_V02.Module.Services
             var raisonSociale = company?.RaisonSociale ?? "";
             var ninea = company?.NINEA ?? "";
             // Company.Address est une string (défini dans Company.cs)
-            var adresseSociete = string.Join(" — ", new[]
+            var adresseSociete = string.Join(" - ", new[]
             {
                 company?.Address,
                 company?.Ville
@@ -164,12 +164,12 @@ namespace AdiPAIE_V02.Module.Services
                     decimal irAnnuel = last.IR_CumulAnnee;
                     decimal trimfAnnuel = last.TRIMF_CumulAnnee;
 
-                    // CFCE — part patronale
+                    // CFCE - part patronale
                     decimal cfceAnnuel = lignes
                         .Where(l => l.EstCFCE)
                         .Sum(l => l.MontantEmployeur);
 
-                    // Indemnités frais d'emploi — transport
+                    // Indemnités frais d'emploi - transport
                     decimal transportAnnuel = lignes
                         .Where(l => l.EstTransport)
                         .Sum(l => l.Montant);

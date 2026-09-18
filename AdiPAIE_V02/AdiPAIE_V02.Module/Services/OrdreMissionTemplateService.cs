@@ -76,7 +76,7 @@ namespace AdiPAIE_V02.Module.Services
             try
             {
                 var prm = ParametresPaie.TryGet(os);
-                // TemplateEtatFrais — champ dédié à l'état de frais
+                // TemplateEtatFrais - champ dédié à l'état de frais
                 if (prm?.TemplateEtatFrais?.Content != null
                     && prm.TemplateEtatFrais.Content.Length > 0)
                     return prm.TemplateEtatFrais.Content;
@@ -95,16 +95,16 @@ namespace AdiPAIE_V02.Module.Services
                 StringComparer.OrdinalIgnoreCase)
             {
                 // ── Identification ────────────────────────────
-                ["{{NumeroOrdre}}"] = d.NumeroOrdre ?? "—",
-                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "—",
+                ["{{NumeroOrdre}}"] = d.NumeroOrdre ?? "-",
+                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "-",
                 ["{{DateDocument}}"] = DateTime.Today.ToString("dd/MM/yyyy", cultureFr),
-                ["{{FullName}}"] = sal.FullName ?? "—",
-                ["{{Matricule}}"] = sal.Matricule ?? "—",
-                ["{{Fonction}}"] = sal.Fonction?.Intitule ?? "—",
-                ["{{Departement}}"] = sal.Departement?.Nom ?? "—",
+                ["{{FullName}}"] = sal.FullName ?? "-",
+                ["{{Matricule}}"] = sal.Matricule ?? "-",
+                ["{{Fonction}}"] = sal.Fonction?.Intitule ?? "-",
+                ["{{Departement}}"] = sal.Departement?.Nom ?? "-",
 
                 // ── Mission ───────────────────────────────────
-                ["{{Objet}}"] = d.Objet ?? "—",
+                ["{{Objet}}"] = d.Objet ?? "-",
                 ["{{DateDepart}}"] = d.DateDepart.ToString("dd MMMM yyyy", cultureFr),
                 ["{{DateRetour}}"] = d.DateRetour.ToString("dd MMMM yyyy", cultureFr),
                 ["{{NombreJours}}"] = d.NombreJours.ToString(),
@@ -118,14 +118,14 @@ namespace AdiPAIE_V02.Module.Services
                              .Where(v => !string.IsNullOrWhiteSpace(v))),
 
                 // ── Signatures ────────────────────────────────
-                ["{{DirecteurNom}}"] = d.ValideurN1?.FullName ?? "—",
+                ["{{DirecteurNom}}"] = d.ValideurN1?.FullName ?? "-",
                 ["{{DateValidationN1}}"] = d.DateValidationN1.HasValue
-                    ? d.DateValidationN1.Value.ToString("dd/MM/yyyy") : "—",
-                ["{{SignataireNom}}"] = prm?.SignatoryName ?? prm?.SignatureName ?? "—",
+                    ? d.DateValidationN1.Value.ToString("dd/MM/yyyy") : "-",
+                ["{{SignataireNom}}"] = prm?.SignatoryName ?? prm?.SignatureName ?? "-",
                 ["{{DateApprobation}}"] = d.DateApprobationRH.HasValue
-                    ? d.DateApprobationRH.Value.ToString("dd/MM/yyyy") : "—",
+                    ? d.DateApprobationRH.Value.ToString("dd/MM/yyyy") : "-",
                 ["{{DateValidationDAF}}"] = d.DateValidationDAF.HasValue
-                    ? d.DateValidationDAF.Value.ToString("dd/MM/yyyy") : "—",
+                    ? d.DateValidationDAF.Value.ToString("dd/MM/yyyy") : "-",
 
                 // ── Total ─────────────────────────────────────
                 ["{{TotalFrais}}"] = d.TotalFrais.ToString("N0", cultureFr),

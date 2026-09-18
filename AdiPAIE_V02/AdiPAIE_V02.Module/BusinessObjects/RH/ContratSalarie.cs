@@ -15,7 +15,7 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 namespace AdiPAIE_V02.Module.BusinessObjects.RH
 {
     /// <summary>
-    /// Contrat de travail salarié — CDI, CDD, Stage.
+    /// Contrat de travail salarié - CDI, CDD, Stage.
     ///
     /// Lié à la fiche Salarie.
     /// Génère un document Word via ContratTemplateService
@@ -250,7 +250,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Propriétés calculées ──────────────────────────────────────
         [NonPersistent]
         public string DisplayName =>
-            $"{Salarie?.FullName ?? "—"} — {TypeContrat} ({DateDebut:MM/yyyy}" +
+            $"{Salarie?.FullName ?? "-"} - {TypeContrat} ({DateDebut:MM/yyyy}" +
             (DateFin.HasValue ? $" → {DateFin:MM/yyyy}" : "") + ")";
 
         [NonPersistent]

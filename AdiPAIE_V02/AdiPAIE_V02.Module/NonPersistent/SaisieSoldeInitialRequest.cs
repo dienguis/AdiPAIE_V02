@@ -1,5 +1,5 @@
 // =============================================================================
-//  SaisieSoldeInitialRequest.cs — V1.8 (juin 2026)
+//  SaisieSoldeInitialRequest.cs - V1.8 (juin 2026)
 //
 //  DTO non-persistant pour le popup "Saisir solde initial" sur fiche Salarié.
 //
@@ -36,7 +36,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
         public CongeType TypeConge { get; set; }
 
         // ── Année du solde ─────────────────────────────────────────
-        // V1.8 — int est value type → pas de [RuleRequiredField] (XAF0009)
+        // V1.8 - int est value type → pas de [RuleRequiredField] (XAF0009)
         [RuleRange(2020, 2050)]
         [XafDisplayName("Année du solde")]
         [ToolTip("Année de l'exercice de référence du solde (typiquement " +

@@ -150,7 +150,7 @@ namespace AdiPAIE_V02.Module.Services
             r.Merge();
             r.Style.Fill.BackgroundColor = EltonBlue;
             var c = ws.Cell(1, 1);
-            c.Value = "ELTON OIL — TABLEAU DE BORD EFFECTIFS RH";
+            c.Value = "ELTON OIL - TABLEAU DE BORD EFFECTIFS RH";
             c.Style.Font.FontName = "Arial";
             c.Style.Font.Bold = true;
             c.Style.Font.FontSize = 16;
@@ -168,7 +168,7 @@ namespace AdiPAIE_V02.Module.Services
             var r3 = ws.Range(3, 1, 3, 16);
             r3.Merge();
             var c3 = ws.Cell(3, 1);
-            c3.Value = $"Généré le {DateTime.Now:dd/MM/yyyy à HH:mm}  —  Exercice {DateTime.Now.Year}";
+            c3.Value = $"Généré le {DateTime.Now:dd/MM/yyyy à HH:mm}  -  Exercice {DateTime.Now.Year}";
             c3.Style.Font.FontName = "Arial";
             c3.Style.Font.FontSize = 9;
             c3.Style.Font.FontColor = MedGray;
@@ -341,7 +341,7 @@ namespace AdiPAIE_V02.Module.Services
                 else if (item.Variation < 0)
                     SetCell(varCell, $"\u25BC{Math.Abs(item.Variation):N0}%", "Arial", 10, Red, bold: true, hAlign: XLAlignmentHorizontalValues.Center);
                 else
-                    SetCell(varCell, "—", "Arial", 10, MedGray, hAlign: XLAlignmentHorizontalValues.Center);
+                    SetCell(varCell, "-", "Arial", 10, MedGray, hAlign: XLAlignmentHorizontalValues.Center);
 
                 // Barre visuelle
                 int barLen = Math.Min(item.Effectif / 3, 20);

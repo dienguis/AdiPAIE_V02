@@ -66,7 +66,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         bool actif = true;
 
-        [PersistentAlias("Concat(Rubrique.Code, ' | ', Iif(IsNull(Type), '—', ToStr(Type)), ' | ', Compte.Code)")]
+        [PersistentAlias("Concat(Rubrique.Code, ' | ', Iif(IsNull(Type), '-', ToStr(Type)), ' | ', Compte.Code)")]
         public string DisplayName => Convert.ToString(EvaluateAlias(nameof(DisplayName)));
 
         protected override void OnSaving()

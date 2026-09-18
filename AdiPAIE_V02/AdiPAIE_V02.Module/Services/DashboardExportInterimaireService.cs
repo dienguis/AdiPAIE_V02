@@ -38,7 +38,7 @@ namespace AdiPAIE_V02.Module.Services
             var r1 = ws.Range(1, 1, 1, 16);
             r1.Merge();
             r1.Style.Fill.BackgroundColor = EltonBlue;
-            Set(ws.Cell(1, 1), "ELTON OIL — TABLEAU DE BORD INTÉRIMAIRES", "Arial", 16, XLColor.White, true, XLAlignmentHorizontalValues.Center);
+            Set(ws.Cell(1, 1), "ELTON OIL - TABLEAU DE BORD INTÉRIMAIRES", "Arial", 16, XLColor.White, true, XLAlignmentHorizontalValues.Center);
             ws.Row(1).Height = 45;
 
             // Ligne rouge accent
@@ -49,7 +49,7 @@ namespace AdiPAIE_V02.Module.Services
 
             var r2 = ws.Range(3, 1, 3, 16);
             r2.Merge();
-            Set(ws.Cell(3, 1), $"Généré le {DateTime.Now:dd/MM/yyyy à HH:mm}  —  Exercice {DateTime.Now.Year}",
+            Set(ws.Cell(3, 1), $"Généré le {DateTime.Now:dd/MM/yyyy à HH:mm}  -  Exercice {DateTime.Now.Year}",
                 "Arial", 9, MedGray, false, XLAlignmentHorizontalValues.Center, true);
 
             // ── KPIs ──
@@ -119,7 +119,7 @@ namespace AdiPAIE_V02.Module.Services
                 else if (item.Variation < 0)
                     Set(ws.Cell(er, 4), $"\u25BC{Math.Abs(item.Variation):N0}%", "Arial", 10, Red, true, XLAlignmentHorizontalValues.Center);
                 else
-                    Set(ws.Cell(er, 4), "—", "Arial", 10, MedGray, false, XLAlignmentHorizontalValues.Center);
+                    Set(ws.Cell(er, 4), "-", "Arial", 10, MedGray, false, XLAlignmentHorizontalValues.Center);
 
                 int barLen = Math.Min(item.Effectif / 3, 20);
                 Set(ws.Cell(er, 5), new string('\u2588', Math.Max(barLen, 1)), "Arial", 8, EltonRed);

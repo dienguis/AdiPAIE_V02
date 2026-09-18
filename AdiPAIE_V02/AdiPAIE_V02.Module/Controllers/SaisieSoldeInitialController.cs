@@ -1,5 +1,5 @@
 // =============================================================================
-//  SaisieSoldeInitialController.cs — V1.8 (juin 2026)
+//  SaisieSoldeInitialController.cs - V1.8 (juin 2026)
 //
 //  Action "Saisir solde initial de congés" sur le DetailView de Salarie.
 //
@@ -7,7 +7,7 @@
 //  clique sur le bouton, saisit dans un popup :
 //    - Type de congé (CPAYE, etc.)
 //    - Année
-//    - Jours reportés (cumul actuel — peut être négatif)
+//    - Jours reportés (cumul actuel - peut être négatif)
 //    - Date d'arrêté du solde
 //    - Flag "à vérifier" (pour les 16 lignes bleues du fichier Excel)
 //    - Source + Commentaire
@@ -57,7 +57,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
         // ─────────────────────────────────────────────────────────────
         //  Construction du popup avec pré-remplissage intelligent
-        //  V1.8 — Ajout AdditionalObjectSpaces pour requêter CongeType
+        //  V1.8 - Ajout AdditionalObjectSpaces pour requêter CongeType
         //  (entité persistente) depuis un NonPersistentObjectSpace.
         // ─────────────────────────────────────────────────────────────
         void OnCustomizePopup(object sender, CustomizePopupWindowParamsEventArgs e)
@@ -84,7 +84,7 @@ namespace AdiPAIE_V02.Module.Controllers
             request.SoldeArreteAu = DateTime.Today;
 
             var detailView = Application.CreateDetailView(osNp, request);
-            detailView.Caption = $"Solde initial — {salarie?.FullName ?? "salarié"}";
+            detailView.Caption = $"Solde initial - {salarie?.FullName ?? "salarié"}";
 
             e.View = detailView;
         }

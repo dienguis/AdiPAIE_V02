@@ -1,5 +1,5 @@
 // =============================================================================
-//  ICoutCompletDashboardService.cs — V1.2 Sprint 4
+//  ICoutCompletDashboardService.cs - V1.2 Sprint 4
 // =============================================================================
 
 using AdiPAIE_V02.Module.Models.Dashboards;

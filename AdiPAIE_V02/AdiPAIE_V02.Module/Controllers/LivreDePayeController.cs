@@ -19,7 +19,7 @@ namespace AdiPAIE_V02.Module.Controllers
     /// Ouvre un popup année/mois, génère l'Excel via LivreDePayeService
     /// et le télécharge via JSInterop.
     /// </summary>
-    /// <remarks>DÉSACTIVÉ — remplacé par PeriodePaieEtatsController (bouton unique "États / Exports").</remarks>
+    /// <remarks>DÉSACTIVÉ - remplacé par PeriodePaieEtatsController (bouton unique "États / Exports").</remarks>
     public class LivreDePayeController : ObjectViewController<ListView, PeriodePaie>
     {
         private PopupWindowShowAction _livreAction;
@@ -94,7 +94,7 @@ namespace AdiPAIE_V02.Module.Controllers
                     $"Export Excel généré ({xlsxBytes.Length / 1024} Ko).");
 
                 Application.ShowViewStrategy?.ShowMessage(
-                    $"Livre de Paie généré — {mois:D2}/{annee} ({xlsxBytes.Length / 1024} Ko)",
+                    $"Livre de Paie généré - {mois:D2}/{annee} ({xlsxBytes.Length / 1024} Ko)",
                     InformationType.Success, 5000, InformationPosition.Top);
             }
             catch (UserFriendlyException ex)

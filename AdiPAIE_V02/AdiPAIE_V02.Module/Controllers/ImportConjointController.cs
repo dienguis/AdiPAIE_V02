@@ -21,8 +21,8 @@ namespace AdiPAIE_V02.Module.Controllers
     /// Controller placé sur le DetailView du Centre d'imports.
     ///
     /// Deux actions (catégorie "ImportsHub") :
-    ///   1. « Importer Conjoints » — popup avec FileData + ImportConjointService.Importer()
-    ///   2. « Modèle Conjoints »   — télécharge un Excel modèle vide
+    ///   1. « Importer Conjoints » - popup avec FileData + ImportConjointService.Importer()
+    ///   2. « Modèle Conjoints »   - télécharge un Excel modèle vide
     /// </summary>
     public class ImportConjointController
         : ObjectViewController<DetailView, CentreImports>

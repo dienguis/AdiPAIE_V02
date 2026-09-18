@@ -35,7 +35,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     Enabled = false,
     Context = "DetailView"
 )]
-    // V1.6.2 — Badge statut coloré sur le bulletin (workflow paie)
+    // V1.6.2 - Badge statut coloré sur le bulletin (workflow paie)
     [Appearance("Bulletin_Statut_Brouillon",
         TargetItems = "Statut",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+BulletinStatut,Brouillon#",
@@ -130,6 +130,46 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(JoursTravailles), ref joursTravailles, value);
         }
 
+        // --- V1.8.8 - Suspension des cotisations sociales -----------------
+        // Cas d'usage : congé maternité, arrêt maladie longue durée, ou tout
+        // motif justifiant que le salarié travaille mais qu'aucune trace IPRES/CSS
+        // ne doit apparaître pour ce mois (à valider avec le DAF au cas par cas).
+        //
+        // Quand ce flag est activé :
+        //   - CalculerIPRES_CSS() supprime les lignes IPRES_RG, IPRES_RC,
+        //     CSS_AT, CSS_AF si elles existent et NE LES RECRÉE PAS
+        //   - Le RH doit renseigner un motif obligatoire (traçabilité audit)
+        //   - Le bouton « Recalculer cotisations » respecte cette suspension
+        //   - Le TRIMF, l'IR et le CFCE restent calculés normalement
+        //
+        // Après désactivation du flag, un nouveau « Recalculer cotisations »
+        // remet les lignes IPRES/CSS normalement.
+        bool suspendreCotisationsSociales;
+        [XafDisplayName("Suspendre cotisations sociales (IPRES/CSS)")]
+        [ToolTip("Cocher pour ne pas cotiser IPRES/CSS ce mois-ci (ex: congé maternité). " +
+                 "Motif obligatoire. Le TRIMF, l'IR et le CFCE restent calculés normalement.")]
+        [ModelDefault("ImmediatePostData", "True")]
+        public bool SuspendreCotisationsSociales
+        {
+            get => suspendreCotisationsSociales;
+            set => SetPropertyValue(nameof(SuspendreCotisationsSociales), ref suspendreCotisationsSociales, value);
+        }
+
+        string motifSuspensionCotisations;
+        [XafDisplayName("Motif suspension cotisations")]
+        [Size(250)]
+        [Appearance("MotifSuspension_RequisSiSuspendu",
+            Criteria = "SuspendreCotisationsSociales = True",
+            Enabled = true, Visibility = ViewItemVisibility.Show)]
+        [Appearance("MotifSuspension_MasqueSiPasSuspendu",
+            Criteria = "SuspendreCotisationsSociales = False",
+            Visibility = ViewItemVisibility.Hide)]
+        public string MotifSuspensionCotisations
+        {
+            get => motifSuspensionCotisations;
+            set => SetPropertyValue(nameof(MotifSuspensionCotisations), ref motifSuspensionCotisations, value);
+        }
+
         // --- Totaux ---
         [DbType("decimal(18,0)"), EditorAlias(EditorAliases.DecimalPropertyEditor)]
         public decimal TotalGains { get => totalGains; set => SetPropertyValue(nameof(TotalGains), ref totalGains, value); }
@@ -159,7 +199,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public decimal NetAPayer { get => netAPayer; set => SetPropertyValue(nameof(NetAPayer), ref netAPayer, value); }
         decimal netAPayer;
 
-        [PersistentAlias("Concat(Periode, ' — ', DisplayName)")]
+        [PersistentAlias("Concat(Periode, ' - ', DisplayName)")]
         [Browsable(true)]
         [ModelDefault("AllowEdit", "False")]
         public string HeaderCompact
@@ -170,7 +210,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 catch
                 {
                     // Fallback au cas où l’évaluation se fait côté client
-                    return $"{Periode} — {DisplayName}";
+                    return $"{Periode} - {DisplayName}";
                 }
             }
         }
@@ -255,16 +295,16 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         private FileData _pdfArchive;
         [Aggregated, ExpandObjectMembers(ExpandObjectMembers.Never)]
         [VisibleInListView(false), VisibleInDetailView(false)]
-        [Browsable(false)] // QW3 — empêche apparition dans rapports auto-générés
+        [Browsable(false)] // QW3 - empêche apparition dans rapports auto-générés
         public FileData PdfArchive
         {
             get => _pdfArchive;
             set => SetPropertyValue(nameof(PdfArchive), ref _pdfArchive, value);
         }
 
-        // ── V1.4.3 — Métadonnées de publication ───────────────────────
+        // -- V1.4.3 - Métadonnées de publication -----------------------
         // Renseignés par BulletinPublicationService.Publier() au moment où
-        // RH publie le bulletin (statut → Envoye). Audit trail + UI.
+        // RH publie le bulletin (statut -> Envoye). Audit trail + UI.
         private DateTime? _datePublication;
         [XafDisplayName("Date publication")]
         [VisibleInListView(false)]
@@ -317,24 +357,24 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // NOTE : Le recalcul est géré par BulletinRecalcController (bouton "Recalculer" en toolbar)
         // Les méthodes [Action] ci-dessous ont été supprimées car redondantes.
 
-        // ── Initialisation intelligente des jours travaillés ─────────────
+        // -- Initialisation intelligente des jours travaillés -------------
         // Appelé dans RecalculerCotisationsEtTotaux(depuisParametrage=true).
         // À ce stade Salarie, Annee et Mois sont tous renseignés.
         //
         // Règle : on ne touche à JoursTravailles QUE si le RH ne l'a pas
         // déjà modifié manuellement. Le marqueur est simple :
-        //   - JoursTravailles == 30 (ou 0) → on peut ajuster (prorata)
-        //   - JoursTravailles != 30 et != 0 → le RH a touché → on respecte
+        //   - JoursTravailles == 30 (ou 0) -> on peut ajuster (prorata)
+        //   - JoursTravailles != 30 et != 0 -> le RH a touché -> on respecte
         //
         // Détection prorata premier bulletin :
         //   - DateEmbauche tombe dans le mois du bulletin
         //   - Aucun bulletin antérieur pour ce salarié
-        //   → JoursTravailles = 30 - (jourEmbauche - 1)
+        //   -> JoursTravailles = 30 - (jourEmbauche - 1)
         private void InitJoursTravailles()
         {
             if (Salarie == null || Annee <= 0 || Mois <= 0) return;
 
-            // Si le RH a manuellement mis une valeur différente de 30 → on respecte
+            // Si le RH a manuellement mis une valeur différente de 30 -> on respecte
             if (JoursTravailles != 30 && JoursTravailles != 0) return;
 
             // Base par défaut depuis la fiche salarié
@@ -367,7 +407,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             decimal gains = 0m, retFisc = 0m, cotSoc = 0m, autresRet = 0m;
             decimal bf = 0m, bs = 0m;
 
-            // V1.8.1 — Suivi des avantages en nature pour les exclure du Net.
+            // V1.8.1 - Suivi des avantages en nature pour les exclure du Net.
             // Les avantages en nature (véhicule, téléphone, logement, etc.)
             // sont imposables IR/TRIMF/CFCE mais NE SONT PAS du cash à
             // encaisser par le salarié. Ils ne doivent donc pas entrer dans
@@ -385,7 +425,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 {
                     case RubriqueTypeCalcul.Gain:
                         gains += m;
-                        // V1.8.1 — Compter à part les avantages en nature
+                        // V1.8.1 - Compter à part les avantages en nature
                         if (EstAvantageEnNature(r))
                             gainsAvantagesNature += m;
                         break;
@@ -410,7 +450,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             TotalAutresRetenues = autresRet;
             BrutFiscal = bf;
             BrutSocial = bs;
-            // V1.8.1 — Net = gains HORS avantages en nature - retenues
+            // V1.8.1 - Net = gains HORS avantages en nature - retenues
             // (les avantages en nature ne sont pas du cash à verser)
             NetAPayer = (gains - gainsAvantagesNature) - (retFisc + cotSoc + autresRet);
         }
@@ -426,6 +466,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 // Contrôle : pas de bulletin avant la date d'embauche
                 ValiderPeriodeEmbauche();
 
+                // V1.8.8 - Motif obligatoire si suspension des cotisations sociales
+                if (SuspendreCotisationsSociales
+                    && string.IsNullOrWhiteSpace(MotifSuspensionCotisations))
+                {
+                    throw new UserFriendlyException(
+                        "Un motif est obligatoire quand vous suspendez les cotisations sociales " +
+                        "(ex: « Congé maternité », « Arrêt maladie longue durée », etc.).");
+                }
+
                 // RecalculerCotisationsEtTotaux();
                 RecalculerSurGrilleExistante();
                 //UpdateSyntheseFiscale();
@@ -435,18 +484,18 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         /// <summary>
         /// Empêche la création/sauvegarde d'un bulletin pour un mois
         /// où le salarié n'était pas encore recruté.
-        /// Ex : embauché le 17/04/2026 → pas de bulletin mars 2026 ni avant.
+        /// Ex : embauché le 17/04/2026 -> pas de bulletin mars 2026 ni avant.
         /// </summary>
         private void ValiderPeriodeEmbauche()
         {
             if (Salarie == null || Annee <= 0 || Mois <= 0) return;
 
             var embauche = Salarie.DateEmbauche;
-            if (embauche == default) return; // DateEmbauche non renseignée → on laisse passer
+            if (embauche == default) return; // DateEmbauche non renseignée -> on laisse passer
 
             // Le bulletin couvre le mois Annee/Mois.
             // Le salarié doit avoir été embauché au plus tard dans ce mois.
-            // Si embauché le 17/04 → avril OK (prorata), mars KO.
+            // Si embauché le 17/04 -> avril OK (prorata), mars KO.
             var debutMoisBulletin = new DateTime(Annee, Mois, 1);
             var finMoisBulletin = debutMoisBulletin.AddMonths(1).AddDays(-1);
 
@@ -638,14 +687,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                     RepairerGainsNuls();
                 }
 
-                // Heures supplémentaires → met à jour la ligne HS dans les gains
+                // Heures supplémentaires -> met à jour la ligne HS dans les gains
                 CalculerHeuresSupplementaires();
 
                 var bf = CalculerBrutFiscal();
                 var bs = CalculerBrutSocial();
 
                 CalculerIPRES_CSS(bs);
-                // V1.8 — Base CFCE configurable dans ParametresPaie :
+                // V1.8 - Base CFCE configurable dans ParametresPaie :
                 //   AvecAvantagesNature  = brut fiscal complet (recommandé DAF actuel)
                 //   SansAvantagesNature  = base dédiée hors Av Nature (ancien système ELTON)
                 CalculerCFCE(CalculerBaseCFCE_SelonParametres(bf));
@@ -678,7 +727,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             => RecalculerCotisationsEtTotaux(false);
 
 
-        // ─── Filet de sécurité : répare les lignes SB/LOGT dont Base > 0 mais Montant = 0 ──────────
+        // --- Filet de sécurité : répare les lignes SB/LOGT dont Base > 0 mais Montant = 0 ----------
         // Appelé uniquement en mode "grille existante" (depuisParametrage=false).
         // Ne touche PAS aux lignes qui ont déjà un Montant > 0 (valeurs manuelles respectées).
         private void RepairerGainsNuls()
@@ -745,7 +794,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
                 if (ancLine != null)
                 {
-                    ancLine.Base = Salarie?.SalaireBase ?? 0m;
+                    // V1.8.4 - Prorata : la base = SalaireBase proratisé sur jours
+                    // travaillés. Avant : SalaireBase complet -> prime gonflée pour
+                    // un salarié à temps partiel sur le mois.
+                    var sbBase = Salarie?.SalaireBase ?? 0m;
+                    var sbProrata = Math.Round((sbBase / 30m) * jours, 0, MidpointRounding.AwayFromZero);
+                    ancLine.Base = sbProrata;
                     ancLine.Taux = Math.Floor((decimal)anc);
                     ancLine.Montant = Math.Round(N(ancLine.Base) * N(ancLine.Taux) / 100m, 0, MidpointRounding.AwayFromZero);
                     ancLine.IsSystem = false;
@@ -755,19 +809,21 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             }
             else
             {
-                // hors plage → supprimer si elle existe (pas d'accès après Delete)
+                // hors plage -> supprimer si elle existe (pas d'accès après Delete)
                 if (ancLine != null && !ancLine.IsDeleted)
                     ancLine.Delete();
             }
 
-            // Sursalaire (montant)
+            // Sursalaire (montant) - V1.8.4 : proratisé sur jours travaillés
             var vSurs = Salarie?.Sursalaire ?? 0m;
             if (vSurs > 0m)
             {
                 var sur = EnsureLine(RubriqueCanonique.Sursalaire, createIfMissing: true);
                 if (sur != null)
                 {
-                    sur.Base = vSurs; sur.Taux = null; sur.Montant = vSurs;
+                    sur.Base = vSurs;
+                    sur.Taux = null;
+                    sur.Montant = Math.Round((vSurs / 30m) * jours, 0, MidpointRounding.AwayFromZero);
                     sur.IsSystem = false;
                     if (!sur.OrdreCalcul.HasValue) sur.OrdreCalcul = sur.Rubrique?.OrdreAffichage;
                 }
@@ -786,11 +842,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
             if (vVeh > 0m)
             {
-                // Avantage véhicule : créer/MAJ ; supprimer la ligne transport si présente
+                // V1.8.4 - Avantage véhicule proratisé sur jours travaillés.
                 var veh = EnsureLine(RubriqueCanonique.AvantageNatureVehicule, createIfMissing: true);
                 if (veh != null)
                 {
-                    veh.Base = vVeh; veh.Taux = null; veh.Montant = vVeh;
+                    veh.Base = vVeh;
+                    veh.Taux = null;
+                    veh.Montant = Math.Round((vVeh / 30m) * jours, 0, MidpointRounding.AwayFromZero);
                     veh.IsSystem = false;
                     if (!veh.OrdreCalcul.HasValue) veh.OrdreCalcul = veh.Rubrique?.OrdreAffichage;
                 }
@@ -798,11 +856,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             }
             else if (vTrans > 0m)
             {
-                // Prime transport : créer/MAJ ; supprimer la ligne avantage véhicule si présente
+                // V1.8.4 - Prime transport proratisée sur jours travaillés.
                 var trp = EnsureLine(RubriqueCanonique.PrimeTransport, createIfMissing: true);
                 if (trp != null)
                 {
-                    trp.Base = vTrans; trp.Taux = null; trp.Montant = vTrans;
+                    trp.Base = vTrans;
+                    trp.Taux = null;
+                    trp.Montant = Math.Round((vTrans / 30m) * jours, 0, MidpointRounding.AwayFromZero);
                     trp.IsSystem = false;
                     if (!trp.OrdreCalcul.HasValue) trp.OrdreCalcul = trp.Rubrique?.OrdreAffichage;
                 }
@@ -810,14 +870,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             }
             else
             {
-                // Les deux à 0 → supprimer les deux lignes si elles existent
+                // Les deux à 0 -> supprimer les deux lignes si elles existent
                 DeleteLineIfExists(RubriqueCanonique.PrimeTransport);
                 DeleteLineIfExists(RubriqueCanonique.AvantageNatureVehicule);
             }
 
         }
 
-        // ─── Heures supplémentaires ─────────────────────────────────────────
+        // --- Heures supplémentaires -----------------------------------------
         // Totalise les HeuresSupplementaires du bulletin et crée/met à jour
         // une ligne de gain avec la rubrique canonique HeuresSupplementaires.
         // Si le module HS est désactivé ou qu'il n'y a aucune HS, la ligne est supprimée.
@@ -875,9 +935,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                      .Sum(l => N(l.Montant));
 
         /// <summary>
-        /// V1.8 — Base CFCE selon le paramètre <c>ParametresPaie.ModeBaseCFCE</c> :
-        ///   AvecAvantagesNature  → renvoie le brut fiscal complet (par défaut)
-        ///   SansAvantagesNature  → renvoie la base dédiée hors avantages nature
+        /// V1.8 - Base CFCE selon le paramètre <c>ParametresPaie.ModeBaseCFCE</c> :
+        ///   AvecAvantagesNature  -> renvoie le brut fiscal complet (par défaut)
+        ///   SansAvantagesNature  -> renvoie la base dédiée hors avantages nature
         ///
         /// Permet au DAF de basculer entre les 2 interprétations du Code
         /// Général des Impôts Sénégal sans modifier le code.
@@ -919,7 +979,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         /// <summary>
         /// Détermine si une rubrique est un avantage en nature (imposable
-        /// ou non) — donc à exclure de la base CFCE.
+        /// ou non) - donc à exclure de la base CFCE.
         /// On se base sur le code du TypeRef (commence par "AV_NAT").
         /// </summary>
         private static bool EstAvantageEnNature(Rubrique r)
@@ -949,7 +1009,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // ---------------------------------------------------------------------
-        // V1.8.1 — Détection « cadre » via drapeau explicite sur Categories
+        // V1.8.1 - Détection « cadre » via drapeau explicite sur Categories
         //
         // AVANT (V1.8) : on cherchait le mot "cadre" dans le libellé via
         // IndexOf, ce qui matchait à tort "Non cadre" / "Non-cadre".
@@ -980,6 +1040,27 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         private void CalculerIPRES_CSS(decimal brutSocial)
         {
+            // V1.8.8 - Si la suspension des cotisations sociales est active
+            // (cas maternité/arrêt maladie), on supprime toutes les lignes
+            // IPRES/CSS existantes et on ne recrée rien.
+            if (SuspendreCotisationsSociales)
+            {
+                foreach (var canon in new[] {
+                    RubriqueCanonique.IPRES_RG,
+                    RubriqueCanonique.IPRES_RC,
+                    RubriqueCanonique.CSS_AccidentTravail,
+                    RubriqueCanonique.CSS_AllocationFamiliale })
+                {
+                    var l = Lignes.FirstOrDefault(x => x.Rubrique?.Canonique == canon);
+                    if (l != null && !l.IsDeleted)
+                    {
+                        Lignes.Remove(l);
+                        l.Delete();
+                    }
+                }
+                return;
+            }
+
             var rg = EnsureLine(RubriqueCanonique.IPRES_RG);
             if (rg != null) CalcCotisationDouble(rg, brutSocial);
 
@@ -991,7 +1072,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             }
             else if (rc != null)
             {
-                // V1.8.1 — On supprime carrément la ligne IPRES_RC pour les
+                // V1.8.1 - On supprime carrément la ligne IPRES_RC pour les
                 // non-cadres (avant on la laissait à 0, ce qui polluait le
                 // bulletin avec une ligne vide). Comportement attendu : aucune
                 // trace d'IPRES Régime Cadre sur le bulletin d'un non-cadre.
@@ -1282,7 +1363,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             var p = new XPQuery<ParametresPaie>(Session).FirstOrDefault();
             var bareme = GetBaremeIR();
 
-            // V1.8.2 — Bug fix : avant on prenait ir.Taux EN PRIORITÉ s'il
+            // V1.8.2 - Bug fix : avant on prenait ir.Taux EN PRIORITÉ s'il
             // existait, sinon fallback sur Salarie.NombrePartsFiscales. Effet
             // pervers : si la ligne IR avait été créée avec un Taux (parts)
             // figé (ex: bulletin précédent, BulletinModele, import), le
@@ -1290,7 +1371,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             // mis à jour NombrePartsFiscales sur la fiche salarié.
             // Cas réel ELTON : Papa Souleymane DIOP, fiche = 3,5 parts mais
             // bulletin V1.8 calculait avec 3 parts (réduc familiale 25% au
-            // lieu de 30%) → IR à 207 225 au lieu de 193 410.
+            // lieu de 30%) -> IR à 207 225 au lieu de 193 410.
             //
             // Maintenant : la fiche salarié est TOUJOURS la source de vérité.
             // ir.Taux est juste un reflet d'affichage écrasé à chaque recalcul.
@@ -1465,7 +1546,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                     "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND Rubrique.Canonique = ?",
                     Salarie, Annee, Mois, RubriqueCanonique.IPRES_RC));
 
-            // V1.8.1 — Bug fix : SumMontantByCriteria utilise Session.Evaluate
+            // V1.8.1 - Bug fix : SumMontantByCriteria utilise Session.Evaluate
             // qui ne voit pas les BulletinLigne ajoutées en mémoire (ex : ligne
             // d'avantage en nature ajoutée manuellement). Résultat : Cumul YTD
             // Brut Fiscal/Social en retard d'une modification.
@@ -1490,7 +1571,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                          && b.Oid != this.Oid)
                 .Sum(b => b.BrutSocial);
             BrutSocial_CumulAnnee = sommeBrutSocialAutres + BrutSocial;
-            // V1.8.1 — Bug fix : Session.Evaluate lisait les valeurs déjà
+            // V1.8.1 - Bug fix : Session.Evaluate lisait les valeurs déjà
             // commitées en BDD, sans tenir compte des modifications en
             // mémoire du bulletin courant (ex : ajout d'une ligne d'avantage
             // en nature qui change le NetAPayer). Résultat : Cumul YTD

@@ -1,5 +1,5 @@
 // =============================================================================
-//  FamilleAnnuaireController.cs — V1.7 — Charge l'annuaire à l'ouverture
+//  FamilleAnnuaireController.cs - V1.7 - Charge l'annuaire à l'ouverture
 //
 //  Pattern XAF canonique pour les NonPersistentObjectSpace :
 //    1. À l'activation, on récupère le NonPersistentObjectSpace sous-jacent

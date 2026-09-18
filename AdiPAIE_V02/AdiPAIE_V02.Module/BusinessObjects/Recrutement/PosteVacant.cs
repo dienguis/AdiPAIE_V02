@@ -1,5 +1,5 @@
 // =============================================================================
-//  PosteVacant.cs — V1.4 (mai 2026)
+//  PosteVacant.cs - V1.4 (mai 2026)
 //
 //  Représente un poste à pourvoir au sein d'ELTON.
 //  Workflow simple via enum Statut (pas de XAF state machine pour rester léger).
@@ -192,7 +192,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.Recrutement
         // ── Affichage ─────────────────────────────────────────────
 
         [VisibleInListView(false)]
-        public string DisplayName => $"{Code} — {Libelle}";
+        public string DisplayName => $"{Code} - {Libelle}";
 
         public override string ToString() => DisplayName ?? "";
     }

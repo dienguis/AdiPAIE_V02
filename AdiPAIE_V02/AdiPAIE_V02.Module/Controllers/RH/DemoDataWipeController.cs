@@ -1,5 +1,5 @@
 // =============================================================================
-//  DemoDataWipeController.cs — V1.1 (mai 2026)
+//  DemoDataWipeController.cs - V1.1 (mai 2026)
 //
 //  Contrôleur XAF qui expose une SimpleAction « Vider données démo » dans
 //  l'écran de la SuperUser / Administration. Supprime UNIQUEMENT les
@@ -7,7 +7,7 @@
 //  Mouvements, Postes, Sociétés d'intérim).
 //
 //  ⚠️ AUCUN risque pour les seeds réels (rubriques de paie, paramètres,
-//      catégories métier) — leurs Code n'ont pas le préfixe DEMO_.
+//      catégories métier) - leurs Code n'ont pas le préfixe DEMO_.
 //
 //  Avant exécution : popup de confirmation avec le décompte des éléments
 //  qui seront supprimés.
@@ -26,7 +26,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 {
     /// <summary>
     /// Action « Vider données démo » disponible sur la fiche utilisateur
-    /// (ApplicationUser DetailView) — réservée aux Administrateurs.
+    /// (ApplicationUser DetailView) - réservée aux Administrateurs.
     /// </summary>
     public sealed class DemoDataWipeController
         : ObjectViewController<DetailView, ApplicationUser>
@@ -44,7 +44,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 ToolTip     = "Supprime tous les enregistrements préfixés DEMO_ (Sites, Unités, Intérimaires, Contrats, Mouvements). Aucun risque pour les seeds réels.",
                 ConfirmationMessage = "Êtes-vous sûr de vouloir supprimer toutes les données démo (préfixe DEMO_) ?\n\n"
                                     + "Cette action est IRRÉVERSIBLE mais SANS RISQUE pour les données métier réelles "
-                                    + "(rubriques de paie, paramètres, catégories — leurs codes n'ont pas le préfixe DEMO_).",
+                                    + "(rubriques de paie, paramètres, catégories - leurs codes n'ont pas le préfixe DEMO_).",
                 PaintStyle  = ActionItemPaintStyle.CaptionAndImage,
                 SelectionDependencyType = SelectionDependencyType.Independent
             };

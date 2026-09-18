@@ -87,9 +87,9 @@ namespace AdiPAIE_V02.Module.Services
                 }
 
                 lignes.Add(new LigneDeclaration(
-                    Matricule: b.Salarie?.Matricule ?? "—",
-                    NumeroIPRES: b.Salarie?.NumeroIPRESS ?? "—",
-                    NomPrenom: b.Salarie?.FullName ?? "—",
+                    Matricule: b.Salarie?.Matricule ?? "-",
+                    NumeroIPRES: b.Salarie?.NumeroIPRESS ?? "-",
+                    NomPrenom: b.Salarie?.FullName ?? "-",
                     BrutSocial: b.BrutSocial,
                     BaseRG: GetBase(RubriqueCanonique.IPRES_RG),
                     RG_Sal: Get(RubriqueCanonique.IPRES_RG),
@@ -158,7 +158,7 @@ tfoot td {{ padding:5px 6px; border:1px solid #1565a0; }}
 </div>
 <hr/>
 
-<div class='section-header'>Régime Général (RG) — Taux salarié 5,60% · Patronal 8,40% · Plafond 432 000 FCFA</div>
+<div class='section-header'>Régime Général (RG) - Taux salarié 5,60% · Patronal 8,40% · Plafond 432 000 FCFA</div>
 <table>
 <thead><tr>
   <th style='width:30px'>N°</th>
@@ -205,7 +205,7 @@ tfoot td {{ padding:5px 6px; border:1px solid #1565a0; }}
             if (cadres.Any())
             {
                 sb.Append($@"
-<div class='section-header'>Régime Cadre (RC) — Taux salarié 2,40% · Patronal 3,60% · Plafond 1 296 000 FCFA</div>
+<div class='section-header'>Régime Cadre (RC) - Taux salarié 2,40% · Patronal 3,60% · Plafond 1 296 000 FCFA</div>
 <table>
 <thead><tr>
   <th style='width:30px'>N°</th>
@@ -268,7 +268,7 @@ tfoot td {{ padding:5px 6px; border:1px solid #1565a0; }}
 </tr></tfoot>
 </table>
 
-<div class='footer'>Document généré par AdiPAIE V02 — {DateTime.Now:dd/MM/yyyy HH:mm}</div>
+<div class='footer'>Document généré par AdiPAIE V02 - {DateTime.Now:dd/MM/yyyy HH:mm}</div>
 </body></html>");
 
             return sb.ToString();
@@ -362,7 +362,7 @@ tfoot td {{ padding:5px 6px; border:1px solid #1565a0; }}
 </tr></tfoot>
 </table>
 
-<div class='footer'>Document généré par AdiPAIE V02 — {DateTime.Now:dd/MM/yyyy HH:mm}</div>
+<div class='footer'>Document généré par AdiPAIE V02 - {DateTime.Now:dd/MM/yyyy HH:mm}</div>
 </body></html>");
 
             return sb.ToString();
@@ -413,7 +413,7 @@ tfoot td {{ padding:5px 6px; border:1px solid #1565a0; }}
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // CONVERSION LibreOffice — COMMUN PDF + XLSX
+        // CONVERSION LibreOffice - COMMUN PDF + XLSX
         // ═══════════════════════════════════════════════════════════════
 
         private static byte[] ConvertirEnPdf(string html, string nomBase)

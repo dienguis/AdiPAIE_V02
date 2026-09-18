@@ -17,7 +17,7 @@ namespace AdiPAIE_V02.Module.Services
     ///   - Le taux = SalaireJournalier du salarié
     ///
     /// Rubrique attendue dans le référentiel :
-    ///   Code = "CNP" (Congé Non Payé) — retenue complète (seul cas au Sénégal)
+    ///   Code = "CNP" (Congé Non Payé) - retenue complète (seul cas au Sénégal)
     /// </summary>
     public static class CongeImpactPaieService
     {
@@ -34,7 +34,7 @@ namespace AdiPAIE_V02.Module.Services
                 if (demande.Salarie == null || demande.Type == null) return false;
                 if (demande.Type.ImpactSalaire == CongeImpactSalaire.Paye) return false;
 
-                // Au Sénégal : uniquement Impayé (CNP) — pas de maintien partiel
+                // Au Sénégal : uniquement Impayé (CNP) - pas de maintien partiel
                 var codeRubrique = CODE_CNP;
 
                 // Chercher la rubrique
@@ -59,7 +59,7 @@ namespace AdiPAIE_V02.Module.Services
 
                 if (bulletin == null)
                 {
-                    // Bulletin pas encore généré — stocker pour traitement ultérieur
+                    // Bulletin pas encore généré - stocker pour traitement ultérieur
                     Tracing.Tracer.LogWarning(
                         $"CongeImpactPaieService : bulletin {moisConge}/{anneeConge} " +
                         $"de {demande.Salarie.FullName} introuvable. " +

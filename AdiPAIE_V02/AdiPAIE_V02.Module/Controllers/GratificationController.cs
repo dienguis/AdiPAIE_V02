@@ -1,13 +1,13 @@
 // =============================================================================
-//  GratificationController.cs — V1.7.2d
+//  GratificationController.cs - V1.7.2d
 //
 //  Actions XAF du workflow Gratification :
-//    1. "Calculer (preview)" — disponible en BrouillonRH (RH)
-//    2. "Soumettre au DAF"   — BrouillonRH → EnAttenteValidationDAF (RH)
-//    3. "Valider (DAF)"      — EnAttenteValidationDAF → ValideeDAF (DAF)
-//    4. "Rejeter (DAF)"      — EnAttenteValidationDAF → BrouillonRH (DAF)
-//    5. "Intégrer au bulletin" — ValideeDAF → IntegreeBulletin (RH)
-//    6. "Annuler" — disponible dans tous les états avant intégration
+//    1. "Calculer (preview)" - disponible en BrouillonRH (RH)
+//    2. "Soumettre au DAF"   - BrouillonRH → EnAttenteValidationDAF (RH)
+//    3. "Valider (DAF)"      - EnAttenteValidationDAF → ValideeDAF (DAF)
+//    4. "Rejeter (DAF)"      - EnAttenteValidationDAF → BrouillonRH (DAF)
+//    5. "Intégrer au bulletin" - ValideeDAF → IntegreeBulletin (RH)
+//    6. "Annuler" - disponible dans tous les états avant intégration
 //
 //  La visibilité de chaque action est conditionnée au Statut courant.
 //  Les permissions Rôle RH/DAF sont à gérer via RBAC (en V1.7.2 on
@@ -198,7 +198,7 @@ namespace AdiPAIE_V02.Module.Controllers
             {
                 var g = e.CurrentObject as Gratification;
                 if (g == null) return;
-                // Motif minimal — pour V1.7.2 on ne demande pas de saisie
+                // Motif minimal - pour V1.7.2 on ne demande pas de saisie
                 // utilisateur (sinon il faudrait un popup). Le DAF peut
                 // précisera dans Commentaire après rejet.
                 GratificationService.Rejeter(ObjectSpace, g, "Rejeté par DAF");

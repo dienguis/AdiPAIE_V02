@@ -17,14 +17,14 @@ using System.ComponentModel;
 namespace AdiPAIE_V02.Module.NonPersistent
 {
     [DomainComponent]
-    [XafDisplayName("Bilan Social — Formulaire DTSS")]
+    [XafDisplayName("Bilan Social - Formulaire DTSS")]
     public class BilanSocialFormulaire : NonPersistentBaseObject
     {
         // ══════════════════════════════════════════════════════════════
         //  I. RENSEIGNEMENTS GÉNÉRAUX
         // ══════════════════════════════════════════════════════════════
         // Année figée : choisie au préalable dans BilanSocialAnneeSelection.
-        // Cf. BilanSocialController (wizard 2 étapes) — empêche le bug
+        // Cf. BilanSocialController (wizard 2 étapes) - empêche le bug
         // "je change l'année mais les valeurs ne se rechargent pas".
         [XafDisplayName("Année du bilan")]
         [ModelDefault("AllowEdit", "False")]
@@ -98,7 +98,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
         public string HoraireType { get; set; } = "Journée continue";
 
         // ══════════════════════════════════════════════════════════════
-        //  II. EFFECTIF TOTAL — 21. Permanent (auto-calculé)
+        //  II. EFFECTIF TOTAL - 21. Permanent (auto-calculé)
         // ══════════════════════════════════════════════════════════════
         [XafDisplayName("CDI année N")]
         [ModelDefault("AllowEdit", "False")]
@@ -138,7 +138,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
         // ══════════════════════════════════════════════════════════════
         //  III. RÉPARTITION DES EFFECTIFS (auto-calculé)
         // ══════════════════════════════════════════════════════════════
-        // 32. Par statut — Année N
+        // 32. Par statut - Année N
         [XafDisplayName("Ouvriers H (N)")]
         [ModelDefault("AllowEdit", "False")]
         public int Stat_Ouvriers_H_N { get; set; }
@@ -164,7 +164,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
         [ModelDefault("AllowEdit", "False")]
         public int Stat_Cadres_F_N { get; set; }
 
-        // Par statut — Année N-1
+        // Par statut - Année N-1
         [XafDisplayName("Ouvriers H (N-1)")]
         [ModelDefault("AllowEdit", "False")]
         public int Stat_Ouvriers_H_P { get; set; }
@@ -190,7 +190,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
         [ModelDefault("AllowEdit", "False")]
         public int Stat_Cadres_F_P { get; set; }
 
-        // 33. Par tranche d'âge — Année N (auto)
+        // 33. Par tranche d'âge - Année N (auto)
         [XafDisplayName("< 20 ans H (N)")] [ModelDefault("AllowEdit", "False")]
         public int Age_Inf20_H_N { get; set; }
         [XafDisplayName("< 20 ans F (N)")] [ModelDefault("AllowEdit", "False")]
@@ -379,7 +379,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
         [ModelDefault("DisplayFormat", "{0:N0}")]
         public decimal Charges_AssurRetraite_P { get; set; }
 
-        // Détail frais de personnel (53) — manuels
+        // Détail frais de personnel (53) - manuels
         [XafDisplayName("Eau (N)")] [ModelDefault("DisplayFormat", "{0:N0}")]
         public decimal Frais_Eau_N { get; set; }
         [XafDisplayName("Électricité (N)")] [ModelDefault("DisplayFormat", "{0:N0}")]
@@ -470,7 +470,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
         public string PrevisionEmploi { get; set; } = "Augmentera";
 
         // ══════════════════════════════════════════════════════════════
-        //  XI. AUTRES DONNÉES — Congés (auto-calculé)
+        //  XI. AUTRES DONNÉES - Congés (auto-calculé)
         // ══════════════════════════════════════════════════════════════
         [XafDisplayName("Congés payés (jours, N)")] [ModelDefault("AllowEdit", "False")]
         public int Conges_Payes_N { get; set; }

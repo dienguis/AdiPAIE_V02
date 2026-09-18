@@ -1,5 +1,5 @@
 // =============================================================================
-//  ImportBulletinInterimBatch.cs — V1.3 Sprint 1 (mai 2026)
+//  ImportBulletinInterimBatch.cs - V1.3 Sprint 1 (mai 2026)
 //
 //  Audit / grouping de chaque import de fichier "Livre de paie intérim".
 //  1 batch = 1 fichier importé = 1 société d'intérim × 1 mois × 1 année.
@@ -26,7 +26,7 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 namespace AdiPAIE_V02.Module.BusinessObjects.Interim
 {
     [DefaultClassOptions]
-    [XafDisplayName("Lot d'import — Bulletin intérim")]
+    [XafDisplayName("Lot d'import - Bulletin intérim")]
     [DefaultProperty(nameof(DisplayName))]
     [ImageName("BO_Audit")]
     [NavigationItem("GRH_Interimaires")]

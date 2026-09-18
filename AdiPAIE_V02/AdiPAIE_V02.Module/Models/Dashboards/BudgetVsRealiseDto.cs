@@ -1,5 +1,5 @@
 // =============================================================================
-//  BudgetVsRealiseDto.cs — V1.2.1 (mai 2026)
+//  BudgetVsRealiseDto.cs - V1.2.1 (mai 2026)
 //
 //  REFONTE annuelle :
 //    - Plus de granularité mensuelle ni rubriques.

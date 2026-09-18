@@ -15,15 +15,15 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 namespace AdiPAIE_V02.Module.BusinessObjects.RH
 {
     /// <summary>
-    /// Dossier de départ (offboarding) — suivi complet de la procédure de sortie
+    /// Dossier de départ (offboarding) - suivi complet de la procédure de sortie
     /// et calcul du solde de tout compte.
     ///
     /// Workflow : Initié → EnCours → SoldeCalculé → ValidéRH → ValidéDAF → Clôturé
     ///
     /// Calcul solde de tout compte (droit sénégalais) :
-    ///   - V1.8 : Indemnité Compensatrice de Congés Payés (ICCP) — CCT Art. 58
+    ///   - V1.8 : Indemnité Compensatrice de Congés Payés (ICCP) - CCT Art. 58
     ///     = (Σ Brut imposable 12 derniers mois / 12) × CongesDisponibles / 24
-    ///     (anciennement SalaireBase × jours / 26 — sous-évalué)
+    ///     (anciennement SalaireBase × jours / 26 - sous-évalué)
     ///   - Indemnité de préavis (si licenciement)
     ///   - Indemnité de licenciement (si licenciement > 1 an)
     ///   - Dernier salaire au prorata
@@ -224,7 +224,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         decimal autresElements;
 
-        // V1.7.2 — Prorata 13ième mois sur STC départ en cours d'année
+        // V1.7.2 - Prorata 13ième mois sur STC départ en cours d'année
         // = BrutRecurrent × MoisPresence / 12 (cf. règle RH ELTON validée)
         // Renseigné via l'action "Calculer 13ième prorata STC".
         [ModelDefault("DisplayFormat", "N0")]
@@ -239,7 +239,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         decimal indemnite13iemeMois;
 
-        // V1.7.2 — Prorata des gratifications validées DAF mais non encore
+        // V1.7.2 - Prorata des gratifications validées DAF mais non encore
         // intégrées au bulletin (cas typique : DG a décidé une gratification
         // sur résultats N-1, le salarié part avant le versement).
         // Formule : Σ Gratification.MontantCalcule × MoisPresence / 12
@@ -353,7 +353,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Propriétés calculées ──────────────────────────────────────
         [NonPersistent]
         public string DisplayName =>
-            $"{Salarie?.FullName ?? "—"} — {MotifDepart} ({DateSortie:dd/MM/yyyy})";
+            $"{Salarie?.FullName ?? "-"} - {MotifDepart} ({DateSortie:dd/MM/yyyy})";
 
         // ── Méthodes ──────────────────────────────────────────────────
         private void PreRemplirDepuisSalarie()
@@ -363,7 +363,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             IndemniteLogement = Salarie.IndemniteLogement;
             AncienneteAnnees = Salarie.Anciennete;
 
-            // Congés disponibles — chercher le solde actif de l'année en cours
+            // Congés disponibles - chercher le solde actif de l'année en cours
             try
             {
                 var annee = DateTime.Today.Year;
@@ -381,7 +381,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         {
             // ─────────────────────────────────────────────────────────────
             // 1. INDEMNITÉ COMPENSATRICE DE CONGÉS PAYÉS (ICCP)
-            //    V1.8 — Conforme CCT Sénégal Art. 58 + pratique ELTON validée
+            //    V1.8 - Conforme CCT Sénégal Art. 58 + pratique ELTON validée
             //    Formule : (Σ Brut imposable 12 derniers mois / 12) × Solde / 24
             //
             //    Le diviseur 24 correspond aux "jours de congés concernés"
@@ -431,7 +431,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         /// <summary>
-        /// V1.8 — Calcule la moyenne du brut imposable du salarié sur les
+        /// V1.8 - Calcule la moyenne du brut imposable du salarié sur les
         /// 12 derniers mois précédant la date de sortie.
         ///
         /// Logique alignée sur <c>ProvisionCongesService</c> :
@@ -452,7 +452,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             // Période de référence : 12 mois rolling juste avant DateSortie
             var debut = DateSortie.AddMonths(-12);
             var fin = DateSortie;
-            // Bulletin n'a pas de champ Date persistant — on filtre via Annee + Mois
+            // Bulletin n'a pas de champ Date persistant - on filtre via Annee + Mois
             // (sortable en (Annee*100 + Mois) pour ordre chronologique)
             int debutCle = debut.Year * 100 + debut.Month;
             int finCle = fin.Year * 100 + fin.Month;

@@ -1,5 +1,5 @@
 // =============================================================================
-//  HideEspaceSalarieController.cs — V1.8 (juin 2026)
+//  HideEspaceSalarieController.cs - V1.8 (juin 2026)
 //
 //  Masque le menu "Mon espace" (GRH_EspaceSalarie) et ses sous-items pour les
 //  utilisateurs qui ont les rôles RH, DAF ou DG, MÊME si le rôle Employé leur
@@ -15,7 +15,7 @@
 //
 //  Solution : modifier dynamiquement le Model.NavigationItems après login
 //  via OnActivated du WindowController. La modification est par-session
-//  (pas persistée) — chaque user obtient son propre rendu navigation.
+//  (pas persistée) - chaque user obtient son propre rendu navigation.
 //
 //  Rôles concernés : RH, DAF, DG (managers avec vue 360°).
 //  Le rôle Employé seul (ou Comptable seul, Assistant, etc.) garde "Mon espace".
@@ -71,7 +71,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
         protected override void OnDeactivated()
         {
-            // V1.8 — Empêcher XAF de persister la modif Visible=false dans
+            // V1.8 - Empêcher XAF de persister la modif Visible=false dans
             // le ModelDifference de l'utilisateur. Sans ce restore, à chaque
             // logout XAF sauvegardait Visible=false dans le MD user, ce qui
             // est par-user et persistant. Pas ce qu'on veut.
@@ -161,7 +161,7 @@ namespace AdiPAIE_V02.Module.Controllers
         /// <summary>
         /// Recherche récursive d'un IModelNode par Id, insensible à la casse.
         /// L'Id n'est pas exposé directement par IModelNode (il l'est par
-        /// IModelObjectIdentifier dans DevExpress.ExpressApp.Model.Core) —
+        /// IModelObjectIdentifier dans DevExpress.ExpressApp.Model.Core) -
         /// on passe par réflexion pour rester agnostique à la version XAF.
         /// </summary>
         private static IModelNode FindNodeRecursive(IModelNode parent, string itemId)

@@ -20,9 +20,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     /// SoldeDisponible = JoursAcquis + JoursReportes - JoursPris - JoursEnAttente
     ///
     /// Alimenté par :
-    ///   - SoldeCongeCalculService.AcquirirMensuel() — chaque mois
-    ///   - SoldeCongeCalculService.Reporter()        — clôture exercice N vers N+1
-    ///   - CongeWorkflowController                   — à l'accord d'un congé
+    ///   - SoldeCongeCalculService.AcquirirMensuel() - chaque mois
+    ///   - SoldeCongeCalculService.Reporter()        - clôture exercice N vers N+1
+    ///   - CongeWorkflowController                   - à l'accord d'un congé
     /// </summary>
     [DefaultClassOptions]
     [XafDisplayName("Solde de congés")]
@@ -154,7 +154,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  V1.8 — Traçabilité initialisation manuelle (mise en prod)
+        //  V1.8 - Traçabilité initialisation manuelle (mise en prod)
         //
         //  À la mise en production, le RH saisit le solde cumulé connu de
         //  chaque salarié à une date donnée (qui peut varier d'un salarié
@@ -211,7 +211,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // ── Affichage ─────────────────────────────────────────
         [NonPersistent]
         public string DisplaySolde =>
-            $"{Salarie?.LastName} — {TypeConge?.Libelle} {Annee} " +
+            $"{Salarie?.LastName} - {TypeConge?.Libelle} {Annee} " +
             $"(Dispo : {SoldeDisponible:N1}j)";
 
         // ── Méthodes ─────────────────────────────────────────

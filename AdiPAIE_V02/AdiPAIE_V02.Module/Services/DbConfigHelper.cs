@@ -3,17 +3,17 @@
 // configurable depuis l'UI (Paramètres de paie → Connexion BDD).
 // Après modification, un redémarrage de l'application est nécessaire.
 //
-// V1.1 (2026-05-03) — Storage déplacé vers %PROGRAMDATA%\AdiPAIE_V02\dbconfig.json
+// V1.1 (2026-05-03) - Storage déplacé vers %PROGRAMDATA%\AdiPAIE_V02\dbconfig.json
 // pour SURVIVRE au clean+rebuild. La copie dans le bin de l'app n'est utilisée
 // que comme TEMPLATE initial au premier démarrage (bootstrap automatique).
 //
-// V1.1 (2026-05-03) — Mot de passe SQL CHIFFRÉ via DPAPI (Windows ProtectedData)
+// V1.1 (2026-05-03) - Mot de passe SQL CHIFFRÉ via DPAPI (Windows ProtectedData)
 // avec scope LocalMachine. Format stocké : password=DPAPI:<base64>;
 // L'UI Paramètres de paie (et les SqlClient) reçoivent le mot de passe en clair :
 // la couche helper chiffre/déchiffre de manière transparente.
 // Migration auto : un mot de passe legacy en clair est chiffré au 1er ReadConnectionString.
 //
-// Avant V1.1, le fichier était dans bin/Debug/net8.0/ — donc supprimé au moindre
+// Avant V1.1, le fichier était dans bin/Debug/net8.0/ - donc supprimé au moindre
 // "Clean Solution" et écrasé par la version source du repo au build suivant. ET
 // le mot de passe était stocké en clair, lisible par tout admin local.
 using System;
@@ -32,7 +32,7 @@ namespace AdiPAIE_V02.Module.Services
         private static bool _bootstrapAttempted;
 
         /// <summary>
-        /// Chemin de PRODUCTION du dbconfig.json — survit au clean+rebuild.
+        /// Chemin de PRODUCTION du dbconfig.json - survit au clean+rebuild.
         /// Emplacement : %PROGRAMDATA%\AdiPAIE_V02\dbconfig.json
         ///               (ex: C:\ProgramData\AdiPAIE_V02\dbconfig.json)
         /// Le dossier est créé automatiquement à la première écriture.
@@ -50,7 +50,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         /// <summary>
-        /// Chemin LEGACY (bin/dbconfig.json) — utilisé uniquement comme TEMPLATE
+        /// Chemin LEGACY (bin/dbconfig.json) - utilisé uniquement comme TEMPLATE
         /// initial au premier démarrage, pour bootstrap depuis le repo.
         /// </summary>
         private static string LegacyBinPath
@@ -79,7 +79,7 @@ namespace AdiPAIE_V02.Module.Services
             }
             catch
             {
-                // Permissions, disque plein, etc. : silencieux —
+                // Permissions, disque plein, etc. : silencieux -
                 // l'app peut quand même démarrer si appsettings.json a la conn.
             }
         }
@@ -237,7 +237,7 @@ namespace AdiPAIE_V02.Module.Services
                 }
                 catch
                 {
-                    // Silencieux — ne pas bloquer l'UI
+                    // Silencieux - ne pas bloquer l'UI
                 }
             }
         }

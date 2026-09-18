@@ -14,7 +14,7 @@ namespace AdiPAIE_V02.Module.Services
     /// <summary>
     /// Service de fusion des templates de contrat de travail.
     ///
-    /// Un template par type — stockés dans ParametresPaie :
+    /// Un template par type - stockés dans ParametresPaie :
     ///   TemplateContratCDI   → CDI
     ///   TemplateContratCDD   → CDD
     ///   TemplateContratStage → Stage
@@ -92,28 +92,28 @@ namespace AdiPAIE_V02.Module.Services
                 StringComparer.OrdinalIgnoreCase)
             {
                 // ── Document ──────────────────────────────────────────
-                ["{{Reference}}"] = c.Reference ?? "—",
+                ["{{Reference}}"] = c.Reference ?? "-",
                 ["{{TypeContrat}}"] = (c.TypeContrat ?? TypeContrat.CDI) switch
                 {
                     TypeContrat.CDI => "Contrat à Durée Indéterminée (CDI)",
                     TypeContrat.CDD => "Contrat à Durée Déterminée (CDD)",
                     TypeContrat.Stage => "Contrat de Stage",
-                    _ => c.TypeContrat?.ToString() ?? "—"
+                    _ => c.TypeContrat?.ToString() ?? "-"
                 },
                 ["{{DateDocument}}"] = c.DateDocument.ToString("dd MMMM yyyy", Fr),
                 ["{{VilleFait}}"] = c.VilleFait ?? "Dakar",
 
                 // ── Identité salarié ──────────────────────────────────
                 ["{{Civilite}}"] = civilite,
-                ["{{FullName}}"] = s?.FullName ?? "—",
-                ["{{Matricule}}"] = s?.Matricule ?? "—",
+                ["{{FullName}}"] = s?.FullName ?? "-",
+                ["{{Matricule}}"] = s?.Matricule ?? "-",
                 ["{{DateNaissance}}"] = GetBirthday(s, Fr),
-                ["{{FilsDe}}"] = s?.FilsDe ?? "—",
+                ["{{FilsDe}}"] = s?.FilsDe ?? "-",
                 ["{{Sexe}}"] = s?.Sexe switch
                 {
                     Sexe.Masculin => "Masculin",
                     Sexe.Feminin  => "Féminin",
-                    _ => "—"
+                    _ => "-"
                 },
                 ["{{Nationalite}}"] = s?.Nationalite ?? "Sénégalaise",
                 ["{{SituationFamille}}"] = s?.SatutMarital switch
@@ -122,23 +122,23 @@ namespace AdiPAIE_V02.Module.Services
                     SituationMaritale.Marie       => "Marié(e)",
                     SituationMaritale.Divorce     => "Divorcé(e)",
                     SituationMaritale.Veuf        => "Veuf/Veuve",
-                    _ => "—"
+                    _ => "-"
                 },
                 ["{{Adresse}}"] = GetAdresse(s),
-                ["{{NumeroCNI}}"] = s?.NumeroCNI ?? "—",
-                ["{{PersonneUrgence}}"] = s?.ContactUrgenceNom ?? "—",
-                ["{{TelUrgence}}"] = s?.ContactUrgenceTel ?? "—",
+                ["{{NumeroCNI}}"] = s?.NumeroCNI ?? "-",
+                ["{{PersonneUrgence}}"] = s?.ContactUrgenceNom ?? "-",
+                ["{{TelUrgence}}"] = s?.ContactUrgenceTel ?? "-",
 
                 // ── Poste ─────────────────────────────────────────────
-                ["{{Fonction}}"] = s?.Fonction?.Intitule ?? "—",
-                ["{{Departement}}"] = s?.Departement?.Nom ?? "—",
-                ["{{Categorie}}"] = s?.Categories?.Intitule ?? "—",
-                ["{{Echelon}}"] = s?.Echelon?.Libelle ?? s?.Echelon?.Code ?? "—",
+                ["{{Fonction}}"] = s?.Fonction?.Intitule ?? "-",
+                ["{{Departement}}"] = s?.Departement?.Nom ?? "-",
+                ["{{Categorie}}"] = s?.Categories?.Intitule ?? "-",
+                ["{{Echelon}}"] = s?.Echelon?.Libelle ?? s?.Echelon?.Code ?? "-",
 
                 // ── Dates ─────────────────────────────────────────────
                 ["{{DateDebut}}"] = c.DateDebut.ToString("dd MMMM yyyy", Fr),
-                ["{{DateFin}}"] = c.DateFin?.ToString("dd MMMM yyyy", Fr) ?? "—",
-                ["{{DureeMois}}"] = c.DureeMois?.ToString() ?? "—",
+                ["{{DateFin}}"] = c.DateFin?.ToString("dd MMMM yyyy", Fr) ?? "-",
+                ["{{DureeMois}}"] = c.DureeMois?.ToString() ?? "-",
 
                 // ── Période d'essai ───────────────────────────────────
                 ["{{PeriodeEssai}}"] = c.PeriodeEssai ? "OUI" : "NON",
@@ -147,14 +147,14 @@ namespace AdiPAIE_V02.Module.Services
                     : "Sans période d'essai",
 
                 // ── Motif CDD ─────────────────────────────────────────
-                ["{{MotifCDD}}"] = c.MotifCDD?.ToString() ?? "—",
-                ["{{MotifCDDDetail}}"] = c.MotifCDDDetail ?? "—",
+                ["{{MotifCDD}}"] = c.MotifCDD?.ToString() ?? "-",
+                ["{{MotifCDDDetail}}"] = c.MotifCDDDetail ?? "-",
 
                 // ── Rémunération ──────────────────────────────────────
                 ["{{SalaireBase}}"] = c.SalaireBase.ToString("N0", Fr) + " FCFA",
                 ["{{Sursalaire}}"] = (s?.Sursalaire ?? 0m) > 0
                     ? (s!.Sursalaire.ToString("N0", Fr) + " FCFA")
-                    : "—",
+                    : "-",
                 ["{{IndemniteLogement}}"] = c.IndemniteLogement.ToString("N0", Fr) + " FCFA",
                 ["{{PrimeTransport}}"] = c.PrimeTransport.ToString("N0", Fr) + " FCFA",
                 ["{{TotalBrut}}"] = c.TotalBrut.ToString("N0", Fr) + " FCFA",
@@ -169,9 +169,9 @@ namespace AdiPAIE_V02.Module.Services
                 },
 
                 // ── Société ───────────────────────────────────────────
-                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? prm?.SignatoryName ?? "—",
-                ["{{AdresseSociete}}"] = company?.Address ?? "—",
-                ["{{SignataireNom}}"] = prm?.SignatoryName ?? prm?.SignatureName ?? "—",
+                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? prm?.SignatoryName ?? "-",
+                ["{{AdresseSociete}}"] = company?.Address ?? "-",
+                ["{{SignataireNom}}"] = prm?.SignatoryName ?? prm?.SignatureName ?? "-",
                 ["{{SignataireTitre}}"] = prm?.SignatoryTitle ?? "Directeur des Ressources Humaines",
             };
         }
@@ -181,11 +181,11 @@ namespace AdiPAIE_V02.Module.Services
             try
             {
                 var p = s as DevExpress.Persistent.BaseImpl.Person;
-                if (p == null) return "—";
+                if (p == null) return "-";
                 var bd = p.Birthday;
-                return bd == default ? "—" : bd.ToString("dd MMMM yyyy", fr);
+                return bd == default ? "-" : bd.ToString("dd MMMM yyyy", fr);
             }
-            catch { return "—"; }
+            catch { return "-"; }
         }
 
         private static string GetAdresse(Salarie s)
@@ -193,13 +193,13 @@ namespace AdiPAIE_V02.Module.Services
             try
             {
                 var p = s as DevExpress.Persistent.BaseImpl.Person;
-                if (p == null) return "—";
+                if (p == null) return "-";
                 // Adresse via NumeroCNI champ Salarie directement
-                // Person.Address1 est un objet complexe — on utilise ToString()
+                // Person.Address1 est un objet complexe - on utilise ToString()
                 var adr = p.Address1?.ToString();
-                return string.IsNullOrWhiteSpace(adr) ? "—" : adr;
+                return string.IsNullOrWhiteSpace(adr) ? "-" : adr;
             }
-            catch { return "—"; }
+            catch { return "-"; }
         }
 
         // ── Fusion XML (même pattern que AttestationTemplateService) ──

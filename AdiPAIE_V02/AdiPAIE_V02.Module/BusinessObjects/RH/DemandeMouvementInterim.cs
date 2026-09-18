@@ -1,5 +1,5 @@
 // =============================================================================
-//  DemandeMouvementInterim.cs — V1.5
+//  DemandeMouvementInterim.cs - V1.5
 //
 //  Demande de mouvement d'un intérimaire initiée par un Assistant Commercial (AC).
 //
@@ -53,7 +53,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
                  + "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,RejeteeDAF# "
                  + "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,Annulee#",
         FontColor = "Red", FontStyle = DevExpress.Drawing.DXFontStyle.Strikeout)]
-    // V1.6.2 — Badges colorés sur Statut (workflow AC → AssistantRH → RH → DAF)
+    // V1.6.2 - Badges colorés sur Statut (workflow AC → AssistantRH → RH → DAF)
     [Appearance("DMI_Badge_Brouillon",
         TargetItems = "Statut",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeMouvementStatut,Brouillon#",
@@ -92,7 +92,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             try { SaisiPar = DevExpress.ExpressApp.SecuritySystem.CurrentUserName; } catch { }
             Reference = $"DMI-{DateTime.Today:yyyy}-{Guid.NewGuid().ToString()[..6].ToUpper()}";
 
-            // V1.7.2 — Auto-remplir Initiateur avec le Salarie de l'user courant.
+            // V1.7.2 - Auto-remplir Initiateur avec le Salarie de l'user courant.
             // Permet à l'AssistantCommercial de créer une demande sans avoir
             // d'accès lookup sur tous les Salaries (sécurité paie).
             try
@@ -407,6 +407,6 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── DisplayName ───────────────────────────────────────────────
         [VisibleInListView(false), VisibleInDetailView(false)]
         public string DisplayName =>
-            $"{Reference} — {Interimaire?.FullName ?? "?"} — {TypeMouvement}";
+            $"{Reference} - {Interimaire?.FullName ?? "?"} - {TypeMouvement}";
     }
 }

@@ -1,5 +1,5 @@
 // =============================================================================
-//  BulletinRecalcController.cs — V1.8 (juin 2026)
+//  BulletinRecalcController.cs - V1.8 (juin 2026)
 //
 //  Expose 2 actions distinctes sur le DetailView d'un Bulletin :
 //
@@ -39,7 +39,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
         public BulletinRecalcController()
         {
-            InitializeComponent(); // Designer.cs existe encore — garder
+            InitializeComponent(); // Designer.cs existe encore - garder
 
             // ─── Action 1 : Recharger bulletin (action lourde) ──────────
             rechargerAction = new SimpleAction(this,
@@ -130,7 +130,7 @@ namespace AdiPAIE_V02.Module.Controllers
             }
         }
 
-        // ─── Recalculer cotisations (méthode légère) — V1.8 ─────────────
+        // ─── Recalculer cotisations (méthode légère) - V1.8 ─────────────
         private void RecalcCotisationsAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             var b = View.CurrentObject as Bulletin;

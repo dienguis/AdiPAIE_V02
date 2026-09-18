@@ -17,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AdiPAIE_V02.Module.Controllers.RH
 {
     // ══════════════════════════════════════════════════════════════════════
-    // BILAN DE FORMATION — action sur PlanFormation DetailView
+    // BILAN DE FORMATION - action sur PlanFormation DetailView
     //
     // Génère un PDF récapitulatif contenant :
     //   1. Résumé exécutif (KPIs : sessions, inscrits, taux présence, budget)
@@ -72,7 +72,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     if (senders != null)
                     {
                         var body = WorkflowEmailHelper.HtmlTableau(
-                            $"Bilan formation — {plan.Titre} ({plan.Annee})",
+                            $"Bilan formation - {plan.Titre} ({plan.Annee})",
                             $"Le bilan du plan de formation est généré. " +
                             $"Retrouvez le fichier {nomFich} en pièce jointe.",
                             new[]
@@ -88,7 +88,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
                         foreach (var dest in rhEmails)
                             WorkflowEmailHelper.EnvoyerAsync(senders, dest,
-                                $"[AdiPAIE] Bilan formation — {plan.Titre} ({plan.Annee})", body);
+                                $"[AdiPAIE] Bilan formation - {plan.Titre} ({plan.Annee})", body);
                     }
                 }
 
@@ -159,14 +159,14 @@ namespace AdiPAIE_V02.Module.Controllers.RH
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    // FEUILLE D'ÉMARGEMENT — action sur SessionFormation (ajout au controller existant)
+    // FEUILLE D'ÉMARGEMENT - action sur SessionFormation (ajout au controller existant)
     //
     // Séparé pour ne pas modifier FormationWorkflowController.
     // ══════════════════════════════════════════════════════════════════════
     
  
     // ══════════════════════════════════════════════════════════════════════
-    // BUILDER HTML DU BILAN — classe utilitaire interne
+    // BUILDER HTML DU BILAN - classe utilitaire interne
     // ══════════════════════════════════════════════════════════════════════
     internal static class BilanHtmlBuilder
     {
@@ -215,14 +215,14 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                     $"<tr style='background:{bg};'>" +
                     $"<td class='c'>{num++}</td>" +
                     $"<td>{s.Intitule}</td>" +
-                    $"<td>{s.Domaine?.Libelle ?? "—"}</td>" +
+                    $"<td>{s.Domaine?.Libelle ?? "-"}</td>" +
                     $"<td class='c'>{s.DateDebut:dd/MM/yyyy}</td>" +
                     $"<td class='c'>{s.DureeJours}j</td>" +
                     $"<td class='c'>{nbI}</td>" +
                     $"<td class='c'>{nbP}</td>" +
                     $"<td class='c'>{tx} %</td>" +
                     $"<td class='r'>{s.CoutReel:N0}</td>" +
-                    $"<td class='c'>{(noteMoy > 0 ? noteMoy.ToString("N1") : "—")}</td>" +
+                    $"<td class='c'>{(noteMoy > 0 ? noteMoy.ToString("N1") : "-")}</td>" +
                     "</tr>");
             }
 
@@ -253,9 +253,9 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 .GroupBy(i => i.Salarie)
                 .Select(g => new
                 {
-                    Nom = g.Key.FullName ?? "—",
-                    Matricule = g.Key.Matricule ?? "—",
-                    Dept = g.Key.Departement?.Nom ?? "—",
+                    Nom = g.Key.FullName ?? "-",
+                    Matricule = g.Key.Matricule ?? "-",
+                    Dept = g.Key.Departement?.Nom ?? "-",
                     Nb = g.Count(),
                     Heures = g.Sum(i => i.SessionFormation?.DureeHeures > 0
                                     ? i.SessionFormation.DureeHeures
@@ -437,7 +437,7 @@ td.r { text-align: right; }
 
   <!-- ── Pied de page ── -->
   <div class='footer'>
-    <span>Plan approuvé le {plan.DateApprobation:dd/MM/yyyy} par {plan.ApprovePar?.FullName ?? "—"}</span>
+    <span>Plan approuvé le {plan.DateApprobation:dd/MM/yyyy} par {plan.ApprovePar?.FullName ?? "-"}</span>
     <span>Bilan AdiPAIE · {raisonSociale} · {aujourd}</span>
   </div>
 

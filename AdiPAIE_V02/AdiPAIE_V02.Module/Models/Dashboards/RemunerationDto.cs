@@ -1,6 +1,6 @@
 // =============================================================================
 //  RemunerationDto.cs
-//  Tableau N°4 (Rémunération) — DTOs renvoyés par le service au Razor.
+//  Tableau N°4 (Rémunération) - DTOs renvoyés par le service au Razor.
 // =============================================================================
 
 using System;
@@ -17,10 +17,10 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         public List<EgaliteSalaireRowDto> ParCategorie { get; set; } = new();
         public List<EgaliteSalaireRowDto> ParEchelon   { get; set; } = new(); // V1.5
 
-        // Évolution mensuelle (12 mois Jan→Déc) — pour graphe d'évolution
+        // Évolution mensuelle (12 mois Jan→Déc) - pour graphe d'évolution
         public List<MasseMensuelleDto> EvolutionMensuelle { get; set; } = new();
 
-        // Décomposition par famille de rubrique (cf. SPEC mesure 10) — INTERNE
+        // Décomposition par famille de rubrique (cf. SPEC mesure 10) - INTERNE
         public List<DecompositionRubriqueDto> ParFamilleRubrique { get; set; } = new();
 
         public DateTime CalculatedAt { get; set; }
@@ -40,7 +40,7 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
     }
 
     /// <summary>
-    /// Une ligne du tableau « Rémunération par Segment / Catégorie — Égalité des Salaires ».
+    /// Une ligne du tableau « Rémunération par Segment / Catégorie - Égalité des Salaires ».
     /// Reproduit la maquette PowerBI :
     ///   Libellé · Total · CoûtMoy · Min · Max · Moyenne · MoyFemme · MoyHomme.
     /// </summary>
@@ -55,13 +55,13 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         public decimal? MoyFemme   { get; set; }   // null si aucune femme dans le segment
         public decimal? MoyHomme   { get; set; }
         public int     NbSalaries  { get; set; }
-        /// <summary>Pourcentage de la masse totale du segment vs total global (0–100).</summary>
+        /// <summary>Pourcentage de la masse totale du segment vs total global (0-100).</summary>
         public decimal PourcentageMasse { get; set; }
     }
 
     public sealed class MasseMensuelleDto
     {
-        public int     Mois        { get; set; }   // 1–12
+        public int     Mois        { get; set; }   // 1-12
         public string  Libelle     { get; set; } = "";
         public decimal Masse       { get; set; }
         public int     NbBulletins { get; set; }

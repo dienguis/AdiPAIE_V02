@@ -141,7 +141,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // ── Affichage ─────────────────────────────────────────
         [NonPersistent]
         public string DisplayMouvement =>
-            $"{DateMouvement:dd/MM/yyyy} — {TypeMouvement} — {Quantite:+0.00;-0.00} j";
+            $"{DateMouvement:dd/MM/yyyy} - {TypeMouvement} - {Quantite:+0.00;-0.00} j";
 
         // ── Cycle de vie ──────────────────────────────────────
         public override void AfterConstruction()

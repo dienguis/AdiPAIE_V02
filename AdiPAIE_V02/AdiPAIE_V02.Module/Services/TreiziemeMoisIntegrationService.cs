@@ -1,5 +1,5 @@
 // =============================================================================
-//  TreiziemeMoisIntegrationService.cs — V1.7.2
+//  TreiziemeMoisIntegrationService.cs - V1.7.2
 //
 //  Intègre les TreiziemeMois calculés au bulletin de paie correspondant
 //  (décembre dans le cas normal, ou bulletin de STC pour les départs).
@@ -83,7 +83,7 @@ namespace AdiPAIE_V02.Module.Services
                         nbSkipBulletinManquant++;
                         erreurs.Add(
                             $"Bulletin décembre {annee} manquant pour " +
-                            $"{m13.Salarie.Matricule} – {m13.Salarie.FullName}. " +
+                            $"{m13.Salarie.Matricule} - {m13.Salarie.FullName}. " +
                             $"Créer le bulletin avant intégration.");
                         continue;
                     }
@@ -134,7 +134,7 @@ namespace AdiPAIE_V02.Module.Services
 
             // Rapport
             var rapport = new System.Text.StringBuilder();
-            rapport.AppendLine($"✅ Intégration 13ième mois — Année {annee}");
+            rapport.AppendLine($"✅ Intégration 13ième mois - Année {annee}");
             rapport.AppendLine($"───────────────────────────────");
             rapport.AppendLine($"  Bulletins intégrés     : {nbIntegres}");
             rapport.AppendLine($"  Déjà intégrés (skip)   : {nbSkipDejaIntegree}");

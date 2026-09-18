@@ -1,5 +1,5 @@
 // =============================================================================
-//  BudgetMasseSalariale.cs — V1.2.1 (mai 2026)
+//  BudgetMasseSalariale.cs - V1.2.1 (mai 2026)
 //
 //  REFONTE : passage à un modèle simplifié sur demande DAF.
 //
@@ -18,7 +18,7 @@
 //    - Rubrique (on ne suit que le brut, pas la décomposition rubrique)
 //
 //  Saisie possible via :
-//    1. Formulaire XAF — 1 ligne par site, ou 1 ligne global
+//    1. Formulaire XAF - 1 ligne par site, ou 1 ligne global
 //    2. Recopie N-1 + inflation %
 //    3. Import Excel (template simple : Année / Site / Montant)
 // =============================================================================

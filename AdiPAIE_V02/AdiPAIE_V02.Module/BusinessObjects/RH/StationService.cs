@@ -12,12 +12,12 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 namespace AdiPAIE_V02.Module.BusinessObjects.RH
 {
     // ════════════════════════════════════════════════════════════════════
-    // STATION DE SERVICE — référentiel ELTON
+    // STATION DE SERVICE - référentiel ELTON
     // ════════════════════════════════════════════════════════════════════
 
-    // ⚠️ V1.1 Sprint 1D — DEPRECATED. Remplacée par Site (Type=StationService).
+    // ⚠️ V1.1 Sprint 1D - DEPRECATED. Remplacée par Site (Type=StationService).
     // Conservée pour compat des écrans hors dashboards (DemandeRecrutementInterim,
-    // SocieteInterim, AlerteInterimaireService). Masquée du menu XAF — visible
+    // SocieteInterim, AlerteInterimaireService). Masquée du menu XAF - visible
     // uniquement via les FK existantes. À supprimer définitivement quand les
     // écrans métier auront migré vers Site V1.1.
     [XafDisplayName("[Deprecated] Station de service")]
@@ -96,7 +96,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         public XPCollection<ContratInterim> Contrats
             => GetCollection<ContratInterim>(nameof(Contrats));
 
-        // ── V1.5 — Assistants Commerciaux responsables de la station ──
+        // ── V1.5 - Assistants Commerciaux responsables de la station ──
         [Association("AC-StationsGerees")]
         [XafDisplayName("Assistants Commerciaux")]
         public XPCollection<Salarie> AssistantsCommerciaux
@@ -118,11 +118,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // BUSINESS UNIT — propre à une station
+    // BUSINESS UNIT - propre à une station
     // Piste de Station A ≠ Piste de Station B
     // ════════════════════════════════════════════════════════════════════
 
-    // ⚠️ V1.1 Sprint 1D — DEPRECATED. Remplacée par UniteOrganisationnelle
+    // ⚠️ V1.1 Sprint 1D - DEPRECATED. Remplacée par UniteOrganisationnelle
     // (Type=BU). Conservée pour compat ContratInterim.BU + MouvementInterimaire.
     // Masquée du menu XAF.
     [XafDisplayName("[Deprecated] Business Unit (Station)")]
@@ -159,7 +159,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // démarrage via Updater.MigrateBUsToTypes (assigne le bon Type
         // selon le Libelle existant).
         // RuleRequiredField volontairement omis pour permettre la
-        // migration douce — sera activé en V1.2 une fois tous les BU
+        // migration douce - sera activé en V1.2 une fois tous les BU
         // historiques rattachés.
         [Association("BUType-BUs")]
         [XafDisplayName("Type")]
@@ -208,7 +208,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         [NonPersistent]
         [XafDisplayName("BU")]
         public string DisplayName =>
-            Station != null ? $"{Libelle} — {Station.Nom}" : Libelle;
+            Station != null ? $"{Libelle} - {Station.Nom}" : Libelle;
 
         public override string ToString() => DisplayName;
     }

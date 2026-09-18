@@ -1,6 +1,6 @@
 // =============================================================================
 //  BilanSocialFilterModel.cs
-//  Tableau N°6 (Bilan Social Mensuel) — INTERNE.
+//  Tableau N°6 (Bilan Social Mensuel) - INTERNE.
 //
 //  Synthèse mensuelle 12 mois × N indicateurs, alimentée par :
 //    - Salarie       (effectif, embauches, départs)

@@ -1,6 +1,6 @@
 // =============================================================================
 //  IMouvementsDashboardService.cs
-//  Tableau N°3 (Mouvements — Arrivées / Départs).
+//  Tableau N°3 (Mouvements - Arrivées / Départs).
 // =============================================================================
 
 using System.Collections.Generic;

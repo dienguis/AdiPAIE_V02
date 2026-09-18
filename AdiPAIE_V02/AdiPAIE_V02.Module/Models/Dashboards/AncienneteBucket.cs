@@ -1,6 +1,6 @@
 // =============================================================================
 //  AncienneteBucket.cs
-//  Tableau N°2 (Analyse de l'Effectif) — tranches d'ancienneté.
+//  Tableau N°2 (Analyse de l'Effectif) - tranches d'ancienneté.
 //
 //  Tranches définies par la mission :
 //    <1 an / 1-4 ans / 5-9 ans / 10-14 ans / ≥15 ans / vide

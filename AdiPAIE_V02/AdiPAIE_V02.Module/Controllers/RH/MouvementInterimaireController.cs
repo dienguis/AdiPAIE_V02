@@ -48,7 +48,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 var m = (MouvementInterimaire)View.CurrentObject;
                 if (string.IsNullOrWhiteSpace(m.Motif))
                     throw new UserFriendlyException("Saisissez un motif de rejet.");
-                // Réinitialiser — le mouvement reste en base pour historique
+                // Réinitialiser - le mouvement reste en base pour historique
                 // mais est marqué rejeté via ValideRH=false + motif
                 ObjectSpace.CommitChanges();
                 UpdateStates(); View.Refresh();

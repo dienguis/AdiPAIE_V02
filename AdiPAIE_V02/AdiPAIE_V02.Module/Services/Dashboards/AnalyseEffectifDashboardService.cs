@@ -1,6 +1,6 @@
 // =============================================================================
 //  AnalyseEffectifDashboardService.cs
-//  Tableau N°2 (Analyse de l'Effectif) — implémentation XPO du service.
+//  Tableau N°2 (Analyse de l'Effectif) - implémentation XPO du service.
 //
 //  Pattern :
 //   - Service agnostique XAF : prend IObjectSpace en paramètre des méthodes.
@@ -35,7 +35,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        //  GetData — orchestration
+        //  GetData - orchestration
         // ─────────────────────────────────────────────────────────────────────
         public AnalyseEffectifDto GetData(AnalyseEffectifFilterModel filter, IObjectSpace os)
         {
@@ -331,7 +331,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         //    - Segment      → ContratInterim.BU      (BusinessUnitStation)
         //    - Catégorie    → ContratInterim.PosteOccupe (PosteInterimaire)
         //    - Genre        → pas de champ Sexe sur Interimaire (filtre no-op,
-        //                     %F/%H restent à 0 — limite documentée)
+        //                     %F/%H restent à 0 - limite documentée)
         //    - Type contrat → ContratInterim.TypeContrat (enum
         //                     ContratInterimType, ex. PremiereMission,
         //                     Renouvellement…)
@@ -487,7 +487,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
                     if (contratActif == null) return false;
 
-                    // V1.1 Sprint 1C.3 — Filtre Site V1.1 (au lieu de Station legacy)
+                    // V1.1 Sprint 1C.3 - Filtre Site V1.1 (au lieu de Station legacy)
                     if (filter.SiteOid.HasValue &&
                         contratActif.Site?.Oid != filter.SiteOid.Value)
                         return false;
@@ -571,7 +571,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         /// Retourne le contrat « actif » d'un intérimaire à une date donnée :
         ///   DateDebut > 1900 ET DateDebut <= atDate
         ///   ET (DateFin < 1900 [= NULL/sentinelle XPO] OU DateFin > atDate)
-        /// Aligné sur la définition métier "actif" SQL spec — sans contrainte
+        /// Aligné sur la définition métier "actif" SQL spec - sans contrainte
         /// sur le Statut (les données seed peuvent être incohérentes).
         /// </summary>
         private static ContratInterim? GetContratActif(Interimaire i, DateTime atDate)
@@ -596,7 +596,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
         private static List<BarItemDto> ComputeBarSegmentExterne(IList<Interimaire> actifs, DateTime dateRef)
         {
-            // V1.1 Sprint 1D — Plus de fallback legacy : Site V1.1 obligatoire.
+            // V1.1 Sprint 1D - Plus de fallback legacy : Site V1.1 obligatoire.
             return actifs
                 .Select(i =>
                 {
@@ -712,7 +712,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         /// <summary>
-        /// Stations service (réseau ELTON Oil) — utilisées comme « Site » pour
+        /// Stations service (réseau ELTON Oil) - utilisées comme « Site » pour
         /// le périmètre EXTERNE (intérimaires). Ex. DIAMNIADIO, MERMOZ, VDN…
         /// </summary>
         public List<StationService> GetStationsServiceActives(IObjectSpace os)

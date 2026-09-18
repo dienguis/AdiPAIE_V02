@@ -134,7 +134,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         [NonPersistent]
-        public string DisplayName => $"{Salarie?.LastName} – {Titre}";
+        public string DisplayName => $"{Salarie?.LastName} - {Titre}";
 
         [NonPersistent, XafDisplayName("Non lue")]
         public bool EstNonLue => Statut == NotificationStatut.NonLue;

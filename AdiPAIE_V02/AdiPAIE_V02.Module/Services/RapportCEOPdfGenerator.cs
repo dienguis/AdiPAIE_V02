@@ -188,7 +188,7 @@ tr:nth-child(even) td { background: #f8f9fb; }
     <h1>RAPPORT EXÉCUTIF</h1>
     <h2>{Esc(d.EntrepriseNom)}</h2>
     <div class=""period"">{NomMois(d.Mois)} {d.Annee}</div>
-    <div class=""date-gen"">Généré le {d.DateGeneration:dd/MM/yyyy à HH:mm} — Document confidentiel</div>
+    <div class=""date-gen"">Généré le {d.DateGeneration:dd/MM/yyyy à HH:mm} - Document confidentiel</div>
 </div>";
         }
 
@@ -227,7 +227,7 @@ tr:nth-child(even) td { background: #f8f9fb; }
     <div class=""section-subtitle"">Évolution de l'effectif (12 derniers mois)</div>
     {TableEvolution(d)}
 
-    <div class=""page-footer"">Rapport Exécutif CEO — {Esc(d.EntrepriseNom)} — {d.PeriodeLibelle} — Page 2</div>
+    <div class=""page-footer"">Rapport Exécutif CEO - {Esc(d.EntrepriseNom)} - {d.PeriodeLibelle} - Page 2</div>
 </div>";
         }
 
@@ -275,7 +275,7 @@ tr:nth-child(even) td { background: #f8f9fb; }
             sb.Append(TableEvolutionMasse(d));
 
             sb.Append($@"
-    <div class=""page-footer"">Rapport Exécutif CEO — {Esc(d.EntrepriseNom)} — {d.PeriodeLibelle} — Page 3</div>
+    <div class=""page-footer"">Rapport Exécutif CEO - {Esc(d.EntrepriseNom)} - {d.PeriodeLibelle} - Page 3</div>
 </div>");
             return sb.ToString();
         }
@@ -301,7 +301,7 @@ tr:nth-child(even) td { background: #f8f9fb; }
     <div class=""section-subtitle"">Par tranche d'ancienneté</div>
     {BuildRepartTable(d.ParTrancheAnciennete)}
 
-    <div class=""page-footer"">Rapport Exécutif CEO — {Esc(d.EntrepriseNom)} — {d.PeriodeLibelle} — Page 4</div>
+    <div class=""page-footer"">Rapport Exécutif CEO - {Esc(d.EntrepriseNom)} - {d.PeriodeLibelle} - Page 4</div>
 </div>");
             return sb.ToString();
         }
@@ -364,7 +364,7 @@ tr:nth-child(even) td { background: #f8f9fb; }
             }
 
             sb.Append($@"
-    <div class=""page-footer"">Rapport Exécutif CEO — {Esc(d.EntrepriseNom)} — {d.PeriodeLibelle} — Page 5</div>
+    <div class=""page-footer"">Rapport Exécutif CEO - {Esc(d.EntrepriseNom)} - {d.PeriodeLibelle} - Page 5</div>
 </div>");
             return sb.ToString();
         }
@@ -423,7 +423,7 @@ tr:nth-child(even) td { background: #f8f9fb; }
         Les données reflètent la situation au {d.DateGeneration:dd/MM/yyyy}. Document strictement confidentiel.
     </div>
 
-    <div class=""page-footer"">Rapport Exécutif CEO — {Esc(d.EntrepriseNom)} — {d.PeriodeLibelle} — Page 6</div>
+    <div class=""page-footer"">Rapport Exécutif CEO - {Esc(d.EntrepriseNom)} - {d.PeriodeLibelle} - Page 6</div>
 </div>");
             return sb.ToString();
         }

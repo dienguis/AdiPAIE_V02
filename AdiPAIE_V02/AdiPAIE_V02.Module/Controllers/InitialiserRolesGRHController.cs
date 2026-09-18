@@ -16,7 +16,7 @@ namespace AdiPAIE_V02.Module.Controllers
     /// Idempotent : si un rôle existe déjà, ses permissions sont enrichies
     /// sans duplication ni suppression des permissions existantes.
     ///
-    /// V1.5.2 (QW1) — La logique métier est extraite dans la classe statique
+    /// V1.5.2 (QW1) - La logique métier est extraite dans la classe statique
     /// <see cref="RolesGRHInitializer"/> pour pouvoir être appelée aussi
     /// depuis l'<see cref="DatabaseUpdate.Updater"/> au démarrage de l'app.
     /// Le controller XAF garde uniquement la responsabilité UI (bouton +
@@ -38,7 +38,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 ToolTip = "Crée automatiquement les 8 rôles GRH "
                            + "(Employe, Responsable, AssistantRH, AssistantCommercial, RH, DAF, DG, Comptable) "
                            + "avec toutes leurs permissions. "
-                           + "Idempotent — sans écrasement des personnalisations.",
+                           + "Idempotent - sans écrasement des personnalisations.",
                 ConfirmationMessage =
                     "Cette action va créer (ou compléter) les 8 rôles GRH :\n"
                     + "Employe, Responsable, AssistantRH, AssistantCommercial, RH, DAF, "
@@ -72,7 +72,7 @@ namespace AdiPAIE_V02.Module.Controllers
     }
 
     /// <summary>
-    /// V1.5.2 (QW1) — Logique pure de création/maj des rôles GRH et de leurs
+    /// V1.5.2 (QW1) - Logique pure de création/maj des rôles GRH et de leurs
     /// permissions. Réutilisable depuis :
     ///   - <see cref="InitialiserRolesGRHController"/> (action UI manuelle)
     ///   - <see cref="DatabaseUpdate.Updater"/> (auto-init au démarrage)
@@ -87,7 +87,7 @@ namespace AdiPAIE_V02.Module.Controllers
         /// Crée ou complète tous les rôles GRH (Employe, Responsable, AssistantRH,
         /// AssistantCommercial, RH, DAF, DG, Comptable). Commit l'ObjectSpace à la fin.
         ///
-        /// V1.7.2 — Ajout du rôle DG (Directeur Général) :
+        /// V1.7.2 - Ajout du rôle DG (Directeur Général) :
         ///   - Lecture complète sur le métier (paie, congés, entretiens, etc.)
         ///   - Lecture des dashboards stratégiques
         ///   - Validation top-down sur DossierOffboarding (clôture définitive)
@@ -176,13 +176,13 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<CategorieFraisMission>(assistant, "r");
             AddType<NotificationSalarie>(assistant, "rc");
 
-            // V1.5 — Workflow Mouvements Intérim : 1ʳᵉ étape de validation
+            // V1.5 - Workflow Mouvements Intérim : 1ʳᵉ étape de validation
             AddType<DemandeMouvementInterim>(assistant, "rw");
             AddMember<DemandeMouvementInterim>(os, assistant,
                 "AssistantRHValidationUser;AssistantRHDate;AssistantRHCommentaire",
                 write: true, ref nbPerms);
 
-            // V1.7.2 — Élargissement AssistantRH aux modules opérationnels
+            // V1.7.2 - Élargissement AssistantRH aux modules opérationnels
             //   Intérim : voir fiches, contrats, mouvements, sociétés, alertes
             AddType<Interimaire>(assistant, "rwc"); nbPerms += 3;
             AddType<ContratInterim>(assistant, "rwc"); nbPerms += 3;
@@ -231,7 +231,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             // ══ RH ═══════════════════════════════════════════════
             var rh = GetOrCreate(os, "RH", ref nbRoles);
-            // V1.8 — Ajout 'c' (Create) + 'd' (Delete) : le RH doit pouvoir
+            // V1.8 - Ajout 'c' (Create) + 'd' (Delete) : le RH doit pouvoir
             // créer ses propres demandes (congé, déplacement, attestation)
             // sans cumuler le rôle Employé. Cf. ticket "décombiner RH+Employé".
             AddType<DemandeDeplacement>(rh, "rwcd");
@@ -241,7 +241,7 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<LigneFraisMission>(rh, "rwcd");
             AddType<LigneCircuit>(rh, "rw");
 
-            // V1.8 — Idem pour les congés : RH peut créer sa propre demande
+            // V1.8 - Idem pour les congés : RH peut créer sa propre demande
             AddType<CongeDemande>(rh, "rwcd");
             AddMember<CongeDemande>(os, rh,
                 "DateReprise;StatutRH;CommentairesRH",
@@ -249,7 +249,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             AddType<DemandeAttestation>(rh, "rwcd");
 
-            // V1.5 — Workflow Mouvements Intérim
+            // V1.5 - Workflow Mouvements Intérim
             AddType<DemandeMouvementInterim>(rh, "rwcd");
 
             AddType<EntretienAnnuel>(rh, "rw");
@@ -264,17 +264,17 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<DossierDocument>(rh, "rwcd");
             AddType<DossierSalarie>(rh, "rwcd");
 
-            // V1.6.2 — Permissions Bulletin + Salarie pour RH (manquaient)
+            // V1.6.2 - Permissions Bulletin + Salarie pour RH (manquaient)
             // Sans ces accès, la "Consultation bulletins" RH n'affichait que
             // Statut + NetAPayer (Salarie navigation hidden, BrutFiscal/Social hidden).
             // RH a besoin du contexte salarié complet pour gérer la paie.
             // IMPORTANT : après ces ajouts, le user RH doit se DECONNECTER puis
             // se RECONNECTER (XAF cache les permissions au login).
-            // NB: AddType est idempotent côté XAF — re-runs sans effet si déjà présent.
+            // NB: AddType est idempotent côté XAF - re-runs sans effet si déjà présent.
             // On incrémente nbPerms pour avoir un compteur visible (premier run).
             AddType<Salarie>(rh, "rw");      nbPerms += 2; // Read + Write
             AddType<Bulletin>(rh, "rwc");    nbPerms += 3; // Read + Write + Create
-            // V1.8 — Ajout 'c' (Create) + 'd' (Delete) sur BulletinLigne :
+            // V1.8 - Ajout 'c' (Create) + 'd' (Delete) sur BulletinLigne :
             // sans Create, le bouton "New" est masqué dans la grille Lignes
             // → RH ne peut pas ajouter manuellement une rubrique (ex: avantage
             // en nature sur un bulletin de congé personnalisé).
@@ -282,24 +282,24 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<PeriodePaie>(rh, "rw");  nbPerms += 2;
             AddType<Conjoint>(rh, "rwcd");   nbPerms += 4; // Famille (TRIMF)
             AddType<Enfant>(rh, "rwcd");     nbPerms += 4; // Famille V1.6
-            // V1.7 — Annuaire famille hiérarchique
+            // V1.7 - Annuaire famille hiérarchique
             AddType<AdiPAIE_V02.Module.NonPersistent.FamilleAnnuaire>(rh, "r");
             nbPerms += 1;
-            // V1.7 — Provision congés annuelle
+            // V1.7 - Provision congés annuelle
             AddType<AdiPAIE_V02.Module.NonPersistent.ProvisionConges>(rh, "r");
             nbPerms += 1;
 
-            // V1.7.2 — Navigation permissions (menus principaux)
+            // V1.7.2 - Navigation permissions (menus principaux)
             AddNavManagerMenus(rh);
             nbPerms += 30;
 
-            // V1.8 — Le masquage de "Mon espace" pour RH/DAF/DG est fait
+            // V1.8 - Le masquage de "Mon espace" pour RH/DAF/DG est fait
             // au runtime par HideEspaceSalarieController (le Deny déclaratif
             // ne fonctionne pas en XAF Blazor quand Employé a Allow).
 
             // ══ DAF ══════════════════════════════════════════════
             var daf = GetOrCreate(os, "DAF", ref nbRoles);
-            // V1.8 — DAF peut créer/éditer ses propres demandes de déplacement
+            // V1.8 - DAF peut créer/éditer ses propres demandes de déplacement
             // (avant : "r" lecture seule → le DAF devait demander au RH de
             // saisir sa demande pour lui). Validation DAF reste possible
             // via les champs ValideParDAF/DateValidationDAF.
@@ -308,7 +308,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 "ValideParDAF;DateValidationDAF",
                 write: true, ref nbPerms);
 
-            // V1.5 — Workflow Mouvements Intérim : DAF approuve si OptionApprobationDAF
+            // V1.5 - Workflow Mouvements Intérim : DAF approuve si OptionApprobationDAF
             AddType<DemandeMouvementInterim>(daf, "rw");
             AddMember<DemandeMouvementInterim>(os, daf,
                 "DAFValidationUser;DAFDate;DAFCommentaire",
@@ -320,14 +320,14 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<LigneFraisMission>(daf, "r");
             AddType<LigneCircuit>(daf, "r");
 
-            // V1.7.2 — DAF voit aussi les rubriques pour validation
+            // V1.7.2 - DAF voit aussi les rubriques pour validation
             AddType<Rubrique>(daf, "r"); nbPerms += 1;
             AddType<RubriqueTypeRef>(daf, "r"); nbPerms += 1;
             AddType<Salarie>(daf, "r"); nbPerms += 1;
             AddType<Bulletin>(daf, "r"); nbPerms += 1;
             AddType<BulletinLigne>(daf, "r"); nbPerms += 1;
             AddType<Pret>(daf, "r"); nbPerms += 1;
-            // V1.8 — DAF peut créer/éditer ses propres demandes de congé
+            // V1.8 - DAF peut créer/éditer ses propres demandes de congé
             // (avant : "r" lecture seule)
             AddType<CongeDemande>(daf, "rwcd"); nbPerms += 4;
             // Idem pour les attestations
@@ -338,12 +338,12 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<AdiPAIE_V02.Module.NonPersistent.RapportGratification>(daf, "r"); nbPerms += 1;
             AddType<AdiPAIE_V02.Module.BusinessObjects.RH.DossierOffboarding>(daf, "rw"); nbPerms += 2;
 
-            // V1.7.2 — Navigation permissions (menus principaux)
+            // V1.7.2 - Navigation permissions (menus principaux)
             AddNavManagerMenus(daf);
             nbPerms += 30;
 
             // ══ DG (Directeur Général) ═══════════════════════════
-            // V1.7.2 — Profil de SUPERVISION et VALIDATION STRATÉGIQUE.
+            // V1.7.2 - Profil de SUPERVISION et VALIDATION STRATÉGIQUE.
             // Le DG ne gère pas l'opérationnel (RH/DAF s'en occupent) mais
             // a une vision LECTURE complète sur les sujets sensibles et peut
             // valider/approuver certains workflows critiques au plus haut niveau.
@@ -367,7 +367,7 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<PeriodePaie>(dg, "r");               nbPerms += 1;
             AddType<Conjoint>(dg, "r");                  nbPerms += 1;
             AddType<Enfant>(dg, "r");                    nbPerms += 1;
-            // V1.8 — DG peut créer/éditer ses propres demandes personnelles
+            // V1.8 - DG peut créer/éditer ses propres demandes personnelles
             // (congé, attestation, déplacement) sans cumuler le rôle Employé.
             // Lecture sur les autres salariés (vue 360°) conservée.
             AddType<CongeDemande>(dg, "rwcd");           nbPerms += 4;
@@ -378,14 +378,14 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<DemandeDeplacement>(dg, "rwcd");     nbPerms += 4;
             AddType<DemandeMouvementInterim>(dg, "r");   nbPerms += 1;
 
-            // V1.7 — Annuaire famille hiérarchique
+            // V1.7 - Annuaire famille hiérarchique
             AddType<AdiPAIE_V02.Module.NonPersistent.FamilleAnnuaire>(dg, "r");
             nbPerms += 1;
-            // V1.7 — Provision congés annuelle
+            // V1.7 - Provision congés annuelle
             AddType<AdiPAIE_V02.Module.NonPersistent.ProvisionConges>(dg, "r");
             nbPerms += 1;
 
-            // V1.7.2 — 13ième mois + Gratifications + Provisions + Reporting
+            // V1.7.2 - 13ième mois + Gratifications + Provisions + Reporting
             AddType<TreiziemeMois>(dg, "r");             nbPerms += 1;
             AddType<Gratification>(dg, "r");             nbPerms += 1;
             AddType<AdiPAIE_V02.Module.NonPersistent.ProvisionTreiziemeMois>(dg, "r");
@@ -401,7 +401,7 @@ namespace AdiPAIE_V02.Module.Controllers
             // Notifications (visibles mais non éditables)
             AddType<NotificationSalarie>(dg, "r");       nbPerms += 1;
 
-            // V1.7.2 — Navigation permissions (menus principaux)
+            // V1.7.2 - Navigation permissions (menus principaux)
             // Sans ces permissions, le DG ne voit que "Mon espace" (rôle Employe).
             AddNavManagerMenus(dg);
             nbPerms += 30;
@@ -467,7 +467,7 @@ namespace AdiPAIE_V02.Module.Controllers
         }
 
         /// <summary>
-        /// V1.7.2 — Helper pour ajouter une permission Navigation sur un menu.
+        /// V1.7.2 - Helper pour ajouter une permission Navigation sur un menu.
         /// Indispensable pour que les rôles métier (DG/DAF/RH) VOIENT leurs menus
         /// dans la sidebar. Sans ces permissions, l'utilisateur ne voit que son
         /// espace personnel (Mon espace) même s'il a Read sur les Types.
@@ -480,7 +480,7 @@ namespace AdiPAIE_V02.Module.Controllers
         }
 
         /// <summary>
-        /// V1.8 — Refuse explicitement un item de menu pour un rôle.
+        /// V1.8 - Refuse explicitement un item de menu pour un rôle.
         /// Utilisé pour masquer un menu à un rôle, MÊME quand un autre rôle
         /// combiné l'autoriserait (Deny gagne sur Allow en XAF).
         ///
@@ -494,23 +494,23 @@ namespace AdiPAIE_V02.Module.Controllers
         }
 
         /// <summary>
-        /// V1.8 — Tentative initiale via Navigation Permissions Deny.
+        /// V1.8 - Tentative initiale via Navigation Permissions Deny.
         /// CONSTAT : Allow gagne sur Deny en XAF Blazor pour les Navigation
         /// Permissions des sub-items quand un autre rôle (Employé) a Allow.
         /// Le masquage est donc fait via HideEspaceSalarieController côté
         /// runtime (modification du Model.NavigationItems après login).
         ///
-        /// Méthode laissée en place mais ne fait plus rien — supprimable
+        /// Méthode laissée en place mais ne fait plus rien - supprimable
         /// à terme. Les rôles RH/DAF/DG n'appellent plus cette méthode.
         /// </summary>
         private static void DenyEspaceSalarie(PermissionPolicyRole role, ref int nbPerms)
         {
-            // Plus utilisée — masquage fait via HideEspaceSalarieController.
+            // Plus utilisée - masquage fait via HideEspaceSalarieController.
             // Body vide pour éviter de polluer la BDD avec des Deny inutiles.
         }
 
         /// <summary>
-        /// V1.7.2 — Bloc de navigation permissions standard pour les rôles
+        /// V1.7.2 - Bloc de navigation permissions standard pour les rôles
         /// "managers métier" (DG, DAF, RH). Accorde l'accès aux menus principaux
         /// de SunuPaie. Les sub-items hérités sont aussi accessibles.
         /// </summary>
@@ -549,7 +549,7 @@ namespace AdiPAIE_V02.Module.Controllers
             AddNav(role, @"Application/NavigationItems/Items/GRH_Conges/Items/JourFerie_ListView");
 
             // Menu TABLEAUX DE BORD (dashboards stratégiques)
-            // V1.7.2 — Le vrai ID en XAF est "GRH - Tableaux de Bord" (cf. xafml).
+            // V1.7.2 - Le vrai ID en XAF est "GRH - Tableaux de Bord" (cf. xafml).
             // "Tableaux de Bord" sans préfixe est un groupe legacy masqué.
             AddNav(role, @"Application/NavigationItems/Items/GRH - Tableaux de Bord");
 
@@ -564,7 +564,7 @@ namespace AdiPAIE_V02.Module.Controllers
         }
 
         /// <summary>
-        /// V1.7.2 — Navigation permissions ciblées sur les menus
+        /// V1.7.2 - Navigation permissions ciblées sur les menus
         /// Formation/Évaluation et Intérimaires (avec sous-menus).
         /// Utilisé pour les rôles "opérationnels" qui n'ont PAS accès aux
         /// menus Paie/Tableaux de Bord (AssistantRH par exemple).
@@ -593,7 +593,7 @@ namespace AdiPAIE_V02.Module.Controllers
         }
 
         /// <summary>
-        /// V1.7.2 — SÉCURITÉ PAIE : masque les champs salariaux sensibles
+        /// V1.7.2 - SÉCURITÉ PAIE : masque les champs salariaux sensibles
         /// pour les rôles non habilités à voir les informations de paie.
         ///
         /// RÈGLE MÉTIER ELTON (validée 2026-05) :

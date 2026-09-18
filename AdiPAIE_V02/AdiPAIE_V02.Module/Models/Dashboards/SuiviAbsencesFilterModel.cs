@@ -1,5 +1,5 @@
 // =============================================================================
-//  SuiviAbsencesFilterModel.cs — V1.3.2 (mai 2026)
+//  SuiviAbsencesFilterModel.cs - V1.3.2 (mai 2026)
 //
 //  REFONTE pour Excel-style multi-sélection :
 //    - Annees (multi)

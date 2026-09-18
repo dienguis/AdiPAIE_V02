@@ -1,6 +1,6 @@
 // =============================================================================
 //  DashboardPdfExportService.cs
-//  Implémentation QuestPDF — export .pdf pour les 6 tableaux de bord RH.
+//  Implémentation QuestPDF - export .pdf pour les 6 tableaux de bord RH.
 //
 //  Convention :
 //    - Page A4 paysage avec en-tête navy ELTON (logo + titre + sous-titre)
@@ -53,7 +53,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             var anneeLabel = (filter.Annees != null && filter.Annees.Count > 0)
                 ? string.Join("-", filter.Annees) : DateTime.Today.Year.ToString();
 
-            var pdf = BuildDocument("Tableau N°1 — Effectif détaillé", $"Année {anneeLabel}",
+            var pdf = BuildDocument("Tableau N°1 - Effectif détaillé", $"Année {anneeLabel}",
                 page =>
                 {
                     page.Item().Element(c => Kpi(c, "Effectif total", dto.EffectifTotal.ToString("N0", Fr)));
@@ -86,7 +86,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             AnalyseEffectifDto dto, AnalyseEffectifFilterModel filter)
         {
             var pdf = BuildDocument(
-                "Tableau N°2 — Analyse de l'Effectif",
+                "Tableau N°2 - Analyse de l'Effectif",
                 $"{filter.Personnel} · Mode {filter.Mode} · Année {filter.Annee}",
                 page =>
                 {
@@ -119,7 +119,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             MouvementsDto dto, MouvementsFilterModel filter)
         {
             var pdf = BuildDocument(
-                "Tableau N°3 — Mouvements (Arrivées / Départs)",
+                "Tableau N°3 - Mouvements (Arrivées / Départs)",
                 $"{filter.Personnel} · Année {filter.Annee}",
                 page =>
                 {
@@ -157,7 +157,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             RemunerationDto dto, RemunerationFilterModel filter)
         {
             var pdf = BuildDocument(
-                "Tableau N°4 — Rémunération (Égalité des salaires)",
+                "Tableau N°4 - Rémunération (Égalité des salaires)",
                 $"{filter.Personnel} · {filter.Mode} · Année {filter.Annee}",
                 page =>
                 {
@@ -212,7 +212,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 ? string.Join(",", filter.Annees) : DateTime.Today.Year.ToString();
 
             var pdf = BuildDocument(
-                "Tableau N°5 — Suivi des Absences",
+                "Tableau N°5 - Suivi des Absences",
                 $"INTERNE · {anneesStr} · {(filter.InclureEnAttente ? "Avec En attente" : "Accordées seules")}",
                 page =>
                 {
@@ -268,7 +268,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             BilanSocialDto dto, BilanSocialFilterModel filter)
         {
             var pdf = BuildDocument(
-                "Tableau N°6 — Bilan Social Mensuel",
+                "Tableau N°6 - Bilan Social Mensuel",
                 $"INTERNE · Synthèse DTSS · Année {filter.Annee}",
                 page =>
                 {
@@ -285,7 +285,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                         r.RelativeItem().Element(c => Kpi(c, "Complétude data",   Pct(dto.Kpis.CompletudeData)));
                     });
 
-                    page.Item().Element(c => SectionTitle(c, "Récapitulatif mensuel — 12 mois"));
+                    page.Item().Element(c => SectionTitle(c, "Récapitulatif mensuel - 12 mois"));
                     page.Item().Table(t =>
                     {
                         t.ColumnsDefinition(cd =>
@@ -303,8 +303,8 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                         Th(t, "Mois", "Effectif", "Embauches", "Départs", "Masse Sal.", "Charges Pat.", "Coût Empl.", "Emp. Abs.", "J. Abs.");
                         foreach (var m in dto.Mois)
                         {
-                            string ToStr(int i) => i > 0 ? i.ToString("N0", Fr) : "—";
-                            string ToStrM(decimal d) => d > 0 ? Fcfa(d) : "—";
+                            string ToStr(int i) => i > 0 ? i.ToString("N0", Fr) : "-";
+                            string ToStrM(decimal d) => d > 0 ? Fcfa(d) : "-";
 
                             if (m.EstTotal)
                                 TdTotal(t, m.Libelle, m.EffectifFinMois.ToString("N0", Fr),
@@ -321,7 +321,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
                     if (dto.DontInterimaires != null && dto.DontInterimaires.NbContrats > 0)
                     {
-                        page.Item().Element(c => SectionTitle(c, "Complément — dont Intérimaires (hors DTSS officiel)"));
+                        page.Item().Element(c => SectionTitle(c, "Complément - dont Intérimaires (hors DTSS officiel)"));
                         page.Item().Table(t =>
                         {
                             t.ColumnsDefinition(cd => { cd.RelativeColumn(2); cd.RelativeColumn(); cd.RelativeColumn(); cd.RelativeColumn(); cd.RelativeColumn(); cd.RelativeColumn(2); });
@@ -488,8 +488,8 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 foreach (var r in rows)
                     Td(t, r.Libelle, Fcfa(r.Total), Fcfa(r.CoutMoyen),
                         Fcfa(r.Min), Fcfa(r.Max), Fcfa(r.Moyenne),
-                        r.MoyFemme.HasValue ? Fcfa(r.MoyFemme.Value) : "—",
-                        r.MoyHomme.HasValue ? Fcfa(r.MoyHomme.Value) : "—");
+                        r.MoyFemme.HasValue ? Fcfa(r.MoyFemme.Value) : "-",
+                        r.MoyHomme.HasValue ? Fcfa(r.MoyHomme.Value) : "-");
             });
         }
 

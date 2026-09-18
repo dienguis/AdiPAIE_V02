@@ -41,7 +41,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeStatut,Traitee# "
                  + "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeStatut,Rejetee#",
         TargetItems = "Nature;Motif;DateSouhaitee", Enabled = false)]
-    // V1.6.2 — Badges colorés sur Statut (workflow attestation)
+    // V1.6.2 - Badges colorés sur Statut (workflow attestation)
     [Appearance("Demande_Badge_EnAttente",
         TargetItems = "Statut",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+DemandeStatut,EnAttenteN1#"
@@ -186,7 +186,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
    
         [NonPersistent]
         public string DisplayName =>
-       $"{Salarie?.LastName} – {Nature} – {DateDemande:dd/MM/yyyy}";
+       $"{Salarie?.LastName} - {Nature} - {DateDemande:dd/MM/yyyy}";
 
         // ── Traçabilité ───────────────────────────────────────────
         [Size(50)]

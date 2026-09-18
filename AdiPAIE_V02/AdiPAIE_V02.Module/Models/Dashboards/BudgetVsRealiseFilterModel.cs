@@ -1,8 +1,8 @@
 // =============================================================================
-//  BudgetVsRealiseFilterModel.cs — V1.2.1 (mai 2026)
+//  BudgetVsRealiseFilterModel.cs - V1.2.1 (mai 2026)
 //
 //  Filtre simplifié : Année + (optionnel) Site.
-//  Plus de filtre Mois ni Seuil — la consultation est annuelle.
+//  Plus de filtre Mois ni Seuil - la consultation est annuelle.
 // =============================================================================
 
 using System;

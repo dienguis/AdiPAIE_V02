@@ -1,5 +1,5 @@
 // =============================================================================
-//  UniteOrganisationnelle.cs — V1.1 (mai 2026)
+//  UniteOrganisationnelle.cs - V1.1 (mai 2026)
 //
 //  Entité hiérarchique récursive représentant la sous-structure d'un Site.
 //  Permet de modéliser :
@@ -187,7 +187,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             get
             {
                 if (string.IsNullOrWhiteSpace(Nom)) return Code ?? "(nouveau)";
-                return Site != null ? $"{Nom} — {Site.Nom}" : Nom;
+                return Site != null ? $"{Nom} - {Site.Nom}" : Nom;
             }
         }
 

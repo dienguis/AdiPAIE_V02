@@ -18,12 +18,12 @@ namespace AdiPAIE_V02.Module.Controllers
 {
     /// <summary>
     /// Controller placé sur le DetailView du Centre d'imports.
-    /// (était initialement sur la ListView Salariés — déplacé pour regrouper
+    /// (était initialement sur la ListView Salariés - déplacé pour regrouper
     ///  tous les imports en un seul endroit et désencombrer la liste salariés)
     ///
     /// Deux actions (catégorie "ImportsHub") :
-    ///   1. « Importer Salariés » — popup avec FileData + ImportSalarieService.Importer()
-    ///   2. « Modèle Salariés »   — télécharge le modèle Excel
+    ///   1. « Importer Salariés » - popup avec FileData + ImportSalarieService.Importer()
+    ///   2. « Modèle Salariés »   - télécharge le modèle Excel
     /// </summary>
     public class ImportSalarieController
         : ObjectViewController<DetailView, CentreImports>

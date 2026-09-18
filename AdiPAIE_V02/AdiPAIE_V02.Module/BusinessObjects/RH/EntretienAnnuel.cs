@@ -48,7 +48,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [Appearance("Entretien_Style_Cloture", TargetItems = "*",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+EntretienStatut,Cloture#",
         FontColor = "Gray", FontStyle = DXFontStyle.Italic)]
-    // V1.6.2 — Badges colorés sur Statut (workflow entretien annuel)
+    // V1.6.2 - Badges colorés sur Statut (workflow entretien annuel)
     [Appearance("Entretien_Badge_Brouillon",
         TargetItems = "Statut",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+EntretienStatut,Brouillon#"
@@ -85,7 +85,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         [Association("CampagneEvaluation-Entretiens")]
         [RuleRequiredField]
         [XafDisplayName("Campagne")]
-        // Campagne — ne doit pas être changée
+        // Campagne - ne doit pas être changée
         [ModelDefault("AllowEdit", "False")]
         public CampagneEvaluation Campagne
         {
@@ -107,7 +107,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         /// <summary>Manager / évaluateur (peut être un autre Salarie ou un nom libre)</summary>
         [Association("Evaluateur-Entretiens")]
         [XafDisplayName("Évaluateur (N+1)")]
-        // Évaluateur — ne doit pas être modifié par le salarié
+        // Évaluateur - ne doit pas être modifié par le salarié
         [ModelDefault("AllowEdit", "False")]
         public Salarie Evaluateur
         {
@@ -172,7 +172,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
 
         // ── Affichage ─────────────────────────────────────────────
-        [PersistentAlias("Concat(Salarie.LastName, ' ', Salarie.FirstName, ' – ', ToStr(Campagne.Annee))")]
+        [PersistentAlias("Concat(Salarie.LastName, ' ', Salarie.FirstName, ' - ', ToStr(Campagne.Annee))")]
         public string DisplayName => (string)EvaluateAlias(nameof(DisplayName));
 
         // ── Dates ─────────────────────────────────────────────────
@@ -284,7 +284,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         // ── Score global calculé ──────────────────────────────────
         /// <summary>
-        /// Score pondéré global (0–5), calculé à partir des lignes d'évaluation.
+        /// Score pondéré global (0-5), calculé à partir des lignes d'évaluation.
         /// Stocké lors du recalcul manuel ou à la validation.
         /// </summary>
         decimal scoreGlobal;
@@ -351,7 +351,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         // ── Workflow ──────────────────────────────────────────────
-        /// <summary>RH fixe la date — Brouillon → PlanifiéRH</summary>
+        /// <summary>RH fixe la date - Brouillon → PlanifiéRH</summary>
         public void Planifier(DateTime date)
         {
             if (Statut != EntretienStatut.Brouillon)
@@ -361,7 +361,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         /// <summary>
-        /// RH lance l'évaluation — PlanifiéRH → SaisieManager.
+        /// RH lance l'évaluation - PlanifiéRH → SaisieManager.
         /// Résout la chaîne hiérarchique (snapshot N+1 / N+2).
         /// Notifie le N+1.
         /// </summary>
@@ -385,7 +385,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
 
         /// <summary>
-        /// N+1 soumet l'évaluation au salarié — SaisieManager → SaisieSalarie.
+        /// N+1 soumet l'évaluation au salarié - SaisieManager → SaisieSalarie.
         /// Notifie le salarié.
         /// </summary>
         public void SoumettreAuSalarie()
@@ -396,7 +396,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         /// <summary>
-        /// Salarié soumet ses observations — SaisieSalarie → ValidationN1.
+        /// Salarié soumet ses observations - SaisieSalarie → ValidationN1.
         /// Notifie le N+1.
         /// </summary>
         public void SoumettreObservations()
@@ -407,7 +407,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         /// <summary>
-        /// N+1 valide les observations — ValidationN1 → EnAttenteN2 ou SoumiseRH.
+        /// N+1 valide les observations - ValidationN1 → EnAttenteN2 ou SoumiseRH.
         /// </summary>
         public void ValiderObservationsN1()
         {
@@ -421,7 +421,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         /// <summary>
-        /// N+2 valide — EnAttenteN2 → SoumiseRH.
+        /// N+2 valide - EnAttenteN2 → SoumiseRH.
         /// </summary>
         public void ValiderN2()
         {
@@ -433,7 +433,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
 
         /// <summary>
-        /// N+2 rejette — EnAttenteN2 → retour SaisieManager pour correction N+1.
+        /// N+2 rejette - EnAttenteN2 → retour SaisieManager pour correction N+1.
         /// </summary>
         public void RejeterN2(string motif = null)
         {
@@ -448,7 +448,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             Statut = EntretienStatut.SaisieManager;
         }
 
-        /// <summary>RH clôture — SoumiseRH → Clôturé.</summary>
+        /// <summary>RH clôture - SoumiseRH → Clôturé.</summary>
         public void Cloturer()
         {
             if (Statut == EntretienStatut.Cloture)

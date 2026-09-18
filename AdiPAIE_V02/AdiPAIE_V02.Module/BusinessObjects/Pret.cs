@@ -18,10 +18,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 {
     //[NavigationItem("Traitement")]
     [DefaultClassOptions]
-    [ImageName("BO_Money_Bag")]  // V1.1 — icône XAF native (prêt = sac d'argent)
+    [ImageName("BO_Money_Bag")]  // V1.1 - icône XAF native (prêt = sac d'argent)
     [XafDisplayName("Prêt salarié")]
     [DefaultProperty(nameof(DisplayName))]
-    // V1.6.2 — Badges colorés sur Statut (vie du prêt)
+    // V1.6.2 - Badges colorés sur Statut (vie du prêt)
     [Appearance("Pret_Badge_Brouillon",
         TargetItems = "Statut",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+PretStatut,Brouillon#",
@@ -70,7 +70,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         private string intitule;
 
-        // V1.1 — DisplayName humain : Intitulé OU "Salarié — Nature Montant FCFA (Réf)"
+        // V1.1 - DisplayName humain : Intitulé OU "Salarié - Nature Montant FCFA (Réf)"
         // Avant : utilisait l'Oid (Guid) en fallback ce qui affichait un identifiant moche
         // dans les list views.
         [NonPersistent]
@@ -86,8 +86,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 var nat  = Nature == PretNature.AvanceSalaire ? "Avance" : "Prêt";
                 var mtnt = MontantPrincipal.ToString("N0");
                 return string.IsNullOrWhiteSpace(Reference)
-                    ? $"{sal} — {nat} {mtnt} FCFA"
-                    : $"{sal} — {nat} {mtnt} FCFA ({Reference})";
+                    ? $"{sal} - {nat} {mtnt} FCFA"
+                    : $"{sal} - {nat} {mtnt} FCFA ({Reference})";
             }
         }
 

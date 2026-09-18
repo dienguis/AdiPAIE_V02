@@ -1,5 +1,5 @@
 // =============================================================================
-//  ConformiteSenegalDashboardService.cs — V1.2 Sprint 5 (mai 2026)
+//  ConformiteSenegalDashboardService.cs - V1.2 Sprint 5 (mai 2026)
 //
 //  Calcule 9 indicateurs de conformité réglementaire Sénégal :
 //    1. SMIG respecté (60 000 FCFA / mois)
@@ -13,7 +13,7 @@
 //    9. Déclarations IPM du dernier trimestre
 //
 //  ⚠️ Les indicateurs 7-9 (déclarations) et 6 (heures sup) nécessitent des
-//  entités dédiées pas encore présentes en V1.2 — affichés "NonEvalue" pour
+//  entités dédiées pas encore présentes en V1.2 - affichés "NonEvalue" pour
 //  l'instant. Cf. roadmap V1.2.1 dans MISSION_STATE.
 // =============================================================================
 

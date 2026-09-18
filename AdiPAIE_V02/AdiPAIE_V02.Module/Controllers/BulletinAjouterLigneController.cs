@@ -1,5 +1,5 @@
 // =============================================================================
-//  BulletinAjouterLigneController.cs — V1.8 (juin 2026)
+//  BulletinAjouterLigneController.cs - V1.8 (juin 2026)
 //
 //  Workaround pour le bug XAF Blazor : le bouton "Nouveau" sur la grille
 //  des lignes (Aggregated collection BulletinLigne dans Bulletin.Lignes)
@@ -67,7 +67,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             // Construire le DetailView (mode Edit par défaut)
             var detailView = Application.CreateDetailView(os, ligne);
-            detailView.Caption = $"Nouvelle ligne — bulletin {bulletin.Mois:D2}/{bulletin.Annee}";
+            detailView.Caption = $"Nouvelle ligne - bulletin {bulletin.Mois:D2}/{bulletin.Annee}";
 
             e.View = detailView;
         }
@@ -94,7 +94,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
                 if (ligne.Bulletin == null)
                 {
-                    ShowError("Bulletin non rattaché — réessayez.");
+                    ShowError("Bulletin non rattaché - réessayez.");
                     return;
                 }
 

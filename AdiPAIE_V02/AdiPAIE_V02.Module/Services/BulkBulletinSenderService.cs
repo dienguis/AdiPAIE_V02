@@ -94,7 +94,7 @@ namespace AdiPAIE_V02.Module.Services
                     var p = ParametresPaie.TryGet(os) ?? throw new UserFriendlyException("Paramètres paie introuvables.");
                     var sender = p.CreateEmailSender();
 
-                    var subject = $"Bulletin de paie – {b.Periode}";
+                    var subject = $"Bulletin de paie - {b.Periode}";
                     var bodyHtml = $@"<p>Bonjour {b.Salarie?.FullName},</p>
 <p>Veuillez trouver ci-joint votre bulletin de paie pour <b>{b.Periode}</b>.</p>
 <p>Cordialement,<br/>{p.MailFromDisplayName}</p>";

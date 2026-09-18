@@ -53,7 +53,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         [Browsable(false)]
-        public string DisplayText => $"Rapport CEO — {Mois:D2}/{Annee}";
+        public string DisplayText => $"Rapport CEO - {Mois:D2}/{Annee}";
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnChanged(string prop)

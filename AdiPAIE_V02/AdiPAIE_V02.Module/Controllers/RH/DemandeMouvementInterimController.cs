@@ -1,5 +1,5 @@
 // =============================================================================
-//  DemandeMouvementInterimController.cs — V1.5
+//  DemandeMouvementInterimController.cs - V1.5
 //
 //  Controller workflow pour DemandeMouvementInterim (DetailView).
 //  Pattern repris de DemandeRecrutementInterimController.
@@ -178,7 +178,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         private void View_CurrentObjectChanged(object sender, EventArgs e) => UpdateStates();
 
         // =====================================================================
-        // UpdateStates — active/désactive les actions selon le statut courant
+        // UpdateStates - active/désactive les actions selon le statut courant
         // =====================================================================
         private void UpdateStates()
         {

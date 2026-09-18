@@ -1,5 +1,5 @@
 // =============================================================================
-//  PilotageRecrutementDashboardService.cs — V1.4 (mai 2026)
+//  PilotageRecrutementDashboardService.cs - V1.4 (mai 2026)
 //
 //  Calcule le Dashboard N°12 Pilotage Recrutement à partir des entités :
 //    PosteVacant, Candidat, Candidature, Entretien, OffreEmploi, PeriodeEssai.
@@ -71,12 +71,12 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
         public void InvalidateCache()
         {
-            // Pas de Clear() sur IMemoryCache — on utilise un compact agressif.
+            // Pas de Clear() sur IMemoryCache - on utilise un compact agressif.
             if (_cache is MemoryCache mc) mc.Compact(1.0);
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        //  COMPUTE — dispatcher Interne / Externe
+        //  COMPUTE - dispatcher Interne / Externe
         // ─────────────────────────────────────────────────────────────────────
         private PilotageRecrutementDto Compute(PilotageRecrutementFilterModel filter, IObjectSpace os)
         {
@@ -86,7 +86,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        //  COMPUTE EXTERNE — KPIs simplifiés depuis ContratInterim
+        //  COMPUTE EXTERNE - KPIs simplifiés depuis ContratInterim
         // ─────────────────────────────────────────────────────────────────────
         private static PilotageRecrutementDto ComputeExterne(PilotageRecrutementFilterModel filter, IObjectSpace os)
         {
@@ -174,7 +174,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        //  COMPUTE INTERNE — vue complète recrutement salariés
+        //  COMPUTE INTERNE - vue complète recrutement salariés
         // ─────────────────────────────────────────────────────────────────────
         private PilotageRecrutementDto ComputeInterne(PilotageRecrutementFilterModel filter, IObjectSpace os)
         {
@@ -447,7 +447,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             List<Candidature> candidaturesAnnee,
             List<Entretien> entretiens)
         {
-            // Group by source — on prend SourcePourCePoste si renseignée, sinon Source du Candidat
+            // Group by source - on prend SourcePourCePoste si renseignée, sinon Source du Candidat
             var groups = candidaturesAnnee
                 .Select(c => new
                 {

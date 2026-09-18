@@ -13,7 +13,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions]
     [NavigationItem(false)]
-    [ImageName("BO_Salutation")]  // V1.1 — icône XAF native (membre famille)
+    [ImageName("BO_Salutation")]  // V1.1 - icône XAF native (membre famille)
     [DefaultProperty(nameof(NomComplet))]
 
     // 🔒 Interdit d’enregistrer un conjoint si le salarié n’est pas "Marié"
@@ -36,7 +36,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public string NomComplet { get => nom; set => SetPropertyValue(nameof(NomComplet), ref nom, value?.Trim()); }
         string nom;
 
-        // V1.6 — date de naissance (oubli initial corrigé)
+        // V1.6 - date de naissance (oubli initial corrigé)
         [XafDisplayName("Date de naissance")]
         public DateTime? DateNaissance { get => dn; set => SetPropertyValue(nameof(DateNaissance), ref dn, value); }
         DateTime? dn;
@@ -45,7 +45,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public DateTime? DateFinUnion { get => df; set => SetPropertyValue(nameof(DateFinUnion), ref df, value); }
         DateTime? dm; DateTime? df;
 
-        // V1.6 — âge calculé (lecture seule)
+        // V1.6 - âge calculé (lecture seule)
         [NonPersistent]
         [XafDisplayName("Âge")]
         public int? Age

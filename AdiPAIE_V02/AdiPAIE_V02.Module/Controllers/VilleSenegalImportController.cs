@@ -15,7 +15,7 @@ namespace AdiPAIE_V02.Module.Controllers
     ///
     /// Action : "Importer depuis GeoNames"
     ///   → Appelle GeoNamesService.GetVillesSenegalAsync()
-    ///   → Crée les VilleSenegal manquantes (idempotent — pas de doublons)
+    ///   → Crée les VilleSenegal manquantes (idempotent - pas de doublons)
     ///   → Affiche le nombre de villes importées
     /// </summary>
     public class VilleSenegalImportController

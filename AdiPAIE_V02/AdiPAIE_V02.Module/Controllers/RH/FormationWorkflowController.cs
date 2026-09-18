@@ -11,7 +11,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.Controllers.RH
 {
     // ════════════════════════════════════════════════════════════
-    // PLAN DE FORMATION — DetailView
+    // PLAN DE FORMATION - DetailView
     // Qui fait quoi :
     //   RH          → Soumettre, Démarrer, Clôturer, Annuler
     //   Direction   → Approuver, Rejeter
@@ -97,7 +97,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                             ("Approuvé par", salarie?.FullName ?? "Direction"),
                         });
                     WorkflowEmailHelper.EnvoyerEmailsAsync(Application, rhEmails,
-                        $"[AdiPAIE] Plan de formation approuvé — {plan.Titre}", body);
+                        $"[AdiPAIE] Plan de formation approuvé - {plan.Titre}", body);
                 }
 
                 Application.ShowViewStrategy?.ShowMessage(
@@ -255,7 +255,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
     }
 
     // ════════════════════════════════════════════════════════════
-    // SESSION DE FORMATION — DetailView
+    // SESSION DE FORMATION - DetailView
     // Qui fait quoi :
     //   RH → Confirmer, Démarrer, Terminer, Annuler
     // ════════════════════════════════════════════════════════════
@@ -302,7 +302,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 {
                     var notif = ObjectSpace.CreateObject<NotificationSalarie>();
                     notif.Salarie = insc.Salarie;
-                    notif.Titre = $"Convocation — {session.Intitule}";
+                    notif.Titre = $"Convocation - {session.Intitule}";
                     notif.Corps = $"Vous êtes convoqué(e) à la formation '{session.Intitule}' "
                                     + $"du {session.DateDebut:dd/MM/yyyy} au {session.DateFin:dd/MM/yyyy} "
                                     + $"({session.DureeJours} jour(s)). "
@@ -320,19 +320,19 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                         !string.IsNullOrWhiteSpace(i.Salarie?.Email)))
                     {
                         var body = WorkflowEmailHelper.HtmlTableau(
-                            $"Convocation — {session.Intitule}",
+                            $"Convocation - {session.Intitule}",
                             $"Vous êtes convoqué(e) à cette formation. Merci de confirmer votre présence.",
                             new[]
                             {
                                 ("Formation",  session.Intitule),
-                                ("Domaine",    session.Domaine?.Libelle ?? "—"),
+                                ("Domaine",    session.Domaine?.Libelle ?? "-"),
                                 ("Dates",      $"{session.DateDebut:dd/MM/yyyy} → {session.DateFin:dd/MM/yyyy}"),
                                 ("Durée",      $"{session.DureeJours} jour(s) / {session.DureeHeures} h"),
                                 ("Lieu",       session.Lieu ?? "À confirmer"),
-                                ("Formateur",  session.FormateurNom ?? "—"),
+                                ("Formateur",  session.FormateurNom ?? "-"),
                             });
                         WorkflowEmailHelper.EnvoyerAsync(sender, insc.Salarie.Email,
-                            $"[AdiPAIE] Convocation formation — {session.Intitule}", body);
+                            $"[AdiPAIE] Convocation formation - {session.Intitule}", body);
                     }
                 }
 
@@ -387,7 +387,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 var nouveauStatut = session.Statut.ToString();
 
                 // Créer les SuiviFormation pour toutes les inscriptions non annulées
-                // (Presence peut être saisie après — on crée le suivi pour tout le monde)
+                // (Presence peut être saisie après - on crée le suivi pour tout le monde)
                 // Filtre : Confirmée OU Absente (pas Annulée)
                 var inscriptions = session.Inscriptions
                     .Where(i => i.Statut == InscriptionStatut.Confirmee
@@ -408,7 +408,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 int nbSuivis = 0;
                 foreach (var insc in inscriptions)
                 {
-                    // Idempotent — pas de doublon
+                    // Idempotent - pas de doublon
                     if (dejaCrees.Contains(insc.Oid)) continue;
 
                     var suivi = SuiviFormation.CreerDepuisInscription(ObjectSpace, insc);
@@ -459,7 +459,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 {
                     var notif = ObjectSpace.CreateObject<NotificationSalarie>();
                     notif.Salarie = insc.Salarie;
-                    notif.Titre = $"Session annulée — {session.Intitule}";
+                    notif.Titre = $"Session annulée - {session.Intitule}";
                     notif.Corps = $"La session '{session.Intitule}' du {session.DateDebut:dd/MM/yyyy} "
                                     + $"a été annulée. Motif : {session.MotifAnnulation}.";
                     notif.Categorie = "Formation";
@@ -504,7 +504,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
     }
 
     // ════════════════════════════════════════════════════════════
-    // INSCRIPTION — Actions rapides sur DetailView
+    // INSCRIPTION - Actions rapides sur DetailView
     // ════════════════════════════════════════════════════════════
     public class InscriptionFormationWorkflowController
         : ObjectViewController<DetailView, InscriptionFormation>

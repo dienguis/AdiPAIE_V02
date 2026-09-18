@@ -1,5 +1,5 @@
 // =============================================================================
-//  BulletinEspaceSalarieNoDetailController.cs — V1.4.3
+//  BulletinEspaceSalarieNoDetailController.cs - V1.4.3
 //
 //  Bloque l'accès au DetailView du bulletin sur Bulletin_EspaceSalarie_ListView.
 //  Pourquoi : on ne veut pas que le salarié voie l'écran de détail technique

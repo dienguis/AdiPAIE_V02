@@ -14,11 +14,11 @@ namespace AdiPAIE_V02.Module.Controllers.RH
     /// Controller dossier disciplinaire.
     ///
     /// Workflow :
-    ///   1. Notifier salarié  — enregistre la date de notification
-    ///   2. Programmer audition — passe en "Audition programmée"
-    ///   3. Enregistrer audition — PV rempli, passe en "Audition réalisée"
-    ///   4. Prononcer sanction — enregistre la sanction choisie
-    ///   5. Clôturer — archive le dossier
+    ///   1. Notifier salarié  - enregistre la date de notification
+    ///   2. Programmer audition - passe en "Audition programmée"
+    ///   3. Enregistrer audition - PV rempli, passe en "Audition réalisée"
+    ///   4. Prononcer sanction - enregistre la sanction choisie
+    ///   5. Clôturer - archive le dossier
     /// </summary>
     public class DisciplinaireController
         : ObjectViewController<DetailView, DossierDisciplinaire>
@@ -58,26 +58,26 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 {
                     try
                     {
-                        var categorie = d.Categorie?.ToString() ?? "—";
-                        var dateFaits = d.DateFaits?.ToString("dd/MM/yyyy") ?? "—";
+                        var categorie = d.Categorie?.ToString() ?? "-";
+                        var dateFaits = d.DateFaits?.ToString("dd/MM/yyyy") ?? "-";
                         var body = WorkflowEmailHelper.HtmlTableau(
                             "Notification de procédure disciplinaire",
                             "Vous êtes prié(e) de prendre connaissance de cette notification. "
                             + "Une convocation pour audition vous sera communiquée ultérieurement.",
                             new (string, string)[]
                             {
-                                ("Salarié", d.Salarie.FullName ?? "—"),
-                                ("Référence", d.Reference ?? "—"),
+                                ("Salarié", d.Salarie.FullName ?? "-"),
+                                ("Référence", d.Reference ?? "-"),
                                 ("Date des faits", dateFaits),
                                 ("Catégorie de faute", categorie),
-                                ("Description", d.DescriptionFaits ?? "—"),
-                                ("Date de notification", d.DateNotification?.ToString("dd/MM/yyyy") ?? "—"),
+                                ("Description", d.DescriptionFaits ?? "-"),
+                                ("Date de notification", d.DateNotification?.ToString("dd/MM/yyyy") ?? "-"),
                             });
 
                         var sender = WorkflowEmailHelper.ExtraireSender(Application);
                         if (sender != null)
                             WorkflowEmailHelper.EnvoyerAsync(sender, emailSalarie,
-                                $"[SunuPaie] Notification disciplinaire — {d.Reference}",
+                                $"[SunuPaie] Notification disciplinaire - {d.Reference}",
                                 body);
                     }
                     catch { /* L'envoi d'email ne doit pas bloquer le workflow */ }
@@ -86,12 +86,12 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 AuditService.Enregistrer(Application, "DossierDisciplinaire", "Notifier",
                     d.Oid.ToString(), d.DisplayName,
                     $"Notification à {d.Salarie?.FullName} le {d.DateNotification:dd/MM/yyyy}"
-                    + (string.IsNullOrWhiteSpace(emailSalarie) ? " (pas d'email)" : $" — email envoyé à {emailSalarie}"),
+                    + (string.IsNullOrWhiteSpace(emailSalarie) ? " (pas d'email)" : $" - email envoyé à {emailSalarie}"),
                     nouveauStatut: "Notifié");
 
                 var msg = string.IsNullOrWhiteSpace(emailSalarie)
-                    ? "Salarié notifié (pas d'adresse email — notification par email non envoyée)."
-                    : $"Salarié notifié — email envoyé à {emailSalarie}.";
+                    ? "Salarié notifié (pas d'adresse email - notification par email non envoyée)."
+                    : $"Salarié notifié - email envoyé à {emailSalarie}.";
                 Application.ShowViewStrategy?.ShowMessage(
                     msg, InformationType.Success, 4000, InformationPosition.Top);
             };

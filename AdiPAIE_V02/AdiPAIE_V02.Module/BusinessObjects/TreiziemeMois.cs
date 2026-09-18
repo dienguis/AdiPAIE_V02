@@ -17,7 +17,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     /// <summary>
-    /// V1.7.2 — Calcul annuel du 13ième mois pour un salarié donné.
+    /// V1.7.2 - Calcul annuel du 13ième mois pour un salarié donné.
     ///
     /// Règles ELTON (cf. grille RH validée le 2026-05-11) :
     ///   - Droit conventionnel automatique pour tous les salariés actifs
@@ -30,7 +30,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     /// Entité PERSISTANTE (table TreiziemeMois) car on a besoin de tracer
     /// le statut, le montant figé, le bulletin de versement, etc.
     ///
-    /// Unicité : Salarie + Annee — un seul 13ième par salarié par année.
+    /// Unicité : Salarie + Annee - un seul 13ième par salarié par année.
     /// </summary>
     [DefaultClassOptions]
     [DefaultProperty(nameof(DisplayName))]
@@ -74,7 +74,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             try { CalculePar = DevExpress.ExpressApp.SecuritySystem.CurrentUserName; } catch { }
             EstSurSTC = false;
 
-            // V1.7.2 — Initialiser l'année sur la PeriodePaie ouverte
+            // V1.7.2 - Initialiser l'année sur la PeriodePaie ouverte
             // (évite la saisie sur une année invalide / clôturée).
             // Fallback : année courante.
             var periodeOuverte = PeriodePaieHelper.GetPeriodeOuverte(Session);
@@ -82,7 +82,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // ═════════════════════════════════════════════════════════════
-        // V1.7.2 — Contrainte stricte sur la période ouverte
+        // V1.7.2 - Contrainte stricte sur la période ouverte
         // Le 13ième s'intègre au bulletin de décembre.
         // → La période de paie (Annee, 12) DOIT exister et être Ouverte.
         //

@@ -61,7 +61,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 else
                 {
                     GenererViaXtraReport(demande);
-                    Application.ShowViewStrategy?.ShowMessage("Aucun template Word — report programmatique utilisé.", InformationType.Info, 5000, InformationPosition.Top);
+                    Application.ShowViewStrategy?.ShowMessage("Aucun template Word - report programmatique utilisé.", InformationType.Info, 5000, InformationPosition.Top);
                 }
 
                 if (demande.Statut == DemandeStatut.Soumise) demande.PrendreEnCharge();

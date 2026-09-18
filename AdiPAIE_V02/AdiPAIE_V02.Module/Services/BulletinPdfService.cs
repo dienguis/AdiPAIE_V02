@@ -19,9 +19,9 @@ namespace AdiPAIE_V02.Module.Services
         private const string ReportDisplayName = "BulletinPaie";
 
         /// <summary>
-        /// V1.4.3 — Bootstrap auto : si le ReportDataV2 "BulletinPaie" n'existe
+        /// V1.4.3 - Bootstrap auto : si le ReportDataV2 "BulletinPaie" n'existe
         /// pas en base, on le crée :
-        ///   1. Priorité au REPX embarqué (Reports/BulletinPaie.repx) — design custom
+        ///   1. Priorité au REPX embarqué (Reports/BulletinPaie.repx) - design custom
         ///   2. Fallback au template programmatique simple
         /// L'Updater fait déjà ce seed au démarrage ; cette méthode est un filet
         /// de sécurité pour les cas où le rapport est supprimé en cours de session.
@@ -60,7 +60,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         /// <summary>
-        /// V1.4.3 — Crée le ReportDataV2 "BulletinPaie" depuis la ressource
+        /// V1.4.3 - Crée le ReportDataV2 "BulletinPaie" depuis la ressource
         /// embarquée Reports/BulletinPaie.repx (design custom). Retourne true
         /// si le seed a réussi, false si la ressource est absente.
         /// </summary>
@@ -78,7 +78,7 @@ namespace AdiPAIE_V02.Module.Services
             var rd = os.CreateObject<ReportDataV2>();
             rd.DisplayName = ReportDisplayName;
             rd.IsInplaceReport = true;
-            // DataTypeName n'est pas settable directement — il dérive du Content REPX
+            // DataTypeName n'est pas settable directement - il dérive du Content REPX
             rd.Content = repxBytes;
             os.CommitChanges();
             return true;

@@ -82,34 +82,34 @@ namespace AdiPAIE_V02.Module.Services
             // ── Identification ────────────────────────────────
             var marqueurs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                ["{{FullName}}"] = sal.FullName ?? "—",
-                ["{{Fonction}}"] = sal.Fonction?.Intitule ?? "—",
-                ["{{Departement}}"] = sal.Departement?.Nom ?? "—",
+                ["{{FullName}}"] = sal.FullName ?? "-",
+                ["{{Fonction}}"] = sal.Fonction?.Intitule ?? "-",
+                ["{{Departement}}"] = sal.Departement?.Nom ?? "-",
                 ["{{Anciennete}}"] = sal.Anciennete > 0
-                                            ? $"{sal.Anciennete} an(s)" : "—",
-                ["{{AnciennetePoste}}"] = "—",  // à calculer si tu as DateChangementPoste
-                ["{{Evaluateur}}"] = entretien.Evaluateur?.FullName ?? "—",
+                                            ? $"{sal.Anciennete} an(s)" : "-",
+                ["{{AnciennetePoste}}"] = "-",  // à calculer si tu as DateChangementPoste
+                ["{{Evaluateur}}"] = entretien.Evaluateur?.FullName ?? "-",
                 ["{{DateRealisation}}"] = entretien.DateRealisation.HasValue
                                             ? entretien.DateRealisation.Value.ToString("dd MMMM yyyy", cultureFr)
-                                            : "—",
-                ["{{NiveauInstruction}}"] = entretien.NiveauInstruction ?? "—",
-                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "—",
+                                            : "-",
+                ["{{NiveauInstruction}}"] = entretien.NiveauInstruction ?? "-",
+                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "-",
                 ["{{DateDocument}}"] = DateTime.Today.ToString("dd MMMM yyyy", cultureFr),
-                ["{{SignataireNom}}"] = prm?.SignatoryName ?? prm?.SignatureName ?? "—",
+                ["{{SignataireNom}}"] = prm?.SignatoryName ?? prm?.SignatureName ?? "-",
                 ["{{NoteGlobaleManager}}"] = entretien.NoteGlobaleManager.HasValue
                                             ? entretien.NoteGlobaleManager.Value.ToString()
                                                 .Replace("APlus", "A+").Replace("_", "")
-                                            : "—",
+                                            : "-",
                 ["{{NoteGlobaleService}}"] = entretien.NoteGlobaleService.HasValue
                                             ? entretien.NoteGlobaleService.Value.ToString()
                                                 .Replace("APlus", "A+").Replace("_", "")
-                                            : "—",
-                ["{{CommentairesHierarchie}}"] = entretien.CommentairesHierarchie ?? "—",
-                ["{{CommentairesCollaborateur}}"] = entretien.CommentairesCollaborateur ?? "—",
-                ["{{EvolutionSouhaitee}}"] = entretien.EvolutionSouhaitee ?? "—",
-                ["{{ConclusionGenerale}}"] = entretien.ConclusionGenerale ?? "—",
+                                            : "-",
+                ["{{CommentairesHierarchie}}"] = entretien.CommentairesHierarchie ?? "-",
+                ["{{CommentairesCollaborateur}}"] = entretien.CommentairesCollaborateur ?? "-",
+                ["{{EvolutionSouhaitee}}"] = entretien.EvolutionSouhaitee ?? "-",
+                ["{{ConclusionGenerale}}"] = entretien.ConclusionGenerale ?? "-",
                 ["{{ScoreGlobal}}"] = entretien.ScoreGlobal.ToString("N2", cultureFr),
-                ["{{Annee}}"] = entretien.Campagne?.Annee.ToString() ?? "—",
+                ["{{Annee}}"] = entretien.Campagne?.Annee.ToString() ?? "-",
             };
 
             // ── Missions 1 à 5 (Partie I-A) ───────────────────
@@ -119,9 +119,9 @@ namespace AdiPAIE_V02.Module.Services
             for (int i = 1; i <= 5; i++)
             {
                 var m = missions.ElementAtOrDefault(i - 1);
-                marqueurs[$"{{{{Mission{i}Intitule}}}}"] = m?.IntituleMission ?? "—";
-                marqueurs[$"{{{{Mission{i}NoteManager}}}}"] = m?.NoteManager?.ToString() ?? "—";
-                marqueurs[$"{{{{Mission{i}NoteAutoEval}}}}"] = m?.NoteAutoEval?.ToString() ?? "—";
+                marqueurs[$"{{{{Mission{i}Intitule}}}}"] = m?.IntituleMission ?? "-";
+                marqueurs[$"{{{{Mission{i}NoteManager}}}}"] = m?.NoteManager?.ToString() ?? "-";
+                marqueurs[$"{{{{Mission{i}NoteAutoEval}}}}"] = m?.NoteAutoEval?.ToString() ?? "-";
                 marqueurs[$"{{{{Mission{i}CommentaireManager}}}}"] = m?.CommentaireManager ?? "";
                 marqueurs[$"{{{{Mission{i}CommentaireSalarie}}}}"] = m?.CommentaireSalarie ?? "";
             }
@@ -136,15 +136,15 @@ namespace AdiPAIE_V02.Module.Services
             for (int i = 1; i <= 5; i++)
             {
                 var o = objectifsN.ElementAtOrDefault(i - 1);
-                marqueurs[$"{{{{Obj{i}Libelle}}}}"] = o?.Libelle ?? "—";
+                marqueurs[$"{{{{Obj{i}Libelle}}}}"] = o?.Libelle ?? "-";
                 marqueurs[$"{{{{Obj{i}Commentaire}}}}"] = o?.CommentaireBilan ?? "";
-                marqueurs[$"{{{{Obj{i}Atteinte}}}}"] = o?.StatutAtteinte.ToString() ?? "—";
+                marqueurs[$"{{{{Obj{i}Atteinte}}}}"] = o?.StatutAtteinte.ToString() ?? "-";
             }
 
             for (int i = 1; i <= 3; i++)
             {
                 var o = objectifsNp1.ElementAtOrDefault(i - 1);
-                marqueurs[$"{{{{ObjNp1_{i}Libelle}}}}"] = o?.Libelle ?? "—";
+                marqueurs[$"{{{{ObjNp1_{i}Libelle}}}}"] = o?.Libelle ?? "-";
                 marqueurs[$"{{{{ObjNp1_{i}Commentaire}}}}"] = o?.CommentaireObjectif ?? "";
             }
 
@@ -155,7 +155,7 @@ namespace AdiPAIE_V02.Module.Services
             for (int i = 1; i <= 3; i++)
             {
                 var f = formations.ElementAtOrDefault(i - 1);
-                marqueurs[$"{{{{Formation{i}Intitule}}}}"] = f?.IntituleFormation ?? "—";
+                marqueurs[$"{{{{Formation{i}Intitule}}}}"] = f?.IntituleFormation ?? "-";
                 marqueurs[$"{{{{Formation{i}PointsAmelioration}}}}"] = f?.PointsAmelioration ?? "";
                 marqueurs[$"{{{{Formation{i}Mesures}}}}"] = f?.MesuresMoyens ?? "";
             }
@@ -165,7 +165,7 @@ namespace AdiPAIE_V02.Module.Services
             for (int i = 1; i <= 7; i++)
             {
                 var a = aptitudes.ElementAtOrDefault(i - 1);
-                marqueurs[$"{{{{Apt{i}Niveau}}}}"] = a?.Niveau?.ToString() ?? "—";
+                marqueurs[$"{{{{Apt{i}Niveau}}}}"] = a?.Niveau?.ToString() ?? "-";
                 marqueurs[$"{{{{Apt{i}Appreciation}}}}"] = a?.Appreciation ?? "";
             }
 

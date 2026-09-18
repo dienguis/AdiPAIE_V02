@@ -14,7 +14,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.Controllers.RH
 {
     /// <summary>
-    /// Workflow entretien annuel — nouveau circuit RH 2026 :
+    /// Workflow entretien annuel - nouveau circuit RH 2026 :
     ///
     ///   Brouillon → [RH : Planifier] → PlanifiéRH
     ///   PlanifiéRH → [RH : Lancer évaluation] → SaisieManager  (notifie N+1)
@@ -207,7 +207,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             // Notifie N+1
             _Notifier(en, en.Evaluateur,
-                $"Évaluation à réaliser — {en.Salarie?.FullName}",
+                $"Évaluation à réaliser - {en.Salarie?.FullName}",
                 $"L'évaluation annuelle {en.Campagne?.Annee} de {en.Salarie?.FullName} "
                 + $"vous a été transmise. Date prévue : {en.DatePlanifiee:dd/MM/yyyy}. "
                 + "Connectez-vous sur AdiPAIE pour remplir l'évaluation.");
@@ -264,7 +264,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             // Notifie N+1
             _Notifier(en, en.Evaluateur,
-                $"Observations reçues — {en.Salarie?.FullName}",
+                $"Observations reçues - {en.Salarie?.FullName}",
                 $"{en.Salarie?.FullName} a soumis ses observations sur son évaluation annuelle "
                 + $"{en.Campagne?.Annee}. Connectez-vous sur AdiPAIE pour les consulter et valider.");
 
@@ -290,7 +290,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             if (en.Statut == EntretienStatut.EnAttenteN2)
             {
                 _Notifier(en, en.ValideurN2,
-                    $"Évaluation en attente de votre validation (N+2) — {en.Salarie?.FullName}",
+                    $"Évaluation en attente de votre validation (N+2) - {en.Salarie?.FullName}",
                     $"L'évaluation annuelle {en.Campagne?.Annee} de {en.Salarie?.FullName} "
                     + $"a été validée par {en.Evaluateur?.FullName} et attend votre validation finale.");
 
@@ -300,7 +300,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             }
             else
             {
-                // SoumiseRH — notifie RH par email
+                // SoumiseRH - notifie RH par email
                 _NotifierRHEmail(en);
 
                 Application.ShowViewStrategy?.ShowMessage(
@@ -328,7 +328,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             // Notifie N+1 aussi
             _Notifier(en, en.Evaluateur,
-                $"Évaluation validée par N+2 — {en.Salarie?.FullName}",
+                $"Évaluation validée par N+2 - {en.Salarie?.FullName}",
                 $"L'évaluation de {en.Salarie?.FullName} a été validée par "
                 + $"{en.ValideurN2?.FullName}. Elle est maintenant transmise au RH.");
 
@@ -358,7 +358,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             // Notifie N+1
             _Notifier(en, en.Evaluateur,
-                $"Évaluation rejetée par N+2 — {en.Salarie?.FullName}",
+                $"Évaluation rejetée par N+2 - {en.Salarie?.FullName}",
                 $"L'évaluation de {en.Salarie?.FullName} a été rejetée par "
                 + $"{en.ValideurN2?.FullName}. Motif : {en.MotifRejetN2}. "
                 + "Veuillez corriger et resoumettre.");
@@ -469,7 +469,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             var s = en.Statut;
             bool clos = s == EntretienStatut.Cloture;
 
-            // Champs N+1 — modifiables uniquement en SaisieManager
+            // Champs N+1 - modifiables uniquement en SaisieManager
             bool n1Mod = s == EntretienStatut.SaisieManager && !clos;
             foreach (var champ in new[] {
                 nameof(EntretienAnnuel.NoteGlobaleManager),
@@ -485,17 +485,17 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             })
                 SetEditable(champ, n1Mod);
 
-            // Champs salarié — modifiables uniquement en SaisieSalarie
+            // Champs salarié - modifiables uniquement en SaisieSalarie
             bool salMod = s == EntretienStatut.SaisieSalarie
                        && EstSalarieConnecte(en) && !clos;
             SetEditable(nameof(EntretienAnnuel.CommentairesCollaborateur), salMod);
             SetEditable(nameof(EntretienAnnuel.EvolutionSouhaitee), salMod);
 
-            // MotifRejetN2 — éditable uniquement par N+2 en EnAttenteN2
+            // MotifRejetN2 - éditable uniquement par N+2 en EnAttenteN2
             bool n2Mod = s == EntretienStatut.EnAttenteN2 && (EstN2Connecte(en) || EstRH()) && !clos;
             SetEditable(nameof(EntretienAnnuel.MotifRejetN2), n2Mod);
 
-            // NotesDecisionRH — toujours éditable par RH sauf clôturé
+            // NotesDecisionRH - toujours éditable par RH sauf clôturé
             SetEditable(nameof(EntretienAnnuel.NotesDecisionRH), !clos && EstRH());
         }
 
@@ -574,15 +574,15 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 var rhEmails = WorkflowEmailHelper.ExtraireEmailsRH(Application);
                 if (!rhEmails.Any()) return;
 
-                var sujet = $"[AdiPAIE] Évaluation prête à clôturer — {en.Salarie?.FullName}";
+                var sujet = $"[AdiPAIE] Évaluation prête à clôturer - {en.Salarie?.FullName}";
                 var body = WorkflowEmailHelper.HtmlTableau(
-                    "Entretien annuel — prêt à clôturer",
+                    "Entretien annuel - prêt à clôturer",
                     "Connectez-vous sur AdiPAIE pour clôturer l'entretien.",
                     new[]
                     {
-                        ("Salarié",    en.Salarie?.FullName ?? "—"),
-                        ("Campagne",   en.Campagne?.Annee.ToString() ?? "—"),
-                        ("Note RH",    en.NoteGlobaleManager.ToString() ?? "—"),
+                        ("Salarié",    en.Salarie?.FullName ?? "-"),
+                        ("Campagne",   en.Campagne?.Annee.ToString() ?? "-"),
+                        ("Note RH",    en.NoteGlobaleManager.ToString() ?? "-"),
                         ("Score",      $"{en.ScoreGlobal:N2} / 5"),
                     });
 
@@ -608,7 +608,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 var doc = ObjectSpace.CreateObject<DossierDocument>();
                 doc.Dossier = dossier;
                 doc.Categorie = DossierCategorieDocument.Evaluation;
-                doc.Titre = $"Entretien annuel {en.Campagne?.Annee} — Score : {en.ScoreGlobal:N2}/5";
+                doc.Titre = $"Entretien annuel {en.Campagne?.Annee} - Score : {en.ScoreGlobal:N2}/5";
                 doc.SourceAuto = "Généré à la clôture";
                 doc.DateDocument = DateTime.Today;
             }

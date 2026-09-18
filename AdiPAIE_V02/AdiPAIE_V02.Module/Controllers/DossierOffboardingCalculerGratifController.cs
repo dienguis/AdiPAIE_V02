@@ -1,5 +1,5 @@
 // =============================================================================
-//  DossierOffboardingCalculerGratifController.cs — V1.7.2b-bis (#71)
+//  DossierOffboardingCalculerGratifController.cs - V1.7.2b-bis (#71)
 //
 //  Action sur le DetailView du DossierOffboarding :
 //  "Calculer gratifications prorata STC".

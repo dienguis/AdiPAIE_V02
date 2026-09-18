@@ -76,7 +76,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         string categorie;
         [XafDisplayName("Catégorie")]
-        [ToolTip("Ex: RH, Finance, Direction — pour regrouper les rapports")]
+        [ToolTip("Ex: RH, Finance, Direction - pour regrouper les rapports")]
         public string Categorie
         {
             get => categorie;

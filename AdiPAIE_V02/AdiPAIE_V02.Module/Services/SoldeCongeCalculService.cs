@@ -12,19 +12,19 @@ namespace AdiPAIE_V02.Module.Services
     /// Service de calcul des soldes de congés.
     ///
     /// Responsabilités :
-    ///   1. AcquerirMensuel()    — crédite les jours acquis pour un mois donné
-    ///   2. AcquerirTousSalaries() — batch mensuel pour tous les salariés actifs
-    ///   3. Reporter()           — clôture d'exercice N → report vers N+1
-    ///   4. VerifierSolde()      — contrôle avant accord d'un congé
-    ///   5. ReserverJours()      — réserve lors de la soumission
-    ///   6. DebiterJours()       — débite lors de l'accord
-    ///   7. AnnulerDebite()      — recrédite lors de l'annulation
-    ///   8. OuvrirNouvelExercice() — initialise les soldes pour une nouvelle année
+    ///   1. AcquerirMensuel()    - crédite les jours acquis pour un mois donné
+    ///   2. AcquerirTousSalaries() - batch mensuel pour tous les salariés actifs
+    ///   3. Reporter()           - clôture d'exercice N → report vers N+1
+    ///   4. VerifierSolde()      - contrôle avant accord d'un congé
+    ///   5. ReserverJours()      - réserve lors de la soumission
+    ///   6. DebiterJours()       - débite lors de l'accord
+    ///   7. AnnulerDebite()      - recrédite lors de l'annulation
+    ///   8. OuvrirNouvelExercice() - initialise les soldes pour une nouvelle année
     /// </summary>
     public static class SoldeCongeCalculService
     {
         // ════════════════════════════════════════════════════════
-        // 1. ACQUISITION MENSUELLE — 1 salarié
+        // 1. ACQUISITION MENSUELLE - 1 salarié
         // ════════════════════════════════════════════════════════
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ════════════════════════════════════════════════════════
-        // 2. BATCH MENSUEL — tous les salariés actifs
+        // 2. BATCH MENSUEL - tous les salariés actifs
         // ════════════════════════════════════════════════════════
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace AdiPAIE_V02.Module.Services
 
             if (solde.SoldeReel < joursdemandes)
                 return $"Solde insuffisant pour {typeConge.Libelle}. " +
-                       $"Disponible : {solde.SoldeReel:N1}j — Demandé : {joursdemandes:N1}j.";
+                       $"Disponible : {solde.SoldeReel:N1}j - Demandé : {joursdemandes:N1}j.";
 
             return null; // OK
         }
@@ -308,7 +308,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ════════════════════════════════════════════════════════
-        // HELPER — GetOrCreate
+        // HELPER - GetOrCreate
         // ════════════════════════════════════════════════════════
 
         public static SoldeConge GetOrCreateSolde(

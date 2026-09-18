@@ -1,5 +1,5 @@
 // =============================================================================
-//  BulletinInterim.cs — V1.3 Sprint 1 (mai 2026)
+//  BulletinInterim.cs - V1.3 Sprint 1 (mai 2026)
 //
 //  1 ligne par intérimaire × mois × société d'intérim émettrice de la facture.
 //  Reflète le contenu du fichier "Livre de paie intérim" envoyé chaque mois
@@ -317,7 +317,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.Interim
             set => SetPropertyValue(nameof(NetAPayer), ref _netAPayer, value);
         }
 
-        // ═══ ★ BLOC FACTURATION (cœur métier — coût réel ELTON) ★ ═══════════
+        // ═══ ★ BLOC FACTURATION (cœur métier - coût réel ELTON) ★ ═══════════
 
         private decimal _debours;
         [XafDisplayName("Débours")]

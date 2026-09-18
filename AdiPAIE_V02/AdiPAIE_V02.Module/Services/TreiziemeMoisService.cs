@@ -1,5 +1,5 @@
 // =============================================================================
-//  TreiziemeMoisService.cs — V1.7.2 — Calcul annuel du 13ième mois
+//  TreiziemeMoisService.cs - V1.7.2 - Calcul annuel du 13ième mois
 //
 //  Règles ELTON (cf. grille RH V1.7.2 validée 2026-05-11) :
 //    - Droit conventionnel pour tous les salariés actifs
@@ -64,7 +64,7 @@ namespace AdiPAIE_V02.Module.Services
                 // est versé sur STC, géré par STCService #71)
                 if (EstSortiAvant(salarie, dateFinAnnee))
                 {
-                    // On ne crée pas de TreiziemeMois — le STC s'en charge.
+                    // On ne crée pas de TreiziemeMois - le STC s'en charge.
                     // Si un TreiziemeMois existe déjà sur STC, on le respecte.
                     continue;
                 }
@@ -172,7 +172,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ─────────────────────────────────────────────────────────────
-        // PRIVÉ — Helper : un salarié est-il déjà sorti avant la date ?
+        // PRIVÉ - Helper : un salarié est-il déjà sorti avant la date ?
         // ─────────────────────────────────────────────────────────────
         // V1.7.2 : on s'appuie sur Salarie.IsActif + une éventuelle
         // DateSortie. Si le modèle Salarie n'expose pas encore DateSortie

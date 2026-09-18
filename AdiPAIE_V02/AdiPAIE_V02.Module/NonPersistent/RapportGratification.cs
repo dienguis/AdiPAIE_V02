@@ -1,5 +1,5 @@
 // =============================================================================
-//  RapportGratification.cs — V1.7.2e
+//  RapportGratification.cs - V1.7.2e
 //
 //  Vue de REPORTING a posteriori des gratifications versées.
 //  Agrégat (Salarié × Année) avec montants cumulés et compteur.
@@ -77,7 +77,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
 
         [XafDisplayName("Total brut récurrent annuel")]
         [ModelDefault("DisplayFormat", "{0:N0} FCFA")]
-        [ToolTip("Cumul brut récurrent du salarié sur l'année — base de " +
+        [ToolTip("Cumul brut récurrent du salarié sur l'année - base de " +
                  "comparaison pour évaluer le poids relatif des gratifications.")]
         public decimal BrutRecurrentAnnuel { get; set; }
 

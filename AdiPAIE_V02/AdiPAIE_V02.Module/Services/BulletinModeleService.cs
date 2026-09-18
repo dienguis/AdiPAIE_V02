@@ -67,14 +67,14 @@ namespace AdiPAIE_V02.Module.Services
             // ── Lignes standard (ordre depuis Rubrique.OrdreAffichage ou auto) ─
             int cursor = 0;
 
-            // Salaire de base — toujours inclus
+            // Salaire de base - toujours inclus
             AddLigne(os, modele, RubriqueCanonique.SalaireDeBase, "SB",
                 ref cursor,
                 baseDefaut: salaireBase,
                 montantDefaut: null,            // calculé dynamiquement par le moteur
                 inclure: true);
 
-            // Sursalaire — si > 0
+            // Sursalaire - si > 0
             if (sursalaire > 0m)
                 AddLigne(os, modele, RubriqueCanonique.Sursalaire, "SURSAL",
                     ref cursor,
@@ -82,7 +82,7 @@ namespace AdiPAIE_V02.Module.Services
                     montantDefaut: sursalaire,
                     inclure: true);
 
-            // Indemnité logement — si > 0
+            // Indemnité logement - si > 0
             if (logement > 0m)
                 AddLigne(os, modele, RubriqueCanonique.IndemniteLogement, "LOGT",
                     ref cursor,
@@ -90,7 +90,7 @@ namespace AdiPAIE_V02.Module.Services
                     montantDefaut: null,        // prorata base30 calculé dynamiquement
                     inclure: true);
 
-            // Prime de transport — si > 0 et pas de véhicule
+            // Prime de transport - si > 0 et pas de véhicule
             if (primeTransport > 0m && !salarie.PossedeVehicule)
                 AddLigne(os, modele, RubriqueCanonique.PrimeTransport, "TRANS",
                     ref cursor,
@@ -98,7 +98,7 @@ namespace AdiPAIE_V02.Module.Services
                     montantDefaut: primeTransport,
                     inclure: true);
 
-            // Avantage en nature véhicule — si > 0 et possède véhicule
+            // Avantage en nature véhicule - si > 0 et possède véhicule
             if (avantageVehicule > 0m && salarie.PossedeVehicule)
                 AddLigne(os, modele, RubriqueCanonique.AvantageNatureVehicule, "AV_NAT_VEH",
                     ref cursor,

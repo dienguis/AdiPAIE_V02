@@ -77,7 +77,7 @@ namespace AdiPAIE_V02.Module.Controllers
             }
 
             // Fallback IObjectSpace (passe par la sécurité, mais au pire
-            // retourne null — même comportement que l'ancien code qui faisait
+            // retourne null - même comportement que l'ancien code qui faisait
             // "return null" quand l'ObjectSpace n'était pas un XPObjectSpace).
             //
             // try/catch défensif : si l'ObjectSpace est de type
@@ -100,7 +100,7 @@ namespace AdiPAIE_V02.Module.Controllers
         /// Recherche un Salarie par critère.
         /// Utilise la Session XPO si disponible, sinon fallback sur IObjectSpace.FindObject.
         /// Retourne null si l'ObjectSpace ne sait pas gérer le type Salarie
-        /// (ex. NonPersistentObjectSpace) — comportement défensif aligné sur
+        /// (ex. NonPersistentObjectSpace) - comportement défensif aligné sur
         /// FindUserByName.
         /// </summary>
         private static Salarie FindSalarieByCriteria(
@@ -200,7 +200,7 @@ namespace AdiPAIE_V02.Module.Controllers
         /// Les managers ne sont jamais restreints (besoin d'accès complet
         /// aux vues Paie même s'ils sont aussi liés à un salarié).
         ///
-        /// V1.8 — Utilise SecuritySystem.CurrentUser (toujours dispo dans la
+        /// V1.8 - Utilise SecuritySystem.CurrentUser (toujours dispo dans la
         /// session XAF) au lieu de FindUserByName(objectSpace, userName) qui
         /// peut échouer silencieusement en SecuredObjectSpace combo RH+Employé.
         /// Conséquence : le filtre Bulletin se déclenchait à tort pour un user
@@ -210,13 +210,13 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             if (!EstSalarieConnecte(objectSpace)) return false;
 
-            // V1.8 — Liste des rôles "managers" qui ne doivent jamais être
+            // V1.8 - Liste des rôles "managers" qui ne doivent jamais être
             // restreints à leurs propres données, même s'ils sont aussi
             // liés à un salarié.
             var rolesManagers = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
                 { "RH", "DAF", "DG", "Admin", "Administrators", "DRH" };
 
-            // V1.8 — Lecture directe via SecuritySystem.CurrentUser :
+            // V1.8 - Lecture directe via SecuritySystem.CurrentUser :
             // c'est l'objet user en session, pas besoin de re-requêter la BDD.
             // Disponible quels que soient les droits Read sur ApplicationUser.
             try
@@ -254,7 +254,7 @@ namespace AdiPAIE_V02.Module.Controllers
             catch { /* non bloquant */ }
 
             // Par défaut : restreindre (l'user est salarié et on ne lui a
-            // pas détecté de rôle manager — c'est un employé "lambda").
+            // pas détecté de rôle manager - c'est un employé "lambda").
             return true;
         }
 

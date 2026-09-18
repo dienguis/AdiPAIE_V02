@@ -13,7 +13,7 @@ namespace AdiPAIE_V02.Module.Services
         public bool GroupesTypes { get; set; } = true;
         public bool Comptes { get; set; } = true;
         public bool Rubriques { get; set; } = true;
-        // V1.7.2 — Active la création des barèmes TRIMF (Mensuel+Annuel) et IR DPP
+        // V1.7.2 - Active la création des barèmes TRIMF (Mensuel+Annuel) et IR DPP
         public bool Baremes { get; set; } = true;
         public bool JeuDemo { get; set; } = false;
         public string CodeBaremeTRIMF { get; set; } = "TRIMF_2026";
@@ -24,8 +24,8 @@ namespace AdiPAIE_V02.Module.Services
     {
         public static void Run(IObjectSpace os, SeedOptions opt)
         {
-            // ─────────────────────────────────────────────────────────
-            // V1.7.2 — Seed COMPLET du référentiel paie ELTON, aligné
+            // ---------------------------------------------------------
+            // V1.7.2 - Seed COMPLET du référentiel paie ELTON, aligné
             // 1:1 avec le bloc équivalent de l'Updater. Permet de relancer
             // le seed à la demande (cf. RechargerReferentielController)
             // sans dépendre du DatabaseVersionMismatch.
@@ -37,7 +37,7 @@ namespace AdiPAIE_V02.Module.Services
             //   Cotisations  : IPRES_RG, IPRES_RC, CSS_AT, CSS_AF
             //   Fiscales     : TRIMF, IR, CFCE
             //   Autres ret.  : PRET, AVANCE_SAL
-            // ─────────────────────────────────────────────────────────
+            // ---------------------------------------------------------
 
             // Convention + catégories de base
             var conv = EnsureConvention(os, "CONV_PET", "CONVENTION PETROLE");
@@ -47,7 +47,7 @@ namespace AdiPAIE_V02.Module.Services
             if (opt.Echelons)
                 EnsureEchelonsFromTable(os, catAgent, catCadre);
 
-            // ── Groupes + Types (déclarés au niveau méthode) ──────────
+            // -- Groupes + Types (déclarés au niveau méthode) ----------
             BusinessObjects.GroupeImpressionRef gSalaireBrut = null, gCotSocial = null,
                                                 gRetFiscal = null, gAutre = null;
             RubriqueTypeRef tBrute = null, tIndImpos = null, tIndNonImp = null;
@@ -67,14 +67,14 @@ namespace AdiPAIE_V02.Module.Services
                     RubriqueTypeCalcul.Gain, SensAssiette.Plus, bf: true, bs: true);
                 tIndNonImp = EnsureTypeRef(os, "INDEM_NON_IMPOSA", "Indemnités non imposables", gSalaireBrut,
                     RubriqueTypeCalcul.Gain, SensAssiette.Plus, bf: false, bs: true);
-                // V1.7.2 — Code en MAJUSCULES (regex [A-Z0-9_]{2,20}).
+                // V1.7.2 - Code en MAJUSCULES (regex [A-Z0-9_]{2,20}).
                 // Ancien code "AvNatImpos" rejeté par la validation.
                 tAvNatureImpos = EnsureTypeRef(os, "AV_NAT_IMPOS", "Av Nature Impos", gSalaireBrut,
                     RubriqueTypeCalcul.Gain, SensAssiette.Plus, bf: true, bs: false);
 
-                // V1.8.1 — Av Nature Non Imposable (cas rare : cadeaux d'entreprise
+                // V1.8.1 - Av Nature Non Imposable (cas rare : cadeaux d'entreprise
                 // sous seuil exonéré, paniers repas dans certaines limites CGI).
-                // bf: false, bs: false → n'entre ni dans le brut fiscal ni social.
+                // bf: false, bs: false -> n'entre ni dans le brut fiscal ni social.
                 // Le code TypeRef "AV_NAT_NON_IMP" permet la détection automatique
                 // par notre helper EstAvantageEnNature (prefix "AV_NAT").
                 EnsureTypeRef(os, "AV_NAT_NON_IMP", "Av Nature Non Impos", gSalaireBrut,
@@ -85,9 +85,15 @@ namespace AdiPAIE_V02.Module.Services
                     RubriqueTypeCalcul.Retenue, SensAssiette.Moins, bf: false, bs: false);
                 tRetenue = EnsureTypeRef(os, "RETENUE", "Retenues", gAutre,
                     RubriqueTypeCalcul.Retenue, SensAssiette.Moins, bf: false, bs: false);
+
+                // V1.8.3 - TypeRef pour les régularisations EN GAIN (remboursement
+                // au salarié). N'entre ni dans le brut fiscal ni social - c'est
+                // juste un correctif d'IR ou de TRIMF déjà payé.
+                EnsureTypeRef(os, "REGUL_GAIN", "Régularisations (gain)", gSalaireBrut,
+                    RubriqueTypeCalcul.Gain, SensAssiette.Plus, bf: false, bs: false);
             }
 
-            // ── Comptes (déclarés au niveau méthode) ──────────────────
+            // -- Comptes (déclarés au niveau méthode) ------------------
             PlanComptable c661100 = null, c663110 = null, c431300 = null, c431310 = null,
                           c447100 = null, c447200 = null, c612450 = null, c612530 = null,
                           c421100 = null, c664100 = null, c272800 = null, c421000 = null;
@@ -107,14 +113,14 @@ namespace AdiPAIE_V02.Module.Services
                 c421000 = EnsureCompte(os, "421000", "Avance sur Salaire");
             }
 
-            // ─────────────────────────────────────────────────────────
-            // COMMIT intermédiaire — garantit que les TypeRef et Comptes
+            // ---------------------------------------------------------
+            // COMMIT intermédiaire - garantit que les TypeRef et Comptes
             // sont en DB AVANT d'être référencés par les Rubriques.
-            // ─────────────────────────────────────────────────────────
+            // ---------------------------------------------------------
             if (opt.GroupesTypes || opt.Comptes)
                 os.CommitChanges();
 
-            // ── Rubriques (26 — liste alignée 1:1 avec l'Updater) ────
+            // -- Rubriques (26 - liste alignée 1:1 avec l'Updater) ----
             if (opt.Rubriques)
             {
                 // Fallback : si opt.GroupesTypes était false, requêter depuis la DB
@@ -126,7 +132,7 @@ namespace AdiPAIE_V02.Module.Services
                     tIndNonImp = os.GetObjectsQuery<RubriqueTypeRef>().FirstOrDefault(x => x.Code == "INDEM_NON_IMPOSA");
                 if (tAvNatureImpos == null)
                 {
-                    // V1.7.2 — Nouveau code MAJ ; fallback sur ancien code mixte
+                    // V1.7.2 - Nouveau code MAJ ; fallback sur ancien code mixte
                     tAvNatureImpos = os.GetObjectsQuery<RubriqueTypeRef>()
                         .FirstOrDefault(x => x.Code == "AV_NAT_IMPOS" || x.Code == "AvNatImpos");
                 }
@@ -146,7 +152,7 @@ namespace AdiPAIE_V02.Module.Services
                         "Activer opt.GroupesTypes dans le seed.");
                 }
 
-                // ── BLOC BRUT (ordre 1-70) ────────────────────────────
+                // -- BLOC BRUT (ordre 1-70) ----------------------------
                 EnsureRubrique(os, "SB", "Salaire de base", tBrute,
                     ordre: 1, canon: RubriqueCanonique.SalaireDeBase,
                     debitDefaut: c661100, creditDefaut: c421100);
@@ -158,7 +164,7 @@ namespace AdiPAIE_V02.Module.Services
                 EnsureRubrique(os, "CONGE_PAYE", "Indemnité congés payés", tIndImpos,
                     ordre: 23, debitDefaut: c661100, creditDefaut: c421100);
 
-                // V1.8 — Rubrique distincte demandée par RH (juin 2026) pour
+                // V1.8 - Rubrique distincte demandée par RH (juin 2026) pour
                 // le RACHAT de congés non pris en cours de carrière (≠ congé
                 // pris physiquement). Permet de distinguer dans le reporting :
                 //   - CONGE_PAYE = allocation versée quand le salarié part en congé
@@ -176,17 +182,17 @@ namespace AdiPAIE_V02.Module.Services
                     ordre: 60, canon: RubriqueCanonique.IndemniteLogement,
                     debitDefaut: c663110, creditDefaut: c421100);
 
-                // V1.7.2 — 13ième mois (canon 700)
+                // V1.7.2 - 13ième mois (canon 700)
                 EnsureRubrique(os, "13EME", "13e mois", tBrute,
                     ordre: 70, canon: RubriqueCanonique.TreiziemeMois,
                     debitDefaut: c661100, creditDefaut: c421100);
 
-                // V1.7.2 — Gratification (canon 710)
+                // V1.7.2 - Gratification (canon 710)
                 EnsureRubrique(os, "GRATIF", "Gratification", tBrute,
                     ordre: 75, canon: RubriqueCanonique.Gratification,
                     debitDefaut: c661100, creditDefaut: c421100);
 
-                // ── BLOC INDEMNITÉS génériques (ordre 80-83) ─────────
+                // -- BLOC INDEMNITÉS génériques (ordre 80-83) ---------
                 EnsureRubrique(os, "PRIME_GEN", "Prime générique", tIndImpos,
                     ordre: 80, debitDefaut: c661100, creditDefaut: c421100);
 
@@ -194,15 +200,25 @@ namespace AdiPAIE_V02.Module.Services
                 {
                     EnsureRubrique(os, "INDEM_GEN_NON_IMP", "Indemnité générique Non Imposable", tIndNonImp,
                         ordre: 81, debitDefaut: c661100, creditDefaut: c421100);
-                    EnsureRubrique(os, "TRANS", "Prime de transport", tIndNonImp,
+
+                    // V1.8.4 - La Prime de Transport ne doit PAS être incluse dans
+                    // la base IPRES (brut social) selon directive RH ELTON. On garde
+                    // le TypeRef INDEM_NON_IMPOSA pour cohérence d'affichage (groupe
+                    // "Salaire brut"), mais on override BrutSocial=false sur la
+                    // rubrique elle-même.
+                    var rTrans = EnsureRubrique(os, "TRANS", "Prime de transport", tIndNonImp,
                         ordre: 83, canon: RubriqueCanonique.PrimeTransport,
                         debitDefaut: c661100, creditDefaut: c421100);
+                    if (rTrans != null && rTrans.BrutSocial)
+                    {
+                        rTrans.BrutSocial = false;
+                    }
                 }
 
                 EnsureRubrique(os, "INDEM_GEN_IMP", "Indemnité générique Imposable", tIndImpos,
                     ordre: 82, debitDefaut: c661100, creditDefaut: c421100);
 
-                // ── HEURES SUPPLÉMENTAIRES (ordre 120-122) ───────────
+                // -- HEURES SUPPLÉMENTAIRES (ordre 120-122) -----------
                 EnsureRubrique(os, "HS25", "Heures sup 25%", tBrute,
                     ordre: 120, taux1: 25m, debitDefaut: c661100, creditDefaut: c421100);
                 EnsureRubrique(os, "HS50", "Heures sup 50%", tBrute,
@@ -210,8 +226,8 @@ namespace AdiPAIE_V02.Module.Services
                 EnsureRubrique(os, "HS100", "Heures sup 100%", tBrute,
                     ordre: 122, taux1: 100m, debitDefaut: c661100, creditDefaut: c421100);
 
-                // ── AVANTAGES EN NATURE (ordre 180-185) ──────────────
-                // V1.8.1 — Tous les avantages en nature doivent utiliser le
+                // -- AVANTAGES EN NATURE (ordre 180-185) --------------
+                // V1.8.1 - Tous les avantages en nature doivent utiliser le
                 // TypeRef AV_NAT_IMPOS pour que :
                 //   - ils entrent dans le brut fiscal (IR/TRIMF imposable)
                 //   - ils n'entrent PAS dans le brut social (pas IPRES/CSS)
@@ -222,13 +238,13 @@ namespace AdiPAIE_V02.Module.Services
                         ordre: 180, canon: RubriqueCanonique.AvantageNatureVehicule,
                         debitDefaut: c661100, creditDefaut: c421100);
 
-                    // V1.8.1 — AV_TEL passe de tBrute → tAvNatureImpos
+                    // V1.8.1 - AV_TEL passe de tBrute -> tAvNatureImpos
                     // Avant : téléphone était dans le Net à payer à tort.
                     EnsureRubrique(os, "AV_TEL", "Avantage en nature - téléphone", tAvNatureImpos,
                         ordre: 182, debitDefaut: c661100, creditDefaut: c421100);
                 }
 
-                // ── COTISATIONS SOCIALES (ordre 200-230) ─────────────
+                // -- COTISATIONS SOCIALES (ordre 200-230) -------------
                 EnsureRubrique(os, "IPRES_RG", "RETENUE IPRES RG", tCotSoc,
                     ordre: 200, canon: RubriqueCanonique.IPRES_RG,
                     creditDefaut: c431300, taux1: 5.60m, taux2: 8.40m, plafond: 432000m);
@@ -245,7 +261,7 @@ namespace AdiPAIE_V02.Module.Services
                     ordre: 230, canon: RubriqueCanonique.CSS_AllocationFamiliale,
                     debitDefaut: c612530, taux2: 7.00m, plafond: 63000m);
 
-                // ── COTISATIONS FISCALES (ordre 300-311) ─────────────
+                // -- COTISATIONS FISCALES (ordre 300-311) -------------
                 EnsureRubrique(os, "TRIMF", "RETENUE TRIMF", tCotFis,
                     ordre: 300, canon: RubriqueCanonique.TRIMF,
                     creditDefaut: c447200);
@@ -258,7 +274,47 @@ namespace AdiPAIE_V02.Module.Services
                     ordre: 311, canon: RubriqueCanonique.CFCE,
                     creditDefaut: c664100, taux2: 3.00m);
 
-                // ── AUTRES RETENUES (ordre 500-501) ──────────────────
+                // -- RÉGULARISATIONS (ordre 810-813) ------------------
+                // V1.8.3 - Rubriques pour saisir manuellement des régularisations
+                // d'IR ou de TRIMF (rétroactives, corrections d'erreur, etc.).
+                //
+                // Aucune logique de calcul automatique - le RH les ajoute via
+                // le bouton "Ajouter une ligne" sur le DetailView Bulletin et
+                // saisit le montant à la main.
+                //
+                // Distinction PRELEVER (Retenue) / REMBOURSER (Gain) :
+                //   - PRELEVER  : IR insuffisamment prélevé sur un mois passé -> ligne en RETENUE
+                //   - REMBOURSER: IR trop prélevé sur un mois passé           -> ligne en GAIN
+                //
+                // Comptes comptables = mêmes que la rubrique de base (IR/TRIMF).
+                // Le sens (débit/crédit) est géré automatiquement par
+                // SensAssiette du TypeRef.
+                var tRegulGain = os.GetObjectsQuery<RubriqueTypeRef>()
+                    .FirstOrDefault(x => x.Code == "REGUL_GAIN");
+
+                EnsureRubrique(os, "REGUL_IR_RET", "Régul. Impôt IR (à prélever)", tCotFis,
+                    ordre: 810, creditDefaut: c447100);
+                if (tRegulGain != null)
+                    EnsureRubrique(os, "REGUL_IR_GAIN", "Régul. Impôt IR (à rembourser)", tRegulGain,
+                        ordre: 811, debitDefaut: c447100);
+
+                EnsureRubrique(os, "REGUL_TRIMF_RET", "Régul. TRIMF (à prélever)", tCotFis,
+                    ordre: 812, creditDefaut: c447200);
+                if (tRegulGain != null)
+                    EnsureRubrique(os, "REGUL_TRIMF_GAIN", "Régul. TRIMF (à rembourser)", tRegulGain,
+                        ordre: 813, debitDefaut: c447200);
+
+                // V1.8.7 - Régul. prêt (à prélever = retenue supplémentaire,
+                // ou à rembourser = compensation de double prélèvement historique).
+                // Compte 272800 = créance prêts au personnel.
+                if (tRetenue != null)
+                    EnsureRubrique(os, "REGUL_PRET_RET", "Régul. Prêt (à prélever)", tRetenue,
+                        ordre: 814, creditDefaut: c272800);
+                if (tRegulGain != null)
+                    EnsureRubrique(os, "REGUL_PRET_GAIN", "Régul. Prêt (à rembourser)", tRegulGain,
+                        ordre: 815, debitDefaut: c272800);
+
+                // -- AUTRES RETENUES (ordre 500-501) ------------------
                 if (tRetenue != null)
                 {
                     EnsureRubrique(os, "PRET", "RETENUE Prêt", tRetenue,
@@ -270,12 +326,12 @@ namespace AdiPAIE_V02.Module.Services
                 }
             }
 
-            // ─────────────────────────────────────────────────────────
-            // V1.7.2 — BARÈMES TRIMF (Mensuel + Annuel) et IR DPP
+            // ---------------------------------------------------------
+            // V1.7.2 - BARÈMES TRIMF (Mensuel + Annuel) et IR DPP
             // Valeurs officielles Sénégal depuis Domain/PaieConsts.cs.
             // Le DBA peut ajuster les valeurs en base après si DGID publie
             // une nouvelle table (peu fréquent).
-            // ─────────────────────────────────────────────────────────
+            // ---------------------------------------------------------
             if (opt.Baremes)
             {
                 int annee = opt.AnneeBaremes > 0
@@ -312,7 +368,7 @@ namespace AdiPAIE_V02.Module.Services
                     tranches: dppTranches,
                     annee);
 
-                // V1.7.2 — Table de réduction familiale IR (par nombre de parts)
+                // V1.7.2 - Table de réduction familiale IR (par nombre de parts)
                 EnsureIRReductionsFamille(os);
 
                 os.CommitChanges();
@@ -326,9 +382,9 @@ namespace AdiPAIE_V02.Module.Services
             os.CommitChanges();
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // V1.7.2 — Helpers de création des barèmes (idempotents)
-        // ─────────────────────────────────────────────────────────────
+        // -------------------------------------------------------------
+        // V1.7.2 - Helpers de création des barèmes (idempotents)
+        // -------------------------------------------------------------
         private static void EnsureBaremeTRIMF(
             IObjectSpace os, string code,
             Domain.DomainEnums.TrimfNature nature,
@@ -371,11 +427,11 @@ namespace AdiPAIE_V02.Module.Services
             }
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // V1.7.2 — Table de réduction familiale IR (Sénégal)
-        // 9 lignes : NbrePart 1.0 → 5.0 avec taux %, min annuel, max annuel.
+        // -------------------------------------------------------------
+        // V1.7.2 - Table de réduction familiale IR (Sénégal)
+        // 9 lignes : NbrePart 1.0 -> 5.0 avec taux %, min annuel, max annuel.
         // Référence : Code Général des Impôts Sénégal Art. 174.
-        // ─────────────────────────────────────────────────────────────
+        // -------------------------------------------------------------
         private static void EnsureIRReductionsFamille(IObjectSpace os)
         {
             var rows = new (decimal Parts, decimal TauxPct, decimal MinA, decimal MaxA)[]
@@ -532,12 +588,12 @@ namespace AdiPAIE_V02.Module.Services
             }
         }
 
-        // V1.7.2 — Surcharge backward-compatible : code auto-déduit du libellé.
+        // V1.7.2 - Surcharge backward-compatible : code auto-déduit du libellé.
         // GroupeImpressionRef.Code est obligatoire (validation XPO).
         // Format imposé : MAJUSCULES, 2-20 caractères, A-Z, 0-9, underscore.
         private static GroupeImpressionRef EnsureGroupe(IObjectSpace os, string libelle)
         {
-            // Mapping connu des libellés ELTON → codes
+            // Mapping connu des libellés ELTON -> codes
             string code = libelle switch
             {
                 "Salaire brut (1)" => "BRUT",
@@ -549,7 +605,7 @@ namespace AdiPAIE_V02.Module.Services
             return EnsureGroupe(os, code, libelle);
         }
 
-        // V1.7.2 — Surcharge avec code explicite (préférable).
+        // V1.7.2 - Surcharge avec code explicite (préférable).
         private static GroupeImpressionRef EnsureGroupe(IObjectSpace os, string code, string libelle)
         {
             // 1. Priorité au Code (unique)
@@ -579,7 +635,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // Helper : transforme un libellé en code MAJUSCULE 2-20 caractères
-        // (A-Z, 0-9, underscore) — pour les groupes non listés dans le mapping.
+        // (A-Z, 0-9, underscore) - pour les groupes non listés dans le mapping.
         private static string DeriveCodeFromLibelle(string libelle)
         {
             if (string.IsNullOrWhiteSpace(libelle)) return "GRP_UNKNOWN";

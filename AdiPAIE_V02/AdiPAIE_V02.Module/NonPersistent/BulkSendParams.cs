@@ -14,7 +14,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
         Visibility = ViewItemVisibility.Hide)]
     public class BulkSendParams : NonPersistentBaseObject
     {
-        // ── Champs internes — jamais affichés dans le popup ────
+        // ── Champs internes - jamais affichés dans le popup ────
         [VisibleInDetailView(false)]
         [VisibleInListView(false)]
         [VisibleInLookupListView(false)]

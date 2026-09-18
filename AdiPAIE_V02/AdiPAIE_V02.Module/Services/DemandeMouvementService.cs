@@ -1,5 +1,5 @@
 // =============================================================================
-//  DemandeMouvementService.cs — V1.5
+//  DemandeMouvementService.cs - V1.5
 //
 //  Orchestration des transitions de statut sur DemandeMouvementInterim,
 //  appliquées par les controllers (BulletinPublishController-style).
@@ -39,7 +39,7 @@ namespace AdiPAIE_V02.Module.Services
     public static class DemandeMouvementService
     {
         // ─────────────────────────────────────────────────────────────────
-        // SOUMETTRE — Brouillon → SoumiseAssistantRH
+        // SOUMETTRE - Brouillon → SoumiseAssistantRH
         // ─────────────────────────────────────────────────────────────────
         public static void Soumettre(
             DemandeMouvementInterim d,
@@ -61,7 +61,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ─────────────────────────────────────────────────────────────────
-        // VALIDER ASSISTANT RH — SoumiseAssistantRH → ValideeAssistantRH
+        // VALIDER ASSISTANT RH - SoumiseAssistantRH → ValideeAssistantRH
         // ─────────────────────────────────────────────────────────────────
         public static void ValiderAssistantRH(
             DemandeMouvementInterim d,
@@ -81,7 +81,7 @@ namespace AdiPAIE_V02.Module.Services
             os.CommitChanges();
             Audit(os, d, "ValiderAssistantRH", userName, commentaire);
             NotifierAcFireForget(d, os,
-                "Demande validée par l'Assistant RH — en attente RH",
+                "Demande validée par l'Assistant RH - en attente RH",
                 commentaire, logger);
         }
 
@@ -139,8 +139,8 @@ namespace AdiPAIE_V02.Module.Services
                   userName, commentaire);
             NotifierAcFireForget(d, os,
                 d.OptionApprobationDAF
-                    ? "Demande validée par RH — en attente DAF"
-                    : "Demande validée par RH — prête à être appliquée",
+                    ? "Demande validée par RH - en attente DAF"
+                    : "Demande validée par RH - prête à être appliquée",
                 commentaire, logger);
         }
 
@@ -168,7 +168,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ─────────────────────────────────────────────────────────────────
-        // APPROUVER DAF (si OptionApprobationDAF) — ValideeRH → ValideeDAF
+        // APPROUVER DAF (si OptionApprobationDAF) - ValideeRH → ValideeDAF
         // ─────────────────────────────────────────────────────────────────
         public static void ApprouverDAF(
             DemandeMouvementInterim d,
@@ -191,7 +191,7 @@ namespace AdiPAIE_V02.Module.Services
             os.CommitChanges();
             Audit(os, d, "ApprouverDAF", userName, commentaire);
             NotifierAcFireForget(d, os,
-                "Demande approuvée par DAF — prête à être appliquée",
+                "Demande approuvée par DAF - prête à être appliquée",
                 commentaire, logger);
         }
 
@@ -218,7 +218,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ─────────────────────────────────────────────────────────────────
-        // APPLIQUER — création MouvementInterimaire + maj ContratInterim
+        // APPLIQUER - création MouvementInterimaire + maj ContratInterim
         // → Depuis ValideeRH ou ValideeDAF (selon option)
         // ─────────────────────────────────────────────────────────────────
         public static async Task AppliquerAsync(
@@ -307,12 +307,12 @@ namespace AdiPAIE_V02.Module.Services
                         break;
 
                     case TypeMouvementInterim.RemplacementTemporaire:
-                        // Pas de modification du contrat — un MouvementInterimaire
+                        // Pas de modification du contrat - un MouvementInterimaire
                         // de type "Affectation temporaire" est suffisant
                         break;
 
                     case TypeMouvementInterim.Autre:
-                        // Pas de mise à jour automatique — RH doit ajuster manuellement
+                        // Pas de mise à jour automatique - RH doit ajuster manuellement
                         break;
                 }
             }
@@ -334,20 +334,20 @@ namespace AdiPAIE_V02.Module.Services
                 catch (Exception emailEx)
                 {
                     logger?.LogWarning(emailEx,
-                        "Échec notification RFE pour demande {Ref} — application conservée.",
+                        "Échec notification RFE pour demande {Ref} - application conservée.",
                         d.Reference);
                 }
             }
 
             // ── 5) Notification email AC initiateur (best-effort)
             await NotifierAcAsync(d, os,
-                "Demande appliquée — mouvement effectif",
+                "Demande appliquée - mouvement effectif",
                 $"Mouvement {d.TypeMouvement} effectif au {d.DateSouhaitee:dd/MM/yyyy}.",
                 logger);
         }
 
         // ─────────────────────────────────────────────────────────────────
-        // ANNULER — à tout moment avant Appliquee
+        // ANNULER - à tout moment avant Appliquee
         // ─────────────────────────────────────────────────────────────────
         public static void Annuler(
             DemandeMouvementInterim d,
@@ -366,7 +366,7 @@ namespace AdiPAIE_V02.Module.Services
             os.CommitChanges();
             Audit(os, d, "Annuler", userName, motif ?? "Annulé sans motif");
 
-            // V1.5.2 — Notif AC seulement si annulation par quelqu'un d'autre
+            // V1.5.2 - Notif AC seulement si annulation par quelqu'un d'autre
             // (sinon l'AC s'enverrait un email à lui-même → bruit inutile)
             var emailAc = d.Initiateur?.Email?.Trim();
             bool autoAnnulation = !string.IsNullOrWhiteSpace(emailAc)
@@ -472,7 +472,7 @@ namespace AdiPAIE_V02.Module.Services
             if (string.IsNullOrWhiteSpace(emailRfe))
             {
                 logger?.LogInformation(
-                    "Demande {Ref} : pas d'email RFE renseigné — notification ignorée.",
+                    "Demande {Ref} : pas d'email RFE renseigné - notification ignorée.",
                     d.Reference);
                 return;
             }
@@ -488,7 +488,7 @@ namespace AdiPAIE_V02.Module.Services
                 return;
             }
 
-            var sujet = $"[SunuPaie] Mouvement intérimaire — {d.Interimaire.FullName} — {d.TypeMouvement}";
+            var sujet = $"[SunuPaie] Mouvement intérimaire - {d.Interimaire.FullName} - {d.TypeMouvement}";
             var body = BuildEmailRfeHtml(d);
 
             try
@@ -506,8 +506,8 @@ namespace AdiPAIE_V02.Module.Services
 
         private static string BuildEmailRfeHtml(DemandeMouvementInterim d)
         {
-            var dest = d.StationDestination?.ToString() ?? "—";
-            var poste = d.PosteSouhaite?.ToString() ?? d.PosteActuel?.ToString() ?? "—";
+            var dest = d.StationDestination?.ToString() ?? "-";
+            var poste = d.PosteSouhaite?.ToString() ?? d.PosteActuel?.ToString() ?? "-";
             return $@"
 <html>
 <body style='font-family:Calibri,sans-serif; font-size:14px; color:#222;'>
@@ -515,7 +515,7 @@ namespace AdiPAIE_V02.Module.Services
 
 <p>Nous vous informons d'un mouvement validé concernant l'intérimaire
 <strong>{System.Net.WebUtility.HtmlEncode(d.Interimaire.FullName)}</strong>
-({System.Net.WebUtility.HtmlEncode(d.Interimaire.Matricule ?? "—")}) :</p>
+({System.Net.WebUtility.HtmlEncode(d.Interimaire.Matricule ?? "-")}) :</p>
 
 <table style='border-collapse:collapse;'>
   <tr><td style='padding:4px 12px 4px 0;'><strong>Type de mouvement</strong></td><td>{d.TypeMouvement}</td></tr>
@@ -529,14 +529,14 @@ namespace AdiPAIE_V02.Module.Services
 {System.Net.WebUtility.HtmlEncode(d.Motif)}</p>
 
 <p style='color:#666; font-size:12px;'>
-— Service Paie / RH ELTON Oil Company
+- Service Paie / RH ELTON Oil Company
 </p>
 </body>
 </html>";
         }
 
         // ═════════════════════════════════════════════════════════════════
-        // V1.5.2 — Notification AC sur changement de statut de SA demande
+        // V1.5.2 - Notification AC sur changement de statut de SA demande
         // L'initiateur (AC) reçoit un email à chaque transition (validée,
         // rejetée, appliquée). Best-effort, non bloquant.
         // ═════════════════════════════════════════════════════════════════
@@ -555,7 +555,7 @@ namespace AdiPAIE_V02.Module.Services
                 if (string.IsNullOrWhiteSpace(emailAc))
                 {
                     logger?.LogInformation(
-                        "Demande {Ref} : initiateur sans email — notification AC ignorée.",
+                        "Demande {Ref} : initiateur sans email - notification AC ignorée.",
                         d.Reference);
                     return;
                 }
@@ -571,7 +571,7 @@ namespace AdiPAIE_V02.Module.Services
                     return;
                 }
 
-                var sujet = $"[SunuPaie] Votre demande {d.Reference} — {transitionLibelle}";
+                var sujet = $"[SunuPaie] Votre demande {d.Reference} - {transitionLibelle}";
                 var body = BuildEmailAcHtml(d, transitionLibelle, commentaire);
 
                 await sender.SendAsync(emailAc, sujet, body, attachment: null);
@@ -601,7 +601,7 @@ namespace AdiPAIE_V02.Module.Services
                 {
                     await NotifierAcAsync(d, os, transitionLibelle, commentaire, logger);
                 }
-                catch { /* swallowed — déjà loggé par NotifierAcAsync */ }
+                catch { /* swallowed - déjà loggé par NotifierAcAsync */ }
             });
         }
 
@@ -609,8 +609,8 @@ namespace AdiPAIE_V02.Module.Services
             DemandeMouvementInterim d, string transitionLibelle, string commentaire)
         {
             var prenomAc = d.Initiateur?.FirstName ?? d.Initiateur?.FullName ?? "";
-            var interimaireNom = d.Interimaire?.FullName ?? "—";
-            var matricule = d.Interimaire?.Matricule ?? "—";
+            var interimaireNom = d.Interimaire?.FullName ?? "-";
+            var matricule = d.Interimaire?.Matricule ?? "-";
             var commentaireBlock = string.IsNullOrWhiteSpace(commentaire)
                 ? ""
                 : $@"<p style='margin-top:12px;'><strong>Commentaire :</strong><br/>
@@ -643,7 +643,7 @@ Connectez-vous à votre Espace Salarié SunuPaie → menu
 </p>
 
 <p style='color:#666; font-size:12px;'>
-— Service Paie / RH ELTON Oil Company
+- Service Paie / RH ELTON Oil Company
 </p>
 </body>
 </html>";

@@ -1,5 +1,5 @@
 // =============================================================================
-//  ReferentielsRecrutement.cs — V1.4 (mai 2026)
+//  ReferentielsRecrutement.cs - V1.4 (mai 2026)
 //
 //  4 entités référentielles courtes pour le Module Recrutement :
 //    - MotifOuverturePoste  (Croissance, Remplacement, Création de fonction)

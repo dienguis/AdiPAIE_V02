@@ -168,43 +168,43 @@ namespace AdiPAIE_V02.Module.Services
                 FormationModalite.Distanciel => "Distanciel",
                 FormationModalite.Mixte => "Mixte",
                 FormationModalite.ELearning => "E-learning",
-                _ => "—"
+                _ => "-"
             };
 
             return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 // ── Salarié ───────────────────────────────────
                 ["{{Civilite}}"] = civilite,
-                ["{{FullName}}"] = sal.FullName ?? "—",
-                ["{{Prenom}}"] = sal.FirstName ?? "—",
-                ["{{Nom}}"] = sal.LastName ?? "—",
-                ["{{Matricule}}"] = sal.Matricule ?? "—",
-                ["{{Fonction}}"] = sal.Fonction?.Intitule ?? "—",
-                ["{{Departement}}"] = sal.Departement?.Nom ?? "—",
+                ["{{FullName}}"] = sal.FullName ?? "-",
+                ["{{Prenom}}"] = sal.FirstName ?? "-",
+                ["{{Nom}}"] = sal.LastName ?? "-",
+                ["{{Matricule}}"] = sal.Matricule ?? "-",
+                ["{{Fonction}}"] = sal.Fonction?.Intitule ?? "-",
+                ["{{Departement}}"] = sal.Departement?.Nom ?? "-",
 
                 // ── Formation ─────────────────────────────────
-                ["{{Intitule}}"] = session?.Intitule ?? "—",
-                ["{{Domaine}}"] = session?.Domaine?.Libelle ?? "—",
+                ["{{Intitule}}"] = session?.Intitule ?? "-",
+                ["{{Domaine}}"] = session?.Domaine?.Libelle ?? "-",
                 ["{{Modalite}}"] = modalite,
-                ["{{DateDebut}}"] = session?.DateDebut.ToString("dd MMMM yyyy", Fr) ?? "—",
-                ["{{DateFin}}"] = session?.DateFin.ToString("dd MMMM yyyy", Fr) ?? "—",
-                ["{{DureeJours}}"] = session?.DureeJours.ToString("N0", Fr) ?? "—",
+                ["{{DateDebut}}"] = session?.DateDebut.ToString("dd MMMM yyyy", Fr) ?? "-",
+                ["{{DateFin}}"] = session?.DateFin.ToString("dd MMMM yyyy", Fr) ?? "-",
+                ["{{DureeJours}}"] = session?.DureeJours.ToString("N0", Fr) ?? "-",
                 ["{{DureeHeures}}"] = session?.DureeHeures > 0
                                             ? session.DureeHeures.ToString("N0", Fr)
-                                            : "—",
-                ["{{Lieu}}"] = session?.Lieu ?? "—",
-                ["{{FormateurNom}}"] = session?.FormateurNom ?? "—",
-                ["{{Objectifs}}"] = session?.Objectifs ?? "—",
+                                            : "-",
+                ["{{Lieu}}"] = session?.Lieu ?? "-",
+                ["{{FormateurNom}}"] = session?.FormateurNom ?? "-",
+                ["{{Objectifs}}"] = session?.Objectifs ?? "-",
                 ["{{NumeroAttestation}}"] = numero,
 
                 // ── Société ───────────────────────────────────
-                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "—",
-                ["{{AdresseSociete}}"] = company?.Address ?? "—",
+                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "-",
+                ["{{AdresseSociete}}"] = company?.Address ?? "-",
                 ["{{VilleSociete}}"] = company?.Ville ?? "Dakar",
 
                 // ── Signataire ────────────────────────────────
-                ["{{SignataireNom}}"] = prm?.SignatoryName ?? "—",
-                ["{{SignataireTitre}}"] = prm?.SignatoryTitle ?? "—",
+                ["{{SignataireNom}}"] = prm?.SignatoryName ?? "-",
+                ["{{SignataireTitre}}"] = prm?.SignatoryTitle ?? "-",
 
                 // ── Date ──────────────────────────────────────
                 ["{{DateDocument}}"] = DateTime.Today.ToString("dd MMMM yyyy", Fr),
@@ -341,9 +341,9 @@ namespace AdiPAIE_V02.Module.Services
                 var doc = os.CreateObject<DossierDocument>();
                 doc.Dossier = dossier;
                 doc.Categorie = DossierCategorieDocument.Autre;
-                doc.Titre = $"Attestation formation — {insc.SessionFormation?.Intitule} ({numero})";
+                doc.Titre = $"Attestation formation - {insc.SessionFormation?.Intitule} ({numero})";
                 doc.DateDocument = DateTime.Today;
-                doc.SourceAuto = $"Généré automatiquement — Formation";
+                doc.SourceAuto = $"Généré automatiquement - Formation";
 
                 // Pièce jointe
                 var pj = os.CreateObject<DossierPieceJointe>();
@@ -356,7 +356,7 @@ namespace AdiPAIE_V02.Module.Services
             catch (Exception ex)
             {
                 Tracing.Tracer.LogError(ex);
-                // Pas de throw — l'archivage est secondaire
+                // Pas de throw - l'archivage est secondaire
             }
         }
 

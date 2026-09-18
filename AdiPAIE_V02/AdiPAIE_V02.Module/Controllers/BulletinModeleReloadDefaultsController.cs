@@ -44,7 +44,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     
         int touched = 0;
 
-            // 2) Salaire de base — base par défaut, montant laissé au moteur
+            // 2) Salaire de base - base par défaut, montant laissé au moteur
             if (rSB != null)
             {
                 var sbBase = m.Salarie?.SalaireBase ?? 0m;
@@ -57,7 +57,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 touched++;
             }
 
-            // 3) Indemnité logement — base, montant calculé par moteur
+            // 3) Indemnité logement - base, montant calculé par moteur
             if (rLOGT != null)
             {
                 var imLog = m.Salarie?.IndemniteLogement ?? 0m;
@@ -70,7 +70,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 touched++;
             }
 
-            // 4) Sursalaire — montant fixe
+            // 4) Sursalaire - montant fixe
             if (rSUR != null)
             {
                 var val = m.Salarie?.Sursalaire ?? 0m;
@@ -84,7 +84,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 touched++;
             }
 
-            // 5) Prime transport — montant fixe
+            // 5) Prime transport - montant fixe
             if (rTRSP != null)
             {
                 var val = m.Salarie?.PrimeTransport ?? 0m;
@@ -97,7 +97,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 touched++;
             }
 
-            // 6) Avantage en nature véhicule — montant fixe (fallback 20 000 si null)
+            // 6) Avantage en nature véhicule - montant fixe (fallback 20 000 si null)
             //if (rAVNV != null)
             //{
             //    var defVeh = m.Salarie?.AvantageVehicule ?? 20000m;

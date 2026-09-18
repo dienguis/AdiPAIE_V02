@@ -1,13 +1,13 @@
 // =============================================================================
-//  PilotageRecrutementFilterModel.cs — V1.4 (mai 2026)
+//  PilotageRecrutementFilterModel.cs - V1.4 (mai 2026)
 //
 //  Filtres du Dashboard N°12 Pilotage Recrutement.
 //   - Personnel (Interne / Externe)
 //   - Année (par défaut : année en cours)
-//   - Site(s) — multi-sélection (Externe uniquement)
-//   - Département(s) — multi-sélection (Interne uniquement)
-//   - Catégorie(s) professionnelle(s) — multi-sélection (Interne uniquement)
-//   - TypeContrat (CDI / CDD / Stage) — Interne uniquement
+//   - Site(s) - multi-sélection (Externe uniquement)
+//   - Département(s) - multi-sélection (Interne uniquement)
+//   - Catégorie(s) professionnelle(s) - multi-sélection (Interne uniquement)
+//   - TypeContrat (CDI / CDD / Stage) - Interne uniquement
 // =============================================================================
 
 using System;

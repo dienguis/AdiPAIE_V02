@@ -1,5 +1,5 @@
 // =============================================================================
-//  ProvisionConges.cs — V1.7 — Provision congés payés annuelle par salarié
+//  ProvisionConges.cs - V1.7 - Provision congés payés annuelle par salarié
 //
 //  Reproduit la règle métier ELTON (requête SQL ancienne paie) :
 //
@@ -45,7 +45,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
         Criteria = "BonusEnfants > 0",
         BackColor = "Pink", FontColor = "DeepPink",
         FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
-    // Écart théorique vs réel — alerte si divergence > 1 jour
+    // Écart théorique vs réel - alerte si divergence > 1 jour
     [Appearance("ProvCong_Ecart_Anomalie",
         TargetItems = nameof(Ecart),
         Criteria = "Ecart > 1 OR Ecart < -1",
@@ -113,7 +113,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
         [ToolTip("NbreJourTotal × (BrutMensuelMoyen / 22 jours ouvrés).")]
         public decimal ProvisionFCFA { get; set; }
 
-        // ── Réconciliation théorique vs réel (V1.7 — issue redondance) ─
+        // ── Réconciliation théorique vs réel (V1.7 - issue redondance) ─
         [XafDisplayName("Solde réel acquis")]
         [ModelDefault("DisplayFormat", "N1")]
         [ToolTip("Cumul SoldeConge.JoursAcquis du salarié pour l'année " +

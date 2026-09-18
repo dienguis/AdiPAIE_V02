@@ -1,5 +1,5 @@
 // =============================================================================
-//  BudgetVsRealiseDashboardService.cs — V1.2.1 (mai 2026)
+//  BudgetVsRealiseDashboardService.cs - V1.2.1 (mai 2026)
 //
 //  REFONTE annuelle :
 //    - Compare le BRUT annuel saisi (BudgetMasseSalariale.MontantBrutAnnuel)
@@ -54,7 +54,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             if (filter.SiteOid.HasValue)
             {
                 // Quand un site est filtré, on garde les lignes de ce site
-                // ET les lignes globales (Site=null) — sera additionné côté année
+                // ET les lignes globales (Site=null) - sera additionné côté année
                 allBudgets = allBudgets
                     .Where(b => b.Site == null || b.Site.Oid == filter.SiteOid.Value)
                     .ToList();

@@ -1,5 +1,5 @@
 // =============================================================================
-//  DemandeMouvementInterimAcFilterController.cs — V1.5
+//  DemandeMouvementInterimAcFilterController.cs - V1.5
 //
 //  Sur la vue DemandeMouvementInterim_AC_ListView (menu "Mon espace"),
 //  applique 2 filtres systématiques :
@@ -44,7 +44,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             // 1) Filtre liste : seulement mes demandes
             // (la sécurité réelle est garantie par les ObjectPermissions XAF
-            // du rôle AssistantCommercial — ce filtre est UX uniquement)
+            // du rôle AssistantCommercial - ce filtre est UX uniquement)
             try
             {
                 if (View?.CollectionSource != null && salarieAc != null)
@@ -56,7 +56,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             }
             catch
             {
-                // Pas bloquant — RBAC fait déjà le filtrage côté DB
+                // Pas bloquant - RBAC fait déjà le filtrage côté DB
             }
 
             // 2) Auto-rempli Initiateur à la création (hook ObjectSpace)

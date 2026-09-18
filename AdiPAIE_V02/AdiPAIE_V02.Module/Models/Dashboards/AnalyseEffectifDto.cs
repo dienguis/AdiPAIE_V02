@@ -1,6 +1,6 @@
 // =============================================================================
 //  AnalyseEffectifDto.cs
-//  Tableau N°2 (Analyse de l'Effectif) — DTOs renvoyés par le service.
+//  Tableau N°2 (Analyse de l'Effectif) - DTOs renvoyés par le service.
 // =============================================================================
 
 using System;
@@ -50,6 +50,6 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
     {
         public string  Libelle      { get; set; } = "";
         public int     Valeur       { get; set; }
-        public decimal Pourcentage  { get; set; }   // 0–100
+        public decimal Pourcentage  { get; set; }   // 0-100
     }
 }

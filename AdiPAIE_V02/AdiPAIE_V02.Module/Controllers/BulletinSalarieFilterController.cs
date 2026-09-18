@@ -8,7 +8,7 @@ namespace AdiPAIE_V02.Module.Controllers
     /// <summary>
     /// Filtre la ListView Bulletin pour l'espace salarie.
     ///
-    /// V1.4.3 — Critère de visibilité : DatePublication IS NOT NULL.
+    /// V1.4.3 - Critère de visibilité : DatePublication IS NOT NULL.
     /// C'est la garantie que RH a explicitement publié le bulletin via
     /// BulletinPublicationService.Publier(). Les bulletins legacy
     /// (statut Envoye/Cloture sans DatePublication) ne sont PAS visibles
@@ -16,7 +16,7 @@ namespace AdiPAIE_V02.Module.Controllers
     ///
     /// Deux modes :
     ///   A) Vue Bulletin_EspaceSalarie_ListView (menu "Mes bulletins") :
-    ///      filtre TOUJOURS appliqué — Salarie.Oid = utilisateur courant
+    ///      filtre TOUJOURS appliqué - Salarie.Oid = utilisateur courant
     ///      ET DatePublication != null.
     ///
     ///   B) Vue Bulletin_ListView (RH gestion) :
@@ -38,7 +38,7 @@ namespace AdiPAIE_V02.Module.Controllers
             if (salConn == null)
                 return; // Pas de salarié lié → ne rien toucher
 
-            // V1.4.3 — Sur la vue dédiée Espace Salarié, le filtre est
+            // V1.4.3 - Sur la vue dédiée Espace Salarié, le filtre est
             // TOUJOURS actif, même pour RH.
             bool estVueEspaceSalarie = string.Equals(
                 View?.Id, "Bulletin_EspaceSalarie_ListView",
@@ -51,7 +51,7 @@ namespace AdiPAIE_V02.Module.Controllers
                     return;
             }
 
-            // V1.4.3 — Filtre : ses bulletins ET publiés (DatePublication != null)
+            // V1.4.3 - Filtre : ses bulletins ET publiés (DatePublication != null)
             View.CollectionSource.Criteria[FilterKey] =
                 CriteriaOperator.Parse(
                     "Salarie.Oid = ? AND DatePublication IS NOT NULL",

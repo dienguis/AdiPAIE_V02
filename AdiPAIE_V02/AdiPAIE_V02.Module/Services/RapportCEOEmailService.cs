@@ -35,7 +35,7 @@ namespace AdiPAIE_V02.Module.Services
 
             var sender = param.CreateEmailSender();
 
-            string sujet = $"[SunuPaie] Rapport Exécutif — {NomMois(data.Mois)} {data.Annee}";
+            string sujet = $"[SunuPaie] Rapport Exécutif - {NomMois(data.Mois)} {data.Annee}";
             string corps = BuildCorpsEmail(data);
 
             // Construire un MailMessage avec pièces jointes multiples
@@ -79,7 +79,7 @@ namespace AdiPAIE_V02.Module.Services
         {
             return $@"
 <div style=""font-family:Arial,sans-serif;font-size:14px;color:#1a1a2e"">
-    <h2 style=""color:#0d1b4a"">Rapport Exécutif — {NomMois(d.Mois)} {d.Annee}</h2>
+    <h2 style=""color:#0d1b4a"">Rapport Exécutif - {NomMois(d.Mois)} {d.Annee}</h2>
     <p>Bonjour,</p>
     <p>Veuillez trouver ci-joint le rapport exécutif mensuel de <strong>{d.EntrepriseNom}</strong>.</p>
 
@@ -97,7 +97,7 @@ namespace AdiPAIE_V02.Module.Services
 
     <p style=""font-size:12px;color:#888;margin-top:20px"">
         Ce rapport a été généré automatiquement par SunuPaie le {d.DateGeneration:dd/MM/yyyy à HH:mm}.<br>
-        Document confidentiel — ne pas transférer.
+        Document confidentiel - ne pas transférer.
     </p>
 </div>";
         }

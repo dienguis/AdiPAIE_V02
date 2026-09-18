@@ -15,7 +15,7 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 namespace AdiPAIE_V02.Module.BusinessObjects.RH
 {
     /// <summary>
-    /// Session de formation — une occurrence concrète (dates, lieu, formateur).
+    /// Session de formation - une occurrence concrète (dates, lieu, formateur).
     /// Rattachée à un PlanFormation et un DomaineFormation.
     ///
     /// Cycle : Planifiée → Confirmée → En cours → Terminée

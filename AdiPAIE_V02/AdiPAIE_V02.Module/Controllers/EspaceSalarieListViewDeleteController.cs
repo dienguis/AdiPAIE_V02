@@ -133,7 +133,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
     /// <summary>
     /// Même protection pour DemandeAttestation ListView.
-    /// Aucun statut "Brouillon" n'existe — le premier statut est EnAttenteN1.
+    /// Aucun statut "Brouillon" n'existe - le premier statut est EnAttenteN1.
     /// Donc on bloque la suppression dès que le statut >= Soumise.
     /// Pour les demandes en EnAttenteN1/N2, l'employé peut encore supprimer.
     /// </summary>

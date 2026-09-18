@@ -1,8 +1,8 @@
 // =============================================================================
 //  EffectifDetailleDto.cs
-//  Tableau N°1 (Effectif détaillé) — DTO renvoyés par le service au Razor.
+//  Tableau N°1 (Effectif détaillé) - DTO renvoyés par le service au Razor.
 //
-//  Pas de logique métier ici — uniquement des structures de transport.
+//  Pas de logique métier ici - uniquement des structures de transport.
 // =============================================================================
 
 using System;
@@ -110,6 +110,6 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         public decimal PourcentageFemmes => Total > 0 ? (decimal)Femmes * 100m / Total : 0m;
 
         /// <summary>Libellé d'axe combiné (ex. "25-34 / Cadre").</summary>
-        public string Label => $"{AgeBucketHelper.GetLibelle(Tranche)} — {Categorie}";
+        public string Label => $"{AgeBucketHelper.GetLibelle(Tranche)} - {Categorie}";
     }
 }

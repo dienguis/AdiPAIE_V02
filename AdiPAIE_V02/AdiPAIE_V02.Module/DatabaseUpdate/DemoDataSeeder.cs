@@ -1,5 +1,5 @@
 // =============================================================================
-//  DemoDataSeeder.cs — V1.1 (mai 2026)
+//  DemoDataSeeder.cs - V1.1 (mai 2026)
 //
 //  Seed COMPLET de données de démonstration pour tester les 6 dashboards
 //  RH du module Tableaux de Bord. Tous les enregistrements créés ici ont
@@ -19,7 +19,7 @@
 //      Pour repartir de zéro : utilisez le Controller "Vider données démo".
 //
 //  ⚠️ Garantie anti-suppression seeds réels : le wiper filtre uniquement
-//      sur Code.StartsWith("DEMO_") — les rubriques de paie, paramètres,
+//      sur Code.StartsWith("DEMO_") - les rubriques de paie, paramètres,
 //      catégories métier réels ne sont JAMAIS touchés.
 // =============================================================================
 
@@ -54,13 +54,13 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             var interims   = EnsureInterimaires(os, societe);
             EnsureContrats(os, interims, sites, unites, postes);
             EnsureMouvements(os, interims, sites, unites);
-            EnsureBudgetMasseSalariale(os, sites);   // V1.2 — démo Budget vs Réalisé
+            EnsureBudgetMasseSalariale(os, sites);   // V1.2 - démo Budget vs Réalisé
 
-            // V1.3.3 — Démo congés (CongeType + CongeDemande) pour le dashboard N°5
+            // V1.3.3 - Démo congés (CongeType + CongeDemande) pour le dashboard N°5
             var typesConge = EnsureCongeTypesDemo(os);
             EnsureCongeDemandesDemo(os, typesConge);
 
-            // V1.4 — Démo Recrutement (5 postes + 30 candidats + 50 cand. + entretiens + offres + PE)
+            // V1.4 - Démo Recrutement (5 postes + 30 candidats + 50 cand. + entretiens + offres + PE)
             RecrutementDemoSeeder.EnsureAll(os);
         }
 
@@ -178,8 +178,8 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             if (existing != null) return existing;
 
             var s = os.CreateObject<SocieteInterim>();
-            // RaisonSociale est le seul champ commun — on préfixe pour identification
-            s.RaisonSociale = $"{code} — SEN INTERIM SARL";
+            // RaisonSociale est le seul champ commun - on préfixe pour identification
+            s.RaisonSociale = $"{code} - SEN INTERIM SARL";
             s.Telephone     = "+221 33 123 45 67";
             return s;
         }
@@ -303,7 +303,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                     contrat.Site           = site;
                     contrat.PosteOccupe    = postes[rnd.Next(postes.Length)];
                     contrat.TauxJournalier = 15000m + rnd.Next(0, 14) * 5000m; // 15k à 80k FCFA
-                    contrat.MotifRecours   = $"DEMO contrat {contratIdx} — surcroît d'activité";
+                    contrat.MotifRecours   = $"DEMO contrat {contratIdx} - surcroît d'activité";
                     contrat.TypeContrat    = ContratInterimType.PremiereMission;
 
                     // Date début variée 2024-2026
@@ -331,7 +331,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                         contrat.Statut = ContratInterimStatut.EnCours;
                     }
 
-                    // Ajout d'unité(s) — 1 obligatoire si le site en a, multi pour 20% des cas
+                    // Ajout d'unité(s) - 1 obligatoire si le site en a, multi pour 20% des cas
                     if (unitesArrays.TryGetValue(site, out var unitesSite) && unitesSite.Length > 0)
                     {
                         var u1 = unitesSite[rnd.Next(unitesSite.Length)];
@@ -382,13 +382,13 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 mvt.SiteOrigineV1      = origine;
                 mvt.SiteDestinationV1  = dest;
                 mvt.TypeMouvement      = MouvementInterimaireType.Affectation;
-                mvt.Motif              = $"DEMO mouvement {i + 1} — réaffectation opérationnelle";
+                mvt.Motif              = $"DEMO mouvement {i + 1} - réaffectation opérationnelle";
                 mvt.ValideRH           = rnd.Next(0, 100) < 80; // 80% validés
             }
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        //  V1.2.1 — BUDGET MASSE SALARIALE (DÉMO 2024 + 2025 + 2026)
+        //  V1.2.1 - BUDGET MASSE SALARIALE (DÉMO 2024 + 2025 + 2026)
         //
         //  REFONTE annuelle :
         //    Plus de granularité mensuelle ni de rubriques. On saisit
@@ -444,7 +444,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             int annee,
             decimal brutAnnuelTotal)
         {
-            // Idempotence par année — si on trouve déjà un budget DEMO sur cette année, on skip
+            // Idempotence par année - si on trouve déjà un budget DEMO sur cette année, on skip
             bool dejaExistant = os.GetObjectsQuery<BudgetMasseSalariale>()
                 .ToList()
                 .Any(b => b.Annee == annee
@@ -478,7 +478,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        //  V1.3.3 — TYPES DE CONGÉ + CONGE-DEMANDES DE DÉMO
+        //  V1.3.3 - TYPES DE CONGÉ + CONGE-DEMANDES DE DÉMO
         //
         //  Crée 9 CongeType (MAL, AT, EVENT, AUT, NAUT, CPAYE, FORM, MAT, PAT)
         //  s'ils n'existent pas, puis seed des CongeDemande variées sur les
@@ -503,7 +503,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             var evt   = EnsureCongeType(os, "EVENT", "Événement familial",     FamilleConge.EvenementFamilial, true,  0m,  ImpactSalaireConge());
             var aut   = EnsureCongeType(os, "AUT",   "Autre absence",          FamilleConge.Autre,             false, 0m,  ImpactSalaireConge());
             var naut  = EnsureCongeType(os, "NAUT",  "Absence non autorisée",  FamilleConge.SansSolde,         false, 0m,  CongeImpactSalaire.Impaye);
-            // V1.7 — Conforme CCT Sénégal Loi 97-17 Art. L.149 : 2 j/mois = 24 j/an
+            // V1.7 - Conforme CCT Sénégal Loi 97-17 Art. L.149 : 2 j/mois = 24 j/an
             // (la règle française de 2,5 j/mois = 30 j/an ne s'applique pas ici)
             var cpaye = EnsureCongeType(os, "CPAYE", "Congé payé annuel",      FamilleConge.Annuel,            true,  2.0m, ImpactSalaireConge());
             var form  = EnsureCongeType(os, "FORM",  "Formation",              FamilleConge.Autre,             true,  0m,  ImpactSalaireConge());
@@ -617,7 +617,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                         CreerDemande(os, sal, types.mat, debut, fin, "DEMO_CONGE_MAT_NAISSANCE");
                     }
 
-                    // 6. MAL longue (28 jours, 1 salarié sur 25 — cas critique)
+                    // 6. MAL longue (28 jours, 1 salarié sur 25 - cas critique)
                     if (idx % 25 == 0 && annee == anneeCourante)
                     {
                         var debut = new DateTime(annee, 3, 1);
@@ -665,20 +665,20 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         {
             int s = 0, u = 0, c = 0, m = 0, i = 0, p = 0, sc = 0;
 
-            // V1.2 — Suppression des budgets démo (Commentaire commence par "DEMO_BUDGET_")
+            // V1.2 - Suppression des budgets démo (Commentaire commence par "DEMO_BUDGET_")
             //   Avant les sites, sinon FK orpheline si Site supprimé.
             var budgets = os.GetObjectsQuery<BudgetMasseSalariale>().ToList()
                 .Where(x => (x.Commentaire ?? "").StartsWith("DEMO_BUDGET_"))
                 .ToList();
             foreach (var x in budgets) { os.Delete(x); }
 
-            // V1.3.3 — Suppression des CongeDemande démo (Motif commence par "DEMO_CONGE_")
+            // V1.3.3 - Suppression des CongeDemande démo (Motif commence par "DEMO_CONGE_")
             var congesDemo = os.GetObjectsQuery<CongeDemande>().ToList()
                 .Where(x => (x.Motif ?? "").StartsWith("DEMO_CONGE_"))
                 .ToList();
             foreach (var x in congesDemo) { os.Delete(x); }
 
-            // V1.4 — Suppression des données Recrutement démo (préfixes DEMO_RECRUT_/DEMO_CAND_/DEMO_POSTE_)
+            // V1.4 - Suppression des données Recrutement démo (préfixes DEMO_RECRUT_/DEMO_CAND_/DEMO_POSTE_)
             RecrutementDemoSeeder.WipeAll(os);
 
             // Ordre de suppression : enfants d'abord pour éviter les violations FK

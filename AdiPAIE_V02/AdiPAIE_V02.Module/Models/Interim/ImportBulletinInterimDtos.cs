@@ -1,5 +1,5 @@
 // =============================================================================
-//  ImportBulletinInterimDtos.cs — V1.3 Sprint 1 (mai 2026)
+//  ImportBulletinInterimDtos.cs - V1.3 Sprint 1 (mai 2026)
 //
 //  DTOs intermédiaires pour le wizard d'import :
 //    - LignePreviewDto    : 1 ligne du fichier après parsing (avant commit)

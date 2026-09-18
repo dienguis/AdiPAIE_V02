@@ -90,7 +90,7 @@ namespace AdiPAIE_V02.Module.Reports
             });
 
             // Adresse
-            var adresse = $"{company?.Address ?? ""}{(string.IsNullOrWhiteSpace(company?.Ville) ? "" : " — " + company?.Ville)}";
+            var adresse = $"{company?.Address ?? ""}{(string.IsNullOrWhiteSpace(company?.Ville) ? "" : " - " + company?.Ville)}";
             reportHeader.Controls.Add(new XRLabel
             {
                 Text = adresse,
@@ -103,7 +103,7 @@ namespace AdiPAIE_V02.Module.Reports
             // NINEA / RC
             reportHeader.Controls.Add(new XRLabel
             {
-                Text = $"NINEA : {company?.NINEA ?? "—"}    RC : {company?.RC ?? "—"}",
+                Text = $"NINEA : {company?.NINEA ?? "-"}    RC : {company?.RC ?? "-"}",
                 Font = F(8),
                 BoundsF = new RectangleF(130, 42, CONTENT_W - 130, 16),
                 TextAlignment = TextAlignment.MiddleLeft,
@@ -163,23 +163,23 @@ namespace AdiPAIE_V02.Module.Reports
             detail.Controls.Add(MakePanel(0, y, CONTENT_W, 80));
 
             detail.Controls.Add(MakeLabel("Nom et prénom :", F(9, true), 10, y + 6, 160, 16));
-            detail.Controls.Add(MakeLabel(sal?.FullName ?? "—", F(10), 175, y + 6, CONTENT_W - 185, 16));
+            detail.Controls.Add(MakeLabel(sal?.FullName ?? "-", F(10), 175, y + 6, CONTENT_W - 185, 16));
 
             detail.Controls.Add(MakeLabel("Matricule :", F(9, true), 10, y + 26, 160, 16));
-            detail.Controls.Add(MakeLabel(sal?.Matricule ?? "—", F(10), 175, y + 26, 200, 16));
+            detail.Controls.Add(MakeLabel(sal?.Matricule ?? "-", F(10), 175, y + 26, 200, 16));
 
             detail.Controls.Add(MakeLabel("Date d'embauche :", F(9, true), 10, y + 46, 160, 16));
             detail.Controls.Add(MakeLabel(
-                sal?.DateEmbauche != default ? sal.DateEmbauche.ToString("dd/MM/yyyy") : "—",
+                sal?.DateEmbauche != default ? sal.DateEmbauche.ToString("dd/MM/yyyy") : "-",
                 F(10), 175, y + 46, 200, 16));
 
             detail.Controls.Add(MakeLabel("Catégorie :", F(9, true), 350, y + 26, 120, 16));
-            detail.Controls.Add(MakeLabel(sal?.Categories?.Intitule ?? "—", F(10), 475, y + 26, CONTENT_W - 485, 16));
+            detail.Controls.Add(MakeLabel(sal?.Categories?.Intitule ?? "-", F(10), 475, y + 26, CONTENT_W - 485, 16));
 
             detail.Controls.Add(MakeLabel("Ancienneté :", F(9, true), 350, y + 46, 120, 16));
             var anciennete = sal != null
                 ? $"{AncienneteHelper.NombreAnnee(sal.DateEmbauche, DateTime.Today)} an(s)"
-                : "—";
+                : "-";
             detail.Controls.Add(MakeLabel(anciennete, F(10), 475, y + 46, CONTENT_W - 485, 16));
 
             y += 96;
@@ -272,7 +272,7 @@ namespace AdiPAIE_V02.Module.Reports
 
             pageFooter.Controls.Add(new XRLabel
             {
-                Text = $"Réf. demande : {demande.Oid}  —  Générée le {DateTime.Now:dd/MM/yyyy HH:mm}",
+                Text = $"Réf. demande : {demande.Oid}  -  Générée le {DateTime.Now:dd/MM/yyyy HH:mm}",
                 Font = F(7),
                 BoundsF = new RectangleF(0, 6, CONTENT_W - 80, 16),
                 TextAlignment = TextAlignment.MiddleLeft,
@@ -315,12 +315,12 @@ namespace AdiPAIE_V02.Module.Reports
         {
             if (sal == null) return string.Empty;
 
-            var nom = sal.FullName ?? "—";
-            var matricule = sal.Matricule ?? "—";
-            var categorie = sal.Categories?.Intitule ?? "—";
+            var nom = sal.FullName ?? "-";
+            var matricule = sal.Matricule ?? "-";
+            var categorie = sal.Categories?.Intitule ?? "-";
             var embauche = sal.DateEmbauche != default
                 ? sal.DateEmbauche.ToString("dd MMMM yyyy")
-                : "—";
+                : "-";
             var soc = company?.RaisonSociale ?? "la société";
 
             return (demande.Nature ?? AttestationNature.Travail) switch

@@ -15,7 +15,7 @@ namespace AdiPAIE_V02.Module.Controllers
     /// Boutons "Générer bordereau IPRES" et "Générer bordereau CSS"
     /// sur la ListView des périodes de paie.
     /// </summary>
-    /// <remarks>DÉSACTIVÉ — remplacé par PeriodePaieEtatsController (bouton unique "États / Exports").</remarks>
+    /// <remarks>DÉSACTIVÉ - remplacé par PeriodePaieEtatsController (bouton unique "États / Exports").</remarks>
     public class DeclarationSocialeController : ObjectViewController<ListView, PeriodePaie>
     {
         private PopupWindowShowAction _ipresAction;
@@ -105,7 +105,7 @@ namespace AdiPAIE_V02.Module.Controllers
                         "AdiPAIE.downloadFile", fileName, mimeType, base64);
 
                 Application.ShowViewStrategy.ShowMessage(
-                    $"Bordereau {type} généré — {mois:D2}/{annee} ({xlsxBytes.Length / 1024} Ko)",
+                    $"Bordereau {type} généré - {mois:D2}/{annee} ({xlsxBytes.Length / 1024} Ko)",
                     InformationType.Success, 5000, InformationPosition.Top);
             }
             catch (UserFriendlyException ex)

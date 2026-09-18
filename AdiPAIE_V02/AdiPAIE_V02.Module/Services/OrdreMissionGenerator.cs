@@ -14,7 +14,7 @@ namespace AdiPAIE_V02.Module.Services
 {
     /// <summary>
     /// Génère l'état de frais de mission par manipulation XML directe.
-    /// Même approche que AttestationTemplateService — pas de conflit
+    /// Même approche que AttestationTemplateService - pas de conflit
     /// avec les types DevExpress.XtraRichEdit.
     ///
     /// Le document est construit depuis le template uploadé :
@@ -84,21 +84,21 @@ namespace AdiPAIE_V02.Module.Services
                 d.Circuit.OrderBy(c => c.Ordre)
                     .Select(c => c.VilleArrivee));
             if (string.IsNullOrWhiteSpace(circuitTexte))
-                circuitTexte = d.Destination ?? "—";
+                circuitTexte = d.Destination ?? "-";
 
             var m = new Dictionary<string, string>(
                 StringComparer.OrdinalIgnoreCase)
             {
-                ["{{NumeroOrdre}}"] = d.NumeroOrdre ?? "—",
-                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "—",
+                ["{{NumeroOrdre}}"] = d.NumeroOrdre ?? "-",
+                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "-",
                 ["{{DateDocument}}"] = DateTime.Today
                     .ToString("dd MMMM yyyy", Fr),
-                ["{{FullName}}"] = sal.FullName ?? "—",
-                ["{{Matricule}}"] = sal.Matricule ?? "—",
-                ["{{Fonction}}"] = sal.Fonction?.Intitule ?? "—",
-                ["{{Departement}}"] = sal.Departement?.Nom ?? "—",
-                ["{{Objet}}"] = d.Objet ?? "—",
-                ["{{Destination}}"] = d.Destination ?? "—",
+                ["{{FullName}}"] = sal.FullName ?? "-",
+                ["{{Matricule}}"] = sal.Matricule ?? "-",
+                ["{{Fonction}}"] = sal.Fonction?.Intitule ?? "-",
+                ["{{Departement}}"] = sal.Departement?.Nom ?? "-",
+                ["{{Objet}}"] = d.Objet ?? "-",
+                ["{{Destination}}"] = d.Destination ?? "-",
                 ["{{Circuit}}"] = circuitTexte,
                 ["{{DateDepart}}"] = d.DateDepart
                     .ToString("dd MMMM yyyy", Fr),
@@ -108,17 +108,17 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{TotalFrais}}"] = d.TotalFrais
                     .ToString("N0", Fr) + " FCFA",
                 ["{{Observations}}"] = d.MotifDeplacement ?? "",
-                ["{{DirecteurNom}}"] = d.ValideurN1?.FullName ?? "—",
+                ["{{DirecteurNom}}"] = d.ValideurN1?.FullName ?? "-",
                 ["{{DateValidationN1}}"] = d.DateValidationN1.HasValue
-                    ? d.DateValidationN1.Value.ToString("dd/MM/yyyy") : "—",
+                    ? d.DateValidationN1.Value.ToString("dd/MM/yyyy") : "-",
                 ["{{SignataireNom}}"] = prm?.SignatoryName
-                    ?? prm?.SignatureName ?? "—",
+                    ?? prm?.SignatureName ?? "-",
                 ["{{SignataireTitre}}"] = prm?.SignatoryTitle
-                    ?? prm?.SignatureTitle ?? "—",
+                    ?? prm?.SignatureTitle ?? "-",
                 ["{{DateApprobation}}"] = d.DateApprobationRH.HasValue
-                    ? d.DateApprobationRH.Value.ToString("dd/MM/yyyy") : "—",
+                    ? d.DateApprobationRH.Value.ToString("dd/MM/yyyy") : "-",
                 ["{{DateValidationDAF}}"] = d.DateValidationDAF.HasValue
-                    ? d.DateValidationDAF.Value.ToString("dd/MM/yyyy") : "—",
+                    ? d.DateValidationDAF.Value.ToString("dd/MM/yyyy") : "-",
             };
 
             // Étapes circuit (1-8)
@@ -142,7 +142,7 @@ namespace AdiPAIE_V02.Module.Services
             m["{{CarburantOuiNon}}"] = carburant?.Quantite > 0
                 ? "OUI" : "NON";
             m["{{CarburantNombreLitres}}"] = carburant?.Quantite > 0
-                ? carburant.Quantite.ToString("N1", Fr) + " L" : "—";
+                ? carburant.Quantite.ToString("N1", Fr) + " L" : "-";
 
             return m;
         }
@@ -224,7 +224,7 @@ namespace AdiPAIE_V02.Module.Services
                 .FirstOrDefault(m => m.Value.Contains("{{#FRAIS_ROW}}"));
 
             if (match == null)
-                return xml; // Pas de ligne modèle trouvée — retourne tel quel
+                return xml; // Pas de ligne modèle trouvée - retourne tel quel
 
             var ligneModele = match.Value;
 
@@ -245,14 +245,14 @@ namespace AdiPAIE_V02.Module.Services
                     FraisCalculMode.TauxJournalier => "Par jour",
                     FraisCalculMode.Forfait => "Forfait",
                     FraisCalculMode.Kilometrique => "Par km/litre",
-                    _ => "—"
+                    _ => "-"
                 };
 
                 var ligne = ligneModele
                     .Replace("{{#FRAIS_ROW}}", "")
                     .Replace("{{/FRAIS_ROW}}", "")
                     .Replace("{{FraisLibelle}}",
-                        EchapperXml(f.Categorie?.Libelle ?? "—"))
+                        EchapperXml(f.Categorie?.Libelle ?? "-"))
                     .Replace("{{FraisMode}}",
                         EchapperXml(modeLabel))
                     .Replace("{{FraisQuantite}}",
@@ -268,7 +268,7 @@ namespace AdiPAIE_V02.Module.Services
                 sb.Append(ligne);
             }
 
-            // Si aucun frais — affiche une ligne vide informative
+            // Si aucun frais - affiche une ligne vide informative
             if (!frais.Any())
             {
                 var ligneVide = ligneModele

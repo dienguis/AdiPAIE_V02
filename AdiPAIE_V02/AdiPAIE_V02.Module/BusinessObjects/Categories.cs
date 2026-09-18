@@ -58,7 +58,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         Convention convention;
         [Association("Convention-Categories")]
         [RuleRequiredField] // recommandé si tu veux éviter les NULL côté FK
-        [VisibleInLookupListView(true)]   // → colonne visible dans le lookup
+        [VisibleInLookupListView(true)]   // -> colonne visible dans le lookup
         public Convention Convention
         {
             get => convention;
@@ -66,11 +66,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // ---------------------------------------------------------------------
-        // V1.8.1 — Drapeau explicite « Catégorie cadre »
+        // V1.8.1 - Drapeau explicite « Catégorie cadre »
         //
         // Pourquoi : la détection de cadre se faisait par recherche du mot
         // "cadre" dans le libellé (IndexOf), ce qui matchait à tort les
-        // libellés "Non cadre" / "Non-cadre" → IPRES Régime Cadre appliqué à
+        // libellés "Non cadre" / "Non-cadre" -> IPRES Régime Cadre appliqué à
         // tort à des non-cadres.
         //
         // À cocher manuellement par le RH pour chaque catégorie qui doit

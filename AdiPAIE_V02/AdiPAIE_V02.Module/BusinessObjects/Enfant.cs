@@ -1,5 +1,5 @@
 // =============================================================================
-//  Enfant.cs — V1.6 — Entité Enfant à charge d'un salarié
+//  Enfant.cs - V1.6 - Entité Enfant à charge d'un salarié
 //
 //  Calque sur le pattern Conjoint :
 //    - Association "Salarie-Enfants" (collection agrégée côté Salarie)
@@ -78,7 +78,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [XafDisplayName("À charge fiscale")]
         [ToolTip("Si oui, alimente le calcul TRIMF (0.5 part fiscale par enfant à charge, cap 5 parts total). " +
-                 "Règles à valider avec RH (Code Général des Impôts Sénégal — limite d'âge sauf étudiant/apprenti).")]
+                 "Règles à valider avec RH (Code Général des Impôts Sénégal - limite d'âge sauf étudiant/apprenti).")]
         public bool ACharge
         {
             get => aCharge;

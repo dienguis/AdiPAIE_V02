@@ -264,7 +264,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Propriétés calculées ──────────────────────────────────────
         [NonPersistent]
         public string DisplayName =>
-            $"{Reference} — {Poste?.Libelle ?? "—"} — {Site?.Nom ?? BU?.Libelle ?? "—"} ({DateDebut:MM/yyyy})";
+            $"{Reference} - {Poste?.Libelle ?? "-"} - {Site?.Nom ?? BU?.Libelle ?? "-"} ({DateDebut:MM/yyyy})";
 
         [NonPersistent]
         [XafDisplayName("Durée (jours)")]

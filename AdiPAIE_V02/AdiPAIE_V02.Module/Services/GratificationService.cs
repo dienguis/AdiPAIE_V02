@@ -1,5 +1,5 @@
 // =============================================================================
-//  GratificationService.cs — V1.7.2d
+//  GratificationService.cs - V1.7.2d
 //
 //  Service métier de la Gratification ad hoc.
 //
@@ -37,7 +37,7 @@ namespace AdiPAIE_V02.Module.Services
         private const string CodeRubriqueGratif = "GRATIF";
 
         // ─────────────────────────────────────────────────────────────
-        // ÉTAPE 0 — CALCUL DU MONTANT (à la volée)
+        // ÉTAPE 0 - CALCUL DU MONTANT (à la volée)
         // Recalcule MontantCalcule + BaseReference selon BaseCalcul.
         // Appelé automatiquement à la soumission. Peut aussi être
         // appelé à tout moment pour preview (avant soumission).
@@ -75,7 +75,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ─────────────────────────────────────────────────────────────
-        // ÉTAPE 1 — SOUMETTRE AU DAF (par RH)
+        // ÉTAPE 1 - SOUMETTRE AU DAF (par RH)
         // BrouillonRH → EnAttenteValidationDAF
         // ─────────────────────────────────────────────────────────────
         public static void Soumettre(IObjectSpace os, Gratification g)
@@ -107,7 +107,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ─────────────────────────────────────────────────────────────
-        // ÉTAPE 2A — VALIDER (par DAF)
+        // ÉTAPE 2A - VALIDER (par DAF)
         // EnAttenteValidationDAF → ValideeDAF
         // ─────────────────────────────────────────────────────────────
         public static void Valider(IObjectSpace os, Gratification g)
@@ -128,7 +128,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ─────────────────────────────────────────────────────────────
-        // ÉTAPE 2B — REJETER (par DAF)
+        // ÉTAPE 2B - REJETER (par DAF)
         // EnAttenteValidationDAF → BrouillonRH (avec motif)
         // ─────────────────────────────────────────────────────────────
         public static void Rejeter(IObjectSpace os, Gratification g, string motif)
@@ -141,7 +141,7 @@ namespace AdiPAIE_V02.Module.Services
                     $"Impossible de rejeter une gratification dont le statut " +
                     $"n'est pas EnAttenteValidationDAF (actuel : {g.Statut}).");
 
-            // Retour à Brouillon — RH peut corriger et resoumettre
+            // Retour à Brouillon - RH peut corriger et resoumettre
             g.Statut = GratificationStatut.BrouillonRH;
             g.DateSoumission = null;
 
@@ -155,7 +155,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ─────────────────────────────────────────────────────────────
-        // ÉTAPE 3 — INTÉGRER AU BULLETIN (par RH)
+        // ÉTAPE 3 - INTÉGRER AU BULLETIN (par RH)
         // ValideeDAF → IntegreeBulletin
         // Crée une BulletinLigne GRATIF sur le bulletin du mois choisi.
         // ─────────────────────────────────────────────────────────────
@@ -186,13 +186,13 @@ namespace AdiPAIE_V02.Module.Services
             if (bulletin == null)
                 throw new UserFriendlyException(
                     $"Bulletin {g.Annee}/{g.MoisPaiement:00} introuvable pour " +
-                    $"{g.Salarie.Matricule} – {g.Salarie.FullName}. " +
+                    $"{g.Salarie.Matricule} - {g.Salarie.FullName}. " +
                     $"Créer le bulletin avant intégration.");
 
             // Vérifier qu'il n'y a pas déjà une ligne GRATIF (idempotence)
             // Note : si plusieurs gratifications dans le même mois, elles
             // créent chacune leur propre ligne (BulletinLigne pas restrictive
-            // sur le code) — on les distingue via le montant et la
+            // sur le code) - on les distingue via le montant et la
             // référence à la Gratification source.
             var ligne = os.CreateObject<BulletinLigne>();
             ligne.Bulletin = bulletin;

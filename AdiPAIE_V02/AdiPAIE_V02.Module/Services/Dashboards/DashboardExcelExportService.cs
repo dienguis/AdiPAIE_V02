@@ -1,6 +1,6 @@
 // =============================================================================
 //  DashboardExcelExportService.cs
-//  Implémentation ClosedXML — export .xlsx pour les 6 tableaux de bord RH.
+//  Implémentation ClosedXML - export .xlsx pour les 6 tableaux de bord RH.
 //
 //  Convention :
 //    - 1 worksheet par section logique (KPI, table principale, etc.)
@@ -46,7 +46,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             using var wb = new XLWorkbook();
 
             // ── Onglet 0 : SYNTHESE ──────────────────────────────────────
-            BuildSyntheseGenerique(wb, "Tableau N°1 — Effectif détaillé",
+            BuildSyntheseGenerique(wb, "Tableau N°1 - Effectif détaillé",
                 $"Effectif total : {dto.EffectifTotal:N0} au {dto.DateReference:dd/MM/yyyy}",
                 ("Effectif total", dto.EffectifTotal.ToString("N0", Fr)),
                 ("Date réf.", dto.DateReference.ToString("dd/MM/yyyy", Fr)),
@@ -112,7 +112,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         {
             using var wb = new XLWorkbook();
 
-            BuildSyntheseGenerique(wb, "Tableau N°2 — Analyse de l'Effectif",
+            BuildSyntheseGenerique(wb, "Tableau N°2 - Analyse de l'Effectif",
                 $"{filter.Personnel} · Mode {filter.Mode} · {filter.Annee}",
                 ("Effectif",        dto.Kpis.EffectifTotal.ToString("N0", Fr)),
                 ("% Départs",       dto.Kpis.PourcentageDeparts.ToString("0.0", Fr) + " %"),
@@ -164,7 +164,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         {
             using var wb = new XLWorkbook();
 
-            BuildSyntheseGenerique(wb, "Tableau N°3 — Mouvements (Arrivées / Départs)",
+            BuildSyntheseGenerique(wb, "Tableau N°3 - Mouvements (Arrivées / Départs)",
                 $"{filter.Personnel} · {filter.Annee}",
                 ("Arrivées",       dto.Kpis.NbArrivees.ToString("N0", Fr)),
                 ("Départs",        dto.Kpis.NbDeparts.ToString("N0", Fr)),
@@ -261,7 +261,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             string anneesStr = filter.Annees != null && filter.Annees.Count > 0
                 ? string.Join(",", filter.Annees) : DateTime.Today.Year.ToString();
 
-            BuildSyntheseGenerique(wb, "Tableau N°5 — Suivi des Absences",
+            BuildSyntheseGenerique(wb, "Tableau N°5 - Suivi des Absences",
                 $"INTERNE · {anneesStr}",
                 ("Effectif moyen",   dto.Kpis.EffectifMoyen.ToString("N0", Fr)),
                 ("Se sont absentés", dto.Kpis.NbSalariesAbsents.ToString("N0", Fr)),
@@ -400,7 +400,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         {
             using var wb = new XLWorkbook();
 
-            BuildSyntheseGenerique(wb, "Tableau N°6 — Bilan Social Mensuel",
+            BuildSyntheseGenerique(wb, "Tableau N°6 - Bilan Social Mensuel",
                 $"INTERNE · Synthèse DTSS · {filter.Annee}",
                 ("Effectif moyen",   dto.Kpis.EffectifMoyenAnnuel.ToString("N0", Fr)),
                 ("Embauches",        dto.Kpis.TotalEmbauches.ToString("N0", Fr)),
@@ -603,7 +603,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             var ws = wb.Worksheets.Add("Synthese");
 
             // Titre principal
-            ws.Cell(1, 1).Value = $"Tableau N°4 — Rémunération · {filter.Personnel} · {filter.Mode} · {filter.Annee}";
+            ws.Cell(1, 1).Value = $"Tableau N°4 - Rémunération · {filter.Personnel} · {filter.Mode} · {filter.Annee}";
             ws.Range(1, 1, 1, 10).Merge();
             ws.Cell(1, 1).Style.Fill.BackgroundColor = HeaderBg;
             ws.Cell(1, 1).Style.Font.FontColor = XLColor.White;
@@ -637,7 +637,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
             // ── Tableau 1 : Par catégorie professionnelle ────
             row += 3;
-            ws.Cell(row, 1).Value = "Rémunération par catégorie professionnelle — Égalité des salaires";
+            ws.Cell(row, 1).Value = "Rémunération par catégorie professionnelle - Égalité des salaires";
             ws.Range(row, 1, row, 10).Merge();
             ws.Cell(row, 1).Style.Font.Bold = true;
             ws.Cell(row, 1).Style.Font.FontColor = XLColor.FromHtml("#142E4D");
@@ -649,7 +649,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
             // ── Tableau 2 : Par segment ───────────────────────
             row += 2;
-            ws.Cell(row, 1).Value = "Rémunération par segment — Égalité des salaires";
+            ws.Cell(row, 1).Value = "Rémunération par segment - Égalité des salaires";
             ws.Range(row, 1, row, 10).Merge();
             ws.Cell(row, 1).Style.Font.Bold = true;
             ws.Cell(row, 1).Style.Font.FontColor = XLColor.FromHtml("#142E4D");

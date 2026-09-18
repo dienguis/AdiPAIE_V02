@@ -71,7 +71,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 {
                     var caption = string.IsNullOrWhiteSpace(r.Categorie)
                         ? r.Nom
-                        : $"{r.Categorie} — {r.Nom}";
+                        : $"{r.Categorie} - {r.Nom}";
                     var item = new ChoiceActionItem(caption, r.Url);
                     if (!string.IsNullOrWhiteSpace(r.Description))
                         item.ToolTip = r.Description;

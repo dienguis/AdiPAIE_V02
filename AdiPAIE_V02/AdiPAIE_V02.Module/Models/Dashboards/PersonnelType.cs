@@ -1,6 +1,6 @@
 // =============================================================================
 //  PersonnelType.cs
-//  Module « Tableaux de Bord RH » — distinction du périmètre du personnel.
+//  Module « Tableaux de Bord RH » - distinction du périmètre du personnel.
 //
 //  - Interne : salariés de l'entreprise (CDI / CDD / Stage),
 //              entité métier `Salarie`.
@@ -18,10 +18,10 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
     /// </summary>
     public enum PersonnelType
     {
-        /// <summary>Salariés internes (CDI/CDD/Stage) — entité <c>Salarie</c>.</summary>
+        /// <summary>Salariés internes (CDI/CDD/Stage) - entité <c>Salarie</c>.</summary>
         Interne = 0,
 
-        /// <summary>Prestataires / intérimaires — entité <c>Interimaire</c>.</summary>
+        /// <summary>Prestataires / intérimaires - entité <c>Interimaire</c>.</summary>
         Externe = 1,
 
         /// <summary>Union Interne ∪ Externe.</summary>

@@ -93,7 +93,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             var avertissementCapacite = "";
             if (session.CapaciteMax > 0 && session.PlacesDisponibles == 0)
                 avertissementCapacite =
-                    " ⚠ La session est complète — votre demande sera mise en liste d'attente.";
+                    " ⚠ La session est complète - votre demande sera mise en liste d'attente.";
 
             // ── Création de l'inscription ─────────────────────────────
             var insc = ObjectSpace.CreateObject<InscriptionFormation>();
@@ -130,9 +130,9 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                         avertissementCapacite,
                         new[]
                         {
-                            ("Salarié",     salarie.FullName ?? "—"),
-                            ("Matricule",   salarie.Matricule ?? "—"),
-                            ("Département", salarie.Departement?.Nom ?? "—"),
+                            ("Salarié",     salarie.FullName ?? "-"),
+                            ("Matricule",   salarie.Matricule ?? "-"),
+                            ("Département", salarie.Departement?.Nom ?? "-"),
                             ("Formation",   session.Intitule),
                             ("Dates",       $"{session.DateDebut:dd/MM/yyyy} → {session.DateFin:dd/MM/yyyy}"),
                             ("Lieu",        session.Lieu ?? "À définir"),
@@ -140,11 +140,11 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
                     WorkflowEmailHelper.EnvoyerEmailsAsync(
                         Application, rhEmails,
-                        $"[AdiPAIE] Demande inscription formation — {salarie.FullName} / {session.Intitule}",
+                        $"[AdiPAIE] Demande inscription formation - {salarie.FullName} / {session.Intitule}",
                         body);
                 }
             }
-            catch { /* L'email est secondaire — ne pas bloquer */ }
+            catch { /* L'email est secondaire - ne pas bloquer */ }
 
             Application.ShowViewStrategy?.ShowMessage(
                 $"Votre demande d'inscription a été envoyée au service RH.{avertissementCapacite}",

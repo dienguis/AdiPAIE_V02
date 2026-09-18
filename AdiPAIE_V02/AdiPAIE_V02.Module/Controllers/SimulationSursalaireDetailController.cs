@@ -100,7 +100,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 Application.ShowViewStrategy.ShowMessage(
                     sb.ToString(), InformationType.Success, 5000, InformationPosition.Top);
 
-                // pas de commit automatique – l’utilisateur garde la main
+                // pas de commit automatique - l’utilisateur garde la main
                 UpdateEnableState();
                 View.Refresh();
             }

@@ -1,5 +1,5 @@
 // =============================================================================
-//  RecrutementDemoSeeder.cs — V1.4 (mai 2026)
+//  RecrutementDemoSeeder.cs - V1.4 (mai 2026)
 //
 //  Seed démo COMPLET pour le Module Recrutement (Dashboard N°12).
 //  Crée :
@@ -28,7 +28,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.DatabaseUpdate
 {
     /// <summary>
-    /// Seed démo du Module Recrutement V1.4. Idempotent — les enregistrements
+    /// Seed démo du Module Recrutement V1.4. Idempotent - les enregistrements
     /// portent un préfixe "DEMO_RECRUT_" / "DEMO_CAND_" pour le wiper.
     /// </summary>
     public static class RecrutementDemoSeeder

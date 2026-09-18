@@ -1,15 +1,15 @@
-# Emails d'ouverture des comptes SunuPaie — V1.7.2
+# Emails d'ouverture des comptes SunuPaie - V1.7.2
 
 Templates Markdown à copier-coller dans Outlook ou Gmail (texte enrichi).
 
 ---
 
-## Email type — Version générique (à personnaliser)
+## Email type - Version générique (à personnaliser)
 
 **De :** dienguis@elton.sn (DSI ELTON)
 **À :** [destinataire]@elton.sn
 **Cc :** [DRH, DG, DAF selon contexte]
-**Objet :** 🚀 Accès SunuPaie — Votre compte est ouvert
+**Objet :** 🚀 Accès SunuPaie - Votre compte est ouvert
 
 ---
 
@@ -23,7 +23,7 @@ Votre compte sur **SunuPaie**, la nouvelle plateforme de paie & RH d'ELTON, est 
 |---|---|
 | **URL d'accès** | <http://grh> (depuis le réseau ELTON uniquement) |
 | **Identifiant** | `[votre.email]@elton.sn` |
-| **Mot de passe initial** | *(vide — laisser le champ vide à la 1ère connexion)* |
+| **Mot de passe initial** | *(vide - laisser le champ vide à la 1ère connexion)* |
 | **Rôle attribué** | `[Employe + RH / Employe + DAF / Employe + DG]` |
 
 ### 📝 Procédure de première connexion
@@ -94,14 +94,14 @@ DSI ELTON
 
 ---
 
-## Email — Version DRH (Mme/M. xxx)
+## Email - Version DRH (Mme/M. xxx)
 
-**Objet :** 🚀 SunuPaie — Votre compte RH est ouvert (http://grh)
+**Objet :** 🚀 SunuPaie - Votre compte RH est ouvert (http://grh)
 
 Bonjour,
 
 Votre compte **RH** sur SunuPaie est ouvert. Vous êtes notre **point central**
-pour la gestion paie & personnel — l'application est désormais opérationnelle
+pour la gestion paie & personnel - l'application est désormais opérationnelle
 et vous attend.
 
 **🔑 Connexion :**
@@ -122,13 +122,13 @@ Documentation : <http://grh/help/index.html>
 Support : dienguis@elton.sn
 
 Cordialement,
-Abdoulaye DIENG — DSI
+Abdoulaye DIENG - DSI
 
 ---
 
-## Email — Version DAF (Mme/M. xxx)
+## Email - Version DAF (Mme/M. xxx)
 
-**Objet :** 🚀 SunuPaie — Votre compte DAF est ouvert (http://grh)
+**Objet :** 🚀 SunuPaie - Votre compte DAF est ouvert (http://grh)
 
 Bonjour,
 
@@ -158,13 +158,13 @@ Documentation : <http://grh/help/primes-13mois.html>
 Support : dienguis@elton.sn
 
 Cordialement,
-Abdoulaye DIENG — DSI
+Abdoulaye DIENG - DSI
 
 ---
 
-## Email — Version DG (M. xxx, Directeur Général)
+## Email - Version DG (M. xxx, Directeur Général)
 
-**Objet :** 🚀 SunuPaie — Votre accès Direction Générale est ouvert (http://grh)
+**Objet :** 🚀 SunuPaie - Votre accès Direction Générale est ouvert (http://grh)
 
 Monsieur le Directeur Général,
 
@@ -182,7 +182,7 @@ salariale et les ressources humaines, en lecture sécurisée.
 - **Tableaux de Bord** stratégiques (effectifs, masse salariale, provisions,
   conformité Sénégal, coût complet par salarié, recrutement)
 - **Liste complète** des salariés, contrats, bulletins, congés, entretiens
-- **Suivi des départs** (dossiers offboarding) — **votre signature** clôture le STC
+- **Suivi des départs** (dossiers offboarding) - **votre signature** clôture le STC
 
 **📝 Action requise de votre part** :
 - Pour chaque dossier de départ de salarié, vous signerez la dernière étape
@@ -195,7 +195,7 @@ salariale et les ressources humaines, en lecture sécurisée.
 - **N°7** Budget vs Réalisé masse salariale
 - **N°12** Recrutement (pipeline candidats)
 
-Vous n'avez **pas besoin** de saisir quoi que ce soit dans l'application —
+Vous n'avez **pas besoin** de saisir quoi que ce soit dans l'application -
 votre profil est de pure supervision. RH et DAF gèrent l'opérationnel.
 
 Documentation utilisateur : <http://grh/help/index.html>
@@ -208,7 +208,7 @@ DSI ELTON
 
 ---
 
-## Notes opérationnelles pour la DSI (interne — pas à envoyer)
+## Notes opérationnelles pour la DSI (interne - pas à envoyer)
 
 ### Avant l'envoi des mails
 
@@ -236,7 +236,7 @@ Pas encore de fonction self-service. Procédure manuelle :
 4. Communiquer à l'utilisateur : "Reconnectez-vous avec votre email et un
    mot de passe vide, vous serez invité à en définir un nouveau."
 
-### Roadmap V1.7.3 (à coder) — Self-service "Mot de passe oublié"
+### Roadmap V1.7.3 (à coder) - Self-service "Mot de passe oublié"
 
 - Action "Forgot password?" sur l'écran de login
 - Saisie email → envoi d'un lien de reset par mail SMTP

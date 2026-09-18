@@ -62,7 +62,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 if (d.ValideurN1 != null && !string.IsNullOrWhiteSpace(d.ValideurN1.Email))
                     WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
                         new[] { d.ValideurN1.Email },
-                        $"[AdiPAIE] Demande recrutement intérimaire à valider — {d.Reference}",
+                        $"[AdiPAIE] Demande recrutement intérimaire à valider - {d.Reference}",
                         WorkflowEmailHelper.HtmlTableau(
                             "Demande de recrutement intérimaire",
                             $"Une demande de recrutement intérimaire attend votre validation.",
@@ -90,9 +90,9 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 UpdateStates(); View.Refresh();
 
                 WorkflowEmailHelper.EnvoyerEmailsAsync(Application, rhEmails,
-                    $"[AdiPAIE] Demande recrutement intérimaire — validation RH requise — {d.Reference}",
+                    $"[AdiPAIE] Demande recrutement intérimaire - validation RH requise - {d.Reference}",
                     WorkflowEmailHelper.HtmlTableau(
-                        "Demande validée par N+1 — validation RH requise",
+                        "Demande validée par N+1 - validation RH requise",
                         $"La demande {d.Reference} a été validée par le N+1. Elle attend votre approbation.",
                         Lignes(d)));
 
@@ -287,10 +287,10 @@ namespace AdiPAIE_V02.Module.Controllers.RH
         // ── Helpers ───────────────────────────────────────────────────
         static (string, string)[] Lignes(DemandeRecrutementInterim d) => new[]
         {
-            ("Référence",    d.Reference ?? "—"),
-            ("Site / BU",    d.Site?.Nom ?? d.BU?.Libelle ?? "—"),
-            ("Poste",        d.Poste?.Libelle ?? "—"),
-            ("Motif",        d.MotifRecours ?? "—"),
+            ("Référence",    d.Reference ?? "-"),
+            ("Site / BU",    d.Site?.Nom ?? d.BU?.Libelle ?? "-"),
+            ("Poste",        d.Poste?.Libelle ?? "-"),
+            ("Motif",        d.MotifRecours ?? "-"),
             ("Début",        d.DateDebut.ToString("dd/MM/yyyy")),
             ("Fin",          d.DateFin.ToString("dd/MM/yyyy")),
             ("Nb postes",    d.NombrePostes.ToString()),

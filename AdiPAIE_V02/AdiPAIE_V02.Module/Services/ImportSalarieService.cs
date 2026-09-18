@@ -98,14 +98,14 @@ namespace AdiPAIE_V02.Module.Services
                     if (string.IsNullOrWhiteSpace(matricule))
                     {
                         result.Ignores++;
-                        result.Details.Add($"Ligne {r} : matricule vide — ignoré.");
+                        result.Details.Add($"Ligne {r} : matricule vide - ignoré.");
                         continue;
                     }
 
                     if (matriculesExistants.Contains(matricule))
                     {
                         result.Ignores++;
-                        result.Details.Add($"Ligne {r} : {matricule} existe déjà — ignoré.");
+                        result.Details.Add($"Ligne {r} : {matricule} existe déjà - ignoré.");
                         continue;
                     }
 
@@ -114,7 +114,7 @@ namespace AdiPAIE_V02.Module.Services
                     if (string.IsNullOrWhiteSpace(nom) || string.IsNullOrWhiteSpace(prenom))
                     {
                         result.Erreurs++;
-                        result.Details.Add($"Ligne {r} : nom ou prénom vide — erreur.");
+                        result.Details.Add($"Ligne {r} : nom ou prénom vide - erreur.");
                         continue;
                     }
 
@@ -221,7 +221,7 @@ namespace AdiPAIE_V02.Module.Services
                             phone.Number = tel;
                             sal.PhoneNumbers.Add(phone);
                         }
-                        catch { /* PhoneNumber non disponible — ignoré */ }
+                        catch { /* PhoneNumber non disponible - ignoré */ }
                     }
 
                     // ── Département (lookup par nom) ──────────────────

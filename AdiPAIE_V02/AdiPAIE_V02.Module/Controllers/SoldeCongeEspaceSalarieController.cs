@@ -32,7 +32,7 @@ namespace AdiPAIE_V02.Module.Controllers
             if (!EspaceSalarieHelper.DoitRestreindreEspaceSalarie(ObjectSpace))
                 return;
 
-            // Étape 3 : appliquer le filtre — l'employé voit uniquement SES soldes
+            // Étape 3 : appliquer le filtre - l'employé voit uniquement SES soldes
             var annee = System.DateTime.Today.Year;
 
             View.CollectionSource.Criteria[FilterKey] =

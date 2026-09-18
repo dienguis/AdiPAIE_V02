@@ -104,7 +104,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             }
             catch (Exception ex)
             {
-                // Ne jamais bloquer l'UX — log uniquement
+                // Ne jamais bloquer l'UX - log uniquement
                 Tracing.Tracer.LogError($"[MODELE_AUTO] Erreur création modèle : {ex.Message}");
             }
         }

@@ -76,7 +76,7 @@ namespace AdiPAIE_V02.Module.Services
                 FormationModalite.Distanciel => "Distanciel",
                 FormationModalite.Mixte => "Mixte",
                 FormationModalite.ELearning => "E-learning",
-                _ => "—"
+                _ => "-"
             };
 
             // ── Lignes tableau participants ───────────────────────────
@@ -88,9 +88,9 @@ namespace AdiPAIE_V02.Module.Services
                 lignesHtml.Append(
                     $"<tr>" +
                     $"<td class='c'>{num++}</td>" +
-                    $"<td>{sal?.FullName ?? "—"}</td>" +
-                    $"<td class='c'>{sal?.Matricule ?? "—"}</td>" +
-                    $"<td>{sal?.Departement?.Nom ?? "—"}</td>" +
+                    $"<td>{sal?.FullName ?? "-"}</td>" +
+                    $"<td class='c'>{sal?.Matricule ?? "-"}</td>" +
+                    $"<td>{sal?.Departement?.Nom ?? "-"}</td>" +
                     "<td class='sig'></td>" +
                     "</tr>");
             }
@@ -170,7 +170,7 @@ namespace AdiPAIE_V02.Module.Services
   <div class='header'>
     <div>
       <div class='societe'>{raisonSociale}</div>
-      <div class='societe-sub'>{adresse} — {ville}</div>
+      <div class='societe-sub'>{adresse} - {ville}</div>
     </div>
     <div class='doc-title'>
       <h1>Feuille d'émargement</h1>
@@ -187,7 +187,7 @@ namespace AdiPAIE_V02.Module.Services
     </div>
     <div class='info-item'>
       <span class='info-label'>Domaine :</span>
-      <span>{session.Domaine?.Libelle ?? "—"}</span>
+      <span>{session.Domaine?.Libelle ?? "-"}</span>
     </div>
     <div class='info-item'>
       <span class='info-label'>Dates :</span>
@@ -207,7 +207,7 @@ namespace AdiPAIE_V02.Module.Services
     </div>
     <div class='info-item'>
       <span class='info-label'>Formateur :</span>
-      <span>{session.FormateurNom ?? "—"}</span>
+      <span>{session.FormateurNom ?? "-"}</span>
     </div>
     <div class='info-item'>
       <span class='info-label'>Inscrits :</span>
@@ -236,7 +236,7 @@ namespace AdiPAIE_V02.Module.Services
     <div class='sign-box'>
       <div class='sign-label'>Signature du formateur / organisme</div>
       <div style='height:40px;'></div>
-      <div class='sign-name'>{session.FormateurNom ?? "— Formateur —"}</div>
+      <div class='sign-name'>{session.FormateurNom ?? "- Formateur -"}</div>
     </div>
     <div class='sign-box'>
       <div class='sign-label'>Visa RH / Responsable formation</div>
@@ -296,7 +296,7 @@ namespace AdiPAIE_V02.Module.Services
             catch { return null; }
             finally
             {
-                // Nettoyage systématique — aucun fichier conservé
+                // Nettoyage systématique - aucun fichier conservé
                 try { File.Delete(htmlPath); } catch { /* silencieux */ }
                 try { if (File.Exists(pdfPath)) File.Delete(pdfPath); } catch { /* silencieux */ }
             }

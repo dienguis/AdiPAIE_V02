@@ -1,6 +1,6 @@
 // AdiPAIE_V02.Module/BusinessObjects/Site.cs
 //
-// Référentiel UNIFIÉ des sites de travail — V1.1 (refonte mai 2026).
+// Référentiel UNIFIÉ des sites de travail - V1.1 (refonte mai 2026).
 //
 // Sert pour TOUT le personnel :
 //   - INTERNE (Salarie.Site)
@@ -17,8 +17,8 @@
 //   - Depot           : entrepôt logistique (Dépôt Dakar, Dépôt Thiès…).
 //   - Autre           : cas particuliers.
 //
-// Avant la V1.1 : il existait une entité distincte StationService — supprimée
-// et migrée vers Site Type=StationService. Idem BusinessUnitStation → devient
+// Avant la V1.1 : il existait une entité distincte StationService - supprimée
+// et migrée vers Site Type=StationService. Idem BusinessUnitStation -> devient
 // UniteOrganisationnelle Type=BU.
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.DC;
@@ -27,8 +27,10 @@ using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using System.ComponentModel;
+using System.Linq;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
 using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
+using DevExpress.ExpressApp.Model;
 
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
@@ -103,7 +105,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         bool actif = true;
 
-        // ── ⭐ V1.1 : Type macro du site (StationService / Siège / Dépôt) ──
+        // -- ⭐ V1.1 : Type macro du site (StationService / Siège / Dépôt) --
         [XafDisplayName("Type de site")]
         [ImmediatePostData]
         public TypeSite Type
@@ -113,29 +115,42 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         TypeSite type = TypeSite.StationService;
 
-        // ── Association inverse : sous-structure organisationnelle ──
-        // Pour une StationService → 4 BU (Boutique / Piste / E-Service / Espace Auto)
-        // Pour un Siège           → N Départements (DSI / Commerciale / Admin & Fin / RH...)
-        // Pour un Dépôt           → généralement aucune (mais possible)
+        // -- Association inverse : sous-structure organisationnelle --
+        // Pour une StationService -> 4 BU (Boutique / Piste / E-Service / Espace Auto)
+        // Pour un Siège           -> N Départements (DSI / Commerciale / Admin & Fin / RH...)
+        // Pour un Dépôt           -> généralement aucune (mais possible)
         [Association("Site-Unites"), Aggregated]
         [XafDisplayName("Unités organisationnelles")]
         public XPCollection<UniteOrganisationnelle> Unites
             => GetCollection<UniteOrganisationnelle>(nameof(Unites));
 
-        // ── Existant : salariés INTERNE rattachés au site ──
+        // -- Existant : salariés INTERNE rattachés au site --
         [Association("Site-Salaries")]
         [XafDisplayName("Salariés")]
         public XPCollection<Salarie> Salaries => GetCollection<Salarie>(nameof(Salaries));
 
-        // ── ⭐ V1.1 : contrats intérim sur ce site ──
+        // -- ⭐ V1.1 : contrats intérim sur ce site --
         [Association("Site-ContratsInterim")]
         [XafDisplayName("Contrats intérim")]
         public XPCollection<ContratInterim> ContratsInterim
             => GetCollection<ContratInterim>(nameof(ContratsInterim));
 
-        // ── ⭐ V1.1 Sprint 1C — Affichage typé pour les dropdowns dashboards ──
+        // -- V1.9.3 - Effectif actuel intérimaires (contrats en cours) --
+        [NonPersistent]
+        [XafDisplayName("Effectif actuel (intérim.)")]
+        [ModelDefault("DisplayFormat", "N0")]
+        public int EffectifActuelInterim =>
+            ContratsInterim.Count(c => c.Statut == AdiPAIE_V02.Module.Domain.DomainEnums.ContratInterimStatut.EnCours);
+
+        [NonPersistent]
+        [XafDisplayName("Effectif salariés internes")]
+        [ModelDefault("DisplayFormat", "N0")]
+        public int EffectifSalariesInternes =>
+            Salaries.Count(s => !s.IsDeleted);
+
+        // -- ⭐ V1.1 Sprint 1C - Affichage typé pour les dropdowns dashboards --
         /// <summary>
-        /// Nom préfixé par un emoji typé (🏪/🏢/📦/🏭) — utilisé comme TextFieldName
+        /// Nom préfixé par un emoji typé (🏪/🏢/📦/🏭) - utilisé comme TextFieldName
         /// dans les dropdowns Site des dashboards EXTERNE pour distinguer
         /// instantanément un siège ou un dépôt parmi les stations.
         /// </summary>

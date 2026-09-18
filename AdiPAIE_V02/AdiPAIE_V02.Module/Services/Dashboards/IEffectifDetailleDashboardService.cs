@@ -1,6 +1,6 @@
 // =============================================================================
 //  IEffectifDetailleDashboardService.cs
-//  Tableau N°1 (Effectif détaillé) — interface du service métier.
+//  Tableau N°1 (Effectif détaillé) - interface du service métier.
 //
 //  Le service est agnostique de l'environnement XAF Blazor : il prend un
 //  IObjectSpace en paramètre, fourni par la page Razor (qui sait comment

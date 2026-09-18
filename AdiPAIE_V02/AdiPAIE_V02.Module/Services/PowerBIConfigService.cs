@@ -63,7 +63,7 @@ namespace AdiPAIE_V02.Module.Services
             }
             catch
             {
-                // Parsing échoué — l'admin remplira manuellement
+                // Parsing échoué - l'admin remplira manuellement
             }
         }
     }

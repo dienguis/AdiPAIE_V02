@@ -9,7 +9,7 @@ using System.ComponentModel;
 namespace AdiPAIE_V02.Module.BusinessObjects.RH
 {
     /// <summary>
-    /// Partie II — Besoins en formation identifiés lors de l'entretien.
+    /// Partie II - Besoins en formation identifiés lors de l'entretien.
     /// Jusqu'à 3 formations par entretien avec points d'amélioration et mesures.
     /// </summary>
     [XafDisplayName("Besoin en formation")]

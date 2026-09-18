@@ -65,7 +65,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         Criteria = "Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Soumise#"
             + " AND Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Accordee#",
         Visibility = ViewItemVisibility.Hide, TargetItems = nameof(DateReprise))]
-    // V1.6.2 — Badges colorés sur la cellule Statut (workflow congés)
+    // V1.6.2 - Badges colorés sur la cellule Statut (workflow congés)
     [Appearance("Conge_Badge_Brouillon",
         TargetItems = "Statut",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Brouillon#",
@@ -306,7 +306,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         string commentaireRH;
 
         /// <summary>
-        /// Date de reprise effective — saisie par le RH au moment de l'accord.
+        /// Date de reprise effective - saisie par le RH au moment de l'accord.
         /// Peut différer de DateFin + 1 jour (récupération, pont, weekend, etc.)
         /// </summary>
         [XafDisplayName("Date de reprise")]
@@ -352,7 +352,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // ── Affichage ─────────────────────────────────────────
         [NonPersistent]
         public string DisplayName =>
-            $"{Salarie?.FullName} : {DateDebut:dd/MM} → {DateFin:dd/MM/yyyy} ({DureeJours:n1} j) — {Statut}";
+            $"{Salarie?.FullName} : {DateDebut:dd/MM} → {DateFin:dd/MM/yyyy} ({DureeJours:n1} j) - {Statut}";
 
         // ── Init ──────────────────────────────────────────────
         public override void AfterConstruction()
@@ -444,7 +444,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         /// <summary>
-        /// Rejet hiérarchique — repasse en Brouillon pour permettre modification.
+        /// Rejet hiérarchique - repasse en Brouillon pour permettre modification.
         /// </summary>
         public void RejeterHierarchie(string motif = null)
         {
@@ -455,7 +455,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             try { RejeteParNom = SecuritySystem.CurrentUserName; } catch { }
             if (!string.IsNullOrWhiteSpace(motif)) MotifRejet = motif;
 
-            // Repasse en Brouillon — le salarié peut modifier et resoumettre
+            // Repasse en Brouillon - le salarié peut modifier et resoumettre
             Statut = CongeStatut.Brouillon;
 
             // Réinitialise les valideurs pour une nouvelle soumission

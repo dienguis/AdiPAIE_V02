@@ -1,6 +1,6 @@
 // =============================================================================
 //  IAnalyseEffectifDashboardService.cs
-//  Tableau N°2 (Analyse de l'Effectif) — interface du service métier.
+//  Tableau N°2 (Analyse de l'Effectif) - interface du service métier.
 // =============================================================================
 
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 {
     /// <summary>
     /// Service du Tableau N°2 « Analyse de l'Effectif ».
-    /// Périmètre : INTERNE (Salarie) ou EXTERNE (Interimaire) — défini par
+    /// Périmètre : INTERNE (Salarie) ou EXTERNE (Interimaire) - défini par
     /// <see cref="AnalyseEffectifFilterModel.Personnel"/>.
     /// </summary>
     public interface IAnalyseEffectifDashboardService

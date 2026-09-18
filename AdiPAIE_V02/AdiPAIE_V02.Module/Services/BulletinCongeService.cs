@@ -1,5 +1,5 @@
 // =============================================================================
-//  BulletinCongeService.cs — V1.8 (juin 2026)
+//  BulletinCongeService.cs - V1.8 (juin 2026)
 //
 //  Service métier pour la gestion des allocations et indemnités de congés
 //  dans le bulletin de paie.
@@ -10,11 +10,11 @@
 //       Conforme CCT Sénégal Art. 57 + fichier ELTON Congés.xlsx validé RH.
 //
 //    2. RACHAT DE CONGÉ (en cours de carrière, sans départ physique)
-//       →  rubrique "ICCP" — "Indemnité de congés compensatrice"
+//       →  rubrique "ICCP" - "Indemnité de congés compensatrice"
 //       Même formule que cas 1, ligne ajoutée au bulletin mensuel normal.
 //
 //    3. ICCP DÉPART (rupture/retraite) → géré directement dans
-//       DossierOffboarding.CalculerSoldeToutCompte() — pas dans ce service.
+//       DossierOffboarding.CalculerSoldeToutCompte() - pas dans ce service.
 //
 //  Mode de bulletin :
 //    - BulletinUnique (défaut) : ligne ajoutée au bulletin mensuel existant
@@ -42,7 +42,7 @@ namespace AdiPAIE_V02.Module.Services
     public static class BulletinCongeService
     {
         // ─────────────────────────────────────────────────────────────
-        //  CONSTANTES — codes rubrique
+        //  CONSTANTES - codes rubrique
         // ─────────────────────────────────────────────────────────────
         public const string CODE_RUBRIQUE_CONGE_PAYE = "CONGE_PAYE";
         public const string CODE_RUBRIQUE_ICCP       = "ICCP";
@@ -139,7 +139,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  2. GÉNÉRATION DE LA LIGNE BULLETIN — CONGÉ PAYÉ
+        //  2. GÉNÉRATION DE LA LIGNE BULLETIN - CONGÉ PAYÉ
         // ═════════════════════════════════════════════════════════════════
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  3. GÉNÉRATION DE LA LIGNE BULLETIN — RACHAT ICCP (cours de carrière)
+        //  3. GÉNÉRATION DE LA LIGNE BULLETIN - RACHAT ICCP (cours de carrière)
         // ═════════════════════════════════════════════════════════════════
 
         /// <summary>
@@ -213,7 +213,7 @@ namespace AdiPAIE_V02.Module.Services
         // ═════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// V1.8 — Codes des rubriques de salaire normal à supprimer quand on
+        /// V1.8 - Codes des rubriques de salaire normal à supprimer quand on
         /// bascule un bulletin mensuel en bulletin de congé. Inclut :
         ///   - Salaire de base, Sursalaire, Ancienneté
         ///   - 13ème mois, Gratification
@@ -298,7 +298,7 @@ namespace AdiPAIE_V02.Module.Services
             Bulletin bulletin;
             if (mode == ModeBulletinConges.BulletinSepare && codeRubrique == CODE_RUBRIQUE_CONGE_PAYE)
             {
-                // Bulletin séparé pour le congé — toujours un nouveau bulletin distinct
+                // Bulletin séparé pour le congé - toujours un nouveau bulletin distinct
                 bulletin = os.CreateObject<Bulletin>();
                 bulletin.Salarie = salarie;
                 bulletin.Annee = annee;
@@ -306,7 +306,7 @@ namespace AdiPAIE_V02.Module.Services
             }
             else
             {
-                // Bulletin mensuel normal — récupérer ou créer
+                // Bulletin mensuel normal - récupérer ou créer
                 bulletin = os.GetObjectsQuery<Bulletin>()
                     .FirstOrDefault(b => b.Salarie.Oid == salarie.Oid
                                       && b.Annee == annee
@@ -321,7 +321,7 @@ namespace AdiPAIE_V02.Module.Services
                 }
             }
 
-            // 3. V1.8 — Unicité (Bulletin, Rubrique)
+            // 3. V1.8 - Unicité (Bulletin, Rubrique)
             //    Une même rubrique ne peut apparaître qu'une seule fois par
             //    bulletin (contrainte XPO RuleCombinationOfPropertiesIsUnique
             //    sur BulletinLigne). On anticipe ici pour donner un message
@@ -353,7 +353,7 @@ namespace AdiPAIE_V02.Module.Services
             if (anneeOrigineSolde.HasValue)
                 refTrace += $" [solde {anneeOrigineSolde.Value}]";
             if (!string.IsNullOrWhiteSpace(motif))
-                refTrace += $" — {motif}";
+                refTrace += $" - {motif}";
             ligne.Reference = refTrace;
 
             // 6. Commentaire de calcul (pour audit DAF)

@@ -1,5 +1,5 @@
 // =============================================================================
-//  SaisieCongeRequest.cs — V1.8 (juin 2026)
+//  SaisieCongeRequest.cs - V1.8 (juin 2026)
 //
 //  DTO non-persistant pour le popup "Saisir un congé" sur fiche Salarié.
 //
@@ -12,7 +12,7 @@
 //          - BulletinUnique : ligne ajoutée au bulletin mensuel
 //          - BulletinSepare : nouveau bulletin distinct pour le mois
 //
-//    B) RACHAT (ICCP) — compensation monétaire sans départ physique
+//    B) RACHAT (ICCP) - compensation monétaire sans départ physique
 //       → TypeOperation = RachatICCP
 //       → Rubrique ICCP générée
 //       → Toujours ajoutée au bulletin mensuel normal
@@ -68,7 +68,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
     public class SaisieCongeRequest : NonPersistentBaseObject
     {
         // ── Type d'opération ────────────────────────────────────────
-        // V1.8 — value type : pas de [RuleRequiredField] (XAF0009).
+        // V1.8 - value type : pas de [RuleRequiredField] (XAF0009).
         // La valeur par défaut "AllocationConge" sert de pré-sélection,
         // le RH peut changer en "RachatICCP" via la liste déroulante.
         [XafDisplayName("Type d'opération")]
@@ -134,7 +134,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
         [ImmediatePostData]
         public ModeCalculIndemnite ModeCalcul { get; set; } = ModeCalculIndemnite.Auto;
 
-        // ── V1.8 — Bascule bulletin mensuel → bulletin de congé ───
+        // ── V1.8 - Bascule bulletin mensuel → bulletin de congé ───
         // Coché par défaut car c'est la pratique ELTON courante : quand
         // le salarié part en congé tout le mois, son bulletin contient
         // l'indemnité de congé EN REMPLACEMENT du salaire (pas en plus).
@@ -147,7 +147,7 @@ namespace AdiPAIE_V02.Module.NonPersistent
                  "logement, Prime transport, Heures sup, Indemnités " +
                  "génériques) sur le bulletin AVANT d'ajouter l'indemnité " +
                  "de congé. Les avantages en nature (véhicule, téléphone) " +
-                 "et les cotisations sont CONSERVÉS — ils se recalculeront " +
+                 "et les cotisations sont CONSERVÉS - ils se recalculeront " +
                  "automatiquement sur la nouvelle base.")]
         public bool BasculerEnBulletinDeConge { get; set; } = true;
 
@@ -160,8 +160,8 @@ namespace AdiPAIE_V02.Module.NonPersistent
 
         // ── Motif libre ────────────────────────────────────────────
         [XafDisplayName("Motif")]
-        [ToolTip("Note libre (ex: 'Congé annuel 2025 — départ effectif', " +
-                 "'Rachat 18j non pris 2024 — accord DG', etc.).")]
+        [ToolTip("Note libre (ex: 'Congé annuel 2025 - départ effectif', " +
+                 "'Rachat 18j non pris 2024 - accord DG', etc.).")]
         [ModelDefault("RowCount", "3")]
         public string Motif { get; set; }
     }

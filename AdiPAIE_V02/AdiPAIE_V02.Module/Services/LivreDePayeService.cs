@@ -13,7 +13,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.Services
 {
     /// <summary>
-    /// Génère le Livre de Paie mensuel — document obligatoire (Code du Travail sénégalais, art. L.120).
+    /// Génère le Livre de Paie mensuel - document obligatoire (Code du Travail sénégalais, art. L.120).
     ///
     /// Colonnes :
     ///   Matricule | Nom | Département | Catégorie | Jours |
@@ -98,7 +98,7 @@ namespace AdiPAIE_V02.Module.Services
 
             // ── En-tête entreprise ───────────────────────────────────────
             int totalCols = 19;
-            ws.Cell(1, 1).Value = $"LIVRE DE PAIE — {nomMois.ToUpper()} {annee}";
+            ws.Cell(1, 1).Value = $"LIVRE DE PAIE - {nomMois.ToUpper()} {annee}";
             ws.Cell(1, 1).Style.Font.Bold = true;
             ws.Cell(1, 1).Style.Font.FontSize = 14;
             ws.Cell(1, 1).Style.Font.FontColor = BG_HEADER;

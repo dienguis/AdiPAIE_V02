@@ -27,7 +27,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             {
                 Caption = "Accorder",
                 ImageName = "Action_Approve",
-                ToolTip = "Accorde le congé — renseignez la date de reprise avant de valider.",
+                ToolTip = "Accorde le congé - renseignez la date de reprise avant de valider.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
                 TargetObjectsCriteria =
                     "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+CongeStatut,Soumise#"
@@ -70,7 +70,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             AuditService.Enregistrer(Application, "CongeDemande", "Accorder",
                 d.Oid.ToString(), d.Salarie?.FullName,
-                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} — Reprise le {d.DateReprise:dd/MM/yyyy}",
+                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} - Reprise le {d.DateReprise:dd/MM/yyyy}",
                 ancienStatut: "Soumise", nouveauStatut: "Accordée");
             ObjectSpace.CommitChanges();
             PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);

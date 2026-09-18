@@ -14,7 +14,7 @@ namespace AdiPAIE_V02.Module.Controllers
             base.OnActivated();
 
             // Ces actions [Action] sur Bulletin.cs apparaissent sur ListView
-            // mais n'ont de sens qu'en DetailView — on les masque
+            // mais n'ont de sens qu'en DetailView - on les masque
             MasquerAction("Bulletin.ActionRecalculerDepuisParametrageSalarie");
             MasquerAction("Bulletin.ActionRecalculerGrille");
         }

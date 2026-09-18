@@ -1,8 +1,8 @@
 // =============================================================================
 //  AnalyseEffectifFilterModel.cs
-//  Tableau N°2 (Analyse de l'Effectif) — filtres saisis par l'utilisateur.
+//  Tableau N°2 (Analyse de l'Effectif) - filtres saisis par l'utilisateur.
 //
-//  Périmètre : INTERNE (Salarie) ou EXTERNE (Interimaire) — toggle.
+//  Périmètre : INTERNE (Salarie) ou EXTERNE (Interimaire) - toggle.
 //  Mode      : Global (à dateRef) ou Moyen ((début + fin) / 2 sur l'année).
 // =============================================================================
 
@@ -44,7 +44,7 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         public Guid? PosteInterimaireOid { get; set; }
 
         /// <summary>
-        /// Calcule la date de référence — toujours 31/12 de l'année sélectionnée,
+        /// Calcule la date de référence - toujours 31/12 de l'année sélectionnée,
         /// ou aujourd'hui si l'année est l'année courante.
         /// </summary>
         public DateTime ResolveDateReference()

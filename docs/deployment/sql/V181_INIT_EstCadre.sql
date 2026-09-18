@@ -1,5 +1,5 @@
 -- ============================================================================
--- V1.8.1 — Initialisation de Categories.EstCadre
+-- V1.8.1 - Initialisation de Categories.EstCadre
 -- ----------------------------------------------------------------------------
 -- À exécuter UNE SEULE FOIS après déploiement de V1.8.1 si l'auto-init du
 -- Updater XAF n'a pas tourné (ou n'a pas couvert tous les cas).

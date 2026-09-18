@@ -19,7 +19,7 @@ namespace AdiPAIE_V02.Module.Controllers
     ///   4. Masque les boutons RH non autorises
     ///   5. Ajoute un bouton Soumettre sur la DetailView
     ///   6. NE desactive PAS CongeHierarchieWorkflowController
-    ///      (il gere sa propre visibilite — le N+1 voit Valider/Rejeter)
+    ///      (il gere sa propre visibilite - le N+1 voit Valider/Rejeter)
     ///   7. Desactive la navigation vers la fiche Salarie (employe + N+1)
     ///
     /// RH / Admin (non salarie) -> aucune restriction.
@@ -218,7 +218,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 notif.Titre = "Demande de congé en attente de votre validation";
                 notif.Corps = $"{demande.Salarie?.FullName} souhaite prendre un congé "
                     + $"du {demande.DateDebut:dd/MM/yyyy} au {demande.DateFin:dd/MM/yyyy} "
-                    + $"({demande.DureeJours:n1} jour(s) — {demande.Type?.Libelle}).";
+                    + $"({demande.DureeJours:n1} jour(s) - {demande.Type?.Libelle}).";
                 notif.Categorie = "Congé";
                 notif.Priorite = NotificationPriorite.Important;
 

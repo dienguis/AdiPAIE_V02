@@ -19,7 +19,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
     /// Règle fondamentale :
     ///   - INonSecuredObjectSpaceFactory et IEmailSender doivent être obtenus
     ///     sur le thread UI (avant Task.Run).
-    ///   - Task.Run ne reçoit QUE des primitives (string) — zéro accès XPO.
+    ///   - Task.Run ne reçoit QUE des primitives (string) - zéro accès XPO.
     ///
     /// Pourquoi INonSecuredObjectSpaceFactory ?
     ///   Les utilisateurs salariés n'ont pas accès à ParametresPaie via

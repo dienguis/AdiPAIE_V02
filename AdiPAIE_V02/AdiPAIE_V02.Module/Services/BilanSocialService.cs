@@ -1,11 +1,11 @@
 // ============================================================
 //  BilanSocialService.cs
-//  AdiPAIE V02 — Génération du Bilan Social annuel (DTSS Sénégal)
+//  AdiPAIE V02 - Génération du Bilan Social annuel (DTSS Sénégal)
 //  Conforme au formulaire réglementaire Décret 2009-4181/MFPTEOP/DTSS
 //
 //  Deux points d'entrée :
-//   1. PreRemplir(formulaire, os)  → pré-calcule les données auto
-//   2. Generer(formulaire)         → produit le .docx final
+//   1. PreRemplir(formulaire, os)  -> pré-calcule les données auto
+//   2. Generer(formulaire)         -> produit le .docx final
 // ============================================================
 using AdiPAIE_V02.Module.BusinessObjects;
 using AdiPAIE_V02.Module.BusinessObjects.RH;
@@ -27,16 +27,16 @@ namespace AdiPAIE_V02.Module.Services
 {
     public static class BilanSocialService
     {
-        // ═════════════════════════════════════════════════════════════════
+        // =================================================================
         //  1. PRÉ-REMPLISSAGE AUTOMATIQUE
-        // ═════════════════════════════════════════════════════════════════
+        // =================================================================
         public static void PreRemplir(BilanSocialFormulaire f, IObjectSpace os)
         {
             var session = ((XPObjectSpace)os).Session;
             var annee = f.Annee;
             var anneeP = annee - 1;
 
-            // ── Entreprise ──────────────────────────────────────────────
+            // -- Entreprise ----------------------------------------------
             var company = new XPQuery<Company>(session).FirstOrDefault();
             if (company != null)
             {
@@ -71,7 +71,7 @@ namespace AdiPAIE_V02.Module.Services
                     f.Departement = company.Ville ?? "Dakar";
             }
 
-            // ── Tous les salariés ────────────────────────────────────────
+            // -- Tous les salariés ----------------------------------------
             var tousSalaries = new XPQuery<Salarie>(session).ToList();
 
             // Actifs au 31/12/N
@@ -88,37 +88,37 @@ namespace AdiPAIE_V02.Module.Services
                 (s.DateSortie == default || s.DateSortie >= date31DecP)
             ).ToList();
 
-            // ── 21. Effectif permanent ──────────────────────────────────
+            // -- 21. Effectif permanent ----------------------------------
             f.EffPerm_CDI_N = ContratCount(actifs, session, TypeContrat.CDI);
             f.EffPerm_CDD_N = ContratCount(actifs, session, TypeContrat.CDD);
             f.EffPerm_CDI_P = ContratCount(actifsP, session, TypeContrat.CDI);
             f.EffPerm_CDD_P = ContratCount(actifsP, session, TypeContrat.CDD);
 
-            // ── 32. Par statut ──────────────────────────────────────────
+            // -- 32. Par statut ------------------------------------------
             FillStatut(f, actifs, actifsP);
 
-            // ── 33. Par tranche d'âge ────────────────────────────────────
+            // -- 33. Par tranche d'âge ------------------------------------
             FillAge(f, actifs, annee);
 
-            // ── 34. Par nationalité ──────────────────────────────────────
+            // -- 34. Par nationalité --------------------------------------
             f.Nat_Sen_H_N = actifs.Count(s => s.Sexe == Sexe.Masculin && EstSenegalais(s));
             f.Nat_Sen_F_N = actifs.Count(s => s.Sexe == Sexe.Feminin && EstSenegalais(s));
             f.Nat_Etr_H_N = actifs.Count(s => s.Sexe == Sexe.Masculin && !EstSenegalais(s));
             f.Nat_Etr_F_N = actifs.Count(s => s.Sexe == Sexe.Feminin && !EstSenegalais(s));
 
-            // ── 35. Par ancienneté ────────────────────────────────────────
+            // -- 35. Par ancienneté ----------------------------------------
             FillAnciennete(f, actifs, annee);
 
-            // ── 37. Recrutements ─────────────────────────────────────────
+            // -- 37. Recrutements -----------------------------------------
             var recrutes = tousSalaries.Where(s => s.DateEmbauche.Year == annee).ToList();
             FillRecrutDepart(f, recrutes, isRecrut: true);
 
-            // ── 38. Départs ──────────────────────────────────────────────
+            // -- 38. Départs ----------------------------------------------
             var partis = tousSalaries.Where(s =>
                 s.DateSortie != default && s.DateSortie.Year == annee).ToList();
             FillRecrutDepart(f, partis, isRecrut: false);
 
-            // ── V. Masse salariale ───────────────────────────────────────
+            // -- V. Masse salariale ---------------------------------------
             var bulletinsN = new XPQuery<Bulletin>(session)
                 .Where(b => b.Annee == annee && b.Statut != BulletinStatut.Brouillon)
                 .ToList();
@@ -144,7 +144,7 @@ namespace AdiPAIE_V02.Module.Services
                 RubriqueCanonique.CFCE);
             f.Impots_P = bulletinsP.Sum(b => b.IR_Mois + b.TRIMF_Mois);
 
-            // ── XI. Congés ───────────────────────────────────────────────
+            // -- XI. Congés -----------------------------------------------
             var conges = new XPQuery<CongeDemande>(session)
                 .Where(c => c.DateDebut.Year == annee &&
                             c.Statut == CongeStatut.Accordee)
@@ -163,11 +163,11 @@ namespace AdiPAIE_V02.Module.Services
                 .Sum(c => c.DureeJours);
         }
 
-        // ═════════════════════════════════════════════════════════════════
+        // =================================================================
         //  2. GÉNÉRATION DU DOCUMENT WORD
-        //     Si un template est fourni → remplacement des {{placeholders}}
-        //     Sinon → génération depuis le code
-        // ═════════════════════════════════════════════════════════════════
+        //     Si un template est fourni -> remplacement des {{placeholders}}
+        //     Sinon -> génération depuis le code
+        // =================================================================
 
         /// <summary>
         /// Génère le bilan social à partir du template Word stocké dans ParametresPaie.
@@ -269,7 +269,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         /// <summary>
-        /// Construit le dictionnaire {{PLACEHOLDER}} → valeur pour le formulaire.
+        /// Construit le dictionnaire {{PLACEHOLDER}} -> valeur pour le formulaire.
         /// Le RH place ces codes dans son template Word, et le service les remplace.
         /// </summary>
         private static Dictionary<string, string> BuildPlaceholders(BilanSocialFormulaire f)
@@ -279,7 +279,7 @@ namespace AdiPAIE_V02.Module.Services
 
             return new Dictionary<string, string>
             {
-                // ── Général ──────────────────────────────────────────────
+                // -- Général ----------------------------------------------
                 ["{{ANNEE}}"] = an.ToString(),
                 ["{{ANNEE_PRECEDENTE}}"] = ap.ToString(),
                 ["{{RAISON_SOCIALE}}"] = f.RaisonSociale ?? "",
@@ -300,7 +300,7 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{FORME_JURIDIQUE}}"] = f.FormeJuridique ?? "",
                 ["{{HORAIRE_TYPE}}"] = f.HoraireType ?? "",
 
-                // ── II. Effectif permanent ──────────────────────────────
+                // -- II. Effectif permanent ------------------------------
                 ["{{EFF_CDI_N}}"] = N(f.EffPerm_CDI_N),
                 ["{{EFF_CDD_N}}"] = N(f.EffPerm_CDD_N),
                 ["{{EFF_APPRENTIS_N}}"] = N(f.EffPerm_Apprentis_N),
@@ -312,7 +312,7 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{EFF_JOURNALIER_N}}"] = N(f.EffJournalier_N),
                 ["{{EFF_JOURNALIER_P}}"] = N(f.EffJournalier_P),
 
-                // ── III. Répartition par statut ─────────────────────────
+                // -- III. Répartition par statut -------------------------
                 ["{{STAT_OUV_H_N}}"] = N(f.Stat_Ouvriers_H_N),
                 ["{{STAT_OUV_F_N}}"] = N(f.Stat_Ouvriers_F_N),
                 ["{{STAT_EMP_H_N}}"] = N(f.Stat_Employes_H_N),
@@ -334,7 +334,7 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{STAT_TOT_H_P}}"] = N(f.Stat_Ouvriers_H_P + f.Stat_Employes_H_P + f.Stat_Maitrise_H_P + f.Stat_Cadres_H_P),
                 ["{{STAT_TOT_F_P}}"] = N(f.Stat_Ouvriers_F_P + f.Stat_Employes_F_P + f.Stat_Maitrise_F_P + f.Stat_Cadres_F_P),
 
-                // ── III. Par tranche d'âge ───────────────────────────────
+                // -- III. Par tranche d'âge -------------------------------
                 ["{{AGE_INF20_H}}"] = N(f.Age_Inf20_H_N), ["{{AGE_INF20_F}}"] = N(f.Age_Inf20_F_N),
                 ["{{AGE_20_24_H}}"] = N(f.Age_20_24_H_N), ["{{AGE_20_24_F}}"] = N(f.Age_20_24_F_N),
                 ["{{AGE_25_29_H}}"] = N(f.Age_25_29_H_N), ["{{AGE_25_29_F}}"] = N(f.Age_25_29_F_N),
@@ -346,11 +346,11 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{AGE_55_59_H}}"] = N(f.Age_55_59_H_N), ["{{AGE_55_59_F}}"] = N(f.Age_55_59_F_N),
                 ["{{AGE_60P_H}}"] = N(f.Age_60Plus_H_N), ["{{AGE_60P_F}}"] = N(f.Age_60Plus_F_N),
 
-                // ── III. Par nationalité ─────────────────────────────────
+                // -- III. Par nationalité ---------------------------------
                 ["{{NAT_SEN_H}}"] = N(f.Nat_Sen_H_N), ["{{NAT_SEN_F}}"] = N(f.Nat_Sen_F_N),
                 ["{{NAT_ETR_H}}"] = N(f.Nat_Etr_H_N), ["{{NAT_ETR_F}}"] = N(f.Nat_Etr_F_N),
 
-                // ── III. Par ancienneté ──────────────────────────────────
+                // -- III. Par ancienneté ----------------------------------
                 ["{{ANC_INF1_H}}"] = N(f.Anc_Inf1_H_N), ["{{ANC_INF1_F}}"] = N(f.Anc_Inf1_F_N),
                 ["{{ANC_1_4_H}}"] = N(f.Anc_1_4_H_N), ["{{ANC_1_4_F}}"] = N(f.Anc_1_4_F_N),
                 ["{{ANC_5_9_H}}"] = N(f.Anc_5_9_H_N), ["{{ANC_5_9_F}}"] = N(f.Anc_5_9_F_N),
@@ -359,19 +359,19 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{ANC_20_24_H}}"] = N(f.Anc_20_24_H_N), ["{{ANC_20_24_F}}"] = N(f.Anc_20_24_F_N),
                 ["{{ANC_25P_H}}"] = N(f.Anc_25Plus_H_N), ["{{ANC_25P_F}}"] = N(f.Anc_25Plus_F_N),
 
-                // ── Recrutements ─────────────────────────────────────────
+                // -- Recrutements -----------------------------------------
                 ["{{REC_OUV_H}}"] = N(f.Rec_Ouvriers_H), ["{{REC_OUV_F}}"] = N(f.Rec_Ouvriers_F),
                 ["{{REC_EMP_H}}"] = N(f.Rec_Employes_H), ["{{REC_EMP_F}}"] = N(f.Rec_Employes_F),
                 ["{{REC_MAI_H}}"] = N(f.Rec_Maitrise_H), ["{{REC_MAI_F}}"] = N(f.Rec_Maitrise_F),
                 ["{{REC_CAD_H}}"] = N(f.Rec_Cadres_H), ["{{REC_CAD_F}}"] = N(f.Rec_Cadres_F),
 
-                // ── Départs ──────────────────────────────────────────────
+                // -- Départs ----------------------------------------------
                 ["{{DEP_OUV_H}}"] = N(f.Dep_Ouvriers_H), ["{{DEP_OUV_F}}"] = N(f.Dep_Ouvriers_F),
                 ["{{DEP_EMP_H}}"] = N(f.Dep_Employes_H), ["{{DEP_EMP_F}}"] = N(f.Dep_Employes_F),
                 ["{{DEP_MAI_H}}"] = N(f.Dep_Maitrise_H), ["{{DEP_MAI_F}}"] = N(f.Dep_Maitrise_F),
                 ["{{DEP_CAD_H}}"] = N(f.Dep_Cadres_H), ["{{DEP_CAD_F}}"] = N(f.Dep_Cadres_F),
 
-                // ── V. Masse salariale ───────────────────────────────────
+                // -- V. Masse salariale -----------------------------------
                 ["{{MASSE_SAL_N}}"] = FM(f.MasseSal_Total_N),
                 ["{{MASSE_SAL_P}}"] = FM(f.MasseSal_Total_P),
                 ["{{CHARGES_CSS_N}}"] = FM(f.Charges_CSS_N),
@@ -399,7 +399,7 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{FRAIS_FORM_N}}"] = FM(f.Frais_Formation_N),
                 ["{{FRAIS_FORM_P}}"] = FM(f.Frais_Formation_P),
 
-                // ── VI. Hygiène / sécurité ───────────────────────────────
+                // -- VI. Hygiène / sécurité -------------------------------
                 ["{{AT_AVEC_ARRET_N}}"] = N(f.Accidents_AvecArret_N),
                 ["{{AT_SANS_ARRET_N}}"] = N(f.Accidents_SansArret_N),
                 ["{{AT_DECES_N}}"] = N(f.Accidents_Deces_N),
@@ -412,22 +412,22 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{SANTE_SAL_MEDICAL_N}}"] = FM(f.Sante_SalaireMedical_N),
                 ["{{SANTE_TOTAL_N}}"] = FM(f.Sante_Total_N),
 
-                // ── VII. Relations professionnelles ──────────────────────
+                // -- VII. Relations professionnelles ----------------------
                 ["{{SYNDICATS}}"] = f.Syndicats ?? "",
                 ["{{NB_DELEGUES}}"] = N(f.NombreDelegues),
                 ["{{DATE_ELECTIONS}}"] = f.DateDernieresElections?.ToString("dd/MM/yyyy") ?? "",
                 ["{{ORG_PATRONALE}}"] = f.OrganisationPatronale ?? "",
 
-                // ── VIII. Fonctionnement des organes ─────────────────────
+                // -- VIII. Fonctionnement des organes ---------------------
                 ["{{IPM_NOM}}"] = f.IPM_Nom ?? "",
                 ["{{COMITE_HYGIENE}}"] = f.ComiteHygiene ? "Oui" : "Non",
                 ["{{SERVICE_MEDECINE}}"] = f.ServiceMedecine ? "Oui" : "Non",
                 ["{{DATE_CREATION_MEDECINE}}"] = f.DateCreationMedecine ?? "",
 
-                // ── X. Évolution ─────────────────────────────────────────
+                // -- X. Évolution -----------------------------------------
                 ["{{PREVISION_EMPLOI}}"] = f.PrevisionEmploi ?? "",
 
-                // ── XI. Autres données ───────────────────────────────────
+                // -- XI. Autres données -----------------------------------
                 ["{{HORAIRE_DEBUT}}"] = f.Horaire_Debut ?? "",
                 ["{{HORAIRE_FIN}}"] = f.Horaire_Fin ?? "",
                 ["{{HORAIRE_PAUSE}}"] = f.Horaire_Pause ?? "",
@@ -438,7 +438,7 @@ namespace AdiPAIE_V02.Module.Services
                 ["{{CONGES_MISE_A_PIED}}"] = N(f.Conges_MiseAPied_N),
                 ["{{CONGES_ABS_NON_AUTO}}"] = N(f.Conges_AbsNonAuto_N),
 
-                // ── Signature ────────────────────────────────────────────
+                // -- Signature --------------------------------------------
                 ["{{FAIT_A}}"] = f.FaitA ?? "Dakar",
                 ["{{DATE_SIGNATURE}}"] = f.DateSignature.ToString("dd/MM/yyyy"),
             };
@@ -479,9 +479,9 @@ namespace AdiPAIE_V02.Module.Services
             return Generer(f);
         }
 
-        // ═════════════════════════════════════════════════════════════════
+        // =================================================================
         //  HELPERS DONNÉES
-        // ═════════════════════════════════════════════════════════════════
+        // =================================================================
         private static int ContratCount(List<Salarie> salaries, Session session, TypeContrat type)
         {
             var oids = salaries.Select(s => s.Oid).ToList();
@@ -499,9 +499,9 @@ namespace AdiPAIE_V02.Module.Services
                s.Nationalite.ToUpperInvariant().Contains("SENE") ||
                s.Nationalite.ToUpperInvariant().Contains("SN");
 
-        // V1.8.1 — Détection « cadre » via le drapeau Categories.EstCadre
+        // V1.8.1 - Détection « cadre » via le drapeau Categories.EstCadre
         // d'abord, avec fallback sur l'ancienne heuristique. Avant :
-        // cat.Contains("CADRE") matchait à tort "NON CADRE" → tous les
+        // cat.Contains("CADRE") matchait à tort "NON CADRE" -> tous les
         // non-cadres comptés comme cadres dans le bilan social.
         private static string GetStatutLabel(Salarie s)
         {
@@ -632,18 +632,18 @@ namespace AdiPAIE_V02.Module.Services
                 .Sum(l => l.MontantEmployeur);
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  GÉNÉRATION DU DOCUMENT WORD — CONTENU
-        // ═════════════════════════════════════════════════════════════════
+        // =================================================================
+        //  GÉNÉRATION DU DOCUMENT WORD - CONTENU
+        // =================================================================
         private static IEnumerable<OpenXmlElement> BuildContent(BilanSocialFormulaire f)
         {
             var el = new List<OpenXmlElement>();
             int an = f.Annee;
             int ap = an - 1;
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  PAGE DE TITRE (conforme DTSS)
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(CenteredPara("ANNEXE 1 :", bold: true, size: 20, underline: true));
             el.Add(CenteredPara("BILAN SOCIAL DES ENTREPRISES", bold: true, size: 28, underline: true));
             el.Add(SpacerPara());
@@ -656,9 +656,9 @@ namespace AdiPAIE_V02.Module.Services
             el.Add(CenteredPara($"de l'établissement : {f.RaisonSociale}", bold: true, size: 22));
             el.Add(SpacerPara());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  SOMMAIRE
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("SOMMAIRE DU BILAN"));
             var sommaire = new[]
             {
@@ -678,9 +678,9 @@ namespace AdiPAIE_V02.Module.Services
                 el.Add(TextPara(s, indent: 360));
             el.Add(PageBreak());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  I. RENSEIGNEMENTS GÉNÉRAUX
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("I. RENSEIGNEMENTS GÉNÉRAUX SUR L'ENTREPRISE"));
             el.Add(InfoLigne("11. Raison sociale", f.RaisonSociale));
             el.Add(InfoLigne("12. Région", f.Region));
@@ -701,9 +701,9 @@ namespace AdiPAIE_V02.Module.Services
             el.Add(InfoLigne("20. Horaire de travail", f.HoraireType));
             el.Add(PageBreak());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  II. EFFECTIF TOTAL
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("II. EFFECTIF TOTAL DE L'ÉTABLISSEMENT"));
             el.Add(Sous2("21. Effectif permanent"));
             el.Add(Tableau(
@@ -727,9 +727,9 @@ namespace AdiPAIE_V02.Module.Services
                 new[] { new[] { "Total annuel", N(f.EffJournalier_N), N(f.EffJournalier_P) } }));
             el.Add(PageBreak());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  III. RÉPARTITION DES EFFECTIFS
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("III. RÉPARTITION DES EFFECTIFS"));
 
             // 32. Par statut
@@ -809,9 +809,9 @@ namespace AdiPAIE_V02.Module.Services
                 }));
             el.Add(PageBreak());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  37. Recrutements
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(Sous2($"37. Recrutements au cours de l'année {an}"));
             el.Add(Tableau(
                 new[] { "Statut", "Hommes", "Femmes", "Total" },
@@ -847,16 +847,16 @@ namespace AdiPAIE_V02.Module.Services
                 }));
             el.Add(SpacerPara());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  IV. PROMOTIONS
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("IV. PROMOTIONS EFFECTUÉES"));
-            el.Add(NotePara("→ À compléter manuellement (changements de catégorie, de statut)"));
+            el.Add(NotePara("-> À compléter manuellement (changements de catégorie, de statut)"));
             el.Add(PageBreak());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  V. RÉMUNÉRATIONS ET CHARGES
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("V. RÉMUNÉRATIONS ET CHARGES ACCESSOIRES (en FCFA)"));
 
             el.Add(Sous2("51. Masses salariales brutes"));
@@ -910,9 +910,9 @@ namespace AdiPAIE_V02.Module.Services
                 }));
             el.Add(PageBreak());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  VI. HYGIÈNE, SÉCURITÉ ET SANTÉ
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("VI. HYGIÈNE, SÉCURITÉ ET SANTÉ"));
 
             el.Add(Sous2("61. Accidents de travail"));
@@ -931,7 +931,7 @@ namespace AdiPAIE_V02.Module.Services
             el.Add(SpacerPara());
 
             el.Add(Sous2("62-63. Maladies professionnelles et pathologies"));
-            el.Add(NotePara("→ À compléter manuellement"));
+            el.Add(NotePara("-> À compléter manuellement"));
             el.Add(SpacerPara());
 
             el.Add(Sous2("65. Dépenses de santé"));
@@ -945,45 +945,45 @@ namespace AdiPAIE_V02.Module.Services
                 }));
             el.Add(PageBreak());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  VII. RELATIONS PROFESSIONNELLES
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("VII. RELATIONS PROFESSIONNELLES"));
-            el.Add(InfoLigne("Syndicats", f.Syndicats ?? "—"));
+            el.Add(InfoLigne("Syndicats", f.Syndicats ?? "-"));
             el.Add(InfoLigne("Nombre de délégués", f.NombreDelegues.ToString()));
             el.Add(InfoLigne("Date dernières élections",
-                f.DateDernieresElections?.ToString("dd/MM/yyyy") ?? "—"));
-            el.Add(InfoLigne("Organisation patronale", f.OrganisationPatronale ?? "—"));
+                f.DateDernieresElections?.ToString("dd/MM/yyyy") ?? "-"));
+            el.Add(InfoLigne("Organisation patronale", f.OrganisationPatronale ?? "-"));
             el.Add(SpacerPara());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  VIII. FONCTIONNEMENT DES ORGANES
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("VIII. FONCTIONNEMENT DES ORGANES"));
-            el.Add(InfoLigne("IPM d'affiliation", f.IPM_Nom ?? "—"));
+            el.Add(InfoLigne("IPM d'affiliation", f.IPM_Nom ?? "-"));
             el.Add(InfoLigne("Comité hygiène et sécurité", f.ComiteHygiene ? "Oui" : "Non"));
             el.Add(InfoLigne("Service médecine du travail", f.ServiceMedecine ? "Oui" : "Non"));
             if (f.ServiceMedecine)
-                el.Add(InfoLigne("    Date création", f.DateCreationMedecine ?? "—"));
+                el.Add(InfoLigne("    Date création", f.DateCreationMedecine ?? "-"));
             el.Add(SpacerPara());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  IX. FORMATION
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("IX. FORMATION"));
-            el.Add(NotePara("→ Détail des formations : voir module SunuPaie > Plans de formation"));
+            el.Add(NotePara("-> Détail des formations : voir module SunuPaie > Plans de formation"));
             el.Add(SpacerPara());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  X. ÉVOLUTION DE L'EMPLOI
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("X. ÉVOLUTION DE L'EMPLOI"));
             el.Add(InfoLigne("Prévision année suivante", f.PrevisionEmploi));
             el.Add(SpacerPara());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  XI. AUTRES DONNÉES
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(TitrePara("XI. AUTRES DONNÉES"));
 
             el.Add(Sous2("111. Horaire de travail"));
@@ -1007,9 +1007,9 @@ namespace AdiPAIE_V02.Module.Services
                 }));
             el.Add(SpacerPara());
 
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             //  SIGNATURE
-            // ════════════════════════════════════════════════════════════
+            // ============================================================
             el.Add(PageBreak());
             el.Add(SpacerPara());
             el.Add(TextPara($"Fait à {f.FaitA}, le {f.DateSignature:dd/MM/yyyy}"));
@@ -1019,11 +1019,11 @@ namespace AdiPAIE_V02.Module.Services
             return el;
         }
 
-        // ═════════════════════════════════════════════════════════════════
+        // =================================================================
         //  HELPERS WORD
-        // ═════════════════════════════════════════════════════════════════
+        // =================================================================
         private static string N(int n) => n.ToString("N0");
-        private static string FM(decimal m) => m == 0 ? "—" : m.ToString("N0");
+        private static string FM(decimal m) => m == 0 ? "-" : m.ToString("N0");
 
         private static Paragraph CenteredPara(string text, bool bold = false,
             int size = 24, bool underline = false, bool italic = false)

@@ -317,7 +317,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Affichage ─────────────────────────────────────────
         [NonPersistent]
         public string DisplayName =>
-            $"{Salarie?.FullName} — {Objet} ({DateDepart:dd/MM/yyyy})";
+            $"{Salarie?.FullName} - {Objet} ({DateDepart:dd/MM/yyyy})";
 
         // ── Cycle de vie ──────────────────────────────────────
 
@@ -501,7 +501,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
         [NonPersistent]
         public string DisplayEtape =>
-         $"{Ordre}. {VilleDepart?.Nom ?? "—"} → {VilleArrivee?.Nom ?? "—"}"
+         $"{Ordre}. {VilleDepart?.Nom ?? "-"} → {VilleArrivee?.Nom ?? "-"}"
          + (DistanceKm > 0 ? $" ({DistanceKm} km)" : "");
     }
 
@@ -643,7 +643,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             else if (ModeCalcul == FraisCalculMode.Forfait)
                 Quantite = 1;
             else
-                Quantite = 0; // kilométrique — saisie manuelle
+                Quantite = 0; // kilométrique - saisie manuelle
 
             RecalculerMontant();
         }

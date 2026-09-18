@@ -29,7 +29,7 @@ namespace AdiPAIE_V02.Module.Controllers
         protected override void OnActivated()
         {
             base.OnActivated();
-            // V1.4.3 — la clé PDF n'a plus de sens : le salarié télécharge
+            // V1.4.3 - la clé PDF n'a plus de sens : le salarié télécharge
             // depuis l'Espace Salarié authentifié. On masque cette action.
             _sendKey.Active.SetItemValue("V143_Obsolete", false);
         }
@@ -82,7 +82,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 // 3) ENVOI **ASYNC** (pas de ConfigureAwait(false))
                 await mailer.SendAsync(sal.Email, subject, bodyHtml, attachment: null);
 
-                // 4) Notification succès — reposte sur le thread UI si nécessaire
+                // 4) Notification succès - reposte sur le thread UI si nécessaire
                 void ShowToast() =>
                     Application.ShowViewStrategy.ShowMessage(
                         "Clé envoyée par e-mail et enregistrée.",

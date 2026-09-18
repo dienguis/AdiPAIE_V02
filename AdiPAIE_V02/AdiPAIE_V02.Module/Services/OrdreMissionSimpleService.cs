@@ -12,7 +12,7 @@ namespace AdiPAIE_V02.Module.Services
 {
     /// <summary>
     /// Fusion du template Ordre de Mission (document d'autorisation avant départ).
-    /// Pas de frais dynamiques — juste l'identité, le circuit, les dates et les signatures.
+    /// Pas de frais dynamiques - juste l'identité, le circuit, les dates et les signatures.
     ///
     /// Marqueurs :
     ///   {{NumeroOrdre}} {{RaisonSociale}} {{DateDocument}}
@@ -74,32 +74,32 @@ namespace AdiPAIE_V02.Module.Services
                 d.Circuit.OrderBy(c => c.Ordre)
                     .Select(c => c.VilleArrivee));
             if (string.IsNullOrWhiteSpace(circuitTexte))
-                circuitTexte = d.Destination ?? "—";
+                circuitTexte = d.Destination ?? "-";
 
             var m = new Dictionary<string, string>(
                 StringComparer.OrdinalIgnoreCase)
             {
-                ["{{NumeroOrdre}}"] = d.NumeroOrdre ?? "—",
-                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "—",
+                ["{{NumeroOrdre}}"] = d.NumeroOrdre ?? "-",
+                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "-",
                 ["{{DateDocument}}"] = DateTime.Today
                     .ToString("dd MMMM yyyy", Fr),
-                ["{{FullName}}"] = sal.FullName ?? "—",
-                ["{{Matricule}}"] = sal.Matricule ?? "—",
-                ["{{Fonction}}"] = sal.Fonction?.Intitule ?? "—",
-                ["{{Departement}}"] = sal.Departement?.Nom ?? "—",
-                ["{{Objet}}"] = d.Objet ?? "—",
+                ["{{FullName}}"] = sal.FullName ?? "-",
+                ["{{Matricule}}"] = sal.Matricule ?? "-",
+                ["{{Fonction}}"] = sal.Fonction?.Intitule ?? "-",
+                ["{{Departement}}"] = sal.Departement?.Nom ?? "-",
+                ["{{Objet}}"] = d.Objet ?? "-",
                 ["{{Circuit}}"] = circuitTexte,
                 ["{{DateDepart}}"] = d.DateDepart.ToString("dd MMMM yyyy", Fr),
                 ["{{DateRetour}}"] = d.DateRetour.ToString("dd MMMM yyyy", Fr),
                 ["{{NombreJours}}"] = d.NombreJours.ToString(),
                 ["{{SignataireNom}}"] = prm?.SignatoryName
-                    ?? prm?.SignatureName ?? "—",
+                    ?? prm?.SignatureName ?? "-",
                 ["{{SignataireTitre}}"] = prm?.SignatoryTitle
-                    ?? prm?.SignatureTitle ?? "—",
+                    ?? prm?.SignatureTitle ?? "-",
                 ["{{DateApprobation}}"] = d.DateApprobationRH.HasValue
-                    ? d.DateApprobationRH.Value.ToString("dd/MM/yyyy") : "—",
+                    ? d.DateApprobationRH.Value.ToString("dd/MM/yyyy") : "-",
                 ["{{DateValidationDAF}}"] = d.DateValidationDAF.HasValue
-                    ? d.DateValidationDAF.Value.ToString("dd/MM/yyyy") : "—",
+                    ? d.DateValidationDAF.Value.ToString("dd/MM/yyyy") : "-",
             };
 
             // Étapes circuit (1-8)

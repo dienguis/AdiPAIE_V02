@@ -1,6 +1,6 @@
 // =============================================================================
 //  MouvementsDto.cs
-//  Tableau N°3 (Mouvements) — DTO renvoyés par le service au Razor.
+//  Tableau N°3 (Mouvements) - DTO renvoyés par le service au Razor.
 // =============================================================================
 
 using System;

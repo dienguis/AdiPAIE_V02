@@ -32,7 +32,7 @@ namespace AdiPAIE_V02.Module.Domain
             Inactif = 2
         }
 
-        // V1.6 — Situation scolaire/professionnelle d'un enfant
+        // V1.6 - Situation scolaire/professionnelle d'un enfant
         // Utilisée pour la logique TRIMF (parts fiscales) selon âge + situation :
         // - Au-delà d'un certain âge, l'enfant sort du quotient sauf s'il est étudiant/apprenti
         // - Règles précises à valider avec RH (CGI Sénégal)
@@ -67,14 +67,14 @@ namespace AdiPAIE_V02.Module.Domain
             RemboursementPret =500,
             RemboursementAvance =501,
             HeuresSupplementaires = 600,
-            // V1.7.2 — Rubriques de bonus (hors brut récurrent par construction).
+            // V1.7.2 - Rubriques de bonus (hors brut récurrent par construction).
             // Servent d'identifiants stables pour l'exclusion automatique dans
             // BrutRecurrentService (évite la dépendance aux préfixes string).
             TreiziemeMois = 700,
             Gratification = 710
         }
 
-        // V1.7.2 — Workflow du 13ième mois
+        // V1.7.2 - Workflow du 13ième mois
         public enum TreiziemeMoisStatut
         {
             // Calculé mais pas encore intégré à un bulletin
@@ -85,7 +85,7 @@ namespace AdiPAIE_V02.Module.Domain
             Annule = 2
         }
 
-        // V1.7.2 — Workflow de la Gratification (validation RH/DAF)
+        // V1.7.2 - Workflow de la Gratification (validation RH/DAF)
         public enum GratificationStatut
         {
             // Saisi par RH, en attente de validation DAF
@@ -102,7 +102,7 @@ namespace AdiPAIE_V02.Module.Domain
             Annule = 5
         }
 
-        // V1.7.2 — Base de calcul de la Gratification
+        // V1.7.2 - Base de calcul de la Gratification
         public enum GratificationBaseCalcul
         {
             // Multiple du brut récurrent mensuel
@@ -263,10 +263,10 @@ namespace AdiPAIE_V02.Module.Domain
             EnAttenteN2 = 5,   // Soumis au N+2 pour validation finale
 
             [XafDisplayName("Soumise RH")]
-            SoumiseRH = 6,   // Validé par toute la hiérarchie — RH peut clôturer
+            SoumiseRH = 6,   // Validé par toute la hiérarchie - RH peut clôturer
 
             [XafDisplayName("Clôturé")]
-            Cloture = 7,   // Archivé — lecture seule totale
+            Cloture = 7,   // Archivé - lecture seule totale
         }
 
         public enum NoteEvaluation
@@ -322,7 +322,7 @@ namespace AdiPAIE_V02.Module.Domain
             EnAttenteN2 = 2,   // En attente de validation du manager N+2
 
             // ── Circuit RH ────────────────────────
-            Soumise = 10,  // Validée par la hiérarchie (ou pas de hiérarchie) — visible RH
+            Soumise = 10,  // Validée par la hiérarchie (ou pas de hiérarchie) - visible RH
             EnTraitement = 11,  // RH a pris en charge
             Traitee = 20,  // Attestation générée et remise
             Rejetee = 30   // Rejetée à n'importe quel niveau
@@ -371,13 +371,13 @@ namespace AdiPAIE_V02.Module.Domain
         /// <summary>Note globale A+ à F (synthèse évaluation ELTON)</summary>
         public enum NoteGlobale
         {
-            [XafDisplayName("A+ — Excellent")] APlus = 0,
-            [XafDisplayName("A — Très bien")] A = 1,
-            [XafDisplayName("B — Bien")] B = 2,
-            [XafDisplayName("C — Satisfaisant")] C = 3,
-            [XafDisplayName("D — Passable")] D = 4,
-            [XafDisplayName("E — Insuffisant")] E = 5,
-            [XafDisplayName("F — Très insuffisant")] F = 6,
+            [XafDisplayName("A+ - Excellent")] APlus = 0,
+            [XafDisplayName("A - Très bien")] A = 1,
+            [XafDisplayName("B - Bien")] B = 2,
+            [XafDisplayName("C - Satisfaisant")] C = 3,
+            [XafDisplayName("D - Passable")] D = 4,
+            [XafDisplayName("E - Insuffisant")] E = 5,
+            [XafDisplayName("F - Très insuffisant")] F = 6,
         }
 
         /// <summary>Note pour les missions/responsabilités (Partie I-A)</summary>
@@ -580,7 +580,7 @@ namespace AdiPAIE_V02.Module.Domain
             Revalorisation = 4,
         }
 
-        // ── Évaluation à froid — Enums formulaire ────────────────
+        // ── Évaluation à froid - Enums formulaire ────────────────
         public enum BesoinFormationReponse
         {
             [XafDisplayName("Oui")]
@@ -689,7 +689,7 @@ namespace AdiPAIE_V02.Module.Domain
             [XafDisplayName("Rupture contrat")] RuptureContrat = 5,
         }
 
-        // ─── V1.5 — Demande de Mouvement Intérim (initiée par AC) ───────
+        // ─── V1.5 - Demande de Mouvement Intérim (initiée par AC) ───────
         public enum TypeMouvementInterim
         {
             [XafDisplayName("Changement de Station Service")] ChangementStation = 0,
@@ -723,7 +723,7 @@ namespace AdiPAIE_V02.Module.Domain
             [XafDisplayName("Mouvement non validé")] MouvementNonValide = 5,
             [XafDisplayName("Mouvement tardif")] MouvementTardif = 6,
             [XafDisplayName("Incohérence données")] IncoherenceDonnees = 7,
-            // V1.5.2 (QW5) — Alerte automatique cron quotidien
+            // V1.5.2 (QW5) - Alerte automatique cron quotidien
             [XafDisplayName("Fin de mission proche (≤ 30 j)")] FinMissionProche = 8,
         }
 
@@ -736,9 +736,9 @@ namespace AdiPAIE_V02.Module.Domain
 
         public enum TypeContrat
         {
-            [XafDisplayName("CDI — Contrat à Durée Indéterminée")]
+            [XafDisplayName("CDI - Contrat à Durée Indéterminée")]
             CDI = 0,
-            [XafDisplayName("CDD — Contrat à Durée Déterminée")]
+            [XafDisplayName("CDD - Contrat à Durée Déterminée")]
             CDD = 1,
             [XafDisplayName("Contrat de stage")]
             Stage = 2,
@@ -781,19 +781,19 @@ namespace AdiPAIE_V02.Module.Domain
             [XafDisplayName("Clôturé")] Cloture = 5,
         }
 
-        // ── V1.8 — Mode de traitement des congés payés dans le bulletin ──
+        // ── V1.8 - Mode de traitement des congés payés dans le bulletin ──
         // Configurable par le RH dans ParametresPaie.
         // BulletinUnique = pratique ELTON actuelle (1 bulletin avec rubrique
         //                  "Congés" remplaçant les rubriques de salaire mensuel)
         // BulletinSepare = 2 bulletins distincts (salaire normal + bulletin
-        //                  de congé) — option future à anticiper
+        //                  de congé) - option future à anticiper
         public enum ModeBulletinConges
         {
             [XafDisplayName("Bulletin unique (recommandé)")] BulletinUnique = 0,
             [XafDisplayName("Bulletin de congé séparé")] BulletinSepare = 1,
         }
 
-        // ── V1.8 — Base de calcul de la CFCE (Sénégal) ──────────────
+        // ── V1.8 - Base de calcul de la CFCE (Sénégal) ──────────────
         // Configurable par le DAF dans ParametresPaie.
         // Divergence d'interprétation du Code Général des Impôts Sénégal :
         //

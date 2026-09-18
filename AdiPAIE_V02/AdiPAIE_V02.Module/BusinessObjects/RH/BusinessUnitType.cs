@@ -4,7 +4,7 @@
 //
 //  Permet de regrouper toutes les BU « Boutique » (de toutes les stations) sous
 //  une même catégorie pour les KPI dashboards. Avant cette entité, chaque BU
-//  était propre à sa station (Boutique de MERMOZ ≠ Boutique de VDN) — le seul
+//  était propre à sa station (Boutique de MERMOZ ≠ Boutique de VDN) - le seul
 //  lien transversal était le texte du Libelle, fragile aux variantes de saisie.
 //
 //  Seed initial (cf. Updater.cs / EnsureBusinessUnitTypesSeed) :
@@ -78,10 +78,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
 
     /// <summary>
     /// Catalogue partagé des types de Business Unit (Boutique, Piste, etc.).
-    /// Référentiel transversal — permet le regroupement des BU homonymes
+    /// Référentiel transversal - permet le regroupement des BU homonymes
     /// sur plusieurs stations pour les KPI agrégés.
     /// </summary>
-    // ⚠️ V1.1 Sprint 1D — DEPRECATED. Remplacé par UniteOrganisationnelle.Palette
+    // ⚠️ V1.1 Sprint 1D - DEPRECATED. Remplacé par UniteOrganisationnelle.Palette
     // (enum CouleurPalette directement sur l'unité). Cette entité n'est plus
     // utilisée mais conservée pour ne pas perdre les éventuelles données qui
     // y sont déjà enregistrées. Masquée du menu XAF.

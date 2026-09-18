@@ -1,5 +1,5 @@
 // =============================================================================
-//  BulletinPublicationService.cs — V1.4.3
+//  BulletinPublicationService.cs - V1.4.3
 //
 //  Orchestration de la publication d'un bulletin de paie dans l'Espace Salarié.
 //
@@ -16,7 +16,7 @@
 //    - Un email de notification est envoyé au salarié (texte simple, sans PJ).
 //
 //  Le DG a confirmé en CODIR mai 2026 : plus d'envoi de PDF chiffré par email
-//  — le salarié télécharge depuis son Espace Salarié authentifié.
+//  - le salarié télécharge depuis son Espace Salarié authentifié.
 // =============================================================================
 using AdiPAIE_V02.Module.BusinessObjects;
 using DevExpress.ExpressApp;
@@ -55,13 +55,13 @@ namespace AdiPAIE_V02.Module.Services
 
             if (bulletin.Statut > BulletinStatut.Envoye && !forceRegenererPdf)
                 throw new UserFriendlyException(
-                    $"Le bulletin est déjà au statut {bulletin.Statut} — utilisez Re-notifier au lieu de Publier.");
+                    $"Le bulletin est déjà au statut {bulletin.Statut} - utilisez Re-notifier au lieu de Publier.");
 
             // Idempotence
             if (bulletin.Statut == BulletinStatut.Envoye && bulletin.PdfArchive != null && !forceRegenererPdf)
             {
                 logger?.LogInformation(
-                    "Bulletin {Oid} déjà publié — saut de la republication.", bulletin.Oid);
+                    "Bulletin {Oid} déjà publié - saut de la republication.", bulletin.Oid);
                 return false;
             }
 
@@ -74,7 +74,7 @@ namespace AdiPAIE_V02.Module.Services
             catch (Exception ex)
             {
                 logger?.LogError(ex,
-                    "Échec génération PDF du bulletin {Oid} — publication annulée.", bulletin.Oid);
+                    "Échec génération PDF du bulletin {Oid} - publication annulée.", bulletin.Oid);
                 throw new UserFriendlyException(
                     $"Impossible de générer le PDF du bulletin : {ex.Message}");
             }
@@ -101,7 +101,7 @@ namespace AdiPAIE_V02.Module.Services
                     nomEntite: nameof(Bulletin),
                     action: "Publier",
                     objectId: bulletin.Oid.ToString(),
-                    objectLabel: $"Bulletin {bulletin.Mois:00}/{bulletin.Annee} — {bulletin.Salarie?.FullName}",
+                    objectLabel: $"Bulletin {bulletin.Mois:00}/{bulletin.Annee} - {bulletin.Salarie?.FullName}",
                     details: $"Publié par {currentUserName} | PDF {pdfBytes.Length / 1024} Ko");
             }
             catch (Exception auditEx)
@@ -118,7 +118,7 @@ namespace AdiPAIE_V02.Module.Services
             catch (Exception emailEx)
             {
                 logger?.LogWarning(emailEx,
-                    "Échec envoi email de notification pour bulletin {Oid} — publication conservée.",
+                    "Échec envoi email de notification pour bulletin {Oid} - publication conservée.",
                     bulletin.Oid);
             }
 
@@ -156,7 +156,7 @@ namespace AdiPAIE_V02.Module.Services
                     nomEntite: nameof(Bulletin),
                     action: "Depublier",
                     objectId: bulletin.Oid.ToString(),
-                    objectLabel: $"Bulletin {bulletin.Mois:00}/{bulletin.Annee} — {bulletin.Salarie?.FullName}",
+                    objectLabel: $"Bulletin {bulletin.Mois:00}/{bulletin.Annee} - {bulletin.Salarie?.FullName}",
                     details: $"Dépublié par {currentUserName}");
             }
             catch (Exception ex)
@@ -188,7 +188,7 @@ namespace AdiPAIE_V02.Module.Services
             if (string.IsNullOrWhiteSpace(emailSalarie))
             {
                 logger?.LogInformation(
-                    "Bulletin {Oid} : salarié {Salarie} sans email — notification ignorée.",
+                    "Bulletin {Oid} : salarié {Salarie} sans email - notification ignorée.",
                     bulletin.Oid, bulletin.Salarie?.FullName);
                 return false;
             }
@@ -197,7 +197,7 @@ namespace AdiPAIE_V02.Module.Services
             if (prm == null || !prm.EmailActif)
             {
                 logger?.LogInformation(
-                    "Bulletin {Oid} : EmailActif=false dans ParametresPaie — notification ignorée.",
+                    "Bulletin {Oid} : EmailActif=false dans ParametresPaie - notification ignorée.",
                     bulletin.Oid);
                 return false;
             }
@@ -219,7 +219,7 @@ namespace AdiPAIE_V02.Module.Services
 
             try
             {
-                // SendAsync = Task.Run(Send) — délègue au threadpool, libère l'UI
+                // SendAsync = Task.Run(Send) - délègue au threadpool, libère l'UI
                 await sender.SendAsync(emailSalarie, sujet, body, attachment: null);
                 logger?.LogInformation(
                     "Bulletin {Oid} : email de notification envoyé à {Email}.",
@@ -241,8 +241,8 @@ namespace AdiPAIE_V02.Module.Services
         private static string BuildEmailHtml(Bulletin b, string moisLabel)
         {
             var prenom = b.Salarie?.FirstName ?? b.Salarie?.FullName ?? "";
-            // V1.5 — Décision DG (mai 2026) : ne PAS afficher le Net à payer
-            // dans l'email de notification (confidentialité — l'info reste
+            // V1.5 - Décision DG (mai 2026) : ne PAS afficher le Net à payer
+            // dans l'email de notification (confidentialité - l'info reste
             // visible uniquement dans le PDF téléchargé depuis l'Espace Salarié).
             return $@"
 <html>
@@ -261,7 +261,7 @@ est désormais disponible dans votre Espace Salarié SunuPaie.</p>
 
 <p style='color:#666; font-size:12px;'>
 Pour toute question, contactez le service Paie / RH.<br/>
-— Service Paie ELTON Oil Company
+- Service Paie ELTON Oil Company
 </p>
 </body>
 </html>";

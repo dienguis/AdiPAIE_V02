@@ -1,6 +1,6 @@
 // =============================================================================
 //  RemunerationFilterModel.cs
-//  Tableau N°4 (Rémunération — Égalité des salaires).
+//  Tableau N°4 (Rémunération - Égalité des salaires).
 //
 //  Sources de données validées (cf. SPEC_Custom_Dashboard_SQL.sql) :
 //    INTERNE :
@@ -43,7 +43,7 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         public Sexe?   Genre         { get; set; }
         public string? Segment       { get; set; }   // Departement.Nom (INTERNE) / BU (EXTERNE)
         public Guid?   CategorieOid  { get; set; }
-        public Guid?   EchelonOid    { get; set; }   // V1.5 — filtre Échelon (CCT Sénégal)
+        public Guid?   EchelonOid    { get; set; }   // V1.5 - filtre Échelon (CCT Sénégal)
         public AncienneteBucket? Anciennete { get; set; }
 
         public string ToCacheKey() =>

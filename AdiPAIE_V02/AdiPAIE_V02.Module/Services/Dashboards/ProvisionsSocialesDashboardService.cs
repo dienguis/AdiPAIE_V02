@@ -1,5 +1,5 @@
 // =============================================================================
-//  ProvisionsSocialesDashboardService.cs — V1.2 (mai 2026)
+//  ProvisionsSocialesDashboardService.cs - V1.2 (mai 2026)
 //
 //  Calcule la provision IDR selon le barème CCI Sénégal :
 //    < 5 ans   : 25 % du salaire mensuel × ancienneté en années

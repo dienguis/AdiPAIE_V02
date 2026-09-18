@@ -28,7 +28,7 @@ namespace AdiPAIE_V02.Module.Controllers
         protected override void OnActivated()
         {
             base.OnActivated();
-            // Masquer — utiliser l'export batch par mois
+            // Masquer - utiliser l'export batch par mois
             action.Active["UsesBatchExport"] = false;
         }
 

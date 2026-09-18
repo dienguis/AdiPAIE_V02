@@ -10,7 +10,7 @@ namespace AdiPAIE_V02.Module.Services
     public static class PeriodePaieHelper
     {
         /// <summary>
-        /// V1.7.2 — Retourne la période de paie actuellement OUVERTE (la plus
+        /// V1.7.2 - Retourne la période de paie actuellement OUVERTE (la plus
         /// récente si plusieurs). Utilisée pour initialiser intelligemment
         /// les nouveaux 13ièmes mois / gratifications afin d'éviter qu'un
         /// utilisateur les saisisse sur un mois clôturé ou inexistant.

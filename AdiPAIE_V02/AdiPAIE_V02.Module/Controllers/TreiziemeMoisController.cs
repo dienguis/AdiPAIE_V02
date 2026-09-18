@@ -1,5 +1,5 @@
 // =============================================================================
-//  TreiziemeMoisController.cs — V1.7.2
+//  TreiziemeMoisController.cs - V1.7.2
 //
 //  Actions XAF sur la ListView de TreiziemeMois :
 //    - "Calculer 13ième mois pour année..." (menu déroulant des 3 dernières

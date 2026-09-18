@@ -141,7 +141,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Affichage ─────────────────────────────────────────
         [NonPersistent]
         public string DisplayHistorique =>
-            $"{Salarie?.LastName} — {FonctionLibelle} depuis {DateDebut:MM/yyyy}";
+            $"{Salarie?.LastName} - {FonctionLibelle} depuis {DateDebut:MM/yyyy}";
 
         // ── Factory ───────────────────────────────────────────
         /// <summary>
@@ -169,11 +169,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             h.AvancementSource = avancement;
             h.DateDebut = avancement.DateEffet;
             h.FonctionLibelle = avancement.NouvelleFonction?.Intitule
-                                     ?? avancement.Salarie.Fonction?.Intitule ?? "—";
+                                     ?? avancement.Salarie.Fonction?.Intitule ?? "-";
             h.DepartementLibelle = avancement.NouveauDepartement?.Nom
-                                     ?? avancement.Salarie.Departement?.Nom ?? "—";
+                                     ?? avancement.Salarie.Departement?.Nom ?? "-";
             h.EchelonLibelle = avancement.NouvelEchelon?.Libelle
-                                     ?? avancement.Salarie.Echelon?.Libelle ?? "—";
+                                     ?? avancement.Salarie.Echelon?.Libelle ?? "-";
             h.SalaireBase = avancement.NouveauSalaireBase;
             h.IndemniteLogement = avancement.NouvelleIndemnite;
             h.TypeAvancementLibelle = avancement.TypeAvancement.ToString();

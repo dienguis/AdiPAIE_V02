@@ -1,5 +1,5 @@
 // =============================================================================
-//  BulletinInterimImportService.cs — V1.3 Sprint 1 (mai 2026)
+//  BulletinInterimImportService.cs - V1.3 Sprint 1 (mai 2026)
 //
 //  Parse le fichier xlsx "Livre de paie intérim" envoyé par les sociétés
 //  d'intérim, et le persiste dans BulletinInterim + ImportBulletinInterimBatch.
@@ -431,7 +431,7 @@ namespace AdiPAIE_V02.Module.Services.Interim
 
                         interimsByMatricule[matricKey] = interim;
                         result.NbInterimairesCreesAuto++;
-                        result.InterimairesCreesNoms.Add($"{ligne.MatriculeOriginal} — {ligne.Nom} {ligne.Prenom}");
+                        result.InterimairesCreesNoms.Add($"{ligne.MatriculeOriginal} - {ligne.Nom} {ligne.Prenom}");
                     }
                 }
                 // Statut Prestataire → interim reste null
@@ -649,7 +649,7 @@ namespace AdiPAIE_V02.Module.Services.Interim
         /// Si la formule est invalide ou non calculée, retourne 0.
         ///
         /// Robuste aux cellules formatées en entier visuellement mais stockées en
-        /// décimal (ex affichage "252 379" mais valeur réelle 252379.45) — la valeur
+        /// décimal (ex affichage "252 379" mais valeur réelle 252379.45) - la valeur
         /// brute est toujours lue intégralement.
         /// </summary>
         private static decimal SafeDecimal(IXLCell? cell)

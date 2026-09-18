@@ -1,5 +1,5 @@
 // =============================================================================
-//  CoutCompletDashboardService.cs — V1.2 Sprint 4 (mai 2026)
+//  CoutCompletDashboardService.cs - V1.2 Sprint 4 (mai 2026)
 //
 //  Calcule le coût complet (Fully Loaded Cost) par salarié sur une année.
 //  Décomposition :
@@ -9,7 +9,7 @@
 //    - Charges patronales (BulletinLigne.MontantEmployeur)
 //    - Avantages en nature (BulletinLigne famille AV_NATURE_*)
 //    - Formation (à défaut d'entité Formation.CoutTotal mappée, valeur 0
-//      pour V1.2 initiale — sera complété en V1.2.1)
+//      pour V1.2 initiale - sera complété en V1.2.1)
 // =============================================================================
 
 using System;
@@ -88,7 +88,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             }
             catch
             {
-                // ignore — on continue avec valeurs nulles
+                // ignore - on continue avec valeurs nulles
             }
 
             // ── 3. Agrégation par salarié ─────────────────────────────────

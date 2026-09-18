@@ -113,7 +113,7 @@ namespace AdiPAIE_V02.Module.Controllers
             View.ObjectSpace.Refresh();
 
             Application.ShowViewStrategy.ShowMessage(
-                $"{param.NombreHeures:N2}h ({param.TypeHS}) ajoutées — {hs.MontantTotal:N0} FCFA.",
+                $"{param.NombreHeures:N2}h ({param.TypeHS}) ajoutées - {hs.MontantTotal:N0} FCFA.",
                 InformationType.Success, 4000, InformationPosition.Bottom);
         }
     }
@@ -159,6 +159,6 @@ namespace AdiPAIE_V02.Module.Controllers
             TauxMajoration = HeureSupplementaire.GetTauxLegalDefaut(TypeHS);
         }
 
-        public string DisplayText => $"{TypeHS} — {NombreHeures:N2}h";
+        public string DisplayText => $"{TypeHS} - {NombreHeures:N2}h";
     }
 }

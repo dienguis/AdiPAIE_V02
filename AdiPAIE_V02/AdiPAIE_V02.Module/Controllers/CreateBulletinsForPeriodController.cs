@@ -26,7 +26,7 @@ namespace AdiPAIE_V02.Module.Controllers
             // Afficher ces actions UNIQUEMENT sur la vue dédiée paie
             TargetViewId = "Salarie_Paie_ListView";
 
-            // 1) Créer bulletins (période) — déjà existant
+            // 1) Créer bulletins (période) - déjà existant
             createAction = new PopupWindowShowAction(this, "CreateBulletinsForPeriod", PredefinedCategory.Edit)
             {
                 Caption = "Créer bulletins",
@@ -39,7 +39,7 @@ namespace AdiPAIE_V02.Module.Controllers
             createAction.CustomizePopupWindowParams += CreateAction_CustomizePopupWindowParams;
             createAction.Execute += CreateAction_Execute;
 
-            // 2) Voir bulletins du salarié — NOUVEAU
+            // 2) Voir bulletins du salarié - NOUVEAU
             openBulletinsAction = new SimpleAction(this, "OpenEmployeeBulletins", PredefinedCategory.View)
             {
                 Caption = "Voir bulletins",
@@ -70,7 +70,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 CriteriaOperator.Parse("Salarie.Oid = ?", salarieOid);
 
             var lv = Application.CreateListView("Bulletin_ListView", collSrc, true);
-            lv.Caption = $"Bulletins — {salarieNom}";
+            lv.Caption = $"Bulletins - {salarieNom}";
 
             // Ouvrir dans le document courant (onglet, pas popup)
             var svp = new ShowViewParameters(lv)

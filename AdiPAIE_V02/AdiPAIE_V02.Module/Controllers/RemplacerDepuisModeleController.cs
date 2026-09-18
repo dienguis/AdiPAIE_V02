@@ -13,7 +13,7 @@ namespace AdiPAIE_V02.Module.Controllers
     {
         public RemplacerDepuisModeleController()
         {
-            // Pas d'InitializeComponent() — fichier Designer supprimé
+            // Pas d'InitializeComponent() - fichier Designer supprimé
             var a = new SimpleAction(this, "RemplacerDepuisModele", PredefinedCategory.Edit)
             {
                 Caption = "Remplacer modèle",

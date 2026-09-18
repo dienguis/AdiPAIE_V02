@@ -131,7 +131,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             demande.Accorder(dateReprise);
             AuditService.Enregistrer(Application, "CongeDemande", "Accorder",
                 demande.Oid.ToString(), demande.Salarie?.FullName,
-                $"Demande du {demande.DateDebut:dd/MM/yyyy} au {demande.DateFin:dd/MM/yyyy} — Reprise le {dateReprise:dd/MM/yyyy}",
+                $"Demande du {demande.DateDebut:dd/MM/yyyy} au {demande.DateFin:dd/MM/yyyy} - Reprise le {dateReprise:dd/MM/yyyy}",
                 ancienStatut: "Soumise", nouveauStatut: "Accordée");
             osNew.CommitChanges();
 
@@ -166,7 +166,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             AuditService.Enregistrer(Application, "CongeDemande", "Refuser",
                 d.Oid.ToString(), d.Salarie?.FullName,
-                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} — Motif : {d.CommentaireRH ?? "aucun motif enregistré"}",
+                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} - Motif : {d.CommentaireRH ?? "aucun motif enregistré"}",
                 ancienStatut: "Soumise", nouveauStatut: "Refusée");
             ObjectSpace.CommitChanges();
             PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
@@ -211,7 +211,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             AuditService.Enregistrer(Application, "CongeDemande", "Annuler",
                 d.Oid.ToString(), d.Salarie?.FullName,
-                $"Congé du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} annulé — Motif : {d.CommentaireRH ?? "aucun motif enregistré"}",
+                $"Congé du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} annulé - Motif : {d.CommentaireRH ?? "aucun motif enregistré"}",
                 ancienStatut: "Accordée", nouveauStatut: "Annulée");
             ObjectSpace.CommitChanges();
             PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
@@ -242,7 +242,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 notif.Titre = $"Demande de congé en attente de votre validation";
                 notif.Corps = $"{demande.Salarie?.FullName} souhaite prendre un congé "
                                 + $"du {demande.DateDebut:dd/MM/yyyy} au {demande.DateFin:dd/MM/yyyy} "
-                                + $"({demande.DureeJours:n1} jour(s) — {demande.Type?.Libelle}).";
+                                + $"({demande.DureeJours:n1} jour(s) - {demande.Type?.Libelle}).";
                 notif.Categorie = "Congé";
                 notif.Priorite = NotificationPriorite.Important;
 

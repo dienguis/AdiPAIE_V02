@@ -39,7 +39,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             {
                 Caption = "Rejeter",
                 ImageName = "Action_Cancel",
-                ToolTip = "Rejette et repasse en Brouillon — le salarié peut modifier.",
+                ToolTip = "Rejette et repasse en Brouillon - le salarié peut modifier.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
                 ConfirmationMessage = "Rejeter cette demande ? Le salarié pourra la modifier et resoumettre."
             };
@@ -93,7 +93,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             // Notifie le salarié que sa demande est rejetée mais modifiable
             _NotifierSalarie(d,
-                "Votre demande de congé a été rejetée — vous pouvez la modifier",
+                "Votre demande de congé a été rejetée - vous pouvez la modifier",
                 $"Votre demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} "
                 + $"a été rejetée par {d.RejeteParNom}. "
                 + (string.IsNullOrWhiteSpace(d.MotifRejet) ? "" : "Motif : " + d.MotifRejet + ". ")
@@ -101,7 +101,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             AuditService.Enregistrer(Application, "CongeDemande", "Rejeter",
                 d.Oid.ToString(), d.Salarie?.FullName,
-                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} rejetée — Motif : {d.MotifRejet ?? "aucun motif enregistré"}",
+                $"Demande du {d.DateDebut:dd/MM/yyyy} au {d.DateFin:dd/MM/yyyy} rejetée - Motif : {d.MotifRejet ?? "aucun motif enregistré"}",
                 ancienStatut: ancienStatut, nouveauStatut: d.Statut.ToString());
             ObjectSpace.CommitChanges();
             PlanningCongeController.MettreAJourEvenement(ObjectSpace, d);
@@ -194,9 +194,9 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 if (destinataires == null || !destinataires.Any()) return;
 
                 var sender = prm.CreateEmailSender();
-                var sujet = $"[AdiPAIE] Demande de congé validée — {demande.Salarie?.FullName}";
+                var sujet = $"[AdiPAIE] Demande de congé validée - {demande.Salarie?.FullName}";
                 var body = $@"<html><body style='font-family:Segoe UI,Arial;font-size:14px;'>
-<h2 style='color:#1F4E79;'>Demande de congé — validée par la hiérarchie</h2>
+<h2 style='color:#1F4E79;'>Demande de congé - validée par la hiérarchie</h2>
 <p>La demande suivante est disponible pour traitement :</p>
 <table style='border-collapse:collapse;'>
   <tr><td style='padding:6px 12px;'><b>Salarié</b></td><td>{demande.Salarie?.FullName}</td></tr>

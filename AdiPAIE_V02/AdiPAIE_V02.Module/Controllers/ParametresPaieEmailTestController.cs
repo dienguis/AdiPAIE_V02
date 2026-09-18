@@ -1,5 +1,5 @@
 // =============================================================================
-//  ParametresPaieEmailTestController.cs — V1.5.1 — RETIRÉ
+//  ParametresPaieEmailTestController.cs - V1.5.1 - RETIRÉ
 //
 //  Doublon de TestEmailSMTP (PopupWindow) qui était plus flexible
 //  (peut envoyer le test à n'importe quelle adresse).

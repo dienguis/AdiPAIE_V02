@@ -142,7 +142,8 @@
           <Item Id="GRH_Int_Alertes" Caption="Alertes" ViewId="AlerteInterimaire_ListView" Index="5" ImageName="State_Warning" IsNewNode="True" />
           <Item Id="GRH_Int_Formations" Caption="Formations intérimaires" ViewId="FormationInterimaire_ListView" Index="5" IsNewNode="True" />
           <Item Id="GRH_Int_Evaluations" Caption="Évaluations intérimaires" ViewId="EvaluationInterimaire_ListView" Index="6" IsNewNode="True" />
-          <Item Id="GRH_Int_Sites" Caption="Sites / Stations" ViewId="StationService_ListView" Index="7" ImageName="BO_Organization_32x32" IsNewNode="True" />
+          <!-- V1.9.3 — Redirigé vers Site_ListView (V1.1) au lieu de StationService_ListView (Deprecated V1.0) -->
+          <Item Id="GRH_Int_Sites" Caption="Sites / Stations" ViewId="Site_ListView" Index="7" ImageName="BO_Organization_32x32" IsNewNode="True" />
           <Item Id="GRH_Int_Societes" Caption="Sociétés d'intérim" ViewId="SocieteInterim_ListView" Index="8" IsNewNode="True" />
           <Item Id="GRH_Int_Postes" Caption="Postes intérimaires" ViewId="PosteInterimaire_ListView" Index="9" IsNewNode="True" />
         </Items>
@@ -233,6 +234,8 @@
           <Item Id="Admin_AuditTrail" Caption="Journal d'audit (modifications)" ViewId="AuditDataItemPersistent_ListView" Index="13" ImageName="BO_Audit" IsNewNode="True" />
           <Item Id="Admin_ModelDifference" Caption="Personnalisations modèle" ViewId="ModelDifference_ListView" Index="14" ImageName="ModelEditor_Settings" IsNewNode="True" />
           <Item Id="Admin_ModelDiffUser" Caption="Personnalisations utilisateur" ViewId="ModelDifferenceUser_ListView" Index="15" ImageName="ModelEditor_Settings" IsNewNode="True" />
+          <!-- V1.8.7 — Menu Contrôle d'intégrité (scan automatique + correction UI) -->
+          <Item Id="Admin_ControleIntegrite" Caption="Contrôle d'intégrité" ViewId="AnomalieIntegrite_ListView" Index="20" ImageName="Action_Validation" IsNewNode="True" />
         </Items>
       </Item>
       <!-- V1.2 (mai 2026) — Le groupe "Default" est masqué de tous les menus.
@@ -284,6 +287,18 @@
     </Rules>
   </Validation>
   <Views>
+    <!-- V1.8.7 — Vues explicites pour la ListView Contrôle d'intégrité -->
+    <ListView Id="AnomalieIntegrite_ListView" ClassName="AdiPAIE_V02.Module.NonPersistent.AnomalieIntegrite" AllowNew="False" AllowDelete="False" AllowEdit="False" IsGroupPanelVisible="True" IsNewNode="True">
+      <Columns IsNewNode="True">
+        <ColumnInfo Id="Categorie" PropertyName="Categorie" Index="0" Width="130" IsNewNode="True" />
+        <ColumnInfo Id="Severite" PropertyName="Severite" Index="1" Width="110" IsNewNode="True" />
+        <ColumnInfo Id="TypeAnomalie" PropertyName="TypeAnomalie" Index="2" Width="220" IsNewNode="True" />
+        <ColumnInfo Id="Description" PropertyName="Description" Index="3" Width="400" IsNewNode="True" />
+        <ColumnInfo Id="ObjetConcerne" PropertyName="ObjetConcerne" Index="4" Width="230" IsNewNode="True" />
+        <ColumnInfo Id="ActionSuggere" PropertyName="ActionSuggere" Index="5" Width="300" IsNewNode="True" />
+      </Columns>
+    </ListView>
+    <DetailView Id="AnomalieIntegrite_DetailView" ClassName="AdiPAIE_V02.Module.NonPersistent.AnomalieIntegrite" AllowEdit="False" IsNewNode="True" />
     <ListView Id="ApplicationUser_ListView" Caption="Users" />
     <ListView Id="BaremeIR_Tranches_ListView">
       <Columns>
@@ -1912,6 +1927,9 @@
     <ListView Id="Site_ListView">
       <Columns>
         <ColumnInfo Id="Type" PropertyName="Type" Index="2" IsNewNode="True" />
+        <!-- V1.9.3 — Effectifs calculés depuis les contrats V1.1 -->
+        <ColumnInfo Id="EffectifActuelInterim" PropertyName="EffectifActuelInterim" Index="10" Width="140" IsNewNode="True" />
+        <ColumnInfo Id="EffectifSalariesInternes" PropertyName="EffectifSalariesInternes" Index="11" Width="150" IsNewNode="True" />
       </Columns>
     </ListView>
     <!-- ╔═══════════════════════════════════════════════════════════════════╗

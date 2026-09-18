@@ -1,5 +1,5 @@
 // =============================================================================
-//  CoutCompletDto.cs — V1.2 Sprint 4 (mai 2026)
+//  CoutCompletDto.cs - V1.2 Sprint 4 (mai 2026)
 //
 //  Dashboard "Coût Complet par Salarié" (Fully Loaded Cost).
 //  Décomposition : Net + Cotisations salariales + Charges patronales +

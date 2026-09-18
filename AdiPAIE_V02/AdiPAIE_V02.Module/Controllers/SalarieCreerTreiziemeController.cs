@@ -1,5 +1,5 @@
 // =============================================================================
-//  SalarieCreerTreiziemeController.cs — V1.7.2b
+//  SalarieCreerTreiziemeController.cs - V1.7.2b
 //
 //  Action sur la ListView des salariés : "Nouveau 13ième mois".
 //
@@ -37,7 +37,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
         public SalarieCreerTreiziemeController()
         {
-            // V1.7.2 — Catégorie Edit (toolbar) au lieu de RecordEdit
+            // V1.7.2 - Catégorie Edit (toolbar) au lieu de RecordEdit
             // (qui rend aussi en row-link redondant avec la toolbar).
             creerTreiziemeAction = new SimpleAction(this,
                 "Salarie_CreerTreizieme", PredefinedCategory.Edit)
@@ -106,7 +106,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 if (nbBulletins == 0)
                 {
                     Application.ShowViewStrategy?.ShowMessage(
-                        $"Aucun bulletin n'existe pour {salarie.Matricule} – " +
+                        $"Aucun bulletin n'existe pour {salarie.Matricule} - " +
                         $"{salarie.FullName} en {annee}. " +
                         $"Impossible de calculer un 13ième mois (prorata = 0).",
                         InformationType.Warning, 8000, InformationPosition.Top);
@@ -120,7 +120,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 if (existant != null)
                 {
                     Application.ShowViewStrategy?.ShowMessage(
-                        $"Un 13ième mois existe déjà pour {salarie.Matricule} – " +
+                        $"Un 13ième mois existe déjà pour {salarie.Matricule} - " +
                         $"{salarie.FullName} en {annee} " +
                         $"(statut : {existant.Statut}). " +
                         $"Utilisez la ListView 13ièmes mois pour le consulter.",

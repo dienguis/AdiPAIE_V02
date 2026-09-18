@@ -16,7 +16,7 @@ namespace AdiPAIE_V02.Module.Controllers
     /// Génère l'état 1024 (déclaration annuelle DGID Sénégal).
     /// Visible uniquement sur Paie → Périodes de paie (ListView PeriodePaie).
     /// </summary>
-    /// <remarks>DÉSACTIVÉ — remplacé par PeriodePaieEtatsController (bouton unique "États / Exports").</remarks>
+    /// <remarks>DÉSACTIVÉ - remplacé par PeriodePaieEtatsController (bouton unique "États / Exports").</remarks>
     public class Declaration1024Controller : ObjectViewController<ListView, PeriodePaie>
     {
         private PopupWindowShowAction _exportAction;
@@ -89,7 +89,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
                 // 3. Confirmation
                 Application.ShowViewStrategy.ShowMessage(
-                    $"État 1024 généré — {annee} ({xlsxBytes.Length / 1024} Ko)",
+                    $"État 1024 généré - {annee} ({xlsxBytes.Length / 1024} Ko)",
                     InformationType.Success, 5000, InformationPosition.Top);
             }
             catch (UserFriendlyException ex)

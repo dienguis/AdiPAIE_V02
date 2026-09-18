@@ -1,6 +1,6 @@
 // =============================================================================
 //  BilanSocialDto.cs
-//  Tableau N°6 (Bilan Social Mensuel) — DTOs renvoyés par le service au Razor.
+//  Tableau N°6 (Bilan Social Mensuel) - DTOs renvoyés par le service au Razor.
 // =============================================================================
 
 using System;
@@ -21,7 +21,7 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         public DateTime CalculatedAt { get; set; }
     }
 
-    /// <summary>Ligne « dont Intérimaires » — info managériale, hors DTSS officiel.</summary>
+    /// <summary>Ligne « dont Intérimaires » - info managériale, hors DTSS officiel.</summary>
     public sealed class IntemRowDto
     {
         public int     EffectifMoyen   { get; set; }
@@ -42,7 +42,7 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         public decimal CoutEmployeurAnnuel  { get; set; }
         public int     TotalJoursAbsence    { get; set; }
         public decimal TauxAbsenteisme      { get; set; }    // % sur jours ouvrables
-        /// <summary>% de cellules « renseignées » (i.e. > 0) — indicateur qualité données.</summary>
+        /// <summary>% de cellules « renseignées » (i.e. > 0) - indicateur qualité données.</summary>
         public decimal CompletudeData       { get; set; }
     }
 

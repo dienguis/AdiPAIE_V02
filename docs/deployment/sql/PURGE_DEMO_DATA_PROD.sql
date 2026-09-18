@@ -1,5 +1,5 @@
 -- ===========================================================================
--- PURGE_DEMO_DATA_PROD.sql  —  V1.7.2 (mai 2026)
+-- PURGE_DEMO_DATA_PROD.sql  -  V1.7.2 (mai 2026)
 --
 -- HARD DELETE des données DEMO_* en production ELTON (base AdiPAIE_V02).
 --
@@ -40,9 +40,9 @@ GO
 USE [AdiPAIE_V02];   -- ← AJUSTER si autre nom de base
 GO
 
--- ─────────────────────────────────────────────────────────────────────────────
+-- -----------------------------------------------------------------------------
 -- 0. VÉRIFICATION DES TABLES (doit toutes exister, sinon erreur claire)
--- ─────────────────────────────────────────────────────────────────────────────
+-- -----------------------------------------------------------------------------
 DECLARE @missing NVARCHAR(MAX) = N'';
 DECLARE @tables TABLE (name SYSNAME);
 INSERT INTO @tables (name) VALUES
@@ -83,13 +83,13 @@ ELSE
     PRINT N'✅ Toutes les tables référencées existent.';
 GO
 
--- ─────────────────────────────────────────────────────────────────────────────
+-- -----------------------------------------------------------------------------
 -- 1. DÉTECTION DYNAMIQUE DE LA TABLE DE JOINTURE N-N "Contrat-Unites"
 --    XPO nomme la table en concaténant : {ClassA}{PropA}_{ClassB}{PropB}
 --    Ici : UniteOrganisationnelleUnites_ContratInterimContratsInterim
 --    Colonnes : 'Unites' (FK UniteOrganisationnelle) + 'ContratsInterim' (FK ContratInterim)
 --    On détecte via les FK réelles vers ContratInterim et UniteOrganisationnelle.
--- ─────────────────────────────────────────────────────────────────────────────
+-- -----------------------------------------------------------------------------
 DECLARE @joinTable    SYSNAME = NULL;
 DECLARE @colContrat   SYSNAME = NULL;
 DECLARE @colUnite     SYSNAME = NULL;
@@ -128,12 +128,12 @@ INSERT INTO ##PURGE_META (Cle, Valeur) VALUES
     ('ColUnite',   @colUnite);
 GO
 
--- ─────────────────────────────────────────────────────────────────────────────
--- 2. PREVIEW — COMPTAGE AVANT SUPPRESSION
--- ─────────────────────────────────────────────────────────────────────────────
+-- -----------------------------------------------------------------------------
+-- 2. PREVIEW - COMPTAGE AVANT SUPPRESSION
+-- -----------------------------------------------------------------------------
 PRINT N'';
 PRINT N'═══════════════════════════════════════════════════════════════════════';
-PRINT N'  📊 PREVIEW  —  Nombre d''enregistrements DEMO_* qui seront supprimés';
+PRINT N'  📊 PREVIEW  -  Nombre d''enregistrements DEMO_* qui seront supprimés';
 PRINT N'═══════════════════════════════════════════════════════════════════════';
 
 SELECT 'Site'                  AS Entite, COUNT(*) AS NbDemo FROM Site                  WHERE Code         LIKE 'DEMO\_%' ESCAPE '\'
@@ -167,7 +167,7 @@ GO
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
---   PHASE 2 — HARD DELETE  (ACTIVÉ — bloc transaction décommenté)
+--   PHASE 2 - HARD DELETE  (ACTIVÉ - bloc transaction décommenté)
 --
 --   ⚠️ Ce script va supprimer DÉFINITIVEMENT les enregistrements DEMO_*.
 --      Assurez-vous d'avoir :
@@ -184,7 +184,7 @@ BEGIN TRY
     DECLARE @colContrat SYSNAME = (SELECT Valeur FROM ##PURGE_META WHERE Cle = 'ColContrat');
     DECLARE @colUnite   SYSNAME = (SELECT Valeur FROM ##PURGE_META WHERE Cle = 'ColUnite');
 
-    -- ─── A. Recrutement (enfants → parents) ─────────────────────────────────
+    -- --- A. Recrutement (enfants → parents) ---------------------------------
     DELETE pe FROM PeriodeEssai pe
         INNER JOIN Candidature ca ON ca.Oid = pe.CandidatureOrigine
         INNER JOIN Candidat    cd ON cd.Oid = ca.Candidat
@@ -225,7 +225,7 @@ BEGIN TRY
     DELETE FROM MotifRefusOffre     WHERE Code LIKE 'DEMO\_RECRUT\_%' ESCAPE '\';
     PRINT CONCAT(N'  ✓ MotifRefusOffre              : ', @@ROWCOUNT);
 
-    -- ─── B. Budget & Congés démo ────────────────────────────────────────────
+    -- --- B. Budget & Congés démo --------------------------------------------
     DELETE FROM BudgetMasseSalariale
         WHERE Commentaire LIKE 'DEMO\_BUDGET\_%' ESCAPE '\';
     PRINT CONCAT(N'  ✓ BudgetMasseSalariale         : ', @@ROWCOUNT);
@@ -234,7 +234,7 @@ BEGIN TRY
         WHERE Motif LIKE 'DEMO\_CONGE\_%' ESCAPE '\';
     PRINT CONCAT(N'  ✓ CongeDemande                 : ', @@ROWCOUNT);
 
-    -- ─── C. Enfants de Interimaire ──────────────────────────────────────────
+    -- --- C. Enfants de Interimaire ------------------------------------------
     DELETE a FROM AlerteInterimaire a
         INNER JOIN Interimaire i ON i.Oid = a.Interimaire
         WHERE i.Matricule LIKE 'DEMO\_%' ESCAPE '\';
@@ -255,7 +255,7 @@ BEGIN TRY
         WHERE i.Matricule LIKE 'DEMO\_%' ESCAPE '\';
     PRINT CONCAT(N'  ✓ MouvementInterimaire         : ', @@ROWCOUNT);
 
-    -- ─── D. Table de jointure N-N Contrat-Unites (DYNAMIQUE) ────────────────
+    -- --- D. Table de jointure N-N Contrat-Unites (DYNAMIQUE) ----------------
     --     Doit être supprimée AVANT ContratInterim (FK contraignant).
     --     On purge AUSSI les liens vers les UniteOrganisationnelle DEMO_*
     --     (pour libérer les unités elles-mêmes en fin de script).
@@ -263,7 +263,7 @@ BEGIN TRY
     BEGIN
         DECLARE @sql NVARCHAR(MAX);
 
-        -- D.1 — liens dont le contrat est DEMO_
+        -- D.1 - liens dont le contrat est DEMO_
         SET @sql = N'
             DELETE j FROM ' + QUOTENAME(@joinTable) + N' j
             INNER JOIN ContratInterim ci ON ci.Oid = j.' + QUOTENAME(@colContrat) + N'
@@ -272,7 +272,7 @@ BEGIN TRY
         EXEC sp_executesql @sql;
         PRINT CONCAT(N'  ✓ ', @joinTable, N' (par contrat DEMO_) : ', @@ROWCOUNT);
 
-        -- D.2 — liens dont l'unité est DEMO_
+        -- D.2 - liens dont l'unité est DEMO_
         SET @sql = N'
             DELETE j FROM ' + QUOTENAME(@joinTable) + N' j
             INNER JOIN UniteOrganisationnelle u ON u.Oid = j.' + QUOTENAME(@colUnite) + N'
@@ -281,25 +281,25 @@ BEGIN TRY
         PRINT CONCAT(N'  ✓ ', @joinTable, N' (par unité DEMO_)   : ', @@ROWCOUNT);
     END
 
-    -- ─── E. ContratInterim ──────────────────────────────────────────────────
+    -- --- E. ContratInterim --------------------------------------------------
     DELETE ci FROM ContratInterim ci
         INNER JOIN Interimaire i ON i.Oid = ci.Interimaire
         WHERE i.Matricule LIKE 'DEMO\_%' ESCAPE '\';
     PRINT CONCAT(N'  ✓ ContratInterim               : ', @@ROWCOUNT);
 
-    -- ─── F. Interimaire ─────────────────────────────────────────────────────
+    -- --- F. Interimaire -----------------------------------------------------
     DELETE FROM Interimaire WHERE Matricule LIKE 'DEMO\_%' ESCAPE '\';
     PRINT CONCAT(N'  ✓ Interimaire                  : ', @@ROWCOUNT);
 
-    -- ─── G. PosteInterimaire (préfixe "DEMO " avec ESPACE) ──────────────────
+    -- --- G. PosteInterimaire (préfixe "DEMO " avec ESPACE) ------------------
     DELETE FROM PosteInterimaire WHERE Libelle LIKE 'DEMO %';
     PRINT CONCAT(N'  ✓ PosteInterimaire             : ', @@ROWCOUNT);
 
-    -- ─── H. SocieteInterim ──────────────────────────────────────────────────
+    -- --- H. SocieteInterim --------------------------------------------------
     DELETE FROM SocieteInterim WHERE RaisonSociale LIKE 'DEMO\_%' ESCAPE '\';
     PRINT CONCAT(N'  ✓ SocieteInterim               : ', @@ROWCOUNT);
 
-    -- ─── I. UniteOrganisationnelle (auto-référence Parent → 2 passes) ───────
+    -- --- I. UniteOrganisationnelle (auto-référence Parent → 2 passes) -------
     --     1) On casse d''abord la self-ref pour éviter le pb d''ordre.
     UPDATE UniteOrganisationnelle SET Parent = NULL
         WHERE Code LIKE 'DEMO\_%' ESCAPE '\';
@@ -308,20 +308,20 @@ BEGIN TRY
     DELETE FROM UniteOrganisationnelle WHERE Code LIKE 'DEMO\_%' ESCAPE '\';
     PRINT CONCAT(N'  ✓ UniteOrganisationnelle       : ', @@ROWCOUNT);
 
-    -- ─── J. Site (dernière table — racine de tout) ──────────────────────────
+    -- --- J. Site (dernière table - racine de tout) --------------------------
     DELETE FROM Site WHERE Code LIKE 'DEMO\_%' ESCAPE '\';
     PRINT CONCAT(N'  ✓ Site                         : ', @@ROWCOUNT);
 
     COMMIT TRANSACTION PurgeDemo;
     PRINT N'';
     PRINT N'═══════════════════════════════════════════════════════════════════';
-    PRINT N'  ✅ PURGE TERMINÉE AVEC SUCCÈS  —  Transaction commitée.';
+    PRINT N'  ✅ PURGE TERMINÉE AVEC SUCCÈS  -  Transaction commitée.';
     PRINT N'═══════════════════════════════════════════════════════════════════';
 END TRY
 BEGIN CATCH
     IF XACT_STATE() <> 0 ROLLBACK TRANSACTION PurgeDemo;
     PRINT N'';
-    PRINT N'❌ ERREUR — Transaction ROLLBACK.';
+    PRINT N'❌ ERREUR - Transaction ROLLBACK.';
     PRINT N'   N° erreur   : ' + CAST(ERROR_NUMBER()  AS NVARCHAR(20));
     PRINT N'   Ligne       : ' + CAST(ERROR_LINE()    AS NVARCHAR(20));
     PRINT N'   Procédure   : ' + ISNULL(ERROR_PROCEDURE(), '(script direct)');
@@ -330,10 +330,10 @@ BEGIN CATCH
 END CATCH;
 GO
 
--- ─── K. VÉRIFICATION FINALE (mêmes COUNT que le preview, doivent être à 0) ──
+-- --- K. VÉRIFICATION FINALE (mêmes COUNT que le preview, doivent être à 0) --
 PRINT N'';
 PRINT N'═══════════════════════════════════════════════════════════════════════';
-PRINT N'  🔎 VÉRIFICATION POST-PURGE  —  TOUS LES COMPTEURS DOIVENT ÊTRE À 0';
+PRINT N'  🔎 VÉRIFICATION POST-PURGE  -  TOUS LES COMPTEURS DOIVENT ÊTRE À 0';
 PRINT N'═══════════════════════════════════════════════════════════════════════';
 
 SELECT 'Site'                  AS Entite, COUNT(*) AS NbDemoRestant FROM Site                  WHERE Code         LIKE 'DEMO\_%' ESCAPE '\'

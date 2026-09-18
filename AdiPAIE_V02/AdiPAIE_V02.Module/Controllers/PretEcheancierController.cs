@@ -64,7 +64,7 @@ namespace AdiPAIE_V02.Module.Controllers
                         WorkflowEmailHelper.HtmlTableau("Prêt suspendu",
                             "Les prélèvements sur votre salaire sont temporairement suspendus.",
                             new[] {
-                                ("Prêt", p.DisplayName ?? "—"),
+                                ("Prêt", p.DisplayName ?? "-"),
                                 ("Montant", $"{p.MontantPrincipal:N0} FCFA"),
                             }));
 
@@ -104,7 +104,7 @@ namespace AdiPAIE_V02.Module.Controllers
                         WorkflowEmailHelper.HtmlTableau("Prêt relancé",
                             "Les prélèvements sur votre salaire vont reprendre dès le prochain bulletin.",
                             new[] {
-                                ("Prêt", p.DisplayName ?? "—"),
+                                ("Prêt", p.DisplayName ?? "-"),
                                 ("Montant", $"{p.MontantPrincipal:N0} FCFA"),
                             }));
 

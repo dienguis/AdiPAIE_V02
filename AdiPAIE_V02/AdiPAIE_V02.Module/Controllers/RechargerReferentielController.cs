@@ -1,5 +1,5 @@
 // =============================================================================
-//  RechargerReferentielController.cs — V1.7.2
+//  RechargerReferentielController.cs - V1.7.2
 //
 //  Action sur le DetailView de ParametresPaie : "Recharger le référentiel".
 //
@@ -80,7 +80,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 int reducFamAvant = ObjectSpace.GetObjects<IRReductionFamille>().Count;
 
                 // ─── Lancement du seed via SeedService ────────────
-                // V1.7.2 — Seed COMPLET aligné Updater :
+                // V1.7.2 - Seed COMPLET aligné Updater :
                 // - Référentiels (Conv, Cat, Échelons, Comptes, Groupes, Types)
                 // - Rubriques (24)
                 // - Barèmes TRIMF Mensuel + Annuel + IR DPP

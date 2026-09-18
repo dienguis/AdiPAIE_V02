@@ -13,7 +13,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.Controllers
 {
     // ════════════════════════════════════════════════════════════
-    // CONTROLLER SOLDE — Actions RH sur la fiche SoldeConge
+    // CONTROLLER SOLDE - Actions RH sur la fiche SoldeConge
     // Salarié connecté → actions masquées (consultation seule)
     // ════════════════════════════════════════════════════════════
     public class SoldeCongeController
@@ -126,14 +126,14 @@ namespace AdiPAIE_V02.Module.Controllers
             View.Refresh();
 
             var sens = quantite > 0 ? "crédité" : "débité";
-            var msg = $"Solde {sens} de {Math.Abs(quantite):N2}j — Avant: {soldeAvant:N2}j | Apres: {solde.SoldeDisponible:N2}j";
+            var msg = $"Solde {sens} de {Math.Abs(quantite):N2}j - Avant: {soldeAvant:N2}j | Apres: {solde.SoldeDisponible:N2}j";
             Application.ShowViewStrategy?.ShowMessage(
                 msg, InformationType.Success, 5000, InformationPosition.Top);
         }
     }
 
     // ════════════════════════════════════════════════════════════
-    // CONTROLLER BATCH — Acquisition mensuelle tous salariés
+    // CONTROLLER BATCH - Acquisition mensuelle tous salariés
     // Salarié connecté → actions masquées (réservées RH)
     // ════════════════════════════════════════════════════════════
     public class AcquisitionMensuelleController
@@ -160,7 +160,7 @@ namespace AdiPAIE_V02.Module.Controllers
                     ObjectSpace, now.Year, now.Month);
                 View.Refresh();
 
-                var msg = $"Acquisition {now:MM/yyyy} terminée — {result}";
+                var msg = $"Acquisition {now:MM/yyyy} terminée - {result}";
                 Application.ShowViewStrategy?.ShowMessage(
                     msg,
                     result.HasErrors ? InformationType.Warning : InformationType.Success,
@@ -182,7 +182,7 @@ namespace AdiPAIE_V02.Module.Controllers
                     ObjectSpace, anneeSource);
                 View.Refresh();
 
-                var msg = $"Report {anneeSource}→{anneeSource + 1} terminé — {result}";
+                var msg = $"Report {anneeSource}→{anneeSource + 1} terminé - {result}";
                 Application.ShowViewStrategy?.ShowMessage(
                     msg,
                     result.HasErrors ? InformationType.Warning : InformationType.Success,

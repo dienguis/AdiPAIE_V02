@@ -1,5 +1,5 @@
 // =============================================================================
-//  ProvisionCongesController.cs — V1.7 — Charge la provision congés annuelle
+//  ProvisionCongesController.cs - V1.7 - Charge la provision congés annuelle
 //
 //  Pattern XAF canonique : hook ObjectsGetting du NonPersistentObjectSpace.
 //  Année par défaut : N-1 (l'année dernière clôturée). Les RH peuvent ajuster

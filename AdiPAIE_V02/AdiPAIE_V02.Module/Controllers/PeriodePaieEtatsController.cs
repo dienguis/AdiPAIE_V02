@@ -130,7 +130,7 @@ namespace AdiPAIE_V02.Module.Controllers
                     await jsRuntime.InvokeVoidAsync(
                         "AdiPAIE.downloadFile", fileName, mimeType, base64);
 
-                ShowMsg($"{label} généré — {(param.TypeEtat == TypeEtatExport.Etat1024 ? annee.ToString() : $"{mois:D2}/{annee}")} ({xlsxBytes.Length / 1024} Ko)",
+                ShowMsg($"{label} généré - {(param.TypeEtat == TypeEtatExport.Etat1024 ? annee.ToString() : $"{mois:D2}/{annee}")} ({xlsxBytes.Length / 1024} Ko)",
                     InformationType.Success);
             }
             catch (UserFriendlyException ex)

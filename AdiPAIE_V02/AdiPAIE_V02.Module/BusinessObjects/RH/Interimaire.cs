@@ -14,9 +14,9 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
 namespace AdiPAIE_V02.Module.BusinessObjects.RH
 {
-    // ════════════════════════════════════════════════════════════════════
+    // ====================================================================
     // FICHE INTÉRIMAIRE
-    // ════════════════════════════════════════════════════════════════════
+    // ====================================================================
 
     [DefaultClassOptions]
     [XafDisplayName("Intérimaire")]
@@ -42,7 +42,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             try { CreePar = DevExpress.ExpressApp.SecuritySystem.CurrentUserName; } catch { }
         }
 
-        // ── Matricule (identifiant unique) ────────────────────────────
+        // -- Matricule (identifiant unique) ----------------------------
         [Size(20)]
         [ModelDefault("AllowEdit", "False")]
         [RuleUniqueValue(DefaultContexts.Save,
@@ -71,7 +71,65 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             }
         }
 
-        // ── Identité ──────────────────────────────────────────────────
+        // -- V1.9 - Matricule agence (import fichier RH) --------------
+        // Le matricule interne (Matricule) est auto-généré INT-YYYY-NNNN.
+        // MatriculeAgence stocke le matricule fourni par l'agence d'intérim
+        // (ex : 5196, ETL056, PREST) - nécessaire pour rapprocher avec les
+        // factures et les fichiers de suivi mensuels transmis par l'agence.
+        [Size(30)]
+        [XafDisplayName("Matricule agence")]
+        [ToolTip("Matricule attribué par l'agence d'intérim (SEN INTERIM, ASSI, TECTRA…). " +
+                 "Sert au rapprochement avec les factures mensuelles.")]
+        [RuleUniqueValue(DefaultContexts.Save,
+            CustomMessageTemplate = "Ce matricule agence existe déjà pour un autre intérimaire.")]
+        [Indexed(Unique = false, Name = "IX_Interimaire_MatriculeAgence")]
+        public string MatriculeAgence
+        {
+            get => matriculeAgence;
+            set => SetPropertyValue(nameof(MatriculeAgence), ref matriculeAgence, value?.Trim());
+        }
+        string matriculeAgence;
+
+        [XafDisplayName("Sexe")]
+        public Sexe? SexeInterim
+        {
+            get => sexeInterim;
+            set => SetPropertyValue(nameof(SexeInterim), ref sexeInterim, value);
+        }
+        Sexe? sexeInterim;
+
+        [Size(20)]
+        [XafDisplayName("Catégorie")]
+        [ToolTip("Catégorie salariale conventionnelle (ex: 4ème, 7ème A, 8ème B…).")]
+        public string Categorie
+        {
+            get => categorie;
+            set => SetPropertyValue(nameof(Categorie), ref categorie, value?.Trim());
+        }
+        string categorie;
+
+        [XafDisplayName("Date d'entrée agence")]
+        [ToolTip("Date de la première mise à disposition par l'agence d'intérim.")]
+        public DateTime? DateEntreeAgence
+        {
+            get => dateEntreeAgence;
+            set => SetPropertyValue(nameof(DateEntreeAgence), ref dateEntreeAgence, value);
+        }
+        DateTime? dateEntreeAgence;
+
+        [NonPersistent]
+        [XafDisplayName("Ancienneté (années)")]
+        public int? AncienneteAns
+        {
+            get
+            {
+                if (!DateEntreeAgence.HasValue) return null;
+                var jours = (DateTime.Today - DateEntreeAgence.Value).Days;
+                return jours < 0 ? 0 : jours / 365;
+            }
+        }
+
+        // -- Identité --------------------------------------------------
         [RuleRequiredField]
         [Size(50)]
         [XafDisplayName("Nom")]
@@ -151,7 +209,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         string telephone;
 
-        // ── Compétences / Poste ───────────────────────────────────────
+        // -- Compétences / Poste ---------------------------------------
         [Size(100)]
         [XafDisplayName("Fonction / Poste")]
         public string Fonction
@@ -170,7 +228,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         string competences;
 
-        // ── Société d'intérim ─────────────────────────────────────────
+        // -- Société d'intérim -----------------------------------------
         [RuleRequiredField]
         [XafDisplayName("Société d'intérim")]
         [Association("SocieteInterim-Interimaires")]
@@ -181,7 +239,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         SocieteInterim societeInterim;
 
-        // ── Statut ────────────────────────────────────────────────────
+        // -- Statut ----------------------------------------------------
         [XafDisplayName("Statut")]
         public InterimaireStatut Statut
         {
@@ -218,7 +276,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         string observations;
 
-        // ── Collections ───────────────────────────────────────────────
+        // -- Collections -----------------------------------------------
         [Association("Interimaire-Contrats"), Aggregated]
         [XafDisplayName("Contrats")]
         public XPCollection<ContratInterim> Contrats
@@ -244,7 +302,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         public XPCollection<EvaluationInterimaire> Evaluations
             => GetCollection<EvaluationInterimaire>(nameof(Evaluations));
 
-        // ── Propriétés calculées ──────────────────────────────────────
+        // -- Propriétés calculées --------------------------------------
         [NonPersistent]
         [XafDisplayName("Affectation actuelle")]
         public string AffectationActuelle
@@ -252,10 +310,19 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             get
             {
                 var c = ContratActif;
-                if (c == null) return "—";
+                if (c == null) return "-";
+                // V1.9.3 - Priorité au modèle V1.1 (Site + Unites), fallback sur legacy
+                if (c.Site != null)
+                {
+                    var uniteNom = c.Unites?.FirstOrDefault()?.Nom;
+                    return string.IsNullOrWhiteSpace(uniteNom)
+                        ? c.Site.Nom
+                        : $"{c.Site.Nom} / {uniteNom}";
+                }
+                // Fallback legacy (Station/BU/EstDG)
                 if (c.EstDG) return "Direction Générale";
-                var bu = c.BU?.Libelle ?? "—";
-                var sta = c.Station?.Nom ?? "—";
+                var bu = c.BU?.Libelle ?? "-";
+                var sta = c.Station?.Nom ?? "-";
                 return $"{sta} / {bu}";
             }
         }
@@ -276,12 +343,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             }
         }
 
-        public override string ToString() => $"{Matricule} — {FullName}";
+        public override string ToString() => $"{Matricule} - {FullName}";
     }
 
-    // ════════════════════════════════════════════════════════════════════
+    // ====================================================================
     // CONTRAT INTÉRIMAIRE
-    // ════════════════════════════════════════════════════════════════════
+    // ====================================================================
 
     [DefaultClassOptions]
     [XafDisplayName("Contrat intérimaire")]
@@ -294,18 +361,18 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     [Appearance("CI_Resilie", TargetItems = "*",
         Criteria = "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+ContratInterimStatut,Resilie#",
         FontColor = "Red")]
-    // V1.6.2 — Alertes visuelles fin de mission (sur DateFin uniquement, pas tout le contrat)
-    // Rouge : mission déjà finie (DateFin < today) — ignorer pour Termine/Resilie déjà gérés
+    // V1.6.2 - Alertes visuelles fin de mission (sur DateFin uniquement, pas tout le contrat)
+    // Rouge : mission déjà finie (DateFin < today) - ignorer pour Termine/Resilie déjà gérés
     [Appearance("CI_Mission_Depassee",
         TargetItems = "DateFin",
         Criteria = "DateFin < LocalDateTimeToday() AND Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+ContratInterimStatut,Termine# AND Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+ContratInterimStatut,Resilie#",
         BackColor = "LightCoral", FontColor = "DarkRed", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
-    // Orange : fin dans <= 7 jours — urgence
+    // Orange : fin dans <= 7 jours - urgence
     [Appearance("CI_Mission_FinUrgente",
         TargetItems = "DateFin",
         Criteria = "DateFin >= LocalDateTimeToday() AND DateFin <= AddDays(LocalDateTimeToday(), 7)",
         BackColor = "LightSalmon", FontColor = "DarkRed", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
-    // Jaune : fin dans 8-30 jours — anticipation
+    // Jaune : fin dans 8-30 jours - anticipation
     [Appearance("CI_Mission_FinProche",
         TargetItems = "DateFin",
         Criteria = "DateFin > AddDays(LocalDateTimeToday(), 7) AND DateFin <= AddDays(LocalDateTimeToday(), 30)",
@@ -353,7 +420,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         ContratInterimStatut statut;
 
-        // ── ⚠️ V1.1 Sprint 1D — Affectation LEGACY (Station / BU / EstDG) ─
+        // -- ⚠️ V1.1 Sprint 1D - Affectation LEGACY (Station / BU / EstDG) -
         //   Ces 3 FK sont conservées pour la compat des écrans hors dashboards
         //   (DemandeRecrutementInterim, AlerteInterimaireService) mais NE
         //   doivent PLUS être saisies. Utilisez Site (V1.1) + Unites à la place.
@@ -408,10 +475,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         BusinessUnitStation bu;
 
-        // ════════════════════════════════════════════════════════════════
-        //  V1.1 — Affectation unifiée (cohabitation avec Station/BU/EstDG)
-        // ════════════════════════════════════════════════════════════════
-        // À terme (V1.2) : suppression de Station/BU/EstDG → ne reste que
+        // ================================================================
+        //  V1.1 - Affectation unifiée (cohabitation avec Station/BU/EstDG)
+        // ================================================================
+        // À terme (V1.2) : suppression de Station/BU/EstDG -> ne reste que
         // Site + Unites. Pour l'instant on coexiste pour ne pas casser
         // les vues XAF et services existants.
 
@@ -458,7 +525,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         string motifRecours;
 
-        // ── Dates ─────────────────────────────────────────────────────
+        // -- Dates -----------------------------------------------------
         [RuleRequiredField]
         [XafDisplayName("Date de début")]
         public DateTime DateDebut
@@ -486,7 +553,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         DateTime? dateFinReelle;
 
-        // ── Financier ─────────────────────────────────────────────────
+        // -- Financier -------------------------------------------------
         [ModelDefault("DisplayFormat", "N0")]
         [ModelDefault("EditMask", "N0")]
         [XafDisplayName("Taux journalier (FCFA)")]
@@ -503,7 +570,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         public decimal CoutTotalEstime =>
             TauxJournalier * Math.Max(0, (DateFin - DateDebut).Days);
 
-        // ── Référence contrat société d'intérim ───────────────────────
+        // -- Référence contrat société d'intérim -----------------------
         [VisibleInListView(false)]
         [Size(50)]
         [XafDisplayName("Réf. contrat société intérim")]
@@ -524,7 +591,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         string observations;
 
-        // ── Renouvellement ────────────────────────────────────────────
+        // -- Renouvellement --------------------------------------------
         [VisibleInListView(false)]
         [XafDisplayName("Contrat précédent (renouvellement)")]
         [Association("ContratPrecedent-Renouvellements")]
@@ -540,17 +607,17 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         public XPCollection<ContratInterim> Renouvellements
             => GetCollection<ContratInterim>(nameof(Renouvellements));
 
-        // ── Propriétés calculées ──────────────────────────────────────
+        // -- Propriétés calculées --------------------------------------
         [NonPersistent]
         public string DisplayName
         {
             get
             {
-                var nom = Interimaire?.FullName ?? "—";
+                var nom = Interimaire?.FullName ?? "-";
                 var lieu = EstDG ? "DG" : BU != null
-                    ? $"{Station?.Nom ?? "—"} / {BU.Libelle}"
-                    : Station?.Nom ?? "—";
-                return $"{nom} — {lieu} ({DateDebut:MM/yyyy}→{DateFin:MM/yyyy})";
+                    ? $"{Station?.Nom ?? "-"} / {BU.Libelle}"
+                    : Station?.Nom ?? "-";
+                return $"{nom} - {lieu} ({DateDebut:MM/yyyy}->{DateFin:MM/yyyy})";
             }
         }
 
@@ -567,9 +634,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         public override string ToString() => DisplayName;
     }
 
-    // ════════════════════════════════════════════════════════════════════
+    // ====================================================================
     // MOUVEMENT INTÉRIMAIRE
-    // ════════════════════════════════════════════════════════════════════
+    // ====================================================================
 
     [DefaultClassOptions]
     [XafDisplayName("Mouvement intérimaire")]
@@ -619,7 +686,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         DateTime dateMouvement;
 
-        // ── Origine [Legacy V1.0] — masqué UI depuis V1.5 ─────────────
+        // -- Origine [Legacy V1.0] - masqué UI depuis V1.5 -------------
         // Données conservées en BD pour ne pas casser les services qui les
         // utilisent encore. À supprimer définitivement en V1.6 après migration.
         [XafDisplayName("[Legacy] Station origine")]
@@ -641,7 +708,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         BusinessUnitStation buOrigine;
 
-        [XafDisplayName("[Legacy] DG → Station (origine)")]
+        [XafDisplayName("[Legacy] DG -> Station (origine)")]
         [VisibleInListView(false), VisibleInDetailView(false)]
         public bool OrigineEstDG
         {
@@ -650,7 +717,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         bool origineEstDG;
 
-        // ── Destination [Legacy V1.0] — masqué UI depuis V1.5 ─────────
+        // -- Destination [Legacy V1.0] - masqué UI depuis V1.5 ---------
         [XafDisplayName("[Legacy] Station destination")]
         [VisibleInListView(false), VisibleInDetailView(false)]
         public StationService StationDestination
@@ -679,9 +746,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         bool destinationEstDG;
 
-        // ════════════════════════════════════════════════════════════════
-        //  V1.1 — Mouvements via Site + Unité (cohabitation)
-        // ════════════════════════════════════════════════════════════════
+        // ================================================================
+        //  V1.1 - Mouvements via Site + Unité (cohabitation)
+        // ================================================================
 
         [XafDisplayName("Site origine (V1.1)")]
         public Site SiteOrigineV1
@@ -717,7 +784,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         UniteOrganisationnelle uniteDestinationV1;
 
-        // ── Motif & validation RH ─────────────────────────────────────
+        // -- Motif & validation RH -------------------------------------
         [Size(500)]
         [XafDisplayName("Motif")]
         public string Motif
@@ -771,10 +838,10 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             {
                 var dest = DestinationEstDG ? "DG" :
                     BUDestination != null
-                        ? $"{StationDestination?.Nom ?? "—"}/{BUDestination.Libelle}"
-                        : StationDestination?.Nom ?? "—";
-                return $"{Interimaire?.Matricule ?? "—"} {Interimaire?.FullName ?? "—"} "
-                     + $"— {TypeMouvement} → {dest} ({DateMouvement:dd/MM/yyyy})";
+                        ? $"{StationDestination?.Nom ?? "-"}/{BUDestination.Libelle}"
+                        : StationDestination?.Nom ?? "-";
+                return $"{Interimaire?.Matricule ?? "-"} {Interimaire?.FullName ?? "-"} "
+                     + $"- {TypeMouvement} -> {dest} ({DateMouvement:dd/MM/yyyy})";
             }
         }
 

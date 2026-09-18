@@ -6,7 +6,7 @@ using AdiPAIE_V02.Module.Properties;
 using AdiPAIE_V02.Module.Reports;
 using AdiPAIE_V02.Module.Services;
 using AdiPAIE_V02.Module.Utils;
-// using DevExpress.DashboardCommon; // retiré — plus de dashboards programmatiques
+// using DevExpress.DashboardCommon; // retiré - plus de dashboards programmatiques
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Dashboards;
@@ -40,9 +40,9 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         {
             base.UpdateDatabaseAfterUpdateSchema();
 
-            // ═══════════════════════════════════════════════════════
-            // Rôle Employe — Permissions espace salarié (idempotent)
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
+            // Rôle Employe - Permissions espace salarié (idempotent)
+            // =======================================================
             var role = ObjectSpace.FirstOrDefault<PermissionPolicyRole>(r => r.Name == "Employe")
                 ?? ObjectSpace.CreateObject<PermissionPolicyRole>();
             role.Name = "Employe";
@@ -61,14 +61,14 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             const string NavRwc = SecurityOperations.Navigate + ";" + SecurityOperations.Read + ";"
                 + SecurityOperations.Write + ";" + SecurityOperations.Create;
 
-            // ── Bulletins : lecture seule de ses propres bulletins ──
+            // -- Bulletins : lecture seule de ses propres bulletins --
             role.AddTypePermissionsRecursively<Bulletin>(NavRead, SecurityPermissionState.Allow);
             role.AddObjectPermission<Bulletin>(
                 SecurityOperations.Read,
                 "Salarie.Email = CurrentUserName()",
                 SecurityPermissionState.Allow);
 
-            // ── Prêts : lecture seule ──
+            // -- Prêts : lecture seule --
             role.AddTypePermissionsRecursively<Pret>(NavRead, SecurityPermissionState.Allow);
             role.AddObjectPermission<Pret>(
                 SecurityOperations.Read,
@@ -81,7 +81,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 "Pret.Salarie.Email = CurrentUserName()",
                 SecurityPermissionState.Allow);
 
-            // ── Congés : créer, modifier, supprimer ses propres demandes ──
+            // -- Congés : créer, modifier, supprimer ses propres demandes --
             // Type-level : autorise Navigate + Read + Write + Create + Delete
             role.AddTypePermissionsRecursively<CongeDemande>(NavCrud, SecurityPermissionState.Allow);
             // Object-level : Read + Write + Delete uniquement (Create n’est pas valide ici)
@@ -94,14 +94,14 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             // Types de congé : lecture seule (référentiel)
             role.AddTypePermissionsRecursively<CongeType>(NavRead, SecurityPermissionState.Allow);
 
-            // ── Soldes de congé : lecture seule ──
+            // -- Soldes de congé : lecture seule --
             role.AddTypePermissionsRecursively<SoldeConge>(NavRead, SecurityPermissionState.Allow);
             role.AddObjectPermission<SoldeConge>(
                 SecurityOperations.Read,
                 "Salarie.Email = CurrentUserName()",
                 SecurityPermissionState.Allow);
 
-            // ── Demandes d’attestation : créer et modifier ──
+            // -- Demandes d’attestation : créer et modifier --
             role.AddTypePermissionsRecursively<DemandeAttestation>(NavRwc, SecurityPermissionState.Allow);
             const string RW = SecurityOperations.Read + ";" + SecurityOperations.Write;
             role.AddObjectPermission<DemandeAttestation>(
@@ -109,48 +109,48 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 "Salarie.Email = CurrentUserName()",
                 SecurityPermissionState.Allow);
 
-            // ── Entretiens annuels : lecture seule ──
+            // -- Entretiens annuels : lecture seule --
             role.AddTypePermissionsRecursively<EntretienAnnuel>(NavRead, SecurityPermissionState.Allow);
             role.AddObjectPermission<EntretienAnnuel>(
                 SecurityOperations.Read,
                 "Salarie.Email = CurrentUserName()",
                 SecurityPermissionState.Allow);
 
-            // ── Déplacements : créer et modifier ──
+            // -- Déplacements : créer et modifier --
             role.AddTypePermissionsRecursively<DemandeDeplacement>(NavRwc, SecurityPermissionState.Allow);
             role.AddObjectPermission<DemandeDeplacement>(
                 RW,
                 "Salarie.Email = CurrentUserName()",
                 SecurityPermissionState.Allow);
 
-            // ── Référentiels déplacement : lookups nécessaires ──
+            // -- Référentiels déplacement : lookups nécessaires --
             role.AddTypePermissionsRecursively<VilleSenegal>(NavRead, SecurityPermissionState.Allow);
             role.AddTypePermissionsRecursively<LigneCircuit>(NavCrud, SecurityPermissionState.Allow);
             role.AddTypePermissionsRecursively<LigneFraisMission>(NavCrud, SecurityPermissionState.Allow);
             role.AddTypePermissionsRecursively<CategorieFraisMission>(NavRead, SecurityPermissionState.Allow);
 
-            // ── ParametresPaie : lecture (pour clé API Google Maps, etc.) ──
+            // -- ParametresPaie : lecture (pour clé API Google Maps, etc.) --
             role.AddTypePermissionsRecursively<ParametresPaie>(NavRead, SecurityPermissionState.Allow);
 
-            // ── Salarié : lecture de sa propre fiche ──
+            // -- Salarié : lecture de sa propre fiche --
             role.AddTypePermissionsRecursively<Salarie>(NavRead, SecurityPermissionState.Allow);
             role.AddObjectPermission<Salarie>(
                 SecurityOperations.Read,
                 "Email = CurrentUserName()",
                 SecurityPermissionState.Allow);
 
-            // ── NotificationSalarie : le salarié doit pouvoir créer une notif
-            //    quand il soumet une demande de congé (pour alerter le N+1) ──
+            // -- NotificationSalarie : le salarié doit pouvoir créer une notif
+            //    quand il soumet une demande de congé (pour alerter le N+1) --
             role.AddTypePermissionsRecursively<NotificationSalarie>(
                 SecurityOperations.Navigate + ";" + SecurityOperations.Create + ";" + SecurityOperations.Write,
                 SecurityPermissionState.Allow);
 
-            // ── FileData : pour les pièces jointes (justificatifs congé, etc.) ──
+            // -- FileData : pour les pièces jointes (justificatifs congé, etc.) --
             role.AddTypePermissionsRecursively<FileData>(NavRwc, SecurityPermissionState.Allow);
 
-            // ═══════════════════════════════════════════════════════
-            // Navigation Permissions — rendre le menu "Mon espace" visible
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
+            // Navigation Permissions - rendre le menu "Mon espace" visible
+            // =======================================================
             // Nettoyer les NavigationPermissions existantes (idempotent)
             while (role.NavigationPermissions.Count > 0)
                 role.NavigationPermissions.Remove(role.NavigationPermissions[0]);
@@ -165,17 +165,17 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             role.AddNavigationPermission(@"Application/NavigationItems/Items/GRH_EspaceSalarie/Items/GRH_MesEntretiens", SecurityPermissionState.Allow);
             role.AddNavigationPermission(@"Application/NavigationItems/Items/GRH_EspaceSalarie/Items/GRH_MesDeplacements", SecurityPermissionState.Allow);
 
-            // ═══════════════════════════════════════════════════════
-            // Denied Actions — Actions RH interdites pour un employé
+            // =======================================================
+            // Denied Actions - Actions RH interdites pour un employé
             // L'employé ne peut que créer, sauvegarder et soumettre.
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
             // Nettoyer les ActionPermissions existantes (idempotent)
             while (role.ActionPermissions.Count > 0)
                 role.ActionPermissions.Remove(role.ActionPermissions[0]);
 
             var deniedActions = new[]
             {
-                // ── Bulletins ──
+                // -- Bulletins --
                 "CloturerBulletin",
                 "ReouvrirBulletin",
                 "ValiderBulletin",
@@ -191,13 +191,13 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 "GenerateEcritureFromBulletin",
                 "CreateBulletinsForPeriod",
                 "BulkBulletin_OuvrirParams",
-                // ── Congés ──
+                // -- Congés --
                 "Conge_Accorder",
                 "Conge_Accorder_Detail",
                 "Conge_Refuser",
                 "Conge_ModifierDates",
                 "Conge_Annuler",
-                // ── Déplacements ──
+                // -- Déplacements --
                 "Deplacement_InitialiserFrais",
                 "Deplacement_SoumettreRH",
                 "Deplacement_ApprouverRH",
@@ -207,25 +207,25 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 "Deplacement_ValiderDAF",
                 "Deplacement_ConfirmerComptable",
                 // "Deplacement_CalculerDistances", // L'employé a besoin de calculer les distances
-                // ── Attestations ──
+                // -- Attestations --
                 "Demande_PrendreEnCharge",
                 "Demande_Traiter",
                 "Demande_Rejeter",
                 "Attestation_Generer",
-                // ── Entretiens ──
+                // -- Entretiens --
                 "Entretien_Planifier",
                 "Entretien_LancerEvaluation",
                 "Entretien_Cloturer",
                 "Entretien_RecalculerScore",
                 "Entretien_GenererFiche",
-                // ── Avancements ──
+                // -- Avancements --
                 "Avancement_PreRemplir",
                 "Avancement_Soumettre",
                 "Avancement_Approuver",
                 "Avancement_Rejeter",
                 "Avancement_Appliquer",
                 "Avancement_Annuler",
-                // ── Salarié (fiche) ──
+                // -- Salarié (fiche) --
                 "Salarie.Active",
                 "Salarie.Desactive",
                 "Salarie.RegenererModele",
@@ -240,11 +240,11 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
 
             ObjectSpace.CommitChanges();
 
-            // ═══════════════════════════════════════════════════════
-            // Rôle RH — AllowAllByDefault + DENY navigation Comptabilité / Mon espace
+            // =======================================================
+            // Rôle RH - AllowAllByDefault + DENY navigation Comptabilité / Mon espace
             // Pas IsAdministrative, mais accès CRUD complet sur toutes les données
             // sauf la navigation vers les menus interdits.
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
             // Chercher TOUS les rôles RH existants pour éviter les doublons
             var allRolesRH = ObjectSpace.GetObjectsQuery<PermissionPolicyRole>()
                 .Where(r => r.Name == "RH")
@@ -308,13 +308,13 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
 
             ObjectSpace.CommitChanges();
 
-            // ═══════════════════════════════════════════════════════
-            // Rôle RH_Manager — Accès lecture aux Tableaux de Bord RH
-            // (Module Dashboards — Étape 2 / squelette).
-            // Permissions étendues progressivement aux Tableaux 1 → 6
+            // =======================================================
+            // Rôle RH_Manager - Accès lecture aux Tableaux de Bord RH
+            // (Module Dashboards - Étape 2 / squelette).
+            // Permissions étendues progressivement aux Tableaux 1 -> 6
             // (Étape 4). Idempotent : crée ou met à jour, fusionne les
             // doublons éventuels.
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
             var allRolesRHM = ObjectSpace.GetObjectsQuery<PermissionPolicyRole>()
                 .Where(r => r.Name == "RH_Manager")
                 .ToList();
@@ -356,12 +356,12 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             const string NavRead_RHM =
                 SecurityOperations.Navigate + ";" + SecurityOperations.Read;
 
-            // ── Entrée de menu « Tableaux de Bord RH » (DashboardsRHMenu) ──
+            // -- Entrée de menu « Tableaux de Bord RH » (DashboardsRHMenu) --
             roleRHM.AddTypePermissionsRecursively<DashboardsRHMenu>(
                 NavRead_RHM, SecurityPermissionState.Allow);
 
-            // ── Entités sources des dashboards (lecture seule) ──
-            //    Les permissions seront étendues étape 4.1 → 4.6 selon les
+            // -- Entités sources des dashboards (lecture seule) --
+            //    Les permissions seront étendues étape 4.1 -> 4.6 selon les
             //    besoins précis de chaque tableau (filtres sur sites,
             //    départements, périodes, etc.).
             roleRHM.AddTypePermissionsRecursively<Salarie>(NavRead_RHM, SecurityPermissionState.Allow);
@@ -385,37 +385,37 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             roleRHM.AddTypePermissionsRecursively<HistoriquePoste>(NavRead_RHM, SecurityPermissionState.Allow);
             roleRHM.AddTypePermissionsRecursively<DossierDisciplinaire>(NavRead_RHM, SecurityPermissionState.Allow);
 
-            // ── ApplicationUser (lecture pour la jointure salarié ↔ user) ──
+            // -- ApplicationUser (lecture pour la jointure salarié <-> user) --
             roleRHM.AddTypePermissionsRecursively<ApplicationUser>(
                 SecurityOperations.Read, SecurityPermissionState.Allow);
 
-            // ═══════════════════════════════════════════════════════════════
+            // ===============================================================
             //  Étendre l'accès aux dashboards aux rôles RH et DAF (Étape 7.SEC)
             //  Pour le rôle RH (AllowAllByDefault) : les permissions sont déjà
             //  ouvertes mais on ajoute explicitement le menu pour la clarté.
             //  Pour DAF (créé par InitialiserRolesGRHController) : on ajoute
             //  les permissions Read sur les sources des dashboards.
-            // ═══════════════════════════════════════════════════════════════
+            // ===============================================================
             GrantDashboardAccessToExistingRole("RH");
             GrantDashboardAccessToExistingRole("DAF");
 
-            // ═══════════════════════════════════════════════════════════════
-            //  V1.1 Sprint 1D — Permissions Read sur UniteOrganisationnelle
-            //  uniquement (BusinessUnitType est DEPRECATED — plus de seed
+            // ===============================================================
+            //  V1.1 Sprint 1D - Permissions Read sur UniteOrganisationnelle
+            //  uniquement (BusinessUnitType est DEPRECATED - plus de seed
             //  ni de migration ni de permission). Voir CHANGELOG Sprint 1D.
-            // ═══════════════════════════════════════════════════════════════
+            // ===============================================================
             GrantUniteOrganisationnelleReadAccess();
 
-            // ═══════════════════════════════════════════════════════════════
-            //  V1.1 Sprint 1B — Seed démo COMPLET pour tester les dashboards
+            // ===============================================================
+            //  V1.1 Sprint 1B - Seed démo COMPLET pour tester les dashboards
             //  Appel conditionné par appsettings.json :
             //    "Dashboards": { "SeedDemoData": true }
             //  Par défaut TRUE en dev, à passer à FALSE en prod après wipe.
             //  Le seeder est idempotent (ne recrée pas ce qui existe déjà).
-            //  Tous les codes/matricules sont préfixés "DEMO_" → suppression
+            //  Tous les codes/matricules sont préfixés "DEMO_" -> suppression
             //  ciblée via le Controller "Vider données démo" sans risque
             //  pour les seeds réels (rubriques de paie, paramètres, etc.).
-            // ═══════════════════════════════════════════════════════════════
+            // ===============================================================
             if (IsDemoSeedEnabled())
             {
                 try
@@ -431,14 +431,14 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
 
             ObjectSpace.CommitChanges();
 
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
             // Fix ONE-SHOT : Supprimer le ModelDifference pour DemandeAvancement_DetailView
             // Un layout personnalisé en base a supprimé le champ Salarié.
             // En nettoyant le nœud, XAF régénère le layout par défaut.
-            // → COMMENTEZ cette ligne après le premier lancement réussi
+            // -> COMMENTEZ cette ligne après le premier lancement réussi
             //   pour ne pas écraser de futures personnalisations du layout.
-            // ═══════════════════════════════════════════════════════
-            // ResetDemandeAvancementDetailView(); // Désactivé — le fix [Aggregated] retiré de Salarie.Avancements résout le problème
+            // =======================================================
+            // ResetDemandeAvancementDetailView(); // Désactivé - le fix [Aggregated] retiré de Salarie.Avancements résout le problème
 
             //Security Implementatation 10/09/2025
             //
@@ -460,7 +460,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             }
 
             // 1b) Auto-remplir les paramètres Power BI depuis la connection string de l'app
-            //     (uniquement si les champs sont encore vides — ne jamais écraser)
+            //     (uniquement si les champs sont encore vides - ne jamais écraser)
             try
             {
                 var appConnStr = session.ConnectionString
@@ -474,7 +474,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             catch { /* Ne pas bloquer le démarrage si l'auto-fill échoue */ }
 
             // 2) Seed conditionnel : seulement si l’option UI est cochée
-            // V1.7.2 — Propriété renommée ActiverSeedDemo → ActiverSeedReferentiel
+            // V1.7.2 - Propriété renommée ActiverSeedDemo -> ActiverSeedReferentiel
             // (colonne SQL inchangée grâce à [Persistent("ActiverSeedDemo")]).
             if (p.ActiverSeedReferentiel)
             {
@@ -490,7 +490,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 // RÉFÉRENTIEL : Groupes / Types / Rubriques (version unifiée)
                 // ===========================
 
-                // >>> Comptes (mini plan comptable) — inchangé
+                // >>> Comptes (mini plan comptable) - inchangé
                 var c661100 = EnsureCompte(os, "661100", "Appointements & salaires");
                 var c663110 = EnsureCompte(os, "663110", "Indemnités de logement");
                 var c663840 = EnsureCompte(os, "661200", "Primes (transport/panier)");
@@ -518,7 +518,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 // ==================
                 var tBrute = EnsureTypeRef(os, "BRUTE", "Éléments bruts", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, true, true);
                 var tIndImpos = EnsureTypeRef(os, "INDEM_IMPOSA", "Indemnités imposables", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, true, true);
-                // V1.7.2 — Code en MAJUSCULES uniquement (regex [A-Z0-9_]{2,20})
+                // V1.7.2 - Code en MAJUSCULES uniquement (regex [A-Z0-9_]{2,20})
                 var tAvNatureImpos = EnsureTypeRef(os, "AV_NAT_IMPOS", "Av Nature Impos", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, true, false);
                 var tIndNonImp = EnsureTypeRef(os, "INDEM_NON_IMPOSA", "Indemnités non imposables", gSalaireBrut, RubriqueTypeCalcul.Gain, SensAssiette.Plus, false, true);
                 var tCotSoc = EnsureTypeRef(os, "COTSOC", "Cotisations sociales", gCotSocial, RubriqueTypeCalcul.Retenue, SensAssiette.Moins, false, false);
@@ -531,7 +531,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 var rSB = EnsureRubrique(os, "SB", "Salaire de base", tBrute,
                                          ordre: 1, canon: RubriqueCanonique.SalaireDeBase,
                                          debitDefaut: c661100, creditDefaut: c421100);
-                // V1.7.2 — Marquage canonique TreiziemeMois (= 700)
+                // V1.7.2 - Marquage canonique TreiziemeMois (= 700)
                 // Permet l'auto-exclusion du brut récurrent pour ne pas se
                 // recalculer dans le calcul de l'année suivante.
                 // Ordre 70 (entre indemnités/HS et brut total) au lieu de 5.
@@ -539,7 +539,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                                          ordre: 70, canon: RubriqueCanonique.TreiziemeMois,
                                          debitDefaut: c661100, creditDefaut: c421100);
 
-                // V1.7.2d — Rubrique Gratification (ad hoc, workflow RH/DAF)
+                // V1.7.2d - Rubrique Gratification (ad hoc, workflow RH/DAF)
                 // Ordre 75 (juste après 13ième, avant brut total)
                 var rGratif = EnsureRubrique(os, "GRATIF", "Gratification", tBrute,
                                          ordre: 75, canon: RubriqueCanonique.Gratification,
@@ -613,7 +613,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 if (p.RubriqueRetenueAvanceDefaut == null) p.RubriqueRetenueAvanceDefaut = rAvance; // [FIX]
                 ObjectSpace.CommitChanges();
 
-                // — types de prêts/avances + backfill
+                // - types de prêts/avances + backfill
                 SeedPretTypes(ObjectSpace, p);
                 ObjectSpace.CommitChanges();
 
@@ -626,7 +626,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 os.CommitChanges();
             }
 
-            // Dashboards RH — supprimés (approche DashboardObjectDataSource incompatible Blazor)
+            // Dashboards RH - supprimés (approche DashboardObjectDataSource incompatible Blazor)
             // Les tableaux de bord seront recréés via des pages Blazor manuelles.
 
             // Normaliser tous les libellés existants (one-shot)
@@ -641,10 +641,10 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             }
             if (ObjectSpace.IsModified) ObjectSpace.CommitChanges();
 
-            // ═══════════════════════════════════════════════════════
-            // Centre d'imports — assure qu'un singleton existe
+            // =======================================================
+            // Centre d'imports - assure qu'un singleton existe
             // (utilisé comme conteneur pour les actions d'import en masse)
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
             if (ObjectSpace.GetObjectsCount(typeof(CentreImports), null) == 0)
             {
                 var ci = ObjectSpace.CreateObject<CentreImports>();
@@ -653,19 +653,19 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 ObjectSpace.CommitChanges();
             }
 
-            // ═══════════════════════════════════════════════════════
-            // Centre des constantes paie — assure qu'un singleton existe
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
+            // Centre des constantes paie - assure qu'un singleton existe
+            // =======================================================
             if (ObjectSpace.GetObjectsCount(typeof(CentreConstantesPaie), null) == 0)
             {
                 ObjectSpace.CreateObject<CentreConstantesPaie>();
                 ObjectSpace.CommitChanges();
             }
 
-            // ═══════════════════════════════════════════════════════
-            // Sites — référentiel paramétrable (personnel interne)
+            // =======================================================
+            // Sites - référentiel paramétrable (personnel interne)
             // Idempotent : crée uniquement les sites manquants
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
             (string code, string nom, string ville)[] sitesParDefaut =
             {
                 ("SIEGE",     "Siège",      "Dakar"),
@@ -702,19 +702,19 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
 //            }
 //#endif
 
-            // ═══════════════════════════════════════════════════════
-            // V1.7 — Seed Admin + rôle Administrators
-            // Anciennement entouré de #if !RELEASE → Admin n'était JAMAIS
+            // =======================================================
+            // V1.7 - Seed Admin + rôle Administrators
+            // Anciennement entouré de #if !RELEASE -> Admin n'était JAMAIS
             // créé en production, conduisant à "Login failed for 'Admin'"
             // sur une base fraîche. Maintenant exécuté dans TOUS les modes
             // (DEBUG + RELEASE). Le bloc est idempotent : si Admin existe
             // déjà, FindUserByName retourne non-null et on ne recrée rien.
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
             var adminRole = CreateAdminRole();
 
             UserManager userManager = ObjectSpace.ServiceProvider.GetRequiredService<UserManager>();
 
-            // ── Utilisateur Admin (mot de passe vide au 1er lancement) ──
+            // -- Utilisateur Admin (mot de passe vide au 1er lancement) --
             string adminUserName = "Admin";
             if (userManager.FindUserByName<ApplicationUser>(
                     ObjectSpace, adminUserName) == null)
@@ -743,46 +743,46 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
 
             //ADIENG 27/08/2025 FIN
 
-            // ═══════════════════════════════════════════════════════
-            // V1.4.3 — Auto-seed du rapport BulletinPaie
+            // =======================================================
+            // V1.4.3 - Auto-seed du rapport BulletinPaie
             // Si le ReportDataV2 "BulletinPaie" est absent (déploiement
             // sur DB neuve, restore partiel, suppression accidentelle),
             // on le crée à partir du REPX embarqué dans l'assembly.
             // Idempotent : si déjà présent en DB, on ne touche pas.
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
             SeedBulletinReportIfMissing();
 
-            // ═══════════════════════════════════════════════════════
-            // QW6 (V1.5.1) — Index SQL pour performance dashboards
+            // =======================================================
+            // QW6 (V1.5.1) - Index SQL pour performance dashboards
             // Idempotent : NOT EXISTS check avant CREATE INDEX.
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
             EnsurePerformanceIndexes();
 
-            // ═══════════════════════════════════════════════════════
-            // QW1 (V1.5.2) — Auto-init des rôles GRH au démarrage
-            // Idempotent — délègue à RolesGRHInitializer.Initialize.
+            // =======================================================
+            // QW1 (V1.5.2) - Auto-init des rôles GRH au démarrage
+            // Idempotent - délègue à RolesGRHInitializer.Initialize.
             // Si des rôles existent déjà, leurs permissions sont juste
             // enrichies (les V1.5 DemandeMouvementInterim notamment).
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
             EnsureRolesGRHInitialized();
 
-            // ═══════════════════════════════════════════════════════
-            // V1.8.1 — Initialisation Categories.EstCadre
+            // =======================================================
+            // V1.8.1 - Initialisation Categories.EstCadre
             //
             // Pré-coche EstCadre = true pour les catégories dont le libellé
             // commence par "Cadre" (et ne contient pas "Non"). Le RH peut
-            // ensuite ajuster manuellement via l'UI XAF (Référentiels →
+            // ensuite ajuster manuellement via l'UI XAF (Référentiels ->
             // Catégories).
             //
             // Idempotent : ne touche QUE les catégories où EstCadre = false
             // ET dont le libellé matche la convention. Une catégorie déjà
             // cochée par le RH ne sera jamais décochée par cet updater.
-            // ═══════════════════════════════════════════════════════
+            // =======================================================
             EnsureCategoriesEstCadreInitialized();
         }
 
         /// <summary>
-        /// QW1 (V1.5.2) — Création/maj des rôles GRH au démarrage.
+        /// QW1 (V1.5.2) - Création/maj des rôles GRH au démarrage.
         /// Délègue à <see cref="Controllers.RolesGRHInitializer.Initialize"/>.
         /// Non-bloquant : un échec ne crash pas l'app.
         /// </summary>
@@ -807,7 +807,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         }
 
         /// <summary>
-        /// V1.8.1 — Pré-initialise <see cref="Categories.EstCadre"/> pour les
+        /// V1.8.1 - Pré-initialise <see cref="Categories.EstCadre"/> pour les
         /// catégories existantes en base, selon la convention :
         /// libellé COMMENCE par "Cadre" (ignore case) ET ne contient pas "Non".
         /// Idempotent : on ne MET QUE de FAUX à VRAI. Une catégorie déjà cochée
@@ -825,11 +825,11 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 var allCats = ObjectSpace.GetObjects<Categories>();
                 foreach (var c in allCats)
                 {
-                    if (c.EstCadre) continue;                       // déjà coché → on respecte
+                    if (c.EstCadre) continue;                       // déjà coché -> on respecte
                     if (string.IsNullOrWhiteSpace(c.Intitule)) continue;
 
                     var lib = c.Intitule.Trim();
-                    if (rxNon.IsMatch(lib)) continue;               // "Non cadre" → reste false
+                    if (rxNon.IsMatch(lib)) continue;               // "Non cadre" -> reste false
                     if (!lib.StartsWith("cadre", StringComparison.OrdinalIgnoreCase))
                         continue;                                    // libellé ne commence pas par "Cadre"
 
@@ -852,7 +852,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         }
 
         /// <summary>
-        /// QW6 (V1.5.1) — Crée les index manquants pour accélérer les
+        /// QW6 (V1.5.1) - Crée les index manquants pour accélérer les
         /// dashboards et requêtes fréquentes. Idempotent via NOT EXISTS.
         /// </summary>
         private void EnsurePerformanceIndexes()
@@ -893,7 +893,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                     + "ON Bulletin(Salarie, Annee, Mois) "
                     + "WHERE GCRecord IS NULL");
 
-                // V1.7.1 — Salarie.Email unique (filtré : NULL et vide tolérés en multiple,
+                // V1.7.1 - Salarie.Email unique (filtré : NULL et vide tolérés en multiple,
                 // soft-deletes ignorés). Bloque les doublons même sur imports SQL directs.
                 // La normalisation (trim + lowercase) est faite dans Salarie.OnSaving.
                 ExecSqlIfIndexMissing(session,
@@ -916,7 +916,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             try
             {
                 // Pattern : IF NOT EXISTS (SELECT...) CREATE INDEX...
-                // Les noms d'index/table sont hardcodés en compile-time → safe.
+                // Les noms d'index/table sont hardcodés en compile-time -> safe.
                 var guardedSql =
                     $"IF NOT EXISTS (SELECT 1 FROM sys.indexes "
                     + $"WHERE name = '{indexName}' "
@@ -938,10 +938,10 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
 
 
         /// <summary>
-        /// V1.4.3 — Crée le ReportDataV2 "BulletinPaie" depuis la ressource
+        /// V1.4.3 - Crée le ReportDataV2 "BulletinPaie" depuis la ressource
         /// embarquée Reports/BulletinPaie.repx si aucun rapport actif ne porte
         /// ce nom. Le design custom peut continuer à être édité ensuite via
-        /// le designer XAF — le filet de sécurité garantit juste qu'un rapport
+        /// le designer XAF - le filet de sécurité garantit juste qu'un rapport
         /// existe en DB pour Publier / Imprimer / Télécharger.
         /// </summary>
         private void SeedBulletinReportIfMissing()
@@ -962,10 +962,10 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 using var stream = asm.GetManifestResourceStream(ResourceName);
                 if (stream == null)
                 {
-                    // Ressource absente → on log et on continue (le rapport peut
+                    // Ressource absente -> on log et on continue (le rapport peut
                     // être créé manuellement par RH via le designer XAF)
                     System.Diagnostics.Debug.WriteLine(
-                        $"[V1.4.3 Seed] Ressource '{ResourceName}' introuvable — skip auto-seed.");
+                        $"[V1.4.3 Seed] Ressource '{ResourceName}' introuvable - skip auto-seed.");
                     return;
                 }
 
@@ -976,7 +976,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 var rd = ObjectSpace.CreateObject<DevExpress.Persistent.BaseImpl.ReportDataV2>();
                 rd.DisplayName = ReportName;
                 rd.IsInplaceReport = true;
-                // DataTypeName en lecture seule — l'info de type est dans le REPX (Content)
+                // DataTypeName en lecture seule - l'info de type est dans le REPX (Content)
                 rd.Content = repxBytes;
 
                 ObjectSpace.CommitChanges();
@@ -1167,7 +1167,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             var annee = DateTime.Today.Year;
             EnsureBaremeIR(os, $"IR_DPP_{annee}", dpp, new DateTime(annee, 1, 1), new DateTime(annee, 12, 31));
 
-            // (bloc de création salariés démo commenté chez toi — on le laisse tel quel)
+            // (bloc de création salariés démo commenté chez toi - on le laisse tel quel)
         }
 
         // ===========================
@@ -1377,7 +1377,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
             role.AddTypePermissionsRecursively<DashboardsRHMenu>(
                 NavRead, SecurityPermissionState.Allow);
 
-            // Entités sources (Read) — utilisées par les services dashboards
+            // Entités sources (Read) - utilisées par les services dashboards
             role.AddTypePermissionsRecursively<Salarie>(NavRead, SecurityPermissionState.Allow);
             role.AddTypePermissionsRecursively<ContratSalarie>(NavRead, SecurityPermissionState.Allow);
             role.AddTypePermissionsRecursively<Interimaire>(NavRead, SecurityPermissionState.Allow);
@@ -1394,12 +1394,12 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         }
 
         // ===========================
-        // V1.7.2 — Safe by default : le seed démo est DÉSACTIVÉ par défaut
+        // V1.7.2 - Safe by default : le seed démo est DÉSACTIVÉ par défaut
         // ===========================
         /// <summary>
         /// Détermine si le seed démo (DEMO_*) doit être créé au démarrage.
         ///
-        /// ⚠️ V1.7.2 — CHANGEMENT DE COMPORTEMENT :
+        /// ⚠️ V1.7.2 - CHANGEMENT DE COMPORTEMENT :
         ///   Auparavant le seed démo était ACTIF par défaut (utile en dev mais
         ///   dangereux en prod). Désormais il est DÉSACTIVÉ par défaut pour
         ///   éviter toute pollution accidentelle de la base de production.
@@ -1409,10 +1409,10 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         ///      OU
         ///   2. Bloc <c>"SeedDemoData": true</c> dans appsettings.json
         ///
-        /// En PROD : ne rien faire. Le défaut est sûr — aucune donnée DEMO_*
+        /// En PROD : ne rien faire. Le défaut est sûr - aucune donnée DEMO_*
         /// ne sera jamais réinjectée même si on oublie de configurer.
         ///
-        /// Pas de dépendance Microsoft.Extensions.Configuration → évite d'ajouter
+        /// Pas de dépendance Microsoft.Extensions.Configuration -> évite d'ajouter
         /// un nouveau package NuGet au projet Module.
         /// </summary>
         private static bool IsDemoSeedEnabled()
@@ -1446,12 +1446,12 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         }
 
         // ===========================
-        // V1.1 — Référentiel BusinessUnitType
+        // V1.1 - Référentiel BusinessUnitType
         // ===========================
 
         /// <summary>
         /// Définition des 4 types initiaux. La métier peut en ajouter
-        /// d'autres via l'écran XAF — cette liste sert uniquement au seed
+        /// d'autres via l'écran XAF - cette liste sert uniquement au seed
         /// du premier démarrage. Les modifications manuelles ne sont PAS
         /// écrasées (idempotent : on ne crée que ce qui manque).
         /// </summary>
@@ -1464,7 +1464,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         };
 
         /// <summary>
-        /// Idempotent — crée les 4 types initiaux s'ils n'existent pas.
+        /// Idempotent - crée les 4 types initiaux s'ils n'existent pas.
         /// Ne touche pas aux types ajoutés manuellement par le métier.
         /// </summary>
         private void EnsureBusinessUnitTypesSeed()
@@ -1487,7 +1487,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         }
 
         /// <summary>
-        /// Migration douce — pour chaque BusinessUnitStation sans Type,
+        /// Migration douce - pour chaque BusinessUnitStation sans Type,
         /// lui assigne le bon Type en matchant son Libelle (case-insensitive,
         /// trim). Si aucun Type ne matche, laisse Type=null (à corriger
         /// manuellement par le métier ensuite).
@@ -1528,7 +1528,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
         }
 
         /// <summary>
-        /// V1.1 Sprint 1D — Étend les permissions des rôles dashboards
+        /// V1.1 Sprint 1D - Étend les permissions des rôles dashboards
         /// pour lire UniteOrganisationnelle (nouveau modèle).
         /// </summary>
         private void GrantUniteOrganisationnelleReadAccess()
@@ -1570,7 +1570,7 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 role.AddTypePermissionsRecursively<BusinessUnitType>(
                     NavRead, SecurityPermissionState.Allow);
 
-                // V1.1 Sprint 1B — RBAC sur la nouvelle entité UniteOrganisationnelle
+                // V1.1 Sprint 1B - RBAC sur la nouvelle entité UniteOrganisationnelle
                 role.AddTypePermissionsRecursively<UniteOrganisationnelle>(
                     NavRead, SecurityPermissionState.Allow);
             }
@@ -1717,7 +1717,7 @@ END";
             // Valeur numérique de l’énum "Ouverte"
             int opened = (int)DomainEnums.PeriodePaieStatut.Ouverte;
 
-            // Si Company existe → unicité par Company ; sinon unicité globale (sur Statut).
+            // Si Company existe -> unicité par Company ; sinon unicité globale (sur Statut).
             bool hasCompany = (mCompany != null);
             string keyCols = hasCompany ? $"[{colCmp}]" : $"[{colStatut}]";
 
@@ -1834,7 +1834,7 @@ END";
                         }
                         catch
                         {
-                            // Parsing XML échoue — on skip cet aspect
+                            // Parsing XML échoue - on skip cet aspect
                         }
                     }
                 }

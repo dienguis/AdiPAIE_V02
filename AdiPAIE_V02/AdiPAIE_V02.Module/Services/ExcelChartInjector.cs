@@ -115,7 +115,7 @@ public static class ExcelChartInjector
     private static void InsertDrawingInOrder(DocumentFormat.OpenXml.Spreadsheet.Worksheet worksheet,
         DocumentFormat.OpenXml.Spreadsheet.Drawing drawingElem)
     {
-        // Elements that must come AFTER <drawing> — we insert BEFORE the first one found
+        // Elements that must come AFTER <drawing> - we insert BEFORE the first one found
         var afterTypes = new[]
         {
             typeof(DocumentFormat.OpenXml.Spreadsheet.LegacyDrawing),
@@ -137,7 +137,7 @@ public static class ExcelChartInjector
             }
         }
 
-        // No "after" elements found — safe to append
+        // No "after" elements found - safe to append
         worksheet.Append(drawingElem);
     }
 

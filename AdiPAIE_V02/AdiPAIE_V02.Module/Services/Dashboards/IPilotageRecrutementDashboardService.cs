@@ -1,5 +1,5 @@
 // =============================================================================
-//  IPilotageRecrutementDashboardService.cs — V1.4 (mai 2026)
+//  IPilotageRecrutementDashboardService.cs - V1.4 (mai 2026)
 //  Contrat du service Dashboard N°12 Pilotage Recrutement.
 // =============================================================================
 

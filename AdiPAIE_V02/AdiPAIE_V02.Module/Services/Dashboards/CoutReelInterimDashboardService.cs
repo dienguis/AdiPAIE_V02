@@ -1,5 +1,5 @@
 // =============================================================================
-//  CoutReelInterimDashboardService.cs — V1.3 Sprint 1 (mai 2026)
+//  CoutReelInterimDashboardService.cs - V1.3 Sprint 1 (mai 2026)
 //
 //  Calcule le coût réel des intérimaires depuis les BulletinInterim importés
 //  des fichiers de facturation des sociétés d'intérim.

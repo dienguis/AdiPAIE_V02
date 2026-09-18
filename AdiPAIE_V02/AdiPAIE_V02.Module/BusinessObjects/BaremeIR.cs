@@ -38,7 +38,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
     }
 
 
-    [XafDisplayName("Barème IR – Tranche")]
+    [XafDisplayName("Barème IR - Tranche")]
     [RuleCriteria("IR_Tranche_MinLEMax", DefaultContexts.Save,
         "MontantMin <= MontantMax",
         CustomMessageTemplate = "La borne Min doit être inférieure ou égale à la borne Max.")]

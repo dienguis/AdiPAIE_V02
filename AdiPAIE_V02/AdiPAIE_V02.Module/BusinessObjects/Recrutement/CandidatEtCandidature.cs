@@ -1,5 +1,5 @@
 // =============================================================================
-//  CandidatEtCandidature.cs — V1.4 (mai 2026)
+//  CandidatEtCandidature.cs - V1.4 (mai 2026)
 //
 //  - Candidat    : personne ayant postulé (1 fiche par personne, multi-candidatures)
 //  - Candidature : association Candidat × Poste avec workflow de pipeline
@@ -281,7 +281,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.Recrutement
 
         [VisibleInListView(false)]
         public string DisplayName =>
-            $"{(Candidat?.NomComplet ?? "?")} — {(Poste?.Libelle ?? "?")} [{Statut}]";
+            $"{(Candidat?.NomComplet ?? "?")} - {(Poste?.Libelle ?? "?")} [{Statut}]";
 
         public override string ToString() => DisplayName ?? "";
     }

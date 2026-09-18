@@ -1,6 +1,6 @@
 // =============================================================================
 //  MouvementsDashboardService.cs
-//  Tableau N°3 (Mouvements — Arrivées / Départs) — implémentation XPO.
+//  Tableau N°3 (Mouvements - Arrivées / Départs) - implémentation XPO.
 //
 //  INTERNE (Salarie) :
 //    Arrivées = `Salarie.DateEmbauche` dans l'année.
@@ -53,7 +53,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        //  INTERNE — Salarie
+        //  INTERNE - Salarie
         // ═════════════════════════════════════════════════════════════════════
         private MouvementsDto ComputeForInterne(MouvementsFilterModel filter, IObjectSpace os)
         {
@@ -114,7 +114,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             var departsParSite      = ComputeBar(departs, s => s.Site?.Nom ?? "(Non renseigné)");
             var departsParCategorie = ComputeBar(departs, s => s.Categories?.Intitule ?? "(Non renseignée)");
 
-            // Motif du départ (enum MotifDepart) — converti en libellé lisible
+            // Motif du départ (enum MotifDepart) - converti en libellé lisible
             var departsParMotif = ComputeBar(departs, s => GetMotifDepartLibelle(s.MotifDepart));
 
             return new MouvementsDto
@@ -132,7 +132,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        //  EXTERNE — Interimaire / MouvementInterimaire
+        //  EXTERNE - Interimaire / MouvementInterimaire
         // ═════════════════════════════════════════════════════════════════════
         private MouvementsDto ComputeForExterne(MouvementsFilterModel filter, IObjectSpace os)
         {
@@ -145,7 +145,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 .Where(m => m.DateMouvement >= debutAnnee && m.DateMouvement <= finAnnee)
                 .ToList();
 
-            // V1.1 Sprint 1C.2 — Filtre Site (V1.1) sur SiteOrigineV1 OU SiteDestinationV1
+            // V1.1 Sprint 1C.2 - Filtre Site (V1.1) sur SiteOrigineV1 OU SiteDestinationV1
             if (filter.SiteOid.HasValue)
             {
                 mouvements = mouvements.Where(m =>
@@ -189,7 +189,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             //   Avantages :
             //   - Sémantiquement cohérent avec le numérateur (contrats)
             //   - Naturellement plafonné à 100% (un contrat est soit nouveau,
-            //     soit pas — il ne peut pas être nouveau "plus de 100%")
+            //     soit pas - il ne peut pas être nouveau "plus de 100%")
             //   - Lecture simple : "11 nouveaux sur 11 contrats actifs cette
             //     année = 100% renouvellement complet de l'activité"
             //
@@ -213,7 +213,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             var arrivParMois  = ComputeParMois(nouveauxContrats, c => c.DateDebut);
             var departsParMois = ComputeParMois(contratsClotures, c => c.DateFinReelle ?? c.DateFin);
 
-            // V1.1 Sprint 1C.2 — Site (V1.1) avec emoji typé + Unités (multi-affectation explose)
+            // V1.1 Sprint 1C.2 - Site (V1.1) avec emoji typé + Unités (multi-affectation explose)
             var arrivParSite      = ComputeBar(nouveauxContrats, c => SiteLibelle(c.Site));
             var arrivParCategorie = ComputeBarUnites(nouveauxContrats);
 
@@ -282,7 +282,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
         /// <summary>
         /// <summary>
-        /// V1.1 Sprint 1C.2 — Nb de CONTRATS moyens actifs pondéré sur 13 dates
+        /// V1.1 Sprint 1C.2 - Nb de CONTRATS moyens actifs pondéré sur 13 dates
         /// (1er de chaque mois + 31/12). Sert de dénominateur aux taux
         /// d'arrivées/départs (cohérent avec le numérateur = nb contrats).
         /// </summary>
@@ -312,7 +312,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         /// <summary>
-        /// V1.1 Sprint 1C.2 — Nb de CONTRATS distincts actifs sur l'année
+        /// V1.1 Sprint 1C.2 - Nb de CONTRATS distincts actifs sur l'année
         /// (intersection [debut, fin]). Sert de plancher au dénominateur des taux.
         /// </summary>
         private static int CountContratsActifsDansAnnee(IObjectSpace os, DateTime debut, DateTime fin, MouvementsFilterModel filter)
@@ -333,7 +333,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
         /// <summary>
         /// Effectif moyen EXTERNE pondéré sur 13 dates clés (1er de chaque mois +
-        /// 31/12). Approxime l'« ETP intérimaires » sur l'année — beaucoup plus
+        /// 31/12). Approxime l'« ETP intérimaires » sur l'année - beaucoup plus
         /// fiable que (debut+fin)/2 quand la population varie fortement.
         /// CONSERVÉE pour les autres usages (effectifs en personnes physiques).
         /// </summary>
@@ -410,7 +410,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         /// <summary>
-        /// V1.1 Sprint 1C.2 — Bar charts par Unité organisationnelle.
+        /// V1.1 Sprint 1C.2 - Bar charts par Unité organisationnelle.
         /// Multi-affectation : un contrat sur N unités est compté N fois.
         /// </summary>
         private static List<BarItemDto> ComputeBarUnites(IList<ContratInterim> contrats)

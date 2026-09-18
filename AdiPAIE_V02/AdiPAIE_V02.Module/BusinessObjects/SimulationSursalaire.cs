@@ -430,14 +430,14 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             r.BrutFiscal = salaireBase + indemLogement + primeAnc + s + avVehicule;
             r.BrutSocial = salaireBase + indemLogement + primeAnc + s + transport;
 
-            // Cotisations (arronder chaque rubrique à 0, AwayFromZero — déjà fait dans tes calc)
+            // Cotisations (arronder chaque rubrique à 0, AwayFromZero - déjà fait dans tes calc)
             r.CotisationsSociales = CalculerCotisationsSociales(session, sim.Salarie, r.BrutSocial);
 
-            // TRIMF (barème mensuel actif) — parts lues sur Salarié.TrimfParts
+            // TRIMF (barème mensuel actif) - parts lues sur Salarié.TrimfParts
             var partsTrimf = sim.Salarie?.TrimfParts ?? 0m;
             r.TRIMF = CalculerTRIMF_MensuelActif(session, r.BrutFiscal, partsTrimf, sim.Annee, sim.Mois);
 
-            // IRPP (avec abattement & réduction famille) — déjà arrondi à 0 / mois
+            // IRPP (avec abattement & réduction famille) - déjà arrondi à 0 / mois
             r.IRPP = CalculerIRPP(session, r.BrutFiscal, sim.PartsFiscales, sim.Annee, sim.Mois);
 
             // Net (FCFA entier)
@@ -548,7 +548,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             if (tranches.Count == 0)
                 return 0m;
 
-            // 4) Trouver la tranche (bornes inclusives) ; si trou → fallback = dernière tranche
+            // 4) Trouver la tranche (bornes inclusives) ; si trou -> fallback = dernière tranche
             var tranche = tranches.FirstOrDefault(t => brutFiscal >= t.Min && brutFiscal <= t.Max)
                        ?? tranches.Last();
 
@@ -606,8 +606,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // ===== Helpers d’accès aux données ====================================
 
-        // V1.8.1 — Détection « cadre » via drapeau Categories.EstCadre.
-        // Avant : IndexOf("cadre") matchait à tort "Non cadre" → IPRES_RC à tort.
+        // V1.8.1 - Détection « cadre » via drapeau Categories.EstCadre.
+        // Avant : IndexOf("cadre") matchait à tort "Non cadre" -> IPRES_RC à tort.
         // Voir Bulletin.cs / Categories.cs pour la version de référence.
         private static bool EstCadre(Salarie salarie)
         {

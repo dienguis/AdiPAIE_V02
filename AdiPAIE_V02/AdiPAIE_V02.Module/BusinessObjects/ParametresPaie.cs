@@ -26,7 +26,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // ── ONGLET 1 : Général ──────────────────────────────────────
         // ============== SEED / Référentiel paie ====================
         //
-        // V1.7.2 — Renommé de "ActiverSeedDemo" vers "ActiverSeedReferentiel"
+        // V1.7.2 - Renommé de "ActiverSeedDemo" vers "ActiverSeedReferentiel"
         // pour refléter la réalité : cette case déclenche le seed du
         // RÉFÉRENTIEL DE PAIE (conventions, catégories, échelons, comptes,
         // groupes, types de rubrique, rubriques officielles, barèmes
@@ -39,7 +39,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // IsDemoSeedEnabled() dans Updater.cs).
         //
         // [Persistent("ActiverSeedDemo")] préserve le nom de colonne SQL
-        // pour ne pas casser les bases existantes — la propriété C# devient
+        // pour ne pas casser les bases existantes - la propriété C# devient
         // ActiverSeedReferentiel mais la colonne SQL reste ActiverSeedDemo.
         [Category("Général")]
         [XafDisplayName("Activer le seed du référentiel paie")]
@@ -59,7 +59,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         bool actSeed;
 
         // ─────────────────────────────────────────────────────────────
-        // V1.8 — Mode de traitement des congés dans le bulletin
+        // V1.8 - Mode de traitement des congés dans le bulletin
         //
         // Pratique ELTON actuelle = BulletinUnique : 1 seul bulletin
         // mensuel avec la rubrique "Congés" (code 23) qui remplace les
@@ -190,7 +190,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // ============== IR : options de calcul =========
         [Category("Fiscalité")]
-        [XafDisplayName("IR – Tronquer la base aux milliers")]
+        [XafDisplayName("IR - Tronquer la base aux milliers")]
         public bool R_IR_TronquerBaseAuxMille
         {
             get => irTroncMille;
@@ -199,7 +199,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         bool irTroncMille;
 
         // ─────────────────────────────────────────────────────────────
-        // V1.8 — Base de calcul de la CFCE (Sénégal)
+        // V1.8 - Base de calcul de la CFCE (Sénégal)
         //
         // Divergence d'interprétation : l'ancien système ELTON excluait
         // les avantages en nature de la base CFCE (le DAF de mai 2026 avait
@@ -211,7 +211,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // Modifier ici si l'audit fiscal demande l'inverse.
         // ─────────────────────────────────────────────────────────────
         [Category("Fiscalité")]
-        [XafDisplayName("CFCE – Mode base de calcul")]
+        [XafDisplayName("CFCE - Mode base de calcul")]
         [ToolTip("Détermine si les avantages en nature (véhicule, téléphone, " +
                  "logement) sont inclus ou non dans la base de calcul de la " +
                  "CFCE. À aligner avec la position du DAF / audit fiscal. " +
@@ -227,13 +227,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [Category("Fiscalité")]
         [DbType("decimal(18,2)")]
-        // V1.8 — Le format "p0" multipliait par 100 → 30 affiché comme 3 000 %.
+        // V1.8 - Le format "p0" multipliait par 100 → 30 affiché comme 3 000 %.
         // Correction : on stocke et affiche la valeur brute (ex: 30 pour 30%).
         // Le label "(% abattement annuel)" indique déjà qu'il s'agit d'un %.
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [ToolTip("Taux d'abattement IMAB en pourcentage (saisir la valeur brute : " +
                  "30 pour 30 %, 25 pour 25 %, etc.). Par défaut au Sénégal : 30 %.")]
-        [XafDisplayName("IR – IMAB (% abattement annuel)")]
+        [XafDisplayName("IR - IMAB (% abattement annuel)")]
         public decimal R_IR_Abattement_TauxPercent
         {
             get => irImabPct;
@@ -244,7 +244,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Category("Fiscalité")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        [XafDisplayName("IR – IMAB Plafond Annuel")]
+        [XafDisplayName("IR - IMAB Plafond Annuel")]
         public decimal R_IR_Abattement_PlafondAnnuel
         {
             get => irImabPlafA;
@@ -255,7 +255,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        [XafDisplayName("IR – IMAB Plafond Mensuel")]
+        [XafDisplayName("IR - IMAB Plafond Mensuel")]
         public decimal R_IR_Abattement_PlafondMensuel
         {
             get => irImabPlafM;
@@ -264,7 +264,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         decimal irImabPlafM;
 
         [Category("Fiscalité")]
-        [XafDisplayName("IR – Régularisation en fin d'année")]
+        [XafDisplayName("IR - Régularisation en fin d'année")]
         public bool IR_Regularisation_FinAnnee
         {
             get => irRegFin;
@@ -275,7 +275,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [Category("Fiscalité")]
 
-        [XafDisplayName("IR – Régularisation mois de départ")]
+        [XafDisplayName("IR - Régularisation mois de départ")]
         public bool IR_Regularisation_MoisDepart
         {
             get => irRegDepart;
@@ -286,12 +286,12 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // ============== IR : Réduction familiale =========
         [Category("Fiscalité")]
         [DbType("decimal(18,2)")]
-        // V1.8 — Idem IMAB : format "p0" multipliait par 100, on stocke
+        // V1.8 - Idem IMAB : format "p0" multipliait par 100, on stocke
         // et affiche la valeur brute (ex: 30 pour 30%).
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
         [ToolTip("Pourcentage de réduction familiale par défaut (saisir la " +
                  "valeur brute : 30 pour 30 %).")]
-        [XafDisplayName("Réduction familiale – % par défaut")]
+        [XafDisplayName("Réduction familiale - % par défaut")]
         public decimal R_IR_ReductionFamille_Pourcentage
         {
             get => rfPct;
@@ -302,7 +302,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Category("Fiscalité")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        [XafDisplayName("Réduction familiale – Min annuel / part")]
+        [XafDisplayName("Réduction familiale - Min annuel / part")]
         public decimal R_IR_ReductionFamille_MinParPart_Annuel
         {
             get => rfMinPartA;
@@ -313,7 +313,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Category("Fiscalité")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        [XafDisplayName("Réduction familiale – Max annuel / part")]
+        [XafDisplayName("Réduction familiale - Max annuel / part")]
         public decimal R_IR_ReductionFamille_MaxParPart_Annuel
         {
             get => rfMaxPartA;
@@ -335,7 +335,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Category("Modèle bulletin")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        [XafDisplayName("Défaut – Sursalaire")]
+        [XafDisplayName("Défaut - Sursalaire")]
         public decimal? ModeleAuto_Defaut_Sursalaire
         {
             get => mdlDefSur;
@@ -346,7 +346,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Category("Modèle bulletin")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        [XafDisplayName("Défaut – Prime de transport")]
+        [XafDisplayName("Défaut - Prime de transport")]
         public decimal? ModeleAuto_Defaut_PrimeTransport
         {
             get => mdlDefTrans;
@@ -357,7 +357,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [Category("Modèle bulletin")]
         [DbType("decimal(18,0)")]
         [ModelDefault("DisplayFormat", "N0"), ModelDefault("EditMask", "N0")]
-        [XafDisplayName("Défaut – Avantage véhicule")]
+        [XafDisplayName("Défaut - Avantage véhicule")]
         public decimal? ModeleAuto_Defaut_AvantageVehicule
         {
             get => mdlDefVeh;
@@ -682,23 +682,23 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         private EmailProvider emailProviderKind;
 
         [Size(200)]
-        [XafDisplayName("Graph – Tenant ID")]
+        [XafDisplayName("Graph - Tenant ID")]
         public string GraphTenantId { get => graphTenantId; set => SetPropertyValue(nameof(GraphTenantId), ref graphTenantId, value?.Trim()); }
         private string graphTenantId;
 
         [Size(200)]
-        [XafDisplayName("Graph – Client ID (App)")]
+        [XafDisplayName("Graph - Client ID (App)")]
         public string GraphClientId { get => graphClientId; set => SetPropertyValue(nameof(GraphClientId), ref graphClientId, value?.Trim()); }
         private string graphClientId;
 
         [Size(400)]
         [ModelDefault("IsPassword", "True")]
-        [XafDisplayName("Graph – Client Secret")]
+        [XafDisplayName("Graph - Client Secret")]
         public string GraphClientSecret { get => graphClientSecret; set => SetPropertyValue(nameof(GraphClientSecret), ref graphClientSecret, value); }
         private string graphClientSecret;
 
         [Size(200)]
-        [XafDisplayName("Graph – Envoyer en tant que (UPN)")]
+        [XafDisplayName("Graph - Envoyer en tant que (UPN)")]
         public string GraphFromUserUpn { get => graphFromUpn; set => SetPropertyValue(nameof(GraphFromUserUpn), ref graphFromUpn, value?.Trim()); }
         private string graphFromUpn;
 
@@ -1040,7 +1040,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         string geoNamesUsername;
 
         // ── RAPPORT CEO ──────────────────────────────────────────
-        // ⚠️ V1.1 (mai 2026) — DÉPRÉCIÉ
+        // ⚠️ V1.1 (mai 2026) - DÉPRÉCIÉ
         // Ces 4 paramètres alimentaient le Rapport CEO mensuel automatique,
         // remplacé par les 6 dashboards RH analytiques (route /dashboards).
         // Les colonnes restent en BDD pour ne pas casser les données existantes,

@@ -1,5 +1,5 @@
 // =============================================================================
-//  SuiviAbsencesDashboardService.cs — V1.3.2 (mai 2026)
+//  SuiviAbsencesDashboardService.cs - V1.3.2 (mai 2026)
 //
 //  REFONTE Excel-style. Calcule pour le Tableau N°5 :
 //    - 6 KPIs (EffectifMoyen, NbSalariesAbsents, TotalJours, JOPerdus,
@@ -58,7 +58,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        //  EXTERNE — calcul depuis BulletinInterim (30ème de présence)
+        //  EXTERNE - calcul depuis BulletinInterim (30ème de présence)
         // ─────────────────────────────────────────────────────────────────────
         //  Logique :
         //    Pour chaque BulletinInterim, JoursAbsence = (30 - Trentieme).
@@ -261,7 +261,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
 
             var salariesOids = salaries.Select(s => s.Oid).ToHashSet();
 
-            // ── 2. CongeDemande — récupération + filtres ──────────────────
+            // ── 2. CongeDemande - récupération + filtres ──────────────────
             var allDemandes = os.GetObjectsQuery<CongeDemande>().ToList();
 
             var demandes = allDemandes
@@ -449,7 +449,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
                 .OrderByDescending(r => r.JOPerdus)
                 .ToList();
 
-            // ── 8. Par Mois (12 lignes — 2 séries) ────────────────────────
+            // ── 8. Par Mois (12 lignes - 2 séries) ────────────────────────
             var parMois = Enumerable.Range(1, 12).Select(m =>
             {
                 var demM = demandesAvecMotif
@@ -646,7 +646,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         };
 
         // ─────────────────────────────────────────────────────────────────────
-        //  HELPERS — Mapping motif
+        //  HELPERS - Mapping motif
         // ─────────────────────────────────────────────────────────────────────
         private static MotifAbsence MapMotif(CongeType? type, Sexe sexe)
         {
@@ -722,7 +722,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         };
 
         // ─────────────────────────────────────────────────────────────────────
-        //  HELPERS — Période + recouvrement
+        //  HELPERS - Période + recouvrement
         // ─────────────────────────────────────────────────────────────────────
         private static bool RecouvreAnneeOuMois(DateTime debut, DateTime fin, List<int> annees, List<int> mois)
         {
@@ -778,7 +778,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        //  HELPERS — Salarié
+        //  HELPERS - Salarié
         // ─────────────────────────────────────────────────────────────────────
         private static decimal ComputeAncienneteAnnees(DateTime dateEmbauche, DateTime dateRef)
         {

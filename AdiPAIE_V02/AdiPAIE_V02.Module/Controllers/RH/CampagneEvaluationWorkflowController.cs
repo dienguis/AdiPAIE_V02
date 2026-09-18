@@ -80,7 +80,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             // Email → RH : campagne ouverte
             WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
                 WorkflowEmailHelper.ExtraireEmailsRH(Application),
-                $"[AdiPAIE] Campagne d'évaluation ouverte — {campagne.Annee}",
+                $"[AdiPAIE] Campagne d'évaluation ouverte - {campagne.Annee}",
                 WorkflowEmailHelper.HtmlTableau("Campagne d'évaluation ouverte",
                     "La campagne est maintenant ouverte. Vous pouvez générer les entretiens.",
                     new[] {
@@ -127,7 +127,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             {
                 WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
                     emailsSalaries,
-                    $"[AdiPAIE] Campagne d'évaluation {campagne.Annee} — Votre entretien est planifié",
+                    $"[AdiPAIE] Campagne d'évaluation {campagne.Annee} - Votre entretien est planifié",
                     WorkflowEmailHelper.HtmlTableau("Entretien annuel planifié",
                         "Un entretien annuel a été créé dans le cadre de la campagne d'évaluation. Veuillez vous rapprocher de votre manager pour fixer la date.",
                         new[] {
@@ -155,7 +155,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
             // Email → RH : campagne clôturée
             WorkflowEmailHelper.EnvoyerEmailsAsync(Application,
                 WorkflowEmailHelper.ExtraireEmailsRH(Application),
-                $"[AdiPAIE] Campagne d'évaluation clôturée — {campagne.Annee}",
+                $"[AdiPAIE] Campagne d'évaluation clôturée - {campagne.Annee}",
                 WorkflowEmailHelper.HtmlTableau("Campagne d'évaluation clôturée",
                     "La campagne a été clôturée définitivement.",
                     new[] {

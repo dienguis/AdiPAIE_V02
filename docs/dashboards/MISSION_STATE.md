@@ -1,4 +1,4 @@
-# MISSION_STATE.md — Tableaux de Bord RH
+# MISSION_STATE.md - Tableaux de Bord RH
 
 > **Pour Claude (futur-moi) :** ce fichier est ma mémoire de travail
 > persistante, pour survivre aux compressions de contexte. **À lire en
@@ -15,38 +15,38 @@
 - **Stack** : DevExpress XAF 25.1.10 / Blazor Server / .NET 8 / XPO ORM
 - **Sécurité** : SecuredXpo + ASP.NET Identity Cookies
 - **Branche** : `feature/dashboards-rh` (NE PAS travailler sur `main`)
-- **Société** : ELTON Oil — palette **Navy `#142E4D`**, **Orange `#F18A1C`**, **Rouge `#E63946`**
+- **Société** : ELTON Oil - palette **Navy `#142E4D`**, **Orange `#F18A1C`**, **Rouge `#E63946`**
 - **Mission** : 6 dashboards RH (INTERNE = Salariés CDI/CDD/Stage, EXTERNE = Intérimaires)
 
-## 1. Progression — étapes
+## 1. Progression - étapes
 
 | # | Étape | Statut | Hash commit | Date |
 |---|---|---|---|---|
-| 0 | Préparation Git + journalisation | ✅ done | — | 2026-05-02 |
-| 1 | Analyse de l'existant | ✅ done | — | 2026-05-02 |
-| 2 | Architecture cible + DI | ✅ done | — | 2026-05-02 |
+| 0 | Préparation Git + journalisation | ✅ done | - | 2026-05-02 |
+| 1 | Analyse de l'existant | ✅ done | - | 2026-05-02 |
+| 2 | Architecture cible + DI | ✅ done | - | 2026-05-02 |
 | 3 | Page d'accueil DashboardHome | ✅ done | `5d57771e` | 2026-05-02 |
-| 4.1 | Tableau N°1 — Effectif détaillé | ✅ done | (cf. CHANGELOG) | 2026-05-02 |
-| 4.2 | Tableau N°2 — Analyse de l'Effectif | ✅ done | `504cb1ee` | 2026-05-02 |
-| 4.3 | Tableau N°3 — Mouvements | ✅ done | `2e1347bd` | 2026-05-02 |
-| 4.4 | Tableau N°4 — Rémunération | ✅ done (build OK, valeurs validées user) | _hash à fournir_ | 2026-05-02 |
-| 4.5 | Tableau N°5 — Suivi Absences | ✅ done (UI OK, seed sans absences) | `686fb3b8` | 2026-05-02 |
-| 4.6 | Tableau N°6 — Bilan Social Mensuel | ✅ done (UI OK, valeurs cohérentes) | `cae0763` | 2026-05-03 |
-| 7.1 | Aide en ligne — 7 pages HTML + bouton ? | ✅ done | _commit pending_ | 2026-05-03 |
-| 7.2 | Export Excel (ClosedXML) — 6 tableaux | ✅ done | _commit pending_ | 2026-05-03 |
-| 7.3 | Export PDF (QuestPDF) — 6 tableaux | ✅ done (licence Community pour dev) | _commit pending_ | 2026-05-03 |
-| 7.4 | Bilan Social option B — ligne « dont Intérimaires » | ✅ done | _commit pending_ | 2026-05-03 |
+| 4.1 | Tableau N°1 - Effectif détaillé | ✅ done | (cf. CHANGELOG) | 2026-05-02 |
+| 4.2 | Tableau N°2 - Analyse de l'Effectif | ✅ done | `504cb1ee` | 2026-05-02 |
+| 4.3 | Tableau N°3 - Mouvements | ✅ done | `2e1347bd` | 2026-05-02 |
+| 4.4 | Tableau N°4 - Rémunération | ✅ done (build OK, valeurs validées user) | _hash à fournir_ | 2026-05-02 |
+| 4.5 | Tableau N°5 - Suivi Absences | ✅ done (UI OK, seed sans absences) | `686fb3b8` | 2026-05-02 |
+| 4.6 | Tableau N°6 - Bilan Social Mensuel | ✅ done (UI OK, valeurs cohérentes) | `cae0763` | 2026-05-03 |
+| 7.1 | Aide en ligne - 7 pages HTML + bouton ? | ✅ done | _commit pending_ | 2026-05-03 |
+| 7.2 | Export Excel (ClosedXML) - 6 tableaux | ✅ done | _commit pending_ | 2026-05-03 |
+| 7.3 | Export PDF (QuestPDF) - 6 tableaux | ✅ done (licence Community pour dev) | _commit pending_ | 2026-05-03 |
+| 7.4 | Bilan Social option B - ligne « dont Intérimaires » | ✅ done | _commit pending_ | 2026-05-03 |
 | 7.x | Hot-fix nouvel onglet + lisibilité boutons | ✅ done | _commit pending_ | 2026-05-03 |
 | 7.SEC | Guard d'authentification (faille critique) + Bootstrap Icons CDN | ✅ done | _commit pending_ | 2026-05-03 |
 | 7.SEC RBAC | RBAC complet (Administrators / RH_Manager / RH / DAF) + helper partagé | ✅ done | `b7815bb` | 2026-05-03 |
 | 7.UX | Nettoyage 3 menus « Tableaux de bord » legacy en doublon | ✅ done | `ce1d7af` | 2026-05-03 |
 | Final | Livrables : README + install.sql | ✅ done | `8680d001` | 2026-05-03 |
 
-## ⭐ MISSION V1.0 TERMINÉE — HEAD = `8680d001` ⭐
+## ⭐ MISSION V1.0 TERMINÉE - HEAD = `8680d001` ⭐
 
 ---
 
-## 🆕 V1.1 — Refonte module Intérim (en cours)
+## 🆕 V1.1 - Refonte module Intérim (en cours)
 
 > **🚨 CHANGEMENT D'ORIENTATION (2026-05-03)** :
 > Après revue métier ELTON, le modèle simpliste « Station + BU » s'avère
@@ -69,27 +69,27 @@
 
 ```
 Site (existant, ENRICHI avec TypeSite)
-├── TypeSite enum : StationService / Siege / Depot / Autre
-└── XPCollection<UniteOrganisationnelle> Unites
+├-- TypeSite enum : StationService / Siege / Depot / Autre
+└-- XPCollection<UniteOrganisationnelle> Unites
 
 UniteOrganisationnelle (NOUVELLE, récursive)
-├── Site (FK obligatoire = racine)
-├── Parent (FK self, nullable = hiérarchie illimitée)
-├── TypeUnite enum : BU / Departement / Segment / Autre
-└── Palette (CouleurPalette, héritée de la Phase 1 abandonnée)
+├-- Site (FK obligatoire = racine)
+├-- Parent (FK self, nullable = hiérarchie illimitée)
+├-- TypeUnite enum : BU / Departement / Segment / Autre
+└-- Palette (CouleurPalette, héritée de la Phase 1 abandonnée)
 
 ContratInterim (REFONDU)
-├── Site (FK obligatoire)
-└── Unites (collection N-N → UniteOrganisationnelle, multi-rattachement)
+├-- Site (FK obligatoire)
+└-- Unites (collection N-N → UniteOrganisationnelle, multi-rattachement)
 
 MouvementInterimaire (REFONDU)
-├── SiteOrigine / SiteDestination
-└── UniteOrigine / UniteDestination
+├-- SiteOrigine / SiteDestination
+└-- UniteOrigine / UniteDestination
 
 Entités SUPPRIMÉES :
   - StationService (devient Site Type=StationService)
   - BusinessUnitStation (devient UniteOrganisationnelle Type=BU)
-  - BusinessUnitType (Phase 1) — palette migrée sur UniteOrganisationnelle
+  - BusinessUnitType (Phase 1) - palette migrée sur UniteOrganisationnelle
 ```
 
 ### Sprints V1.1
@@ -104,7 +104,7 @@ Entités SUPPRIMÉES :
 | 1D | Masquage entités legacy (DefaultClassOptions retiré, [Legacy] sur FK) | 0.5 jour | ✅ done | `082da74` |
 | 1D.3 | Finitions tardives : appsettings + Site + dashboards + KpiCard + CSS | 1h | ✅ done | `febfb1f` |
 | 1E | Refonte 6 SQL + install.sql + README + MISSION_STATE | 0.5 jour | ✅ done | _voir prochaine MAJ_ |
-| 1F (futur) | Nettoyage cosmétique : dead code Razor + suppression définitive | 1h | 🕒 plus tard | — |
+| 1F (futur) | Nettoyage cosmétique : dead code Razor + suppression définitive | 1h | 🕒 plus tard | - |
 
 ### Sprints associés (parallèles à V1.1)
 
@@ -115,7 +115,7 @@ Entités SUPPRIMÉES :
 | Rescue | Récupération 9 fichiers V1.1 perdus (Remuneration*, DemoDataSeeder, IDashboard*ExportService) depuis dangling stash `ea7826` | ✅ done | `8987dab` |
 | Infra+Sec | dbconfig.json en %ProgramData% (survit clean) + chiffrement DPAPI password | ✅ done | `2865ac3` |
 
-## ⭐ MISSION V1.1 TERMINÉE — HEAD `dev` = `2865ac3` (push origin/dev) ⭐
+## ⭐ MISSION V1.1 TERMINÉE - HEAD `dev` = `2865ac3` (push origin/dev) ⭐
 
 Branche `feature/dashboards-rh` supprimée après merge `c3dcade` dans `dev`.
 Branche `feat` (orphan polluée) supprimée. État du repo final :
@@ -137,42 +137,42 @@ Pour livrer en prod : merger `dev` → `master` (après validation utilisateur 1
 - Controller XAF « Vider données démo » → supprime tout `Code LIKE 'DEMO_%'`
 - Pour passer en prod : `false` dans appsettings + clic sur le bouton wipe
 
-## 2. Architecture du module — fichiers clés
+## 2. Architecture du module - fichiers clés
 
 ```
 AdiPAIE_V02/AdiPAIE_V02.Module/
-├── Domain/DomainEnums.cs         (enums MotifDepart, ContratInterimStatut, Sexe...)
-├── Models/Dashboards/
-│   ├── PersonnelType.cs          (Interne / Externe / Global)
-│   ├── AgeBucket.cs              (<25 / 25-34 / ... / 55+)
-│   ├── AncienneteBucket.cs       (<1 / 1-4 / 5-9 / 10-14 / >=15 / vide  +  AgeBucketAnalyse)
-│   ├── EffectifDetailleFilterModel.cs + EffectifDetailleDto.cs    (Tab 1)
-│   ├── AnalyseEffectifFilterModel.cs + AnalyseEffectifDto.cs      (Tab 2 — incl. BarItemDto partagé)
-│   └── MouvementsFilterModel.cs + MouvementsDto.cs                (Tab 3)
-└── Services/Dashboards/
-    ├── IEffectifDetailleDashboardService.cs + EffectifDetailleDashboardService.cs
-    ├── IAnalyseEffectifDashboardService.cs + AnalyseEffectifDashboardService.cs
-    └── IMouvementsDashboardService.cs + MouvementsDashboardService.cs
+├-- Domain/DomainEnums.cs         (enums MotifDepart, ContratInterimStatut, Sexe...)
+├-- Models/Dashboards/
+│   ├-- PersonnelType.cs          (Interne / Externe / Global)
+│   ├-- AgeBucket.cs              (<25 / 25-34 / ... / 55+)
+│   ├-- AncienneteBucket.cs       (<1 / 1-4 / 5-9 / 10-14 / >=15 / vide  +  AgeBucketAnalyse)
+│   ├-- EffectifDetailleFilterModel.cs + EffectifDetailleDto.cs    (Tab 1)
+│   ├-- AnalyseEffectifFilterModel.cs + AnalyseEffectifDto.cs      (Tab 2 - incl. BarItemDto partagé)
+│   └-- MouvementsFilterModel.cs + MouvementsDto.cs                (Tab 3)
+└-- Services/Dashboards/
+    ├-- IEffectifDetailleDashboardService.cs + EffectifDetailleDashboardService.cs
+    ├-- IAnalyseEffectifDashboardService.cs + AnalyseEffectifDashboardService.cs
+    └-- IMouvementsDashboardService.cs + MouvementsDashboardService.cs
 
 AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/
-├── Startup.cs                                  (DI : AddScoped<IXxxDashboardService>)
-├── Pages/_Host.cshtml                          (link css/dashboards-elton.css)
-├── wwwroot/css/dashboards-elton.css            (charte ELTON partagée — toutes classes .ed-*)
-└── Pages/Dashboards/
-    ├── DashboardHome.razor
-    ├── Effectif/EffectifDetailleDashboard.razor      (Tab 1)
-    ├── Effectif/AnalyseEffectifDashboard.razor       (Tab 2)
-    └── Mouvements/MouvementsDashboard.razor          (Tab 3)
+├-- Startup.cs                                  (DI : AddScoped<IXxxDashboardService>)
+├-- Pages/_Host.cshtml                          (link css/dashboards-elton.css)
+├-- wwwroot/css/dashboards-elton.css            (charte ELTON partagée - toutes classes .ed-*)
+└-- Pages/Dashboards/
+    ├-- DashboardHome.razor
+    ├-- Effectif/EffectifDetailleDashboard.razor      (Tab 1)
+    ├-- Effectif/AnalyseEffectifDashboard.razor       (Tab 2)
+    └-- Mouvements/MouvementsDashboard.razor          (Tab 3)
 
 sql/dashboards/
-├── 01_effectif_detaille.sql
-├── 02_analyse_effectif.sql
-└── 03_mouvements.sql
+├-- 01_effectif_detaille.sql
+├-- 02_analyse_effectif.sql
+└-- 03_mouvements.sql
 
 docs/dashboards/
-├── CHANGELOG.md                  (audit log + hashes + rollback commands)
-├── SPEC_PowerBI_DAX_to_SQL.sql   (spec utilisateur — 11 mesures de référence)
-└── MISSION_STATE.md              (CE FICHIER)
+├-- CHANGELOG.md                  (audit log + hashes + rollback commands)
+├-- SPEC_PowerBI_DAX_to_SQL.sql   (spec utilisateur - 11 mesures de référence)
+└-- MISSION_STATE.md              (CE FICHIER)
 ```
 
 ## 3. Décisions/conventions VERROUILLÉES (ne pas réinventer)
@@ -192,7 +192,7 @@ docs/dashboards/
 - **Site EXTERNE** = `ContratInterim.Station` (StationService, pas Site)
 - **Catégorie EXTERNE** = `ContratInterim.PosteOccupe.Libelle` (PosteInterimaire)
 - **Société intérim** = `ContratInterim.SocieteInterim` (1 seule en seed : SEN-INTERIM)
-- **Effectif moyen EXTERNE** (Tab 3) : `MAX(ETP_pondéré_13_dates, NbDistinctInterimsAnnee)` — anti-aberration ramp-up
+- **Effectif moyen EXTERNE** (Tab 3) : `MAX(ETP_pondéré_13_dates, NbDistinctInterimsAnnee)` - anti-aberration ramp-up
 - **ContratInterimStatut** : Brouillon=0, EnCours=1, Terminé=2, Résilié=3
 - **Mapping INTERNE↔EXTERNE** documenté dans CHANGELOG Étape 4.2
 
@@ -219,7 +219,7 @@ Classes utilisables (préfixe `.ed-*`) : `header`, `kpigroup`, `tile`, `kpi-effe
 - **EspaceSalarieHelper** : `FindUserByName` + `FindSalarieByCriteria` wrappés en try/catch ArgumentException → return null (cassait sur NonPersistentObjectSpace).
 - **Updater RH_Manager** : ajout du rôle avec `using AdiPAIE_V02.Module.NonPersistent;` et TypePermissions Read.
 - **`Microsoft.Extensions.Caching.Memory` 8.0.1** : ajouté en PackageReference au projet Module.
-- **Pré-existant en dev** : erreurs CS0246 sur Site / CentreImports / BilanSocialFormulaire — résolus par stash pop initial.
+- **Pré-existant en dev** : erreurs CS0246 sur Site / CentreImports / BilanSocialFormulaire - résolus par stash pop initial.
 - **Ne PAS écrire `@{` dans les `else` Razor** (cause RZ1010).
 - **virtiofs cache stale** : si bash semble voir une vieille branche git, utiliser le `Read` tool plutôt que bash.
 - **Sandbox sans dotnet** : pas de build local possible. La validation se fait côté Windows par le user.
@@ -237,7 +237,7 @@ git rev-parse HEAD
 
 Le user me retourne le hash, j'enregistre dans CHANGELOG.md + ce fichier.
 
-## 6. Étape suivante : 4.4 — Tableau N°4 Rémunération (EXTERNE focus)
+## 6. Étape suivante : 4.4 - Tableau N°4 Rémunération (EXTERNE focus)
 
 D'après SPEC_PowerBI mesures 6, 7, 8 :
 - **Masse Brute** (= sum salaire + heures supp + primes)
@@ -256,31 +256,31 @@ Source EXTERNE : `ContratInterim.TauxJournalier` × jours travaillés (`ContratI
 
 ---
 
-_Dernière MAJ : 2026-05-03 — Mission V1.1 clôturée (Sprint 1E SQL/README/MISSION_STATE).
+_Dernière MAJ : 2026-05-03 - Mission V1.1 clôturée (Sprint 1E SQL/README/MISSION_STATE).
 HEAD `dev` = `2865ac3` synced origin/dev. Toutes les étapes V1.0 + V1.1 + Help.B+C
 sont commitées et poussées. Sprint 1F (cleanup dead code) reporté._
 
-## 7. Annexes — sources data validées par utilisateur (Étape 4.4 & au-delà)
+## 7. Annexes - sources data validées par utilisateur (Étape 4.4 & au-delà)
 
-### Tab 4 — Rémunération
+### Tab 4 - Rémunération
 
-**Salaire INTERNE — entité `Bulletin`** (table dbo.Bulletin, ~1756 lignes seed) :
+**Salaire INTERNE - entité `Bulletin`** (table dbo.Bulletin, ~1756 lignes seed) :
 - `Bulletin.Annee` (int) + `Bulletin.Mois` (int)
 - `Bulletin.Salarie` (FK)
 - `Bulletin.BrutFiscal` (montant brut imposable)
 - `Bulletin.NetAPayer`
 - `Bulletin.TotalCotisationsSociales`
 - `Bulletin.TotalRetenuesFiscales`
-- `Bulletin.GCRecord` (soft-delete XPO — TOUJOURS filtrer `IS NULL`)
+- `Bulletin.GCRecord` (soft-delete XPO - TOUJOURS filtrer `IS NULL`)
 
-**Charges patronales — entité `BulletinLigne`** (table dbo.BulletinLigne, ~22991 lignes seed) :
+**Charges patronales - entité `BulletinLigne`** (table dbo.BulletinLigne, ~22991 lignes seed) :
 - `BulletinLigne.Bulletin` (FK)
 - `BulletinLigne.Rubrique` (FK)
 - `BulletinLigne.Montant` (part salariale)
-- `BulletinLigne.MontantEmployeur` (charges patronales — la colonne clé Tab 4)
+- `BulletinLigne.MontantEmployeur` (charges patronales - la colonne clé Tab 4)
 - `BulletinLigne.GCRecord`
 
-**Décomposition rubriques — entité `Rubrique` + `RubriqueTypeRef`** :
+**Décomposition rubriques - entité `Rubrique` + `RubriqueTypeRef`** :
 - `RubriqueTypeRef.Code` ∈ {BRUTE, INDEM_IMPOSA, INDEM_NON_IMPOSA, AV_NATURE_IMPOSABLE/AvNatImpos, AV_NATURE_NON_IMPOSABLE, COTSOC, COTFISC, RETENUE}
 - 7 familles macro pour Tab 4 page 2 / Tab 6 (Bilan Social).
 
@@ -300,18 +300,18 @@ sont commitées et poussées. Sprint 1F (cleanup dead code) reporté._
 **Périodicité Tab 4** : année calendaire avec slicer Année.
 
 **Référence SQL utilisateur** : `C:\Dev\AdiPAIE_V02\TestData\PowerBI\SPEC_Custom_Dashboard_SQL.sql`
-(266 lignes — j'ai cartographié les requêtes prêtes à transposer en C#).
+(266 lignes - j'ai cartographié les requêtes prêtes à transposer en C#).
 
 ## 8. Pièges PowerShell pour le commit (à NE PAS reproduire)
 
-- **Ne PAS utiliser `^`** comme line-continuation — c'est `cmd.exe`, pas PowerShell. PowerShell utilise le **backtick `` ` ``** ou les **lignes uniques**.
+- **Ne PAS utiliser `^`** comme line-continuation - c'est `cmd.exe`, pas PowerShell. PowerShell utilise le **backtick `` ` ``** ou les **lignes uniques**.
 - **Ne PAS coller des paths au format markdown** (`[CHANGELOG.md](http://CHANGELOG.md)`) → l'autolink du terminal Claude transforme `.md` en lien et le user copie-colle ça par erreur.
   → **Toujours fournir les commandes git en bloc <code> brut, en lignes individuelles, sans markdown.**
 - Préférer **plusieurs `git add` séparés** ou **`git add docs/dashboards/`** par dossier plutôt qu'une longue commande multi-ligne.
 
 ---
 
-## 🚀 V1.2 — Roadmap Pilotage Stratégique DAF + DRH (cadrage 2026-05-04)
+## 🚀 V1.2 - Roadmap Pilotage Stratégique DAF + DRH (cadrage 2026-05-04)
 
 > **Origine** : revue stratégique post-CODIR. Les 6 dashboards V1.0 couvrent
 > le bilan social classique. Pour transformer AdiPAIE en outil de pilotage,
@@ -358,7 +358,7 @@ Commentaire (string?)
 
 ---
 
-### 9.2 Dashboard **Budget vs Réalisé Masse Salariale** ⭐ V1.2 — Priorité #1
+### 9.2 Dashboard **Budget vs Réalisé Masse Salariale** ⭐ V1.2 - Priorité #1
 
 **Pour qui** : DAF (principal), DG, Contrôle de gestion.
 **Quand** : revue mensuelle de gestion.
@@ -388,7 +388,7 @@ Commentaire (string?)
 
 ---
 
-### 9.3 Dashboard **Provisions Sociales (IDR + Congés Payés)** ⭐ V1.2 — Priorité #2
+### 9.3 Dashboard **Provisions Sociales (IDR + Congés Payés)** ⭐ V1.2 - Priorité #2
 
 **Pour qui** : DAF (clôture comptable), Commissaire aux comptes, Audit.
 **Quand** : trimestriel obligatoire (clôtures), mensuel idéal.
@@ -431,7 +431,7 @@ Solde acquis non pris × (Salaire mensuel / 22 jours)
 
 ---
 
-### 9.4 Dashboard **Coût Complet par Salarié (Fully Loaded Cost)** ⭐ V1.2 — Priorité #3
+### 9.4 Dashboard **Coût Complet par Salarié (Fully Loaded Cost)** ⭐ V1.2 - Priorité #3
 
 **Pour qui** : DAF, DRH, Managers (business case embauche).
 
@@ -470,7 +470,7 @@ Un Brut de 500 000 FCFA = ~720 000 FCFA en coût complet (charges + avantages).
 
 ---
 
-### 9.5 Dashboard **Conformité Sénégal** ⭐ V1.2 — Priorité #4
+### 9.5 Dashboard **Conformité Sénégal** ⭐ V1.2 - Priorité #4
 
 **Pour qui** : DRH, DAF, Audit interne, Inspection du Travail.
 
@@ -509,13 +509,13 @@ MouvementHeuresSup, ParametresPaie pour les seuils).
 | 9.9 | **Pay Equity Gap H/F** | Méthodologie à définir avec RH (poste équivalent ?), sensible juridiquement | 4 j | #4 |
 | 9.10 | **Suivi entretiens annuels** | EntretienAnnuel existe mais workflow incomplet (objectifs N+1, plan d'action) | 4 j | #5 |
 
-### 9.6.0 Détail — Coût Réel Intérimaires (cadrage 2026-05-05)
+### 9.6.0 Détail - Coût Réel Intérimaires (cadrage 2026-05-05)
 
 **Origine** : revue avec Abdoulaye 2026-05-05. Le coût intérim actuel est
 théorique (`TauxJournalier × 22 × N mois`) alors que la VRAIE dépense ELTON
 est le TTC de la facture envoyée par chaque société d'intérim chaque mois.
 
-**Fichier source** : `LIVRE DE PAIE interimaire.xlsx` analysé — structure
+**Fichier source** : `LIVRE DE PAIE interimaire.xlsx` analysé - structure
 type 254 intérimaires × 53 colonnes. Colonnes critiques :
 - col 49 **Débours** : ce que la société d'intérim a payé (brut + charges + indemnités)
 - col 50 **Commissions agence** : la marge de la société d'intérim (~9 %)
@@ -583,7 +583,7 @@ public class ImportBulletinInterimBatch : BaseObject
 5. Idempotence : si batch existant pour (Année, Mois, Société) → confirm écraser
 6. Dashboard N°11 affiche le coût réel + écart vs contrat
 
-**Dashboard N°11 — Coût Réel Intérimaires** :
+**Dashboard N°11 - Coût Réel Intérimaires** :
 - 4 KPIs : TTC mois, TTC YTD, Coût moyen par intérimaire, Multiplicateur Brut→TTC
 - Décomposition donut : Brut / Charges pat / Commission agence / TVA
 - Top 10 intérimaires les plus coûteux (TTC)
@@ -599,14 +599,14 @@ public class ImportBulletinInterimBatch : BaseObject
 - Argument différenciant fort vs Fafadie Paie
 
 **Edge cases identifiés** :
-- Matricule `PRESTATAIRE` (1 ligne sur 254) — pas de lookup Intérimaire possible
+- Matricule `PRESTATAIRE` (1 ligne sur 254) - pas de lookup Intérimaire possible
 - Matricules orphelins (le fichier facture peut contenir des intérimaires non encore créés dans le SI) → option "Créer auto" ou "Skip avec warning"
 - Mapping colonnes : titre des colonnes est stable mais attention aux variations ("Débours" vs "Debours")
 - Lignes vides, totaux en bas du fichier → détecter et ignorer
 
 **Effort total** : 8 jours dev + 1 jour UAT = ~2 semaines.
 
-#### Décisions métier validées (2026-05-05) — réponses Abdoulaye
+#### Décisions métier validées (2026-05-05) - réponses Abdoulaye
 
 1. **Sociétés d'intérim multiples** : ELTON travaille avec PLUSIEURS sociétés
    d'intérim simultanément. Chaque facture est liée à une société émettrice
@@ -619,7 +619,7 @@ public class ImportBulletinInterimBatch : BaseObject
    créées automatiquement → le RH doit ensuite **compléter ces fiches +
    créer le contrat correspondant**. Status d'import à prévoir :
      - `Importé OK` (fiche existante, contrat existant)
-     - `Fiche créée auto` (fiche créée, contrat manquant — alerte RH)
+     - `Fiche créée auto` (fiche créée, contrat manquant - alerte RH)
      - `Prestataire` (cas spécifique, cf. point 3)
 
 3. **Cas "PRESTATAIRE"** (ligne du fichier où Matricule = "PRESTATAIRE") :
@@ -704,7 +704,7 @@ public class ImportBulletinInterimBatch : BaseObject
 
 ---
 
-## ✅ V1.3.2 — REFONTE DASHBOARD N°5 SUIVI ABSENCES (2026-05-05)
+## ✅ V1.3.2 - REFONTE DASHBOARD N°5 SUIVI ABSENCES (2026-05-05)
 
 > **Décision** : aligner le Dashboard N°5 sur le niveau de l'Excel
 > "SUIVI ABSENCES 2026" ELTON (référence métier ~50% supérieur à l'existant).
@@ -727,7 +727,7 @@ public class ImportBulletinInterimBatch : BaseObject
 - `MoisAbsenceDto` : 2 séries (`JoursAbsenteisme` + `JoursProgrammees`)
   au lieu d'une seule (`NbJours`)
 
-**FilterModel refondu** (`SuiviAbsencesFilterModel`) — multi-sélection :
+**FilterModel refondu** (`SuiviAbsencesFilterModel`) - multi-sélection :
 - `List<int> Annees`
 - `List<Guid> SiteOids`
 - `List<int> Mois`
@@ -772,12 +772,12 @@ public class ImportBulletinInterimBatch : BaseObject
 
 ---
 
-## ✅ V1.3 SPRINT 1 — COÛT RÉEL INTÉRIMAIRES (2026-05-05) — BUILD OK + IMPORT TESTÉ
+## ✅ V1.3 SPRINT 1 - COÛT RÉEL INTÉRIMAIRES (2026-05-05) - BUILD OK + IMPORT TESTÉ
 
 > **Status final** : module **complet et fonctionnel**. Build OK (toutes erreurs
 > CS résolues). Import du fichier de test ELTON validé : 31 bulletins importés
 > (30 fiches Intérimaire créées auto + 1 prestataire), Total TTC =
-> 7 784 839 FCFA, multiplicateur ×1.91 — cohérent avec les ratios réels.
+> 7 784 839 FCFA, multiplicateur ×1.91 - cohérent avec les ratios réels.
 
 ### Fixes appliqués pendant les tests d'intégration
 
@@ -818,9 +818,9 @@ Multiplicateur Brut→TTC : ×1.91
   (download attribute) vers `Modele_Import_Salaries.xlsx` et `Modele_LivrePaieInterim.xlsx`
 - Section "Tableaux de bord (Pilotage)" avec raccourcis vers les 5 dashboards
   V1.2/V1.3 + lien vers le hub
-- Nav harmonisée "SunuPaie — Guide utilisateur" comme libellé du lien d'accueil
+- Nav harmonisée "SunuPaie - Guide utilisateur" comme libellé du lien d'accueil
 
-### Améliorations finales (2026-05-05 — V1.3 Sprint 1 PRODUCTION-READY)
+### Améliorations finales (2026-05-05 - V1.3 Sprint 1 PRODUCTION-READY)
 
 **Suppression d'ancien batch via SQL natif** (la solution qui a marché) :
 - Abandonné le LINQ `os.GetObjectsQuery<>().ToList().Where()` qui ratait à cause
@@ -877,11 +877,11 @@ Après fix         : ✅ Bulletins créés 31 / Total TTC 7 784 839 FCFA / Écra
 - Seeder démo `BulletinInterim` (pour démo CODIR sans manipulation manuelle)
 - Pro-rata mi-temps dans la comparaison contrat
 - Notification automatique RH listant les fiches créées auto à compléter
-- Filtre Site dans le dashboard N°11 actuellement basé sur SiteAffectation (string snapshot) — passage à un lookup ContratInterim.Site quand le module sera mature
+- Filtre Site dans le dashboard N°11 actuellement basé sur SiteAffectation (string snapshot) - passage à un lookup ContratInterim.Site quand le module sera mature
 
 ---
 
-## ✅ V1.3 SPRINT 1 — COÛT RÉEL INTÉRIMAIRES (2026-05-05) — code initial (déprécié, voir section ci-dessus)
+## ✅ V1.3 SPRINT 1 - COÛT RÉEL INTÉRIMAIRES (2026-05-05) - code initial (déprécié, voir section ci-dessus)
 
 > Status : code complet pour les 5 étapes (entités, service import, wizard,
 > dashboard, help). Build à valider par le user.
@@ -930,7 +930,7 @@ Dashboard /dashboards/cout-reel-interim affiche KPIs + écart contrat/réel
 
 ---
 
-## ✅ V1.2.1 — REFONTE BUDGET ANNUEL (2026-05-05) — BUILD OK
+## ✅ V1.2.1 - REFONTE BUDGET ANNUEL (2026-05-05) - BUILD OK
 
 > **Décision DAF** : passage à un modèle simplifié sur demande métier.
 > AVANT : saisie mensuelle × 9 rubriques × site (~180 lignes/an)
@@ -964,7 +964,7 @@ données démo" après le rebuild pour avoir les 12 nouvelles lignes seedées.
 
 ---
 
-## ✅ V1.2 SPRINTS 1-5 — CODE IMPLÉMENTÉ (2026-05-04)
+## ✅ V1.2 SPRINTS 1-5 - CODE IMPLÉMENTÉ (2026-05-04)
 
 > Status : **code écrit, build à valider** (le user fait le build dans VS le
 > 2026-05-05 et renvoie les erreurs éventuelles).
@@ -991,8 +991,8 @@ données démo" après le rebuild pour avoir les 12 nouvelles lignes seedées.
 
 ### Fichiers modifiés
 
-- `Blazor.Server/Startup.cs` — DI : 4 nouveaux `AddScoped<I*, *>()` après le bloc V1.0
-- `Blazor.Server/Pages/Dashboards/DashboardHome.razor` — 4 nouvelles `CardInfo` ajoutées dans `_cards`
+- `Blazor.Server/Startup.cs` - DI : 4 nouveaux `AddScoped<I*, *>()` après le bloc V1.0
+- `Blazor.Server/Pages/Dashboards/DashboardHome.razor` - 4 nouvelles `CardInfo` ajoutées dans `_cards`
 
 ### Limites connues V1.2 (à compléter en V1.2.1)
 
@@ -1001,7 +1001,7 @@ données démo" après le rebuild pour avoir les 12 nouvelles lignes seedées.
   intégré.
 - **Coût complet** : `Formation` à 0 (entité Formation pas encore mappée
   côté Bulletin). Avantages nature détectés via `RubriqueTypeRef.Code` AV_NATURE_*
-  — fallback à 0 si non trouvé.
+  - fallback à 0 si non trouvé.
 - **Conformité SN** : 5 indicateurs sur 9 sont actifs (SMIG, CDD, Stages,
   Congés, Contrats scannés en NonEvalue). Les 3 déclarations sociales
   (IPRES/CSS/IPM) et HSup détaillé sont en NonEvalue (entités à créer).
@@ -1009,7 +1009,7 @@ données démo" après le rebuild pour avoir les 12 nouvelles lignes seedées.
   prorata du budget (heuristique). En V1.3, mapping `BudgetRubrique ↔
   RubriqueTypeRef` à formaliser pour ventilation exacte.
 
-### Build attendu — points de vigilance
+### Build attendu - points de vigilance
 
 - Vérifier que `Salarie.Categories?.Intitule` compile (utilisé dans
   `CoutCompletDashboardService`). Si la nav property s'appelle autrement,
@@ -1034,7 +1034,7 @@ V1.2 avec des valeurs réalistes, il faudra ajouter :
 
 - **Pyramide des âges H/F** : ajoutée au dashboard Effectif détaillé
   (style PPT slide 15, barres divergentes, tranches 55+ → <25). Code agrégé
-  côté Razor à partir de `BarStackHommesFemmes` existant — pas de modif service.
+  côté Razor à partir de `BarStackHommesFemmes` existant - pas de modif service.
 - **Rapport CEO masqué** (V1.1) : l'action XAF `GenererRapportCEO`, les 4
   paramètres ParametresPaie (EmailCEO, SeuilTurnoverPct, SeuilAbsenteismePct,
   SeuilMasseSalariale) et le LayoutGroup `Tab_RapportCEO` sont désactivés via
@@ -1048,7 +1048,7 @@ V1.2 avec des valeurs réalistes, il faudra ajouter :
 
 ---
 
-## ✅ V1.4.3 — WORKFLOW PUBLICATION BULLETIN + ESPACE SALARIÉ (2026-05-07)
+## ✅ V1.4.3 - WORKFLOW PUBLICATION BULLETIN + ESPACE SALARIÉ (2026-05-07)
 
 > **Décision CODIR mai 2026** : plus d'envoi PDF par email. Le salarié se
 > connecte à l'Espace Salarié authentifié pour télécharger son bulletin.
@@ -1057,39 +1057,39 @@ V1.2 avec des valeurs réalistes, il faudra ajouter :
 ### Workflow
 
 ```
-Brouillon ─[Valider]→ Validé ─[Publier]→ Envoyé ─[Clôturer]→ Cloturé
-                                ├─[Dépublier]→ Validé (correction)
-                                └─[Notifier]→ ré-envoi email
+Brouillon -[Valider]→ Validé -[Publier]→ Envoyé -[Clôturer]→ Cloturé
+                                ├-[Dépublier]→ Validé (correction)
+                                └-[Notifier]→ ré-envoi email
 ```
 
 ### Décisions clés
 
 - Réutilisation du statut `Envoye` (sémantique « Publié ») → zéro migration
 - `DatePublication != NULL` = critère de visibilité Espace Salarié
-- Plus de clé PDF — auth Espace Salarié remplace la clé
+- Plus de clé PDF - auth Espace Salarié remplace la clé
 - PDF archivé dans `Bulletin.PdfArchive` (FileData) au Publier
 
 ### Fichiers nouveaux
 
-- `Services/BulletinPublicationService.cs` — Publier / Depublier / Notifier (async)
-- `Controllers/BulletinPublishController.cs` — actions RH multi-sélection
-- `Controllers/BulletinEspaceSalarieNoDetailController.cs` — bloque drill-down
-- `Reports/BulletinPaie.repx` — design custom embedded (87 580 octets)
+- `Services/BulletinPublicationService.cs` - Publier / Depublier / Notifier (async)
+- `Controllers/BulletinPublishController.cs` - actions RH multi-sélection
+- `Controllers/BulletinEspaceSalarieNoDetailController.cs` - bloque drill-down
+- `Reports/BulletinPaie.repx` - design custom embedded (87 580 octets)
 
 ### Fichiers modifiés majeurs
 
-- `BusinessObjects/Bulletin.cs` — DatePublication, PublieParUser, EstPublie
-- `Controllers/BulletinSalarieFilterController.cs` — filtre `DatePublication != null`
-- `Controllers/BulletinValiderEnvoyerController.cs` — actions obsolètes désactivées
-- `Controllers/BulletinTelechargerController.cs` — scoped à vue Espace Salarié
-- `Services/BulletinPdfService.cs` — auto-bootstrap rapport (REPX embedded + fallback)
-- `DatabaseUpdate/Updater.cs` — `SeedBulletinReportIfMissing` au démarrage
-- `Module.csproj` — EmbeddedResource BulletinPaie.repx
-- `Model.DesignedDiffs.xafml` — vue Bulletin_EspaceSalarie_ListView, menu, captions
+- `BusinessObjects/Bulletin.cs` - DatePublication, PublieParUser, EstPublie
+- `Controllers/BulletinSalarieFilterController.cs` - filtre `DatePublication != null`
+- `Controllers/BulletinValiderEnvoyerController.cs` - actions obsolètes désactivées
+- `Controllers/BulletinTelechargerController.cs` - scoped à vue Espace Salarié
+- `Services/BulletinPdfService.cs` - auto-bootstrap rapport (REPX embedded + fallback)
+- `DatabaseUpdate/Updater.cs` - `SeedBulletinReportIfMissing` au démarrage
+- `Module.csproj` - EmbeddedResource BulletinPaie.repx
+- `Model.DesignedDiffs.xafml` - vue Bulletin_EspaceSalarie_ListView, menu, captions
 
 ### Fix culture FCFA
 
-- `Blazor.Server/Startup.cs` — clone fr-FR, override `CurrencySymbol = "FCFA"`,
+- `Blazor.Server/Startup.cs` - clone fr-FR, override `CurrencySymbol = "FCFA"`,
   `CurrencyDecimalDigits = 0`, format `1 234 FCFA`. Plus de `€` partout.
 
 ### Fix UI Blazor
@@ -1116,7 +1116,7 @@ Puis `git add Reports/BulletinPaie.repx && git commit`.
 
 - Critère `DatePublication IS NOT NULL` les exclut de la vue salarié
 - RH publie rétroactivement via Bulletin_ListView → multi-sélection → Publier
-- Pas de migration automatique au startup (volontaire — évite envois massifs)
+- Pas de migration automatique au startup (volontaire - évite envois massifs)
 
 ### Email notification
 
@@ -1139,20 +1139,20 @@ Puis `git add Reports/BulletinPaie.repx && git commit`.
 
 ---
 
-## ✅ V1.5 / V1.5.1 / V1.5.2 — STABILISATION (2026-05-08 / 09)
+## ✅ V1.5 / V1.5.1 / V1.5.2 - STABILISATION (2026-05-08 / 09)
 
-### V1.5 — Module Mouvements Intérim
+### V1.5 - Module Mouvements Intérim
 - Workflow : AC → AssistantRH → RH → DAF → Apply
 - 8 transitions audit-trailées dans `DemandeMouvementService`
 - Email notification AC fire-and-forget
 - StationOrigine/StationDestination capturées sur MouvementInterimaire (historique)
 
-### V1.5.1 — Dashboard Rémunération filtre Échelon
+### V1.5.1 - Dashboard Rémunération filtre Échelon
 - Filtre Échelon ajouté sur RemunerationFilterModel
 - Table ParEchelon (INTERNE only) dans le dashboard
 - ViewModel `EchelonOption(Guid, string Label)` pour bypass PersistentAlias
 
-### V1.5.2 — Quick Wins QW1-QW6 + xUnit foundation + Warnings cleanup
+### V1.5.2 - Quick Wins QW1-QW6 + xUnit foundation + Warnings cleanup
 - QW1 : `RolesGRHInitializer` static refactor (suppression doublons)
 - QW2 : Cleanup `[Browsable(false)]` sur propriétés calculées
 - QW3 : DPAPI LocalMachine pour password encryption
@@ -1167,10 +1167,10 @@ Puis `git add Reports/BulletinPaie.repx && git commit`.
 
 ---
 
-## ✅ V1.6 — FICHE SALARIÉ ENRICHIE (2026-05-09)
+## ✅ V1.6 - FICHE SALARIÉ ENRICHIE (2026-05-09)
 
 ### Champs ajoutés
-- **Salarie.Telephone** (NVARCHAR(20)) — téléphone perso (différent de ContactUrgenceTel)
+- **Salarie.Telephone** (NVARCHAR(20)) - téléphone perso (différent de ContactUrgenceTel)
 - **Conjoint.DateNaissance** + Age calculé (oubli initial corrigé)
 
 ### Nouvelle entité `Enfant`
@@ -1193,10 +1193,10 @@ Puis `git add Reports/BulletinPaie.repx && git commit`.
 - Justification : clé de mapping JDE + référencé dans bulletins/contrats/audit
 - Reste éditable en saisie initiale puis grisé à vie (préserve traçabilité)
 
-### Wizard création Salarié — TENTATIVE ABANDONNÉE
+### Wizard création Salarié - TENTATIVE ABANDONNÉE
 - Conçu en 4 étapes (Identité / Contrat / Affectation / Récap)
 - Lookups ne se chargeaient pas correctement dans `NonPersistentObjectSpace` malgré `AdditionalObjectSpaces.Add(XPObjectSpace)`
-- Décision utilisateur : ne pas garder pour éviter régression — la fiche standard suffit
+- Décision utilisateur : ne pas garder pour éviter régression - la fiche standard suffit
 
 ### Migration auto XPO au démarrage
 - ALTER TABLE Salarie ADD Telephone NVARCHAR(20) NULL
@@ -1207,7 +1207,7 @@ HEAD `dev` après V1.6 = `e424cbc`
 
 ---
 
-## ✅ V1.6.1 — UX QUICK WINS FICHE SALARIÉ (2026-05-09)
+## ✅ V1.6.1 - UX QUICK WINS FICHE SALARIÉ (2026-05-09)
 
 ### Bandeau KPI en en-tête onglet Identification
 5 propriétés calculées NonPersistent sur Salarie :
@@ -1233,7 +1233,7 @@ HEAD `dev` après V1.6 = `e424cbc`
 
 ### Layout en-tête enrichi
 - Photo agrandie (50% → 75% de sa colonne, RelativeSize 35 → 40)
-- Top row plus haut (30 → 40) — effet "fiche d'identité" marqué
+- Top row plus haut (30 → 40) - effet "fiche d'identité" marqué
 
 ### Emojis sur les 7 onglets Salarie_DetailView
 - 👤 Identification / 📋 Contrat & Poste / 💰 Rémunération
@@ -1246,20 +1246,20 @@ HEAD `dev` après V1.6.1 = `8c4002a`
 
 ---
 
-## ✅ V1.6.2 — PATTERN BADGES SUR 7 ENTITÉS WORKFLOW (2026-05-09)
+## ✅ V1.6.2 - PATTERN BADGES SUR 7 ENTITÉS WORKFLOW (2026-05-09)
 
 Application du pattern V1.6.1 (badges colorés sur Statut + alertes dates) à 7 entités à workflow :
 
 | Entité | Badges Statut | Alertes dates |
 |--------|--------------|---------------|
-| **Bulletin** | Brouillon (gris) / Validé (bleu) / Envoyé (vert) / Comptabilisé (violet) / Clôturé (gris foncé) | — |
-| **PeriodePaie** | Brouillon (gris) / Ouverte (vert) / Clôturée (gris foncé) | — |
+| **Bulletin** | Brouillon (gris) / Validé (bleu) / Envoyé (vert) / Comptabilisé (violet) / Clôturé (gris foncé) | - |
+| **PeriodePaie** | Brouillon (gris) / Ouverte (vert) / Clôturée (gris foncé) | - |
 | **ContratInterim** | (existant FontColor) | 🔴 Mission dépassée • 🟠 Fin ≤ 7j urgent • 🟡 Fin 8-30j proche |
-| **CongeDemande** | Brouillon / En attente / Accordée (vert) / Refusée (rouge) / Annulée (gris foncé) | — |
-| **DemandeAttestation** | En attente (orange) / Traitée (vert) / Rejetée (rouge) | — |
-| **DemandeMouvementInterim** | Brouillon / En attente AC→AssistantRH→RH→DAF / Appliquée (vert) / Rejetée (rouge) / Annulée (gris foncé) | — |
-| **Pret** | Brouillon / En cours (bleu) / Terminé (vert) / Suspendu (orange) | — |
-| **EntretienAnnuel** | Brouillon-Planifié / En cours saisie / Soumise RH (vert) / Clôturé (gris foncé) | — |
+| **CongeDemande** | Brouillon / En attente / Accordée (vert) / Refusée (rouge) / Annulée (gris foncé) | - |
+| **DemandeAttestation** | En attente (orange) / Traitée (vert) / Rejetée (rouge) | - |
+| **DemandeMouvementInterim** | Brouillon / En attente AC→AssistantRH→RH→DAF / Appliquée (vert) / Rejetée (rouge) / Annulée (gris foncé) | - |
+| **Pret** | Brouillon / En cours (bleu) / Terminé (vert) / Suspendu (orange) | - |
+| **EntretienAnnuel** | Brouillon-Planifié / En cours saisie / Soumise RH (vert) / Clôturé (gris foncé) | - |
 
 ### Code couleur unifié (référence projet)
 - ⚪ **Gainsboro / DimGray** = Brouillon
@@ -1296,14 +1296,14 @@ Corrigé en ajoutant :
 (Paramètres de Paie → Administration → "Init. rôles GRH") OU laisser
 l'Updater le faire au prochain démarrage.
 
-### ✅ ISSUE RÉSOLUE V1.6.2 (confirmé 2026-05-09) — Multi-rôle RH + RH_Manager bloque colonnes Bulletin
+### ✅ ISSUE RÉSOLUE V1.6.2 (confirmé 2026-05-09) - Multi-rôle RH + RH_Manager bloque colonnes Bulletin
 
 **Test sur base fresh** (créée le 2026-05-09 avec V1.6.2 + V1.7) → **toutes les
 colonnes Bulletin sont correctement visibles** pour un user RH neuf. Le code
 est sain. Le bug observé en base actuelle vient de la persistance d'anciennes
 configurations (RH_Manager assigné à ababacar.diallo en plus de RH).
 
-### 🚧 ISSUE D'ORIGINE — Multi-rôle RH + RH_Manager bloque colonnes Bulletin
+### 🚧 ISSUE D'ORIGINE - Multi-rôle RH + RH_Manager bloque colonnes Bulletin
 
 **Symptôme** : sur Consultation bulletins, les colonnes Matricule, NomComplet,
 BrutFiscal, BrutSocial, TRIMF restent invisibles pour un user qui a les 2 rôles
@@ -1330,7 +1330,7 @@ RH + RH_Manager, malgré nos perms RH ajoutées.
   les dashboards via `GrantDashboardAccessToExistingRole("RH")` ligne 399)
 - B. Changer Updater.cs:347 → `RH_Manager.PermissionPolicy = AllowAllByDefault`
 - C. Ajouter dans RH_Manager les Member permissions manquantes (Bulletin.BrutFiscal,
-  Salarie.Matricule, etc.) — fastidieux
+  Salarie.Matricule, etc.) - fastidieux
 
 **Option recommandée** : A (retirer RH_Manager pour les users qui ont déjà RH)
 puis investiguer si RH_Manager doit exister isolément pour d'autres users.
@@ -1356,7 +1356,7 @@ HEAD `dev` après V1.6.2 = (à pousser)
 
 ---
 
-## ✅ V1.7 — ANNUAIRE FAMILLE + PROVISION CONGÉS LÉGALE (2026-05-09)
+## ✅ V1.7 - ANNUAIRE FAMILLE + PROVISION CONGÉS LÉGALE (2026-05-09)
 
 ### 1. Annuaire famille hiérarchique (menu Gestion du personnel)
 - Entité non-persistante `FamilleAnnuaire` avec 1 ligne par membre
@@ -1371,41 +1371,41 @@ HEAD `dev` après V1.6.2 = (à pousser)
 - Permissions RH : `AddType<FamilleAnnuaire>(rh, "r")`
 - Visible : Matricule, Nom complet, Date naissance, Âge, Sexe, Statut, À charge
 
-### 2. Architecture des congés — VUE D'ENSEMBLE COMPLÈTE
+### 2. Architecture des congés - VUE D'ENSEMBLE COMPLÈTE
 
 Le module Congés repose sur **2 vues complémentaires** qui partagent les mêmes
 données opérationnelles mais répondent à 2 besoins métiers distincts.
 
-#### A. `SoldeConge` — Vue OPÉRATIONNELLE RH (existant V1.4)
+#### A. `SoldeConge` - Vue OPÉRATIONNELLE RH (existant V1.4)
 
 **Localisation** : Menu **Congés et absences → Soldes de congés (opérationnel RH)**
 
 **Modèle de données** : Persistant, granularité (Salarié × Année × CongeType).
 ```
 SoldeConge
-├── Salarie (FK)
-├── Annee (int)
-├── Type (FK CongeType)
-├── JoursAcquis     ← alimenté MOIS PAR MOIS par le cron
-├── JoursReportes   ← report N-1 lors de la clôture d'exercice
-├── JoursPris       ← décrémenté quand CongeDemande=Accordée et DateReprise passée
-├── JoursEnAttente  ← réservé sur soumission, libéré sur refus/annulation
-├── SoldeDisponible (computed) = Acquis + Reportés - Pris
-└── SoldeReel (computed)       = Acquis + Reportés - Pris - EnAttente
+├-- Salarie (FK)
+├-- Annee (int)
+├-- Type (FK CongeType)
+├-- JoursAcquis     ← alimenté MOIS PAR MOIS par le cron
+├-- JoursReportes   ← report N-1 lors de la clôture d'exercice
+├-- JoursPris       ← décrémenté quand CongeDemande=Accordée et DateReprise passée
+├-- JoursEnAttente  ← réservé sur soumission, libéré sur refus/annulation
+├-- SoldeDisponible (computed) = Acquis + Reportés - Pris
+└-- SoldeReel (computed)       = Acquis + Reportés - Pris - EnAttente
 ```
 
 **Service** : `SoldeCongeCalculService` avec 8 méthodes :
-- `AcquerirMensuel(os, salarie, type, annee, mois)` — crédit idempotent
-- `AcquerirTousSalaries(os, annee, mois)` — batch mensuel (cron à brancher)
-- `Reporter(os, annee)` — clôture N → N+1
+- `AcquerirMensuel(os, salarie, type, annee, mois)` - crédit idempotent
+- `AcquerirTousSalaries(os, annee, mois)` - batch mensuel (cron à brancher)
+- `Reporter(os, annee)` - clôture N → N+1
 - `VerifierSolde`, `ReserverJours`, `DebiterJours`, `AnnulerDebite`
-- `OuvrirNouvelExercice(os, annee)` — initialise pour une nouvelle année
+- `OuvrirNouvelExercice(os, annee)` - initialise pour une nouvelle année
 
 **Historique** : Chaque mouvement tracé dans `MouvementSolde` (table fille)
 avec `MouvementSoldeType` ∈ { AcquisitionMensuelle, PriseCongé, Report,
 AjustementManuel, AnnulationCongé, **Initialisation** }.
 
-#### B. `ProvisionConges` — Vue COMPTABLE DAF (V1.7 nouveau)
+#### B. `ProvisionConges` - Vue COMPTABLE DAF (V1.7 nouveau)
 
 **Localisation** : Menu **Congés et absences → Provision annuelle (DAF)**
 
@@ -1468,7 +1468,7 @@ les soldes au moment du go-live.
 - Champ `SoldeConge.JoursReportes` peut accueillir le solde initial
   (équivalent d'un report N-1 fictif)
 
-**Processus de migration au go-live** (V1.7.1 — à coder) :
+**Processus de migration au go-live** (V1.7.1 - à coder) :
 1. RH récupère depuis l'ancien système la liste : Matricule + Solde acquis +
    Solde reporté (au 31/12 de l'année précédente)
 2. Service `InitialiserSoldesProdService.ImporterDepuisExcel(file)` :
@@ -1481,7 +1481,7 @@ les soldes au moment du go-live.
    mensuellement à partir du mois courant
 4. Le tableau **Provision annuelle** affichera l'écart entre la formule
    théorique pleine année et le réel (qui n'aura que les mois écoulés
-   depuis go-live) — **comportement attendu** pour l'année de transition
+   depuis go-live) - **comportement attendu** pour l'année de transition
 
 **À NE PAS faire** :
 - ❌ Faire du backfill de `MouvementSolde` mois par mois pour tout
@@ -1499,7 +1499,7 @@ Matricule;TypeCongeCode;JoursReportes;DateInitialisation;Commentaire
 
 ### 4. Hypothèses ouvertes à valider avec RH ELTON
 
-- **Âge limite enfant à charge** : 14 ans (article CCT) — confirmer cap
+- **Âge limite enfant à charge** : 14 ans (article CCT) - confirmer cap
 - **Père de famille** : a-t-il droit à un bonus ? (CCT muet, à valider)
 - **Période d'absence maladie ≤ 6 mois assimilée** : comment le cron
   `AcquerirMensuel` gère ces mois (génération bulletin malgré absence) ?
@@ -1510,7 +1510,7 @@ HEAD `dev` après V1.7 = (à pousser)
 
 ---
 
-## ✅ V1.7.0a — Hotfix critique déploiement prod (2026-05-10)
+## ✅ V1.7.0a - Hotfix critique déploiement prod (2026-05-10)
 
 ### Bug découvert au 1er déploiement Windows Server 2022
 
@@ -1568,7 +1568,7 @@ disponible.
 
 ---
 
-## ✅ V1.7.1 — Unicité email Salarié (2026-05-10)
+## ✅ V1.7.1 - Unicité email Salarié (2026-05-10)
 
 ### Besoin métier
 
@@ -1578,7 +1578,7 @@ toutefois autorisés (cas historique : anciens salariés sans adresse pro).
 
 ### Implémentation à 2 niveaux
 
-#### Niveau 1 — Validation app `Salarie.OnSaving`
+#### Niveau 1 - Validation app `Salarie.OnSaving`
 
 Dans `BusinessObjects/Salarie.cs`, après la normalisation et la validation
 de format déjà existante, recherche d'un autre `Salarie` avec le même email
@@ -1590,13 +1590,13 @@ var doublon = Session.FindObject<Salarie>(
 if (doublon != null)
     throw new UserFriendlyException(
         $"L'email « {Email} » est déjà utilisé par le salarié " +
-        $"{doublon.Matricule} – {doublon.FirstName} {doublon.LastName}. " +
+        $"{doublon.Matricule} - {doublon.FirstName} {doublon.LastName}. " +
         $"L'email doit être unique pour chaque salarié.");
 ```
 
 → Message UX clair indiquant **qui** détient déjà cet email.
 
-#### Niveau 2 — Index SQL unique filtré (`Updater.EnsurePerformanceIndexes`)
+#### Niveau 2 - Index SQL unique filtré (`Updater.EnsurePerformanceIndexes`)
 
 ```sql
 CREATE UNIQUE INDEX UX_Salarie_Email
@@ -1644,21 +1644,21 @@ salarié en doublon) et accepte les emails vides multiples.
 
 ---
 
-## ✅ V1.7.2 — 13ième MOIS + GRATIFICATION (2026-05-11)
+## ✅ V1.7.2 - 13ième MOIS + GRATIFICATION (2026-05-11)
 
 ### Origine du besoin
 
 Question utilisateur initiale (2026-05-11) :
 > « il peut arriver dans l'année que des bonus soit payé qui peuvent être
 > égal à 2,5 ou 3 mois de salaire net ou brut ; au 31 décembre aussi il
-> peut y avoir un 13ième mois — comment on peut gérer cela ? »
+> peut y avoir un 13ième mois - comment on peut gérer cela ? »
 
 ### Cadrage RH ELTON (grille validée 2026-05-11)
 
 Grille de cadrage Excel `docs/specifications/Grille_RH_Primes_13eMois_V1.7.2.xlsx`
 remplie par RRH + DAF. **Règles métier figées** :
 
-#### 13ième mois — Automatique, droit conventionnel pour tous
+#### 13ième mois - Automatique, droit conventionnel pour tous
 
 | Règle | Valeur figée |
 |---|---|
@@ -1671,7 +1671,7 @@ remplie par RRH + DAF. **Règles métier figées** :
 | Provision mensuelle | Sur **brut récurrent du mois en cours** (1/12) |
 | Prorata départ | `BR / 12 × MoisPresence` versé sur **STC** (PAS en décembre) |
 
-#### Gratification — Discrétionnaire, ad hoc
+#### Gratification - Discrétionnaire, ad hoc
 
 | Règle | Valeur figée |
 |---|---|
@@ -1687,7 +1687,7 @@ remplie par RRH + DAF. **Règles métier figées** :
 ### Architecture implémentée
 
 ```
-┌─ BrutRecurrentService (V1.7.2a) ──────────────────────────┐
+┌- BrutRecurrentService (V1.7.2a) --------------------------┐
 │ Helper partagé, calcul du « brut récurrent »              │
 │ INCLUS : SB, Sursalaire, PrimeAnciennete, IndemniteLogement│
 │          PrimeTransport, AvantageNatureVehicule, customs   │
@@ -1696,11 +1696,11 @@ remplie par RRH + DAF. **Règles métier figées** :
 │            GetDernierBrutRecurrent(salarie, annee, mois), │
 │            GetMoisPresence(salarie, annee),                │
 │            GetCumulBrutRecurrent(salarie, annee)           │
-└──────────────────┬─────────────────────────────────────────┘
+└------------------┬-----------------------------------------┘
                    │
-        ┌──────────┴──────────┐
+        ┌----------┴----------┐
         ▼                     ▼
-┌─ 13ième Mois (V1.7.2b)──┐ ┌─ Gratification (V1.7.2d) ─┐
+┌- 13ième Mois (V1.7.2b)--┐ ┌- Gratification (V1.7.2d) -┐
 │ Entité TreiziemeMois    │ │ (à coder)                  │
 │   + workflow + badges   │ │ Workflow RH→DAF→RH         │
 │ TreiziemeMoisService    │ │ BaseCalcul Net/Brut/Forfait│
@@ -1710,14 +1710,14 @@ remplie par RRH + DAF. **Règles métier figées** :
 │   bulletin décembre/STC │ │                            │
 │ Controller : 2 actions  │ │                            │
 │   "Calculer / Intégrer" │ │                            │
-└──────────┬──────────────┘ └────────────────────────────┘
+└----------┬--------------┘ └----------------------------┘
            │
            ▼ (à coder)
-┌─ Provision DAF (V1.7.2c) ─┐
+┌- Provision DAF (V1.7.2c) -┐
 │ Vue non-persistante       │
 │ ProvisionTreiziemeMois    │
 │ Cumul mensuel × salarié   │
-└───────────────────────────┘
+└---------------------------┘
 ```
 
 ### Enums ajoutés (`DomainEnums.cs`)
@@ -1825,8 +1825,8 @@ le menu, autres rôles non.
 
 ### Désactivés / nettoyés
 
-- `BulletinArchivePdfBulkController.cs` — fichier vidé (action redondante avec Publier)
-- `ValiderEtEnvoyer`, `RenvoyerBulletin`, `EnvoyerClePDF`, `EnvoyerBulletinEmail` —
+- `BulletinArchivePdfBulkController.cs` - fichier vidé (action redondante avec Publier)
+- `ValiderEtEnvoyer`, `RenvoyerBulletin`, `EnvoyerClePDF`, `EnvoyerBulletinEmail` -
   actions obsolètes masquées via `IsVisible="False"` XAFML + `Active.SetItemValue`
 
 ### Roadmap V1.5+
@@ -1837,7 +1837,7 @@ le menu, autres rôles non.
 
 ---
 
-## ✅ V1.4.3 — WORKFLOW PUBLICATION BULLETIN + ESPACE SALARIÉ (2026-05-07)
+## ✅ V1.4.3 - WORKFLOW PUBLICATION BULLETIN + ESPACE SALARIÉ (2026-05-07)
 
 > **Décision CODIR mai 2026** : plus d'envoi PDF par email. Le salarié se
 > connecte à l'Espace Salarié authentifié pour télécharger son bulletin.
@@ -1846,10 +1846,10 @@ le menu, autres rôles non.
 ### Workflow Bulletin V1.4.3
 
 ```
-Brouillon ─[Valider]→ Validé ─[Publier]→ Envoyé ─[Clôturer]→ Cloturé
+Brouillon -[Valider]→ Validé -[Publier]→ Envoyé -[Clôturer]→ Cloturé
                                 ↑
-                                ├─[Dépublier]→ Validé (correction)
-                                └─[Notifier]→ ré-envoi email seul
+                                ├-[Dépublier]→ Validé (correction)
+                                └-[Notifier]→ ré-envoi email seul
 ```
 
 ### Décisions clés
@@ -1867,37 +1867,37 @@ Brouillon ─[Valider]→ Validé ─[Publier]→ Envoyé ─[Clôturer]→ Clot
 ### Modèle de données
 
 **`Bulletin.cs`** (nouveau champs) :
-- `DatePublication : DateTime?` — date du Publier (audit)
-- `PublieParUser : string` — utilisateur qui a publié (audit)
-- `EstPublie : bool` (NonPersistent) — `Statut >= Envoye`
+- `DatePublication : DateTime?` - date du Publier (audit)
+- `PublieParUser : string` - utilisateur qui a publié (audit)
+- `EstPublie : bool` (NonPersistent) - `Statut >= Envoye`
 
-**`PdfArchive`** (FileData, déjà existant) — masqué dans ListView/DetailView
+**`PdfArchive`** (FileData, déjà existant) - masqué dans ListView/DetailView
 (`VisibleInListView(false)`, `VisibleInDetailView(false)`).
 
 ### Services
 
-- **`BulletinPublicationService.cs`** (nouveau) — orchestration :
-  - `Publier(bulletin, os, user)` — génère PDF + archive + statut Envoye +
+- **`BulletinPublicationService.cs`** (nouveau) - orchestration :
+  - `Publier(bulletin, os, user)` - génère PDF + archive + statut Envoye +
     DatePublication + email notification (best-effort, non bloquant)
-  - `Depublier(bulletin, os, user)` — repasse à Validé, conserve PdfArchive
-  - `EnvoyerNotification(bulletin, os)` — re-envoi email seul
+  - `Depublier(bulletin, os, user)` - repasse à Validé, conserve PdfArchive
+  - `EnvoyerNotification(bulletin, os)` - re-envoi email seul
 
 ### Controllers
 
 **Côté RH (`Bulletin_ListView`) :**
-- `BulletinPublishController.cs` (nouveau) — actions Publier / Dépublier /
+- `BulletinPublishController.cs` (nouveau) - actions Publier / Dépublier /
   Notifier (sélection multiple supportée)
-- `BulletinValiderEnvoyerController.cs` — `ValiderEtEnvoyer` et
+- `BulletinValiderEnvoyerController.cs` - `ValiderEtEnvoyer` et
   `RenvoyerBulletin` désactivés (V143_Obsolete)
-- `EnvoyerClePayslipController.cs` — `EnvoyerClePDF` désactivé
-- `BulletinTelechargerController.cs` — limité à `Bulletin_EspaceSalarie_ListView`
+- `EnvoyerClePayslipController.cs` - `EnvoyerClePDF` désactivé
+- `BulletinTelechargerController.cs` - limité à `Bulletin_EspaceSalarie_ListView`
 
 **Côté Espace Salarié (vue dédiée `Bulletin_EspaceSalarie_ListView`) :**
-- `BulletinSalarieFilterController.cs` — filtre forcé
+- `BulletinSalarieFilterController.cs` - filtre forcé
   `Salarie.Oid = currentUser AND DatePublication IS NOT NULL`
-- `BulletinEspaceSalarieReadOnlyController.cs` — désactive toutes actions RH
+- `BulletinEspaceSalarieReadOnlyController.cs` - désactive toutes actions RH
   (Publier, Dépublier, Notifier, Imprimer, Recalc, etc.)
-- `BulletinEspaceSalarieNoDetailController.cs` (nouveau) — bloque le
+- `BulletinEspaceSalarieNoDetailController.cs` (nouveau) - bloque le
   drill-down vers le DetailView (pas d'accès au détail technique)
 
 ### Vue Espace Salarié
@@ -1910,14 +1910,14 @@ Brouillon ─[Valider]→ Validé ─[Publier]→ Envoyé ─[Clôturer]→ Clot
 
 Menu navigation : `Mon espace > Mes bulletins` → pointe vers cette vue.
 
-### Rapport BulletinPaie — sécurisation
+### Rapport BulletinPaie - sécurisation
 
-- **REPX embarqué** dans le projet (`Reports/BulletinPaie.repx`, ~87 Ko) —
+- **REPX embarqué** dans le projet (`Reports/BulletinPaie.repx`, ~87 Ko) -
   versionné Git, déployable.
-- **Auto-seed** dans `Updater.SeedBulletinReportIfMissing` — au démarrage,
+- **Auto-seed** dans `Updater.SeedBulletinReportIfMissing` - au démarrage,
   si `BulletinPaie` absent en DB → recréé depuis la ressource embarquée.
   Idempotent : ne touche jamais le rapport custom existant.
-- **Filet runtime** dans `BulletinPdfService.LoadOrCreateReport` — si
+- **Filet runtime** dans `BulletinPdfService.LoadOrCreateReport` - si
   suppression accidentelle en cours de session, recréation au prochain appel.
 - **Menu Reports réactivé** (admin uniquement par RBAC) pour permettre la
   modification du design dans le designer XAF.
@@ -1998,7 +1998,7 @@ step-by-step pour le télécharger.
 
 ---
 
-## V1.4.3 — WORKFLOW PUBLICATION BULLETIN + ESPACE SALARIE (2026-05-07)
+## V1.4.3 - WORKFLOW PUBLICATION BULLETIN + ESPACE SALARIE (2026-05-07)
 
 **Decision CODIR mai 2026** : plus d'envoi PDF par email. Le salarie se
 connecte a l'Espace Salarie authentifie pour telecharger son bulletin.
@@ -2094,7 +2094,7 @@ le menu, autres roles non.
 
 ---
 
-## ✅ V1.8 — REFONTE CALCUL CONGÉS + ICCP + RBAC AUTONOMES (juin 2026)
+## ✅ V1.8 - REFONTE CALCUL CONGÉS + ICCP + RBAC AUTONOMES (juin 2026)
 
 ### Contexte métier
 
@@ -2107,8 +2107,8 @@ le RH lors des tests de recette :
    alors qu'ELTON paie avec `/24` (= 2 j/mois × 12). Écart de ~8 %.
 3. **ICCP DossierOffboarding** sous-évaluée (basée sur `SalaireBase / 26` uniquement).
 4. **Bonus ancienneté** : valeurs codées avec seuils `<=` incorrects, bonus 25+ ans à 7
-   alors que CCT dit +6 (ELTON applique +7 — convention plus favorable).
-5. **Bonus mère** : règle A (+1j/enfant <14ans) codée à tort — pas dans CCT L150.
+   alors que CCT dit +6 (ELTON applique +7 - convention plus favorable).
+5. **Bonus mère** : règle A (+1j/enfant <14ans) codée à tort - pas dans CCT L150.
 6. **Mise en prod** : besoin d'un mécanisme pour saisir le solde initial de chaque
    salarié (depuis Excel RH) et pour rétro-saisir les bulletins de congé déjà payés
    dans l'ancien système.
@@ -2116,7 +2116,7 @@ le RH lors des tests de recette :
    actions cachées) à cause de controllers qui se déclenchaient sur tout user lié
    à un Salarié, même les managers.
 
-### Bloc A — Corrections directes du moteur de paie
+### Bloc A - Corrections directes du moteur de paie
 
 | Fichier | Modification |
 |---|---|
@@ -2126,18 +2126,18 @@ le RH lors des tests de recette :
 | `DossierOffboarding.CalculerSoldeToutCompte()` | ICCP refait : `(Σ Brut 12 mois / 12) × Solde / 24` au lieu de `SalaireBase × Solde / 26` |
 | `DossierOffboarding.CalculerBrutImposableMoyen12Mois()` | Nouvelle méthode privée (clone de ProvisionCongesService) |
 
-### Bloc B — Modèle enrichi pour la mise en prod
+### Bloc B - Modèle enrichi pour la mise en prod
 
-**SoldeConge** — 3 nouveaux champs persistants :
-- `SoldeArreteAu` (DateTime?) — date de constat du solde initial (varie selon Excel RH)
-- `SoldeAVerifier` (bool) — flag pour les 16 lignes "bleues" du fichier ELTON sans solde fiable
-- `SourceInitialisation` (string 120) — origine de la donnée
+**SoldeConge** - 3 nouveaux champs persistants :
+- `SoldeArreteAu` (DateTime?) - date de constat du solde initial (varie selon Excel RH)
+- `SoldeAVerifier` (bool) - flag pour les 16 lignes "bleues" du fichier ELTON sans solde fiable
+- `SourceInitialisation` (string 120) - origine de la donnée
 
-**ParametresPaie** — 2 nouvelles options :
-- `ModeBulletinConges` enum {BulletinUnique, BulletinSepare} — pratique ELTON = BulletinUnique
-- `ModeBaseCFCE` enum {AvecAvantagesNature, SansAvantagesNature} — décision DAF = Avec
+**ParametresPaie** - 2 nouvelles options :
+- `ModeBulletinConges` enum {BulletinUnique, BulletinSepare} - pratique ELTON = BulletinUnique
+- `ModeBaseCFCE` enum {AvecAvantagesNature, SansAvantagesNature} - décision DAF = Avec
 
-**Rubrique** — nouvelle rubrique seedée par `SeedService` :
+**Rubrique** - nouvelle rubrique seedée par `SeedService` :
 - Code : `ICCP`
 - Libellé : "Indemnité de congés compensatrice"
 - Ordre : 24 (juste après CONGE_PAYE ordre 23)
@@ -2145,7 +2145,7 @@ le RH lors des tests de recette :
 - Distinction sémantique : CONGE_PAYE = allocation versée quand on part en congé,
   ICCP = compensation monétaire (rachat ou STC)
 
-### Bloc C — Service + UI (popups)
+### Bloc C - Service + UI (popups)
 
 **Service `BulletinCongeService.cs`** (nouveau) :
 - `CalculerAllocationAuto(os, salarie, joursDus, annee, mois)` :
@@ -2173,9 +2173,9 @@ le RH lors des tests de recette :
   SoldeAVerifier, Source, Commentaire
 - Crée/met à jour le SoldeConge avec traçabilité complète
 
-### Bloc D — Boutons sur DetailView Bulletin
+### Bloc D - Boutons sur DetailView Bulletin
 
-**`BulletinRecalcController.cs`** refactorisé — 2 actions distinctes :
+**`BulletinRecalcController.cs`** refactorisé - 2 actions distinctes :
 - **"Recharger bulletin"** (anciennement "Recalculer") → `RecalculerDepuisParametrage()`
   Réinitialise depuis profil salarié (SB, SURSAL, LOGT, TRANS rajoutés + cotisations)
   + ConfirmationMessage pour éviter écrasement accidentel
@@ -2189,7 +2189,7 @@ le RH lors des tests de recette :
 - Action "Ajouter une ligne" dans la barre Edit du DetailView Bulletin
 - Ouvre popup avec Bulletin pré-rempli automatiquement
 
-### Bloc E — Fixes RBAC
+### Bloc E - Fixes RBAC
 
 **Combo RH+Employé décombiné** :
 - `HideEspaceSalarieController.cs` (NOUVEAU) : masque le menu "Mon espace"
@@ -2209,7 +2209,7 @@ le RH lors des tests de recette :
 - DG : `DemandeAttestation` "r" → **"rwcd"**
 - DG : `DemandeDeplacement` "r" → **"rwcd"**
 
-**Bug critique corrigé** — `EstSalarieConnecte` vs `DoitRestreindreEspaceSalarie` :
+**Bug critique corrigé** - `EstSalarieConnecte` vs `DoitRestreindreEspaceSalarie` :
 - `EstSalarieConnecte` retourne true pour TOUT user lié à un Salarié (par Email),
   y compris managers RH/DAF/DG/Admin.
 - `DoitRestreindreEspaceSalarie` exclut les rôles managers.
@@ -2217,9 +2217,9 @@ le RH lors des tests de recette :
   - `BulletinEspaceSalarieReadOnlyController.cs` (masquait toutes les actions Edit)
   - `EspaceSalarieColumnsController.cs` (masquait colonnes BrutFiscal/BrutSocial/Matricule/etc.)
 - Les autres controllers (SoldeCongeController, etc.) gardent EstSalarieConnecte
-  pour l'instant — à corriger au cas par cas si bugs UX remontés.
+  pour l'instant - à corriger au cas par cas si bugs UX remontés.
 
-### Bloc F — Modèle et UI
+### Bloc F - Modèle et UI
 
 **`BulletinLigne.cs`** :
 - Nouvelle contrainte `[RuleCombinationOfPropertiesIsUnique]` sur (Bulletin, Rubrique)
@@ -2243,7 +2243,7 @@ le RH lors des tests de recette :
 - Hidden actions sur Bulletin_EspaceSalarie_ListView mises à jour
 - `BulletinLigne_ListView` : AllowNew=True/AllowEdit=True/AllowDelete=True forcés
 
-### Bloc G — Help mis à jour
+### Bloc G - Help mis à jour
 
 4 pages help enrichies avec section orange "🆕 V1.8 (juin 2026)" :
 
@@ -2257,7 +2257,7 @@ le RH lors des tests de recette :
    + impact pour forts cumuls (cas DAF/top management : pas de rachat en cours
    de carrière, ICCP à la retraite)
 
-### Bloc H — Déploiement
+### Bloc H - Déploiement
 
 **Script `docs/deployment/Deploy-AdiPAIE-V18.ps1`** créé :
 - Automatise les 7 étapes (vérifs préalables → backup → stop IIS → copie →
@@ -2396,7 +2396,7 @@ le RH lors des tests de recette :
 - **Cumul Janv→mois de mise en prod** : tous les bulletins mensuels sont saisis
   par le RH via le calcul automatique standard (PeriodePaie → Calculer).
 
-## ⭐ MISSION V1.8 TERMINÉE — prête pour déploiement recette/prod ⭐
+## ⭐ MISSION V1.8 TERMINÉE - prête pour déploiement recette/prod ⭐
 
 ---
 
@@ -2421,7 +2421,7 @@ Script automatisé disponible : `docs/deployment/Commit-V18.ps1`
 | Insertions | +6 531 (+ deltas amend) |
 | Suppressions | -333 |
 | Remote | `origin/dev` (pushé avec `--force-with-lease`) |
-| Titre | `V1.8 — Refonte calcul congés + ICCP + RBAC autonomes + Net hors AvNature` |
+| Titre | `V1.8 - Refonte calcul congés + ICCP + RBAC autonomes + Net hors AvNature` |
 
 **Procédure exécutée** :
 
@@ -2456,12 +2456,12 @@ travail, remplacé par `docs/deployment/COMMIT_V18.txt` versionné).
 - Reset ModelDifference par-user (bouton admin "Vider mes customisations")
 - Action "Reprendre un prêt en cours" avec saisie explicite de la mensualité
 - Retrait du fallback heuristique `EstCadre` (libellé commence par "Cadre")
-  une fois toutes les catégories migrées sur le booléen explicite — voir
+  une fois toutes les catégories migrées sur le booléen explicite - voir
   V1.8.1 ci-dessous
 
 ---
 
-## 🔧 V1.8.1 — HOTFIX IPRES Régime Cadre faussement appliqué aux non-cadres (22 juin 2026)
+## 🔧 V1.8.1 - HOTFIX IPRES Régime Cadre faussement appliqué aux non-cadres (22 juin 2026)
 
 ### Bug
 
@@ -2486,9 +2486,9 @@ ascendante sur libellé commençant par "Cadre" hors "Non").
 | Fichier | Modification |
 |---|---|
 | `BusinessObjects/Categories.cs` | Nouveau champ `EstCadre` (bool) avec `XafDisplayName` et `ToolTip` |
-| `BusinessObjects/Bulletin.cs` — `EstCadre(Salarie s)` | Lit `Categories.EstCadre` en priorité. Fallback : `Intitule.StartsWith("cadre")` ET pas de mot `\bnon\b` |
-| `BusinessObjects/Bulletin.cs` — `CalculerIPRES_CSS` | Pour les non-cadres, **supprime** la ligne IPRES_RC (`Lignes.Remove(rc)` + `rc.Delete()`) au lieu de la laisser à zéro |
-| `DatabaseUpdate/Updater.cs` — `EnsureCategoriesEstCadreInitialized()` | Pré-coche `EstCadre = true` pour les catégories existantes dont le libellé commence par "Cadre" (hors "Non"). Idempotent : ne décoche jamais une catégorie déjà cochée |
+| `BusinessObjects/Bulletin.cs` - `EstCadre(Salarie s)` | Lit `Categories.EstCadre` en priorité. Fallback : `Intitule.StartsWith("cadre")` ET pas de mot `\bnon\b` |
+| `BusinessObjects/Bulletin.cs` - `CalculerIPRES_CSS` | Pour les non-cadres, **supprime** la ligne IPRES_RC (`Lignes.Remove(rc)` + `rc.Delete()`) au lieu de la laisser à zéro |
+| `DatabaseUpdate/Updater.cs` - `EnsureCategoriesEstCadreInitialized()` | Pré-coche `EstCadre = true` pour les catégories existantes dont le libellé commence par "Cadre" (hors "Non"). Idempotent : ne décoche jamais une catégorie déjà cochée |
 | `docs/deployment/sql/V181_INIT_EstCadre.sql` (NEW) | SQL one-shot de secours si l'updater n'a pas tourné, avec audit avant/après + bloc commenté pour effacer les lignes IPRES_RC mal créées |
 
 ### Comportement avant / après
@@ -2524,11 +2524,11 @@ ascendante sur libellé commençant par "Cadre" hors "Non").
 
 ---
 
-## 🔧 V1.8.2 — HOTFIX IR calculé avec des parts fiscales figées (22 juin 2026)
+## 🔧 V1.8.2 - HOTFIX IR calculé avec des parts fiscales figées (22 juin 2026)
 
 ### Bug
 
-Cas réel : **Papa Souleymane DIOP** (matricule 420023, AM3) — fiche salarié
+Cas réel : **Papa Souleymane DIOP** (matricule 420023, AM3) - fiche salarié
 indique `NombrePartsFiscales = 3,5` mais le bulletin janvier 2026 calcule
 l'IR avec **3 parts** au lieu de 3,5.
 
@@ -2566,9 +2566,9 @@ recalcul → réduction 25% au lieu de 30% → +13 815 FCFA d'IR.
 
 | Fichier | Modification |
 |---|---|
-| `BusinessObjects/Bulletin.cs` — `CalculerIRPP()` | La fiche salarié est **toujours** la source de vérité : `parts = Math.Max(1m, Salarie?.NombrePartsFiscales ?? 1m)`. `ir.Taux` n'est plus qu'un reflet d'affichage écrasé à chaque recalcul. |
+| `BusinessObjects/Bulletin.cs` - `CalculerIRPP()` | La fiche salarié est **toujours** la source de vérité : `parts = Math.Max(1m, Salarie?.NombrePartsFiscales ?? 1m)`. `ir.Taux` n'est plus qu'un reflet d'affichage écrasé à chaque recalcul. |
 
-Note : `SimulationSursalaire.cs` n'est pas affecté — il lit directement
+Note : `SimulationSursalaire.cs` n'est pas affecté - il lit directement
 `Salarie.NombrePartsFiscales` (pas via une ligne figée).
 
 ### Comportement avant / après
@@ -2578,7 +2578,7 @@ Note : `SimulationSursalaire.cs` n'est pas affecté — il lit directement
 | RH met à jour NombrePartsFiscales sur la fiche | Bulletin existant garde l'ancienne valeur | Prochain recalcul prend la nouvelle |
 | Bulletin créé à neuf | ir.Taux null → fallback fiche ✓ | ir.Taux écrasé par fiche ✓ |
 | Bulletin importé avec Taux=1 | Reste à 1 part (faux) | Écrasé par fiche au 1er recalcul ✓ |
-| Override manuel par l'admin | Possible (ir.Taux respecté) | Plus possible — toujours écrasé. Si besoin futur d'override, ajouter un flag `IsManual` (V1.9). |
+| Override manuel par l'admin | Possible (ir.Taux respecté) | Plus possible - toujours écrasé. Si besoin futur d'override, ajouter un flag `IsManual` (V1.9). |
 
 ### Procédure post-déploiement V1.8.2
 
@@ -2615,4 +2615,697 @@ ORDER BY b.Annee DESC, b.Mois DESC, s.Matricule;
 - Changer NombrePartsFiscales sur une fiche → recalcul bulletin → IR mis à jour
 - Bulletin nouvellement créé pour un salarié à 2 parts → IR cohérent
 - Salarié sans NombrePartsFiscales défini → fallback à 1 part (pas de crash)
+
+---
+
+## 🔧 V1.8.3 - Rubriques de régularisation manuelle (IR + TRIMF) (22 juin 2026)
+
+### Besoin métier
+
+Cas observé sur bulletin de référence ancien système : régul IR de
+**1 694 873 FCFA en GAIN** (remboursement au salarié) sur une ligne séparée
+"Régul. Impôt IR" (code 810), distincte de la ligne mensuelle "RETENUE
+IMPOTS" (470). Idem pour TRIMF (code 812).
+
+Aujourd'hui, AdiPAIE intègre la régul **dans la ligne IR mensuelle**
+(`ir.Montant = mensuelProvisoire + deltaRegul`), ce qui peut donner un
+montant négatif et n'est pas conforme à la présentation attendue par les
+salariés et les contrôleurs.
+
+### Décision
+
+**Pas de logique de calcul automatique modifiée.** Le RH a explicitement
+demandé "des rubriques avec saisie manuelle, pas de logique de calcul".
+
+On ajoute juste **4 nouvelles rubriques** au seed que le RH peut sélectionner
+manuellement via le bouton "Ajouter une ligne" sur le DetailView Bulletin :
+
+| Code | Libellé | Ordre | TypeCalcul | Compte |
+|---|---|---|---|---|
+| `REGUL_IR_RET` | Régul. Impôt IR (à prélever) | 810 | Retenue | 447 100 (crédit) |
+| `REGUL_IR_GAIN` | Régul. Impôt IR (à rembourser) | 811 | Gain | 447 100 (débit) |
+| `REGUL_TRIMF_RET` | Régul. TRIMF (à prélever) | 812 | Retenue | 447 200 (crédit) |
+| `REGUL_TRIMF_GAIN` | Régul. TRIMF (à rembourser) | 813 | Gain | 447 200 (débit) |
+
+Nouveau TypeRef `REGUL_GAIN` créé (Gain, ni brut fiscal ni brut social) pour
+les régul en remboursement.
+
+### Fichier modifié
+
+| Fichier | Modification |
+|---|---|
+| `Services/SeedService.cs` | + TypeRef `REGUL_GAIN` (ligne ~88) + 4 rubriques `REGUL_IR_*` et `REGUL_TRIMF_*` (lignes ~260) |
+
+### Comportement (V1.8.3 vs V1.8)
+
+| Cas | V1.8 (avant) | V1.8.3 (après) |
+|---|---|---|
+| Régul auto Décembre (`IR_Regularisation_FinAnnee = true`) | `IRPP.Montant += deltaRegul` (peut devenir négatif) | Inchangé (le RH peut basculer en manuel s'il veut une ligne séparée) |
+| Régul auto Mois de départ STC | Idem | Inchangé |
+| Régul exceptionnelle rétroactive (ex: erreur corrigée 3 mois plus tard) | Modification manuelle de la ligne IR | Ajout ligne `REGUL_IR_RET` ou `REGUL_IR_GAIN` via "Ajouter une ligne" |
+
+### Procédure post-déploiement
+
+1. `dotnet build`
+2. Déploiement IIS
+3. Login admin → **ParametresPaie → "Recharger le référentiel paie"**
+   (crée les 4 nouvelles rubriques + TypeRef REGUL_GAIN)
+4. **Audit SQL** :
+
+```sql
+SELECT Code, Libelle, OrdreAffichage,
+       (SELECT Libelle FROM RubriqueTypeRef WHERE Oid = r.TypeRef) AS TypeRef,
+       (SELECT Libelle FROM RubriqueTypeRef tr WHERE tr.Oid = r.TypeRef
+        AND tr.DefaultTypeCalcul = 0) AS EstGain
+FROM Rubrique r
+WHERE Code LIKE 'REGUL_%' AND GCRecord IS NULL
+ORDER BY OrdreAffichage;
+```
+
+5. **Usage RH** : sur un bulletin → bouton "Ajouter une ligne" → choisir la
+   rubrique REGUL appropriée → saisir le montant **positif** → enregistrer.
+   Le sens (+/-) sur le net est géré automatiquement par le TypeCalcul de
+   la rubrique.
+
+### Tests à valider en recette
+
+- Création d'une ligne `REGUL_IR_GAIN` avec montant 1 694 873 → le net à
+  payer augmente de 1 694 873 ✓
+- Création d'une ligne `REGUL_IR_RET` avec montant 100 000 → le net à payer
+  diminue de 100 000 ✓
+- La régul saisie manuellement n'écrase pas la ligne IR mensuelle
+  (cohabitation pacifique des 2 lignes) ✓
+- Les nouvelles rubriques sont visibles dans le lookup XAF "Choisir une rubrique"
+
+### Évolutions possibles V1.9
+
+- Optionnel : ajouter un paramètre `ModeAffichageRegulIR` dans ParametresPaie
+  (Inline / LigneSeparee) qui basculerait automatiquement le `deltaRegul`
+  de Décembre/STC vers les nouvelles rubriques REGUL_IR_*. Permettrait
+  d'aligner totalement sur le format ancien système.
+
+---
+
+## 🔧 V1.8.4 - Prime de transport hors IPRES + Proratisation des rubriques (22 juin 2026)
+
+### Directives RH ELTON
+
+1. **Prime de transport hors base IPRES** : la rubrique `TRANS` ne doit pas
+   entrer dans le brut social (était à tort à `BrutSocial = true` via le
+   TypeRef `INDEM_NON_IMPOSA`).
+2. **Proratisation sur jours travaillés** des **6 rubriques mensuelles**
+   (pour un salarié n'ayant pas fait 30 jours dans le mois) :
+   Salaire de base, Sursalaire, Prime d'ancienneté, Indemnité de logement,
+   Avantage en nature véhicule, Prime de transport.
+
+**Note importante (confirmée RH le 22 juin 2026)** : le 13e mois est
+**explicitement EXCLU** de cette liste. C'est une prime annuelle calculée
+hors cycle mensuel (cf. `TreiziemeMoisService`), proratisée sur l'année
+selon le nombre de mois actifs, pas sur les jours d'un mois donné.
+
+### État avant vs après
+
+| Rubrique | Avant V1.8.4 | Après V1.8.4 |
+|---|---|---|
+| Salaire de base | Déjà proratisé `(SB / 30) × jours` | Inchangé ✓ |
+| Sursalaire | Montant complet | **Proratisé `(SURSAL / 30) × jours`** |
+| Prime d'ancienneté | Base = `SalaireBase` complet | **Base = SB proratisé** → ancienneté reflète le temps de présence |
+| Indemnité de logement | Déjà proratisé | Inchangé ✓ |
+| Avantage véhicule | Montant complet | **Proratisé** |
+| Prime de transport | Montant complet + dans BrutSocial | **Proratisé + hors BrutSocial** |
+| 13ème mois | Proratisé annuellement (mois actifs / 12) | **NON re-proratisé sur le mois** (directive RH) |
+
+### Fichiers modifiés
+
+| Fichier | Modification |
+|---|---|
+| `Services/SeedService.cs` | TRANS : `r.BrutSocial = false` en post-traitement après EnsureRubrique. Préserve le TypeRef INDEM_NON_IMPOSA pour les autres indemnités non imposables. |
+| `BusinessObjects/Bulletin.cs` - `RecalculerGainsStandards` | Sursalaire : `Montant = (Sursalaire / 30) × jours` |
+| `BusinessObjects/Bulletin.cs` - `RecalculerGainsStandards` | Prime ancienneté : `Base = (SalaireBase / 30) × jours` (au lieu de SB complet) |
+| `BusinessObjects/Bulletin.cs` - `RecalculerGainsStandards` | Avantage véhicule : `Montant = (AvantageVehicule / 30) × jours` |
+| `BusinessObjects/Bulletin.cs` - `RecalculerGainsStandards` | Prime transport : `Montant = (PrimeTransport / 30) × jours` |
+| `docs/deployment/sql/V184_FIX_TRANS_HorsIPRES.sql` (NEW) | SQL one-shot pour migrer la base existante : `UPDATE Rubrique SET BrutSocial = 0 WHERE Code = 'TRANS'` + audit avant/après |
+
+### Procédure post-déploiement V1.8.4
+
+1. `dotnet build`
+2. **Avant redéploiement** (immédiat) : exécuter `V184_FIX_TRANS_HorsIPRES.sql`
+   sur la base recette/prod → corrige TRANS hors IPRES sans attendre
+3. Déploiement IIS (cf. `Deploy-AdiPAIE-V18.ps1`)
+4. **Recalculer les bulletins du mois en cours** pour appliquer les nouvelles
+   règles de prorata aux bulletins déjà créés :
+   - Option A : ouvrir chaque bulletin → "Recharger bulletin"
+   - Option B : en masse via une action future (non implémentée)
+5. Audit : pour un salarié avec `JoursTravailles = 15`, vérifier que toutes
+   les rubriques listées sont divisées par 2 par rapport au mois complet
+
+### Audit SQL pour identifier les écarts pré-V1.8.4
+
+```sql
+-- Bulletins du mois en cours où IPRES inclut encore la prime transport
+SELECT b.Annee, b.Mois, s.Matricule, s.Prenom + ' ' + s.Nom AS Salarie,
+       blTrans.Montant AS PrimeTransport,
+       blIpres.Base AS BaseIPRES_Actuelle
+FROM Bulletin b
+INNER JOIN Salarie s ON s.Oid = b.Salarie
+INNER JOIN BulletinLigne blTrans ON blTrans.Bulletin = b.Oid
+INNER JOIN Rubrique rTrans ON rTrans.Oid = blTrans.Rubrique AND rTrans.Code = 'TRANS'
+INNER JOIN BulletinLigne blIpres ON blIpres.Bulletin = b.Oid
+INNER JOIN Rubrique rIpres ON rIpres.Oid = blIpres.Rubrique AND rIpres.Code = 'IPRES_RG'
+WHERE b.GCRecord IS NULL AND blTrans.GCRecord IS NULL AND blIpres.GCRecord IS NULL
+  AND b.Annee = YEAR(GETDATE())
+ORDER BY b.Annee DESC, b.Mois DESC, s.Matricule;
+```
+
+### Tests à valider en recette
+
+- Salarié avec `JoursTravailles = 15` :
+  - Salaire de base divisé par 2 ✓ (déjà OK avant)
+  - Sursalaire divisé par 2 ✓ (NOUVEAU)
+  - Prime d'ancienneté divisée par 2 ✓ (NOUVEAU - via base SB proratisée)
+  - Avantage véhicule divisé par 2 ✓ (NOUVEAU)
+  - Prime transport divisée par 2 ✓ (NOUVEAU)
+  - **13e mois NON impacté** (reste sur sa propre logique annuelle)
+- Bulletin avec prime transport 26 000 et IPRES :
+  - Base IPRES = brut hors prime transport (NOUVEAU)
+- Salarié à plein temps (`JoursTravailles = 30`) :
+  - Aucun changement, montants identiques à avant ✓
+
+---
+
+## 🔧 V1.8.5 - Solde anticipé d'un prêt (22 juin 2026)
+
+### Cas d'usage
+
+Prêt de 5 000 000 avec 750 000 restant à régler au 30 mai. Le salarié
+souhaite tout rembourser sur le bulletin de juin (au lieu d'attendre la
+fin des mensualités programmées). Le RH doit pouvoir déclencher ce solde
+anticipé en un clic.
+
+### Architecture retenue
+
+Aucune modification du modèle : on exploite le mécanisme existant
+`Bulletin.CalculerRetenuePrets()` qui ramasse automatiquement toute
+`PretEcheance` en statut `Prevue` sur le mois du bulletin, groupe par
+rubrique et crée une ligne de retenue. Il suffit donc de **créer une
+échéance exceptionnelle** avec :
+
+- `MontantCapital = Pret.ResteARegler`
+- `MontantInteret = 0` (pas d'intérêt sur solde anticipé - favorable au salarié)
+- `DateEcheance = 1er du mois choisi`
+- `Reference = "Solde anticipé"`
+- `Statut = Prevue`
+
+`Pret.RecalculerEtat()` (via `PretEcheance.OnSaving`) recalculera
+`ResteARegler` et fera passer le prêt à `Termine` dès que le bulletin
+marquera cette échéance `Prelevee`.
+
+### Fichiers créés
+
+| Fichier | Rôle |
+|---|---|
+| `NonPersistent/SoldeAnticipePretRequest.cs` | DTO popup : Année + Mois d'imputation + Référence + affichage read-only du prêt/salarié/reste à régler |
+| `Controllers/PretSolderAnticipeController.cs` | Action `Solder anticipé` sur `Pret_DetailView`. Visible uniquement si `Statut = EnCours AND ResteARegler > 0`. Popup avec confirmation puis création de l'échéance exceptionnelle. Idempotent : refuse une 2e échéance de solde anticipé sur le même mois pour le même prêt. |
+
+### Comportement
+
+1. Le RH ouvre la fiche du prêt à solder
+2. Clique sur l'action **"Solder anticipé"** (dans la barre Edit du DetailView)
+3. Popup affichant :
+   - Prêt (read-only)
+   - Salarié (read-only)
+   - Capital restant à régler (read-only, préchargé depuis `Pret.ResteARegler`)
+   - **Année d'imputation** (éditable, défaut = année courante)
+   - **Mois d'imputation** (éditable, défaut = mois courant)
+   - **Référence** (éditable, défaut = "Solde anticipé")
+4. Bouton "Confirmer le solde anticipé"
+5. Création de la `PretEcheance` exceptionnelle → message de succès
+6. Prochain recalcul du bulletin de ce mois → la ligne de retenue intègre
+   automatiquement le solde anticipé + `Pret` passe à `Termine` après
+   validation du bulletin (`MarquerRemboursementsPreleves`)
+
+### Aucune modification du modèle de données
+
+Pas de nouveau champ sur `PretEcheance`, pas de nouveau `PretStatut`.
+La référence textuelle `"Solde anticipé"` suffit à distinguer les
+échéances exceptionnelles pour l'audit et pour l'idempotence.
+
+### Cas limites gérés
+
+- Prêt en statut `Brouillon` / `Termine` / `Suspendu` → action **cachée** via `TargetObjectsCriteria`
+- `ResteARegler = 0` → action cachée
+- Année ou mois invalides → `UserFriendlyException` clair
+- Déjà une échéance "Solde anticipé" sur le même mois pour le même prêt
+  → refus avec message clair (permet de relancer l'action sans effet de bord)
+
+### Tests à valider en recette
+
+- Prêt EnCours avec ResteARegler = 750 000 → clic "Solder anticipé" →
+  choisir mois courant → confirmation → échéance créée → bulletin recalculé
+  → ligne "Retenue Prêt" à 750 000 en plus de la mensualité normale (si celle-ci existe déjà)
+- Après validation du bulletin (`MarquerRemboursementsPreleves`) → statut
+  du prêt passe automatiquement à `Termine`
+- Clic 2 fois sur "Solder anticipé" pour le même mois → 2e appel refusé
+- Prêt Termine ou Brouillon → action non visible
+- Cas départ STC : combiner solde anticipé + calcul offboarding → ok si le
+  RH choisit le mois de sortie comme mois d'imputation
+
+### Déploiement
+
+**Nécessite `dotnet build` + redéploiement** (nouveaux fichiers C# +
+XAFML pour l'action). Pas de migration BDD nécessaire.
+
+---
+
+## 🔧 V1.8.6 - Validation/Clôture en masse + bug workflow bulletin (22 juin 2026)
+
+### Bugs identifiés
+
+**Bug 1 - Validation en masse impossible** : l'action `ValiderBulletin`
+était configurée avec `SelectionDependencyType.RequireSingleObject`. Le
+RH ne pouvait valider qu'un bulletin à la fois → workflow interminable
+pour une paie de 40 bulletins.
+
+**Bug 2 - Clôture en masse cassée silencieusement** : l'action
+`CloturerBulletin` avait bien `RequireMultipleObjects` MAIS le code
+utilisait `.FirstOrDefault()` → seul le premier bulletin de la sélection
+était clôturé. Aucun message d'erreur, le RH pensait que tout avait
+fonctionné.
+
+**Bug 3 - Un Brouillon peut être clôturé directement** : la clôture ne
+vérifiait PAS que `Statut == Valide`. Conséquence : un bulletin encore
+en Brouillon pouvait sauter directement à Clôturé, ce qui **n'exécute
+jamais** `Bulletin.ValiderRemboursementsPrets()`. Les échéances de prêts
+restaient à Prevue et repassaient sur le bulletin suivant → **double
+prélèvement de prêts**.
+
+### Correctifs V1.8.6
+
+| Fichier | Modification |
+|---|---|
+| `Controllers/BulletinValiderEnvoyerController.cs` | Action `Valider` → `RequireMultipleObjects`. `OnValider` boucle sur `e.SelectedObjects`. Compte les validés + les ignorés (déjà validés) avec détail par statut. |
+| `Controllers/BulletinCloturePretController.cs` - `CloturerAction_Execute` | Boucle sur `e.SelectedObjects` (au lieu de `FirstOrDefault`). **Vérifie strictement `Statut == Valide` avant clôture** - refus explicite si Brouillon avec message : "encore en Brouillon - validez d'abord". Collecte les erreurs par bulletin pour un feedback détaillé. |
+| `Controllers/BulletinCloturePretController.cs` - `ReouvrirAction_Execute` | Idem : boucle sur `e.SelectedObjects`. Skip silencieux si déjà en Brouillon. |
+
+### Comportement avant / après
+
+| Cas | Avant V1.8.6 | Après V1.8.6 |
+|---|---|---|
+| Sélection de 40 bulletins → Valider | 1 seul validé, 39 ignorés silencieusement | 40 validés d'un coup ✓ |
+| Sélection de 40 bulletins → Clôturer | 1 seul clôturé (bug caché !) | 40 clôturés d'un coup ✓ |
+| Bulletin Brouillon → Clôturer directement | Cloture immédiate, prêts non prélevés ❌ | Refus explicite : "validez d'abord" ✓ |
+| Mix Brouillon + Valide → Clôturer | Cloture aléatoire (le 1er de la liste) | Clôture les Valide, refuse les Brouillon avec message clair ✓ |
+| Bulletin déjà Clôturé re-sélectionné pour Clôture | (variable) | Skip silencieux ✓ |
+| Réouverture de N bulletins Clôturés | 1 seul réouvert | N réouverts ✓ |
+
+### Message de feedback amélioré
+
+Après validation :
+> `12 bulletin(s) validé(s) - remboursements prêts enregistrés. 3 ignoré(s) (déjà validé(s)/clôturé(s) : 2 en Valide, 1 en Cloture).`
+
+Après clôture partielle :
+> `15 bulletin(s) clôturé(s).`
+> `5 refusé(s) :`
+> `• Diop Papa - 2026-06 : encore en Brouillon - validez d'abord`
+> `• Sy Aïcha - 2026-06 : bulletins précédents encore en Brouillon`
+> `• ...`
+
+### Workflow strict imposé (post V1.8.6)
+
+```
+┌----------┐   Valider    ┌-------┐   Clôturer   ┌---------┐
+│ Brouillon│-------------▶│Valide │-------------▶│ Cloture │
+└----------┘              └-------┘              └---------┘
+     ▲                        │                       │
+     │       Réouvrir         │                       │
+     └------------------------┴-----------------------┘
+```
+
+Impossible de sauter la case Valide → garantit que
+`ValiderRemboursementsPrets()` est toujours exécuté avant clôture, donc
+que les échéances de prêts sont bien marquées `Prelevee` et ne
+repasseront pas sur le mois suivant.
+
+### Déploiement
+
+**Nécessite `dotnet build` + redéploiement**. Pas de migration BDD. Les
+bulletins déjà mal clôturés (Brouillon → Cloture sauté) ne sont pas
+corrigés automatiquement - audit SQL pour les identifier :
+
+```sql
+-- Bulletins Clôturés avec échéances de prêt encore en statut Prevue
+-- (symptôme du bug d'avant V1.8.6)
+SELECT b.Annee, b.Mois, s.Matricule, s.Prenom + ' ' + s.Nom AS Salarie,
+       COUNT(pe.Oid) AS NbEcheancesFantomes
+FROM Bulletin b
+INNER JOIN Salarie s ON s.Oid = b.Salarie
+INNER JOIN Pret p ON p.Salarie = s.Oid AND p.GCRecord IS NULL
+INNER JOIN PretEcheance pe ON pe.Pret = p.Oid AND pe.GCRecord IS NULL
+WHERE b.GCRecord IS NULL
+  AND b.Statut = 6  -- Cloture
+  AND pe.Statut = 0 -- Prevue
+  AND pe.DateEcheance >= DATEFROMPARTS(b.Annee, b.Mois, 1)
+  AND pe.DateEcheance < DATEADD(MONTH, 1, DATEFROMPARTS(b.Annee, b.Mois, 1))
+GROUP BY b.Annee, b.Mois, s.Matricule, s.Prenom, s.Nom
+HAVING COUNT(pe.Oid) > 0;
+```
+
+### Tests à valider en recette
+
+- Sélection de 5 bulletins Brouillon → clic Valider → tous les 5 passent Valide ✓
+- Sélection mixte 3 Valide + 2 Brouillon → clic Clôturer → 3 clôturés, 2 refusés avec message clair ✓
+- Bulletin Brouillon → clic Clôturer → refus "encore en Brouillon" ✓
+- Sélection de 5 bulletins Clôturés → clic Réouvrir → tous 5 passent Brouillon avec échéances prêts remises Prevue ✓
+- Bulletin Brouillon → clic Réouvrir → skip silencieux (déjà en Brouillon)
+
+---
+
+## 🩺 V1.8.7 - Menu Contrôle d'intégrité + rubriques REGUL_PRET (22 juin 2026)
+
+### Objectif
+
+Fournir un **menu UI dédié** qui scanne automatiquement la base de données
+à la recherche d'anomalies d'intégrité (bulletins fantômes, doublons,
+prêts trop prélevés, catégories mal cochées, etc.) et propose une
+correction **en un clic** par ligne.
+
+Remplace le fastidieux SQL au cas par cas.
+
+### Fichiers créés (4)
+
+| Fichier | Rôle |
+|---|---|
+| `NonPersistent/AnomalieIntegrite.cs` | Entité non-persistante affichée dans la ListView. Contient Catégorie, Sévérité, Type, Description, Objet concerné, Action suggérée + les Oid des objets métier pour la correction |
+| `Services/IntegriteService.cs` | 5 détecteurs statiques : `DetecterBulletinsFantomesPrets`, `DetecterDoublesPrelevementsPret`, `DetecterBulletinLignesDupliquees`, `DetecterCategoriesEstCadreIncoherentes`, `DetecterTauxIRDivergent` - chacun retourne une liste `AnomalieIntegrite` |
+| `Controllers/ControleIntegriteController.cs` | Peuple la ListView à l'activation + expose 2 actions : `Actualiser` (relance tous les scans) et `Corriger` (applique la correction pour la/les ligne(s) sélectionnée(s)) |
+| `Model.DesignedDiffs.xafml` - nav | Ajoute l'entrée « Contrôle d'intégrité » sous Administration |
+
+### Rubriques REGUL_PRET ajoutées au seed
+
+| Code | Libellé | Ordre | TypeCalcul | Compte |
+|---|---|---|---|---|
+| `REGUL_PRET_RET` | Régul. Prêt (à prélever) | 814 | Retenue | 272 800 (crédit) |
+| `REGUL_PRET_GAIN` | Régul. Prêt (à rembourser) | 815 | Gain | 272 800 (débit) |
+
+Cas d'usage typique : un salarié a été trop prélevé sur un prêt à cause
+du bug d'avant V1.8.6 (Brouillon → Cloture direct). Le contrôle
+d'intégrité détecte le trop-prélevé et suggère de créer une ligne
+`REGUL_PRET_GAIN` sur un bulletin futur pour rembourser.
+
+### 5 détecteurs implémentés
+
+**1. Bulletins fantômes de prêts** *(Erreur)*
+Bulletin en statut Cloture mais échéance de prêt du même mois restée en
+statut Prevue. Symptôme du bug d'avant V1.8.6.
+→ Correction auto : Réouvrir puis re-valider le bulletin.
+
+**2. Trop-prélevé sur prêt** *(Erreur)*
+`Pret.TotalPreleve > Pret.TotalAPrelever`. Le salarié a été prélevé plus
+que ce qu'il devait.
+→ Correction : suggestion manuelle (créer une ligne REGUL_PRET_GAIN).
+
+**3. BulletinLigne dupliquée** *(Avertissement)*
+Deux lignes avec la même Rubrique sur le même bulletin. Anciennes
+données pré-V1.8 (avant la contrainte d'unicité).
+→ Correction auto : supprime les doublons en gardant la ligne avec le
+montant le plus élevé.
+
+**4. Catégorie cadre non cochée** *(Avertissement)*
+Le libellé commence par "Cadre" (hors "Non") mais `EstCadre = false`
+→ risque IPRES_RC manqué.
+→ Correction auto : coche `EstCadre = true` sur la catégorie.
+
+**5. Parts fiscales divergentes** *(Avertissement)*
+Ligne IR d'un bulletin non-clôturé avec Taux différent de
+`Salarie.NombrePartsFiscales`. Symptôme du bug V1.8.2.
+→ Correction auto : `Bulletin.RecalculerDepuisParametrage()` réaligne.
+
+### Workflow d'utilisation
+
+1. **Admin → Contrôle d'intégrité** (nouveau menu sous Administration)
+2. À l'ouverture : scan automatique et affichage des anomalies dans une
+   ListView (colonnes : Catégorie, Sévérité, Type, Description, Objet, Action suggérée)
+3. Filtrer / trier par catégorie ou sévérité selon le besoin
+4. Sélectionner une ou plusieurs anomalies → clic **Corriger** →
+   applique la correction en batch (avec confirm)
+5. Le message de retour indique : X corrections OK / Y échecs (avec le
+   détail des échecs)
+6. La liste se rafraîchit automatiquement après correction
+
+### Sécurité
+
+- Le menu est visible pour les rôles qui ont l'accès Navigation à
+  `AnomalieIntegrite`. Par défaut : Administrateurs uniquement (à
+  configurer via Init. rôles GRH pour donner accès à DAF si besoin)
+- Toutes les corrections sont audit-loggées (via l'audit natif XPO au
+  save des objets modifiés)
+
+### Extensibilité
+
+Ajouter un nouveau détecteur = ajouter une méthode statique
+`Detecter…` dans `IntegriteService` + l'appeler depuis `DetecterToutes`.
+Ajouter un nouveau type de correction = ajouter un `case` dans
+`Corriger_Execute` du controller.
+
+### Déploiement
+
+- `dotnet build` + redéploiement (4 nouveaux fichiers)
+- Après démarrage : login admin → **ParametresPaie → Recharger le référentiel paie**
+  pour créer les 2 nouvelles rubriques REGUL_PRET_*
+- Puis Admin → Contrôle d'intégrité → premier scan pour identifier les
+  anomalies historiques
+
+### Tests à valider en recette
+
+- Ouvrir Admin → Contrôle d'intégrité → liste peuplée ou "0 anomalie"
+- Modifier une catégorie EstCadre=false avec libellé "Cadre 1" → scan → anomalie détectée → Corriger → EstCadre bascule true
+- Sélectionner 3 bulletins fantômes → Corriger → tous 3 passent Brouillon → Valide
+- Bulletin avec 2 lignes SB → Corriger → 1 ligne restante
+- Cas non couvert : correction manuelle affichée avec instruction claire
+
+---
+
+## 🔧 V1.8.8 - Suspension cotisations sociales (congé maternité, etc.) (22 juin 2026)
+
+### Cas réel
+
+Salariée en congé maternité mais qui a néanmoins travaillé 16 jours dans
+le mois. Le RH doit produire un bulletin qui **paye les 16 jours** mais
+**sans laisser de trace IPRES/CSS** (le mois est déclaré maternité côté
+Caisse). Problèmes constatés :
+
+1. Suppression manuelle des lignes IPRES/CSS → "Recalculer cotisations"
+   les **recrée** automatiquement (comportement normal de `CalculerIPRES_CSS`)
+2. Même après suppression, le **Net à Payer stocké** reste à l'ancienne valeur
+   → sur le bulletin de test : Net affiché 869 018 au lieu de 924 061
+   (écart 55 043 = IPRES_RG 24 192 + IPRES_RC 30 851 qui restaient comptés)
+
+### Solution
+
+Ajout d'un **flag persistant** sur `Bulletin` qui court-circuite proprement
+le calcul IPRES/CSS pour ce mois précis.
+
+### Fichiers modifiés (1)
+
+| Fichier | Modification |
+|---|---|
+| `BusinessObjects/Bulletin.cs` | + 2 propriétés `SuspendreCotisationsSociales` (bool) et `MotifSuspensionCotisations` (string, 250 car.). + validation OnSaving : motif obligatoire si suspendu. + court-circuit dans `CalculerIPRES_CSS` : si flag actif, supprime toutes les lignes IPRES_RG/IPRES_RC/CSS_AT/CSS_AF existantes et ne recrée rien. |
+
+### Comportement
+
+Quand `SuspendreCotisationsSociales = true` :
+
+| Rubrique | Traitement |
+|---|---|
+| IPRES RG | Ligne supprimée ✓ |
+| IPRES RC (si cadre) | Ligne supprimée ✓ |
+| CSS Accident Travail (patronale) | Ligne supprimée ✓ |
+| CSS Allocation Familiale (patronale) | Ligne supprimée ✓ |
+| CFCE (patronale, fiscale) | Reste calculé normalement |
+| TRIMF (salariale) | Reste calculé normalement |
+| Impôt IR (salariale) | Reste calculé normalement |
+
+Après suspension, le prochain « Recalculer cotisations » :
+- Ne recrée PAS les IPRES/CSS
+- Recalcule le Net à Payer sur la base des lignes réelles (correct)
+- La ligne CFCE reste car c'est une taxe fiscale patronale due sur toute
+  rémunération versée (même pendant un mois maternité déclaré)
+
+### Workflow RH
+
+1. Ouvrir le bulletin de la salariée
+2. Cocher **« Suspendre cotisations sociales (IPRES/CSS) »**
+3. Saisir le motif (obligatoire) : « Congé maternité », « Arrêt maladie longue durée », etc.
+4. Enregistrer → la validation OnSaving vérifie que le motif est renseigné
+5. Cliquer **« Recalculer cotisations »** → les lignes IPRES/CSS disparaissent
+6. Vérifier le Net à Payer → maintenant correct (sans les IPRES/CSS)
+7. Valider + Clôturer le bulletin normalement
+
+### Migration BDD
+
+Nouvelle colonne `Bulletin.SuspendreCotisationsSociales` (bit) et
+`Bulletin.MotifSuspensionCotisations` (nvarchar(250)) ajoutées automatiquement
+par XAF Updater au premier démarrage post-déploiement.
+
+Valeur par défaut : `false` / `NULL` → aucun impact sur les bulletins
+existants.
+
+### Bug résolu au passage
+
+Le Net à Payer stocké n'était plus recalculé après suppression manuelle
+d'une ligne. Maintenant : à chaque « Recalculer cotisations »,
+`RecalculerTotauxDepuisLignes()` est appelé, qui parcourt les lignes
+réelles du bulletin (pas les propriétés cache) et met à jour le Net.
+Donc plus de désynchronisation entre lignes affichées et Net à Payer.
+
+### Audit / traçabilité
+
+- Le motif est stocké en BDD (audit XPO natif enregistre les changements)
+- Un rapport peut lister tous les bulletins avec `SuspendreCotisationsSociales = true`
+  pour le contrôle DAF / commissaire aux comptes :
+
+```sql
+SELECT b.Annee, b.Mois, s.Matricule, s.Prenom + ' ' + s.Nom AS Salarie,
+       b.MotifSuspensionCotisations, b.BrutSocial, b.NetAPayer
+FROM Bulletin b
+INNER JOIN Salarie s ON s.Oid = b.Salarie
+WHERE b.GCRecord IS NULL
+  AND b.SuspendreCotisationsSociales = 1
+ORDER BY b.Annee DESC, b.Mois DESC;
+```
+
+### Tests à valider en recette
+
+- Bulletin normal : cocher Suspendre + motif → Enregistrer → OK
+- Cocher Suspendre sans motif → Enregistrer → erreur explicite ✓
+- Bulletin avec IPRES existantes → cocher Suspendre + Recalculer cotisations → IPRES/CSS supprimées, TRIMF/IR/CFCE inchangés
+- Cas cadre : IPRES_RC aussi supprimée ✓
+- Décocher Suspendre + Recalculer cotisations → IPRES/CSS remises normalement
+- Net à Payer post-suspension = Brut - TRIMF - IR (sans IPRES/CSS) ✓
+
+---
+
+## 📥 V1.9 - Import Excel liste effectif intérimaires (17 sept. 2026)
+
+### Objectif
+
+Charger en masse la « liste globale préso-réseau » (Excel envoyé chaque
+mois par le RH - 747 intérimaires actifs sur la version septembre 2026).
+Créer les fiches Interimaire + un ContratInterim actif en une seule passe.
+
+### Ce qui manquait sur `Interimaire`
+
+4 nouveaux champs ajoutés à `Interimaire.cs` :
+
+| Champ | Type | Usage |
+|---|---|---|
+| `MatriculeAgence` | string(30), unique | Matricule fourni par l'agence (5196, ETL056, PREST…) - pivot pour rapprocher les factures. Le `Matricule` interne (INT-YYYY-NNNN) reste auto-généré. |
+| `SexeInterim` | enum Sexe? | Masculin / Féminin (colonne E du fichier) |
+| `Categorie` | string(20) | Catégorie salariale (7ème, 8ème A, 4ème…) |
+| `DateEntreeAgence` | DateTime? | Date de la première mise à disposition |
+| `AncienneteAns` | int? (calculé) | (today − DateEntreeAgence) en années |
+
+### Fichiers créés (3)
+
+| Fichier | Rôle |
+|---|---|
+| `Services/Interim/InterimaireImportService.cs` | Parse Excel (ClosedXML) + normalisation (mapping en dur) + création idempotente. Classe `ResultatImportInterimaires` avec rapport texte détaillé. |
+| `NonPersistent/ImportInterimaireRequest.cs` | DTO popup : upload fichier, options (créer contrat actif + date fin défaut, dry-run), rapport résultat |
+| `Controllers/InterimaireImportController.cs` | Action « Importer liste effectif » sur ListView Interimaire, popup avec dry-run par défaut |
+
+### Normalisations appliquées automatiquement
+
+**Agence** (fichier a 4 valeurs → 3 canoniques) :
+- `SEN INTERIM` / `SEN INTÉRIM` / `SEN. INTERIM` → **`SEN INTERIM`**
+- `ASSI` → `ASSI`
+- `TECTRA` → `TECTRA`
+
+**Business Unit** (11 valeurs brutes → dédupliquées) :
+- `E-SERVICES` / `E.SERVICES` / `E. SERVICES` → **`E-SERVICES`**
+- `DEPÔT` → **`DEPOT`** (sans accent)
+- `CONTRÔLE` → **`CONTROLE`**
+
+**Catégorie** (23 valeurs brutes → format unifié) :
+- `2EME` / `2ème` → **`2ème`**
+- `7EMEA` / `7-EME A` / `7èmeA` → **`7ème A`**
+- `8EMEB` / `8èmeB` → **`8ème B`**
+- Regex générique : `^(\d+)EM?E?([AB])?$` → `Nème X`
+
+**Sexe** : `H`/`M` → Masculin ; `F` → Féminin
+
+**Dates** : format datetime natif OU string `dd/MM/yyyy` (10 cas dans le fichier septembre 2026)
+
+### Gestion des doublons
+
+**Intra-fichier** (4 cas dans « Liste septembre 2026 ») : skip silencieux du 2e+, rapport final :
+```
+L161 : matricule 'PREST' déjà vu plus haut dans le fichier.
+L370 : matricule 'PREST' déjà vu plus haut dans le fichier.
+L744 : matricule '1541' déjà vu plus haut dans le fichier.
+L40  : matricule 'ETL056' déjà vu plus haut dans le fichier.
+```
+
+**Intra-BDD** (matricule agence déjà présent) : skip silencieux, compté dans `SkipDejaEnBase`.
+
+Résultat : import **idempotent**, relançable sans risque de doublons.
+
+### Création automatique des référentiels manquants
+
+Si le fichier référence une **agence / site / BU** absent de la BDD :
+- Création automatique (RaisonSociale / Nom du fichier)
+- Comptée dans `AgencesInconnues` / `SitesCreesAuto` / `BUsCreesAuto`
+- Rapport détaillé affiché au RH pour validation manuelle (fusion / renommage éventuel)
+
+### Workflow RH
+
+1. Naviguer vers **GRH → Intérimaires** (ListView)
+2. Cliquer **« Importer liste effectif »** dans la barre d'actions
+3. Popup :
+   - Charger `Liste septembre 2026.xlsx`
+   - Cocher **« Créer aussi un contrat actif »** (par défaut)
+   - Vérifier date fin contrat par défaut (31/12/2026)
+   - Laisser **DryRun coché** pour simulation
+4. Cliquer **« Analyser / Importer »** → rapport s'affiche dans le champ Rapport :
+   ```
+   ═══ SIMULATION (dry-run) - RIEN N'A ÉTÉ CRÉÉ ═══
+   Durée : 3.2 s
+   Lignes lues : 747
+     ✓ Intérimaires à créer : 743
+     ✓ Contrats actifs créés : 0 (dry-run)
+     ⏭ Doublons intra-fichier ignorés : 4
+     ⏭ Déjà en base (skip) : 0
+     ✗ Erreurs : 0
+   ⚠ Sites créés automatiquement : 49
+   ⚠ Unités organisationnelles (BU) créées auto : 8
+   -- Doublons (4) --
+     • L40 : matricule 'ETL056' déjà vu plus haut…
+     • L161 : matricule 'PREST' déjà vu plus haut…
+     ...
+   ```
+5. Vérifier le rapport, puis **décocher DryRun** et re-cliquer **« Analyser / Importer »** pour import réel
+6. Message flash de confirmation en haut de l'écran
+
+### Déploiement
+
+- `dotnet build` (nouveaux fichiers)
+- Migration BDD automatique par XAF Updater (4 nouvelles colonnes sur `Interimaire`)
+- Aucune migration data nécessaire
+- Recommandation : **premier import en DryRun** pour vérifier les référentiels créés auto
+
+### Tests à valider en recette
+
+- Chargement `Liste septembre 2026.xlsx` en dry-run → rapport 743 à créer / 4 doublons / 0 erreur
+- Import réel → 743 Interimaire + 743 ContratInterim (statut EnCours) créés
+- Re-import du même fichier → 0 créé, 743 SkipDejaEnBase (idempotence)
+- Vérifier fiche Interimaire : MatriculeAgence + Sexe + Catégorie + DateEntreeAgence bien remplis
+- Fiche Interimaire : Ancienneté calculée automatiquement
+- SocieteInterim `SEN INTERIM` (une seule, pas de doublon `SEN INTÉRIM`)
+- BU `E-SERVICES` (une seule, pas de 3 variantes)
+
+### Évolutions possibles
+
+- Mode « update » : si matricule existe déjà en base, mettre à jour Fonction/Site/Categorie plutôt que skip
+- Détection changement d'agence : si un intérimaire déjà en base a changé d'agence dans le fichier → créer un mouvement `TransfertAgence`
+- Wizard 4 étapes en Razor (comme le livre de paie interim V1.3) si le popup XAF montre ses limites en charge
+
 

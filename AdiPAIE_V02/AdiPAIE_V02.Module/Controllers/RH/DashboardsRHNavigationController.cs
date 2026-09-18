@@ -1,16 +1,16 @@
 // =============================================================================
 //  DashboardsRHNavigationController.cs
-//  Module « Tableaux de Bord RH » — contrôleur d'ouverture.
+//  Module « Tableaux de Bord RH » - contrôleur d'ouverture.
 //
 //  Ce contrôleur est attaché aux DetailView de DashboardsRHMenu (la classe
 //  non persistante qui sert d'entrée de menu XAF). Il expose une SimpleAction
 //  « Ouvrir les Tableaux de Bord » qui, via JSInterop, redirige le navigateur
-//  vers la page Razor /dashboards/ — cette page (Blazor Server) héberge la
+//  vers la page Razor /dashboards/ - cette page (Blazor Server) héberge la
 //  vraie interface (DxGrid, DxChart, DxComboBox, DxTagBox, …).
 //
 //  Pattern repris de BilanSocialController.cs (SimpleAction + IJSRuntime).
 //
-//  Étape 2 — squelette uniquement. La page /dashboards/ sera complétée à
+//  Étape 2 - squelette uniquement. La page /dashboards/ sera complétée à
 //  l'Étape 3 (page d'accueil 6 cartes) puis à l'Étape 4 (un tableau par commit).
 // =============================================================================
 

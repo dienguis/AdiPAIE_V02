@@ -161,7 +161,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
                 }
 
                 // ── 2. Titre du document ──────────────────────────────
-                var titre = $"Attestation {demande.Nature} — {demande.DateDemande:dd/MM/yyyy}";
+                var titre = $"Attestation {demande.Nature} - {demande.DateDemande:dd/MM/yyyy}";
 
                 // ── 3. Crée le DossierDocument ────────────────────────
                 var doc = ObjectSpace.CreateObject<DossierDocument>();

@@ -8,7 +8,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.Services
 {
     /// <summary>
-    /// V1.7.2a — Service partagé de calcul du « Brut récurrent ».
+    /// V1.7.2a - Service partagé de calcul du « Brut récurrent ».
     ///
     /// Le brut récurrent correspond à la rémunération brute mensuelle
     /// « normale » d'un salarié, hors éléments variables ou exceptionnels.
@@ -36,7 +36,7 @@ namespace AdiPAIE_V02.Module.Services
     ///   ❌ Rappels de salaire
     ///   ❌ Primes ponctuelles exceptionnelles
     ///
-    /// Le service est PUREMENT EN LECTURE — il ne modifie aucune entité.
+    /// Le service est PUREMENT EN LECTURE - il ne modifie aucune entité.
     /// </summary>
     public static class BrutRecurrentService
     {
@@ -55,12 +55,12 @@ namespace AdiPAIE_V02.Module.Services
 
         // ─────────────────────────────────────────────────────────────
         // Liste noire stricte des codes canoniques EXCLUS (variables /
-        // exceptionnels — même s'ils sont des gains BrutFiscal)
+        // exceptionnels - même s'ils sont des gains BrutFiscal)
         // ─────────────────────────────────────────────────────────────
         private static readonly HashSet<RubriqueCanonique> CodesExclus = new()
         {
             RubriqueCanonique.HeuresSupplementaires,
-            // V1.7.2 — Bonus auto-exclus du brut récurrent (évite la
+            // V1.7.2 - Bonus auto-exclus du brut récurrent (évite la
             // récursivité : un 13ième mois ne doit pas être inclus dans
             // la base de calcul d'un futur 13ième mois)
             RubriqueCanonique.TreiziemeMois,
@@ -78,8 +78,8 @@ namespace AdiPAIE_V02.Module.Services
             "CP_",     // alternative CP_PAIE, CP_ALLOC, etc.
             "ALLOC_CONGE",
             "INDEM_CONGE",
-            "GRATIF",  // V1.7.2 — gratification (auto-exclue pour ne pas se recalculer)
-            "M13",     // V1.7.2 — 13ième mois (auto-exclu)
+            "GRATIF",  // V1.7.2 - gratification (auto-exclue pour ne pas se recalculer)
+            "M13",     // V1.7.2 - 13ième mois (auto-exclu)
             "PRIME_EXC",   // primes exceptionnelles éventuelles
             "RAPPEL",      // rappels de salaire
         };
@@ -166,7 +166,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         /// <summary>
-        /// V1.7.2d — Récupère le NetAPayer du dernier bulletin validé du
+        /// V1.7.2d - Récupère le NetAPayer du dernier bulletin validé du
         /// salarié dans l'année, avant un mois de référence.
         ///
         /// Utilisé pour la base de calcul "NetRecurrent" des Gratifications :
@@ -223,7 +223,7 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ─────────────────────────────────────────────────────────────
-        // PRIVÉ — Critère d'éligibilité d'une ligne au brut récurrent
+        // PRIVÉ - Critère d'éligibilité d'une ligne au brut récurrent
         // ─────────────────────────────────────────────────────────────
         private static bool EstLigneRecurrente(BulletinLigne ligne)
         {

@@ -1,5 +1,5 @@
 // =============================================================================
-//  FamilleAnnuaireService.cs — V1.7 — Population de l'annuaire famille
+//  FamilleAnnuaireService.cs - V1.7 - Population de l'annuaire famille
 //
 //  Lit les Salariés depuis un OS persistant et matérialise des lignes
 //  FamilleAnnuaire dans un OS non-persistant :
@@ -41,8 +41,8 @@ namespace AdiPAIE_V02.Module.Services
 
             foreach (var salarie in salaries.OrderBy(s => s.Matricule))
             {
-                var matricule = salarie.Matricule ?? "—";
-                var titulaire = salarie.FullName ?? "—";
+                var matricule = salarie.Matricule ?? "-";
+                var titulaire = salarie.FullName ?? "-";
 
                 // Ligne SALARIÉ
                 var ligneSal = nonPersistentOs.CreateObject<FamilleAnnuaire>();
@@ -67,9 +67,9 @@ namespace AdiPAIE_V02.Module.Services
                     ligneConj.MatriculeSalarie = matricule;
                     ligneConj.SalarieTitulaire = titulaire;
                     ligneConj.TypeMembre = TypeMembreFamille.Conjoint;
-                    ligneConj.NomComplet = conjoint.NomComplet ?? "—";
+                    ligneConj.NomComplet = conjoint.NomComplet ?? "-";
                     ligneConj.DateNaissance = conjoint.DateNaissance;
-                    ligneConj.Sexe = "—";
+                    ligneConj.Sexe = "-";
                     ligneConj.StatutDetail = conjoint.Statut.ToString();
                     ligneConj.ACharge = conjoint.ACharge;
                     resultat.Add(ligneConj);
@@ -83,7 +83,7 @@ namespace AdiPAIE_V02.Module.Services
                     ligneEnf.MatriculeSalarie = matricule;
                     ligneEnf.SalarieTitulaire = titulaire;
                     ligneEnf.TypeMembre = TypeMembreFamille.Enfant;
-                    ligneEnf.NomComplet = enfant.NomComplet ?? "—";
+                    ligneEnf.NomComplet = enfant.NomComplet ?? "-";
                     ligneEnf.DateNaissance = enfant.DateNaissance;
                     ligneEnf.Sexe = enfant.Sexe.ToString();
                     ligneEnf.StatutDetail = enfant.Situation.ToString();

@@ -11,7 +11,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions]
-    [ImageName("BO_Type")]  // V1.1 — icône XAF native (type/référentiel)
+    [ImageName("BO_Type")]  // V1.1 - icône XAF native (type/référentiel)
     [DefaultProperty(nameof(Libelle))]
     [XafDisplayName("Type de rubrique")]
     public class RubriqueTypeRef : BaseObject
@@ -24,7 +24,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [RuleRequiredField, Size(50)]
         [Indexed(Unique = true)]
         [RuleRegularExpression(@"^[A-Z0-9_]{2,20}$",
-            CustomMessageTemplate = "Code en MAJUSCULES, 2–20 caractères, chiffres et underscore autorisés.")]
+            CustomMessageTemplate = "Code en MAJUSCULES, 2-20 caractères, chiffres et underscore autorisés.")]
         public string Code
         {
             get => code;
@@ -100,7 +100,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // ── Déclaration 1024 (DGID Sénégal) ──────────────────────────────
 
         bool col13;
-        [XafDisplayName("Colonne 13 — État 1024")]
+        [XafDisplayName("Colonne 13 - État 1024")]
         [ToolTip("Les montants de ce type entrent en colonne 13 de l'état 1024 : "
                + "Montant annuel des traitements, salaires et rémunérations imposables.")]
         [ModelDefault("ImmediatePostData", "True")]
@@ -111,7 +111,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         bool col14;
-        [XafDisplayName("Colonne 14 — État 1024")]
+        [XafDisplayName("Colonne 14 - État 1024")]
         [ToolTip("Les montants de ce type entrent en colonne 14 de l'état 1024 : "
                + "Évaluation des avantages en nature au barème forfaitaire.")]
         [ModelDefault("ImmediatePostData", "True")]

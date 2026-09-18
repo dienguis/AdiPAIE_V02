@@ -17,7 +17,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     /// <summary>
-    /// V1.7.2 — Gratification (= prime exceptionnelle) ad hoc.
+    /// V1.7.2 - Gratification (= prime exceptionnelle) ad hoc.
     ///
     /// Règles ELTON (cf. grille RH validée 2026-05-11) :
     ///   - Décision discrétionnaire DG (lien évaluations en V1.8+)
@@ -93,7 +93,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             BaseCalcul = GratificationBaseCalcul.BrutRecurrent;
             Multiplicateur = 1m;
 
-            // V1.7.2 — Initialiser Année + Mois sur la PeriodePaie ouverte
+            // V1.7.2 - Initialiser Année + Mois sur la PeriodePaie ouverte
             // (évite la saisie sur un mois clôturé ou inexistant).
             // Fallback : mois courant si aucune période n'est ouverte.
             var periodeOuverte = PeriodePaieHelper.GetPeriodeOuverte(Session);
@@ -110,7 +110,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         // ═════════════════════════════════════════════════════════════
-        // V1.7.2 — Contrainte stricte sur la période ouverte
+        // V1.7.2 - Contrainte stricte sur la période ouverte
         // La gratification s'intègre au bulletin du MoisPaiement.
         // → La période de paie (Annee, MoisPaiement) DOIT exister et être Ouverte.
         //
@@ -260,7 +260,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
 
         Bulletin bulletinLie;
-        // V1.7.2 — Cache du DetailView (rempli auto par GratificationService
+        // V1.7.2 - Cache du DetailView (rempli auto par GratificationService
         // .IntegrerAuBulletin qui résout le bulletin de la période ouverte).
         // Visible uniquement dans la ListView pour traçabilité après intégration.
         [VisibleInDetailView(false)]

@@ -1,5 +1,5 @@
 // =============================================================================
-//  ConformiteSenegalDto.cs — V1.2 Sprint 5 (mai 2026)
+//  ConformiteSenegalDto.cs - V1.2 Sprint 5 (mai 2026)
 //
 //  Dashboard "Conformité Sénégal" (audit-ready).
 //  Vérifie 9 indicateurs réglementaires SN avec feux tricolores.

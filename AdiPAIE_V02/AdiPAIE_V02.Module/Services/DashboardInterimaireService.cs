@@ -53,7 +53,7 @@ namespace AdiPAIE_V02.Module.Services
             tb.TauxRotation = tb.PctDeparts; // rotation ≈ départs / effectif
 
             // H/F
-            // Note: Interimaire n'a pas de champ Sexe — on utilise une heuristique
+            // Note: Interimaire n'a pas de champ Sexe - on utilise une heuristique
             // ou on considère tous comme non genrés. Pour l'instant on met 0.
             // TODO: ajouter un champ Sexe sur Interimaire si nécessaire
             tb.NbHommes = interimairesActifs.Count; // par défaut

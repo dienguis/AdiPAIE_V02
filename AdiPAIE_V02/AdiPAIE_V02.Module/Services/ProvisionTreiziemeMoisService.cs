@@ -1,5 +1,5 @@
 // =============================================================================
-//  ProvisionTreiziemeMoisService.cs — V1.7.2c
+//  ProvisionTreiziemeMoisService.cs - V1.7.2c
 //
 //  Construit la vue Provision 13ième mois (1 ligne par Salarié × Mois)
 //  à partir des bulletins de l'année.

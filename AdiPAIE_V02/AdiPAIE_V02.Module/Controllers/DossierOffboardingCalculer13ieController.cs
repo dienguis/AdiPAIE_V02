@@ -1,5 +1,5 @@
 // =============================================================================
-//  DossierOffboardingCalculer13ieController.cs — V1.7.2b-bis (#71)
+//  DossierOffboardingCalculer13ieController.cs - V1.7.2b-bis (#71)
 //
 //  Action sur le DetailView du DossierOffboarding : "Calculer 13ième prorata STC".
 //

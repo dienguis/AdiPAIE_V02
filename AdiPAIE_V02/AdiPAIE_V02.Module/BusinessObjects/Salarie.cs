@@ -21,7 +21,7 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     [DefaultClassOptions]
-    [ImageName("BO_Employee")]  // V1.1 — icône XAF native pour cohérence visuelle
+    [ImageName("BO_Employee")]  // V1.1 - icône XAF native pour cohérence visuelle
     [DefaultProperty(nameof(Person.FullName))]
     [RuleCriteria(
         "Salarie_MustBeMarried_IfAnyCurrentSpouse",
@@ -86,7 +86,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         DefaultContexts.Save,
         "IndemniteLogement >= 0 AND Sursalaire >= 0 AND PrimeTransport >= 0 AND AvantageVehicule >= 0",
         CustomMessageTemplate = "Les montants de rémunération ne peuvent pas être négatifs.")]
-    // V1.6.1 — Badge statut coloré (vert / orange / gris)
+    // V1.6.1 - Badge statut coloré (vert / orange / gris)
     [Appearance("Salarie_Statut_Actif",
         TargetItems = "StatutAffichage",
         Criteria = "IsActif = True AND (IsNull(DateConfirmation) OR DateConfirmation <= LocalDateTimeToday())",
@@ -99,13 +99,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         TargetItems = "StatutAffichage",
         Criteria = "IsActif = False",
         BackColor = "Gainsboro", FontColor = "DimGray", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
-    // V1.6.1 — Alertes visuelles sur dates critiques
-    // CNI expirée : rouge soutenu — action urgente
+    // V1.6.1 - Alertes visuelles sur dates critiques
+    // CNI expirée : rouge soutenu - action urgente
     [Appearance("Salarie_CNI_Expiree",
         TargetItems = "DateExpirationCNI",
         Criteria = "Not IsNull(DateExpirationCNI) AND DateExpirationCNI < LocalDateTimeToday()",
         BackColor = "LightCoral", FontColor = "DarkRed", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
-    // CNI expire bientôt (≤ 60 jours) : orange — anticipation
+    // CNI expire bientôt (≤ 60 jours) : orange - anticipation
     [Appearance("Salarie_CNI_BientotExpiree",
         TargetItems = "DateExpirationCNI",
         Criteria = "Not IsNull(DateExpirationCNI) AND DateExpirationCNI >= LocalDateTimeToday() AND DateExpirationCNI <= AddDays(LocalDateTimeToday(), 60)",
@@ -120,7 +120,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         TargetItems = "DateExpirationPasseport",
         Criteria = "Not IsNull(DateExpirationPasseport) AND DateExpirationPasseport >= LocalDateTimeToday() AND DateExpirationPasseport <= AddDays(LocalDateTimeToday(), 90)",
         BackColor = "Moccasin", FontColor = "DarkOrange", FontStyle = DevExpress.Drawing.DXFontStyle.Bold)]
-    // Fin période d'essai dans ≤ 15 jours : orange — RH doit décider
+    // Fin période d'essai dans ≤ 15 jours : orange - RH doit décider
     [Appearance("Salarie_FinPeriodeEssai_Approche",
         TargetItems = "DateConfirmation",
         Criteria = "Not IsNull(DateConfirmation) AND DateConfirmation > LocalDateTimeToday() AND DateConfirmation <= AddDays(LocalDateTimeToday(), 15)",
@@ -178,7 +178,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [RuleRequiredField]
         [RuleUniqueValue(DefaultContexts.Save,
             CustomMessageTemplate = "Ce matricule est déjà utilisé par un autre salarié.")]
-        // V1.6 — Matricule verrouillé après création :
+        // V1.6 - Matricule verrouillé après création :
         // - clé de mapping JDE (le modifier romprait la liaison Répertoire d'adresses)
         // - référencé dans bulletins, contrats, historiques, audit
         // Reste éditable en saisie initiale (IsNewObject = true) puis grisé à vie.
@@ -277,7 +277,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             TargetObjectsCriteria = "IsActif=true", AutoCommit = true)]
         public void Desactive() => IsActif = false;
 
-        // ── V1.5 — Mapping Assistant Commercial → Stations sous responsabilité
+        // ── V1.5 - Mapping Assistant Commercial → Stations sous responsabilité
         // Utilisé par DemandeMouvementInterim pour filtrer les intérimaires
         // que l'AC peut sélectionner. Symétrique côté StationService (collection
         // AssistantsCommerciaux). Vide pour les non-AC.
@@ -422,27 +422,27 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [NonPersistent]
         public int Anciennete => AncienneteHelper.NombreAnnee(DateEmbauche, DateTime.Today);
 
-        // V1.6.1 — KPI affichés en bandeau d'en-tête de la fiche
+        // V1.6.1 - KPI affichés en bandeau d'en-tête de la fiche
         [NonPersistent]
         [XafDisplayName("Ancienneté")]
         public string AncienneteAffichage =>
-            DateEmbauche == default ? "—"
+            DateEmbauche == default ? "-"
             : $"{Anciennete} an{(Anciennete > 1 ? "s" : "")}";
 
         [NonPersistent]
         [XafDisplayName("Salaire base")]
         public string SalaireBaseAffichage =>
-            SalaireBase <= 0m ? "—" : $"{SalaireBase:N0} FCFA";
+            SalaireBase <= 0m ? "-" : $"{SalaireBase:N0} FCFA";
 
         [NonPersistent]
         [XafDisplayName("Échelon")]
-        public string EchelonAffichage => Echelon?.Code ?? "—";
+        public string EchelonAffichage => Echelon?.Code ?? "-";
 
         [NonPersistent]
         [XafDisplayName("Site")]
-        public string SiteAffichage => Site?.Code ?? "—";
+        public string SiteAffichage => Site?.Code ?? "-";
 
-        // V1.6.1 — Statut visuel (badge coloré dans le bandeau)
+        // V1.6.1 - Statut visuel (badge coloré dans le bandeau)
         [NonPersistent]
         [XafDisplayName("Statut")]
         public string StatutAffichage
@@ -667,13 +667,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public XPCollection<Bulletin> Bulletins
             => GetCollection<Bulletin>(nameof(Bulletins));
 
-        // V1.7.2 — Historique des 13ièmes mois calculés / versés (1 par année)
+        // V1.7.2 - Historique des 13ièmes mois calculés / versés (1 par année)
         [Association("Salarie-TreiziemeMois"), Aggregated]
         [XafDisplayName("13ièmes mois")]
         public XPCollection<TreiziemeMois> TreiziemesMois
             => GetCollection<TreiziemeMois>(nameof(TreiziemesMois));
 
-        // V1.7.2 — Gratifications ad hoc (peut y avoir plusieurs / année)
+        // V1.7.2 - Gratifications ad hoc (peut y avoir plusieurs / année)
         [Association("Salarie-Gratifications"), Aggregated]
         [XafDisplayName("Gratifications")]
         public XPCollection<Gratification> Gratifications
@@ -683,7 +683,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public XPCollection<Conjoint> Conjoints
             => GetCollection<Conjoint>(nameof(Conjoints));
 
-        // V1.6 — Liste nominative des enfants (en complément du compteur NombreEnfant)
+        // V1.6 - Liste nominative des enfants (en complément du compteur NombreEnfant)
         [Association("Salarie-Enfants"), Aggregated]
         [XafDisplayName("Enfants")]
         public XPCollection<Enfant> Enfants
@@ -730,7 +730,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public XPCollection<DemandeDeplacement> Deplacements
             => GetCollection<DemandeDeplacement>(nameof(Deplacements));
 
-        [Association("Salarie-Avancements")]  // Retiré [Aggregated] — il empêchait XAF d'afficher Salarie dans la DetailView du child
+        [Association("Salarie-Avancements")]  // Retiré [Aggregated] - il empêchait XAF d'afficher Salarie dans la DetailView du child
         [XafDisplayName("Avancements / Promotions")]
         public XPCollection<DemandeAvancement> Avancements
             => GetCollection<DemandeAvancement>(nameof(Avancements));
@@ -1004,7 +1004,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                     throw new UserFriendlyException(
                         $"Format d'email invalide : « {Email} ». Exemple : prenom.nom@domaine.sn");
 
-                // 2. V1.7.1 — Unicité email dans toute la base
+                // 2. V1.7.1 - Unicité email dans toute la base
                 // Permet plusieurs emails vides/null mais bloque les doublons.
                 // Vérification au niveau Session : capture aussi les saisies
                 // simultanées dans la même transaction.
@@ -1016,7 +1016,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
                 if (doublon != null)
                     throw new UserFriendlyException(
                         $"L'email « {Email} » est déjà utilisé par le salarié " +
-                        $"{doublon.Matricule} – {doublon.FirstName} {doublon.LastName}. " +
+                        $"{doublon.Matricule} - {doublon.FirstName} {doublon.LastName}. " +
                         $"L'email doit être unique pour chaque salarié.");
             }
         }

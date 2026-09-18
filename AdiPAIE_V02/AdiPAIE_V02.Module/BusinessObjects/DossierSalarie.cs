@@ -84,7 +84,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // ── Affichage ─────────────────────────────────────────
         [NonPersistent]
-        public string DisplayName => $"Dossier RH — {Salarie?.FullName}";
+        public string DisplayName => $"Dossier RH - {Salarie?.FullName}";
 
         // ── Init & hooks ──────────────────────────────────────
         public override void AfterConstruction()

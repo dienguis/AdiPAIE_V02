@@ -39,7 +39,7 @@ namespace AdiPAIE_V02.Module.Services
                 if (string.IsNullOrWhiteSpace(emailSalarie))
                 {
                     logger?.LogDebug(
-                        "NotificationEmailService : salarié {0} sans email — email ignoré.",
+                        "NotificationEmailService : salarié {0} sans email - email ignoré.",
                         notification.Salarie?.FullName);
                     return;
                 }
@@ -70,7 +70,7 @@ namespace AdiPAIE_V02.Module.Services
             }
             catch (Exception ex)
             {
-                // On logge mais on ne propage pas — l'échec email
+                // On logge mais on ne propage pas - l'échec email
                 // ne doit pas bloquer le workflow métier
                 logger?.LogError(ex,
                     "Échec de l'envoi email de notification pour {0}.",

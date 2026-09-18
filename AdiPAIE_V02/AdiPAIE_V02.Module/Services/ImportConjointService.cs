@@ -70,7 +70,7 @@ namespace AdiPAIE_V02.Module.Services
                     if (string.IsNullOrWhiteSpace(matricule))
                     {
                         result.Ignores++;
-                        result.Details.Add($"Ligne {r} : matricule vide — ignoré.");
+                        result.Details.Add($"Ligne {r} : matricule vide - ignoré.");
                         continue;
                     }
 
@@ -85,7 +85,7 @@ namespace AdiPAIE_V02.Module.Services
                     if (string.IsNullOrWhiteSpace(nomComplet))
                     {
                         result.Erreurs++;
-                        result.Details.Add($"Ligne {r} : NomComplet vide — erreur.");
+                        result.Details.Add($"Ligne {r} : NomComplet vide - erreur.");
                         continue;
                     }
 
@@ -94,7 +94,7 @@ namespace AdiPAIE_V02.Module.Services
                     {
                         result.Erreurs++;
                         result.Details.Add(
-                            $"Ligne {r} : {matricule} ({sal.FullName}) n'est pas Marié — conjoint rejeté.");
+                            $"Ligne {r} : {matricule} ({sal.FullName}) n'est pas Marié - conjoint rejeté.");
                         continue;
                     }
 
@@ -104,7 +104,7 @@ namespace AdiPAIE_V02.Module.Services
                     if (dejaExiste)
                     {
                         result.Ignores++;
-                        result.Details.Add($"Ligne {r} : conjoint '{nomComplet}' déjà existant pour {matricule} — ignoré.");
+                        result.Details.Add($"Ligne {r} : conjoint '{nomComplet}' déjà existant pour {matricule} - ignoré.");
                         continue;
                     }
 

@@ -116,7 +116,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         [VisibleInDetailView(false)]
         [VisibleInListView(false)]
         public string DisplayName =>
-            $"{Interimaire?.FullName ?? "—"} — {Intitule} ({DateFormation:dd/MM/yyyy})";
+            $"{Interimaire?.FullName ?? "-"} - {Intitule} ({DateFormation:dd/MM/yyyy})";
 
         public override string ToString() => DisplayName;
     }
@@ -126,7 +126,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     // ════════════════════════════════════════════════════════════════════
 
     [DefaultClassOptions]
-    [ImageName("BO_Activity")]  // V1.1 — icône XAF native (évaluation = activité)
+    [ImageName("BO_Activity")]  // V1.1 - icône XAF native (évaluation = activité)
     [XafDisplayName("Évaluation intérimaire")]
     [DefaultProperty(nameof(DisplayName))]
     //[NavigationItem("GRH - Interimaires")]
@@ -249,7 +249,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         [VisibleInDetailView(false)]
         [VisibleInListView(false)]
         public string DisplayName =>
-            $"{Interimaire?.FullName ?? "—"} — Éval. {DateEvaluation:dd/MM/yyyy} ({NoteGlobale:N1}/5)";
+            $"{Interimaire?.FullName ?? "-"} - Éval. {DateEvaluation:dd/MM/yyyy} ({NoteGlobale:N1}/5)";
 
         public override string ToString() => DisplayName;
     }

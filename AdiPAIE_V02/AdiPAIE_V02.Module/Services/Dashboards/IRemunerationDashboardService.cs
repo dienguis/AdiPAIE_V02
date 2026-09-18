@@ -1,6 +1,6 @@
 // =============================================================================
 //  IRemunerationDashboardService.cs
-//  Tableau N°4 (Rémunération — Égalité des salaires).
+//  Tableau N°4 (Rémunération - Égalité des salaires).
 // =============================================================================
 
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         List<PosteInterimaire> GetPostesInterimaire(IObjectSpace os);
 
         /// <summary>
-        /// V1.1 — retourne les unités organisationnelles d'un site donné
+        /// V1.1 - retourne les unités organisationnelles d'un site donné
         /// (BU pour Stations, Départements pour Siège, etc.). Si siteOid
         /// est null, retourne TOUTES les unités actives (toutes confondues).
         /// </summary>

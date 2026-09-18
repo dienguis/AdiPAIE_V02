@@ -1,7 +1,7 @@
-# CHANGELOG — Module « Tableaux de Bord RH »
+# CHANGELOG - Module « Tableaux de Bord RH »
 
 > **🤖 NOTE pour Claude (futur-moi) :** lire **EN PREMIER** le fichier
-> [`MISSION_STATE.md`](./MISSION_STATE.md) — il contient l'état complet,
+> [`MISSION_STATE.md`](./MISSION_STATE.md) - il contient l'état complet,
 > les décisions verrouillées, les pièges connus et l'étape suivante. Ce
 > CHANGELOG est l'audit log historique ; le STATE est la mémoire de
 > travail.
@@ -25,7 +25,7 @@ Chaque entrée précise :
 
 ---
 
-## [V1.1 — Sprint 1E] 2026-05-03 — Refonte SQL EXTERNE (Site V1.1) + README + MISSION_STATE clôture
+## [V1.1 - Sprint 1E] 2026-05-03 - Refonte SQL EXTERNE (Site V1.1) + README + MISSION_STATE clôture
 
 **Objet** : aligner les fichiers SQL d'audit, le README et le MISSION_STATE
 sur le modèle V1.1 (Site enrichi + UniteOrganisationnelle), suite à la refonte
@@ -35,19 +35,19 @@ des services C# Sprint 1C/1D.
 
 | Fichier | Changement |
 |---|---|
-| `01_effectif_detaille.sql` | Déjà compatible V1.1 (`s.Site` utilisé) — pas de modif |
-| `02_analyse_effectif.sql` | Pas de référence Site — pas de modif |
+| `01_effectif_detaille.sql` | Déjà compatible V1.1 (`s.Site` utilisé) - pas de modif |
+| `02_analyse_effectif.sql` | Pas de référence Site - pas de modif |
 | `03_mouvements.sql` | **Refondu** : `[StationService]` legacy → `[Site]` + `TypeSite` enum + emoji simulé. Ajout requêtes #18 (BONUS Unités N-N, commentée) et #19 (Mouvements V1.1 SiteOrigineV1/SiteDestinationV1). Total : 19 requêtes (10 INTERNE + 7 EXTERNE V1.1 + 2 bonus). |
 | `04_remuneration.sql` | **Refondu** : `[StationService]` legacy → `[Site]` (3 occurrences : ContratsAnnee, GROUP BY, JOIN). Ajout requête #11 (BONUS Coût par Unité N-N, commentée). Total : 11 requêtes. |
-| `05_suivi_absences.sql` | Pas de référence Site — pas de modif |
-| `06_bilan_social.sql` | Pas de référence Site — pas de modif |
+| `05_suivi_absences.sql` | Pas de référence Site - pas de modif |
+| `06_bilan_social.sql` | Pas de référence Site - pas de modif |
 | `install.sql` | **Refondu** : préambule v1.0 → v1.1 + bloc V1.1 (TypeSite enum + UniteOrganisationnelle). Ajout §3.3 (EXTERNE V1.1 par Site) et §4.5 (Coût EXTERNE V1.1 par Site). ToC mise à jour. |
 
 ### Documentation refondue (`docs/dashboards/`)
 
 | Fichier | Changement |
 |---|---|
-| `README.md` | Bump V1.0 → V1.1. Branche `feature/dashboards-rh` → mergée dans `dev` (`c3dcade`). Ajout section « V1.1 — Modèle Intérimaire enrichi » avec tableau StationService→Site et explications TypeSite/Unités. Ajout flag `Dashboards.SeedDemoData` + bouton wipe. Limitations : ajout FK legacy + nom XPO N-N à confirmer. Procédure de release `dev → master` documentée. |
+| `README.md` | Bump V1.0 → V1.1. Branche `feature/dashboards-rh` → mergée dans `dev` (`c3dcade`). Ajout section « V1.1 - Modèle Intérimaire enrichi » avec tableau StationService→Site et explications TypeSite/Unités. Ajout flag `Dashboards.SeedDemoData` + bouton wipe. Limitations : ajout FK legacy + nom XPO N-N à confirmer. Procédure de release `dev → master` documentée. |
 | `MISSION_STATE.md` | Sprint 1D `082da74` + Sprint 1D.3 `febfb1f` + Sprint 1E `_voir prochaine MAJ_` ✅. Ajout section « Sprints associés » (Help.B+C `e2806c2`, Rescue `8987dab`, Infra+Sec `2865ac3`). État final repo (HEAD `dev` = `2865ac3` synced origin/dev). Mission V1.1 marquée TERMINÉE. |
 | `CHANGELOG.md` | Cette entrée. |
 
@@ -76,43 +76,43 @@ git revert <hash>
 
 ---
 
-## [V1.1 — Sprint Help.B+C] 2026-05-03 — Refonte step-by-step de toutes les pages help (modules secondaires + admin)
+## [V1.1 - Sprint Help.B+C] 2026-05-03 - Refonte step-by-step de toutes les pages help (modules secondaires + admin)
 
 **Demande utilisateur** : « il est bien la et bien fait. tu peux en
 profiter pour passer en revu tous les module et dashbord et refaire le
 help sous se format ».
 
-### Phase B — Modules secondaires (5 pages)
+### Phase B - Modules secondaires (5 pages)
 
 Refonte au format step-by-step (TOC + workflow visuel + étapes numérotées
 + exemples concrets + cas d'usage + FAQ + référence boutons + footer-help)
 en utilisant `help-shared.css` :
 
-- `wwwroot/help/missions.html` (~420 lignes) — Workflow N+1→Asst.RH→RH→DAF→Comptable, frais prévisionnels/réels, état de frais PDF, 3 cas d'usage (mission nationale, internationale, refus DAF).
-- `wwwroot/help/formations.html` (~360 lignes) — Cycle annuel : Plan → Session → Inscriptions → Validation → Réalisation → Attestations → Évaluation à froid J+30/J+90, 3 cas d'usage.
-- `wwwroot/help/evaluations.html` (~390 lignes) — Campagne annuelle, génération entretiens, N+1 → Salarié auto-éval → N+2 → Clôture RH, formule pondération critères.
-- `wwwroot/help/periodes.html` (~340 lignes) — Cycle mensuel + déclarations IPRES/CSS/VRS/1024 détaillées, 3 cas d'usage.
-- `wwwroot/help/prets.html` (~430 lignes) — Cycle de vie pret, formules amortissement (principal constant, annuité, avance 0%), exemples chiffrés tableaux 6 mois, 3 cas d'usage.
+- `wwwroot/help/missions.html` (~420 lignes) - Workflow N+1→Asst.RH→RH→DAF→Comptable, frais prévisionnels/réels, état de frais PDF, 3 cas d'usage (mission nationale, internationale, refus DAF).
+- `wwwroot/help/formations.html` (~360 lignes) - Cycle annuel : Plan → Session → Inscriptions → Validation → Réalisation → Attestations → Évaluation à froid J+30/J+90, 3 cas d'usage.
+- `wwwroot/help/evaluations.html` (~390 lignes) - Campagne annuelle, génération entretiens, N+1 → Salarié auto-éval → N+2 → Clôture RH, formule pondération critères.
+- `wwwroot/help/periodes.html` (~340 lignes) - Cycle mensuel + déclarations IPRES/CSS/VRS/1024 détaillées, 3 cas d'usage.
+- `wwwroot/help/prets.html` (~430 lignes) - Cycle de vie pret, formules amortissement (principal constant, annuité, avance 0%), exemples chiffrés tableaux 6 mois, 3 cas d'usage.
 
-### Phase C — Modules administration et imports (10 pages)
+### Phase C - Modules administration et imports (10 pages)
 
-- `wwwroot/help/livre-de-paye.html` — Génération Excel mensuel art. L.120, contenu 19 colonnes, récap, cas d'usage CAC + inspection travail.
-- `wwwroot/help/offboarding.html` — STC complet : 4 formules légales (congés, préavis, licenciement par paliers, prorata), exemple chiffré 1 725 615 FCFA.
-- `wwwroot/help/disciplinaire.html` — Procédure complète Code travail SN : Notification → Audition → Sanction (mise à pied max 8j) → Clôture, 3 cas d'usage.
-- `wwwroot/help/audit.html` — Journal lecture seule, 4 cas d'usage de filtrage, garanties intégrité.
-- `wwwroot/help/import-salaries.html` — Modèle xlsx, 4 sections colonnes (identification/état civil/classification/affectation), règles idempotence.
-- `wwwroot/help/import-comptes-bancaires.html` — Multi-comptes, modes Reliquat/MontantFixe/Pourcentage, 3 cas d'usage.
-- `wwwroot/help/import-conjoints.html` — Polygamie, impact parts fiscales, 4 cas d'usage.
-- `wwwroot/help/heures-supplementaires.html` — 4 taux légaux SN (15/40/60/100%), formule taux horaire 173,33h, exemple chiffré 42 237 FCFA.
-- `wwwroot/help/avancements.html` — 3 types (échelon/promotion/catégorie), workflow N+1→N+2→DAF→RH applique.
-- `wwwroot/help/parametrage.html` — Rubriques/canoniques, barèmes, cotisations SN, SMTP, abattement IR.
+- `wwwroot/help/livre-de-paye.html` - Génération Excel mensuel art. L.120, contenu 19 colonnes, récap, cas d'usage CAC + inspection travail.
+- `wwwroot/help/offboarding.html` - STC complet : 4 formules légales (congés, préavis, licenciement par paliers, prorata), exemple chiffré 1 725 615 FCFA.
+- `wwwroot/help/disciplinaire.html` - Procédure complète Code travail SN : Notification → Audition → Sanction (mise à pied max 8j) → Clôture, 3 cas d'usage.
+- `wwwroot/help/audit.html` - Journal lecture seule, 4 cas d'usage de filtrage, garanties intégrité.
+- `wwwroot/help/import-salaries.html` - Modèle xlsx, 4 sections colonnes (identification/état civil/classification/affectation), règles idempotence.
+- `wwwroot/help/import-comptes-bancaires.html` - Multi-comptes, modes Reliquat/MontantFixe/Pourcentage, 3 cas d'usage.
+- `wwwroot/help/import-conjoints.html` - Polygamie, impact parts fiscales, 4 cas d'usage.
+- `wwwroot/help/heures-supplementaires.html` - 4 taux légaux SN (15/40/60/100%), formule taux horaire 173,33h, exemple chiffré 42 237 FCFA.
+- `wwwroot/help/avancements.html` - 3 types (échelon/promotion/catégorie), workflow N+1→N+2→DAF→RH applique.
+- `wwwroot/help/parametrage.html` - Rubriques/canoniques, barèmes, cotisations SN, SMTP, abattement IR.
 
 ### Index et harmonisation
 
-- `wwwroot/help/index.html` REFONDUE — utilise `help-shared.css`,
+- `wwwroot/help/index.html` REFONDUE - utilise `help-shared.css`,
   6 sections regroupées (Cycle paie / Salariés / Développement RH /
   Vie contrat / Imports / Administration), liens rangés par thématique.
-- `wwwroot/help/interimaires.html` — Migration vers `help-shared.css`
+- `wwwroot/help/interimaires.html` - Migration vers `help-shared.css`
   (suppression de la duplication CSS inline) + footer harmonisé.
 
 ### Vérification
@@ -144,7 +144,7 @@ git revert <hash>
 
 ---
 
-## [V1.1 — Sprint 1D.2] 2026-05-03 1745 — Page d'aide complète Module Intérimaires
+## [V1.1 - Sprint 1D.2] 2026-05-03 1745 - Page d'aide complète Module Intérimaires
 
 **Demande utilisateur** : créer une documentation step-by-step du module
 intérimaire pour faciliter l'utilisation, avec exemples concrets.
@@ -158,16 +158,16 @@ intérimaire pour faciliter l'utilisation, avec exemples concrets.
 10 sections numérotées avec ToC en haut :
 
 1. **Vue d'ensemble** : workflow visuel 6 boîtes (Fiche → Demande → Validation → Contrat → Mouvements → Suivi)
-2. **Étape 1 — Créer une fiche Intérimaire** : champs détaillés (Matricule auto, Nom/Prénom, CNI, Date naissance...) + exemple Mamadou DIOP
-3. **Étape 2 — Demande de recrutement** : tous les champs (Site demandeur, Nb intérim, Poste, Durée, Motif, Taux max) + exemple
-4. **Étape 3 — Validation** : tableau circuit Brouillon → Soumise → Validée N+1 → DAF → Approuvée / Rejetée
-5. **Étape 4 — Création du Contrat** : focus sur **affectation V1.1** (Site + Unités multi)
+2. **Étape 1 - Créer une fiche Intérimaire** : champs détaillés (Matricule auto, Nom/Prénom, CNI, Date naissance...) + exemple Mamadou DIOP
+3. **Étape 2 - Demande de recrutement** : tous les champs (Site demandeur, Nb intérim, Poste, Durée, Motif, Taux max) + exemple
+4. **Étape 3 - Validation** : tableau circuit Brouillon → Soumise → Validée N+1 → DAF → Approuvée / Rejetée
+5. **Étape 4 - Création du Contrat** : focus sur **affectation V1.1** (Site + Unités multi)
    - Exemple A : affectation simple Boutique BANDIA
    - Exemple B : multi-segments Direction Commerciale (Consommateurs+BTP+Mines)
    - Exemple C : Dépôt Dakar
    - Avertissement champs `[Legacy]` à ne plus utiliser
-6. **Étape 5 — Mouvements** : changement Site/Unité avec exemple muta BANDIA→Siège
-7. **Étape 6 — Suivi via Tableaux de Bord** : tableau récap Tab 2/3/4/6 EXTERNE
+6. **Étape 5 - Mouvements** : changement Site/Unité avec exemple muta BANDIA→Siège
+7. **Étape 6 - Suivi via Tableaux de Bord** : tableau récap Tab 2/3/4/6 EXTERNE
 8. **3 Cas d'usage concrets ELTON** :
    - Remplacement saisonnier en Boutique
    - Renfort pluri-segments (multi-affectation)
@@ -199,13 +199,13 @@ intérimaire pour faciliter l'utilisation, avec exemples concrets.
 
 | Fichier | Nature |
 |---|---|
-| `wwwroot/help/interimaires.html` | nouveau — guide complet 430 lignes |
+| `wwwroot/help/interimaires.html` | nouveau - guide complet 430 lignes |
 | `wwwroot/help/index.html` | + lien nav + carte cliquable Intérimaires |
 | `docs/dashboards/CHANGELOG.md` | cette entrée |
 
 ---
 
-## [V1.1 — Sprint 1D] 2026-05-03 1700 — Masquage entités legacy (sans casser le reste)
+## [V1.1 - Sprint 1D] 2026-05-03 1700 - Masquage entités legacy (sans casser le reste)
 
 **Stratégie validée par utilisateur** : option « masquage » plutôt que
 « suppression brutale » pour ne pas casser les écrans non-dashboards
@@ -214,7 +214,7 @@ référencent encore `StationService` / `BusinessUnitStation`.
 
 ### Actions effectuées
 
-1. **Entités legacy masquées du menu XAF** — retrait `[DefaultClassOptions]`
+1. **Entités legacy masquées du menu XAF** - retrait `[DefaultClassOptions]`
    et `[NavigationItem]`, ajout préfixe `[Deprecated]` dans le `XafDisplayName` :
    - `StationService` → « [Deprecated] Station de service »
    - `BusinessUnitStation` → « [Deprecated] Business Unit (Station) »
@@ -234,7 +234,7 @@ référencent encore `StationService` / `BusinessUnitStation`.
 
 3. **Service AnalyseEffectifDashboardService nettoyé** :
    `ComputeBarSegmentExterne` ne lit plus le fallback `c.EstDG` /
-   `c.Station` / `c.BU` — uniquement `c.Site` V1.1.
+   `c.Station` / `c.BU` - uniquement `c.Site` V1.1.
 
 4. **Updater.cs nettoyé** :
    - `EnsureBusinessUnitTypesSeed()` n'est plus appelé (méthode marquée
@@ -258,7 +258,7 @@ référencent encore `StationService` / `BusinessUnitStation`.
 ### Code legacy restant (acceptable, à nettoyer en Sprint 1F éventuel)
 
 - Variables `_stationsDispo`, `_selectedStation`, `OnStationChanged` dans
-  les Razor Tab 2/3/4 — dead code (n'est plus rendu par le markup)
+  les Razor Tab 2/3/4 - dead code (n'est plus rendu par le markup)
 - Méthode `GetStationsServiceActives` dans interfaces et services (encore
   appelée par les Razor pour `_stationsDispo` mais résultat inutilisé)
 - Méthodes `EnsureBusinessUnitTypesSeed`, `MigrateBUsToTypes`,
@@ -284,7 +284,7 @@ modèle V1.1 final (Site + UniteOrganisationnelle).
 
 ---
 
-## [V1.1 — Sprint 1C.3 hot-fix] 2026-05-03 1620 — Tab 2 : dropdown Site V1.1 unifié
+## [V1.1 - Sprint 1C.3 hot-fix] 2026-05-03 1620 - Tab 2 : dropdown Site V1.1 unifié
 
 **Constat utilisateur (screenshot)** : Tab 2 EXTERNE affiche encore le
 dropdown legacy « STATION SERVICE » avec uniquement les 3 anciennes
@@ -317,11 +317,11 @@ Tab 2 EXTERNE → dropdown Site contient désormais :
 - 📦 Dépôt Dakar, 📦 Dépôt Thiès, 📦 Dépôt CDB, 📦 Dépôt Hann
 
 (legacy : ELTON MERMOZ / ELTON THIES / ELTON VDN seront à supprimer
-en Sprint 1D — entités StationService obsolètes)
+en Sprint 1D - entités StationService obsolètes)
 
 ---
 
-## [V1.1 — Sprint 1C.2 fix2] 2026-05-03 1545 — DOUBLE fix Tab 3 : filtre Site sur contrats + ratio direct
+## [V1.1 - Sprint 1C.2 fix2] 2026-05-03 1545 - DOUBLE fix Tab 3 : filtre Site sur contrats + ratio direct
 
 **Constat utilisateur (2 bugs)** :
 1. Filtre Site = « Siège ELTON » MAIS bar charts montrent BANDIA, Boutique,
@@ -331,7 +331,7 @@ en Sprint 1D — entités StationService obsolètes)
 
 **Causes racines** :
 
-### Bug 1 — Filtre Site ignoré pour les contrats
+### Bug 1 - Filtre Site ignoré pour les contrats
 ```csharp
 // Avant (FAUX)
 var contratsAnnee = os.GetObjectsQuery<ContratInterim>().ToList();
@@ -340,7 +340,7 @@ var contratsAnnee = os.GetObjectsQuery<ContratInterim>().ToList();
 Du coup `nouveauxContrats` et `contratsClotures` remontaient TOUS les
 contrats du système. Seule la liste `mouvements` était filtrée par site.
 
-### Bug 2 — Dénominateur "ETP contrats moyens" inadapté
+### Bug 2 - Dénominateur "ETP contrats moyens" inadapté
 Au siège, les contrats sont courts (~1 mois) et se succèdent rapidement
 sur les 3 places. Le dénominateur "moyenne pondérée 13 dates" donne 3,
 pas 11. Mathématiquement exact mais inutilisable visuellement.
@@ -376,7 +376,7 @@ Avant : 11/3 = 366,7 % (Renouvellement) et 4/3 = 133,3 % (Sortie)
 Après : 11/11 = **100 %** (Renouvellement complet) et 4/11 = **36,4 %** (Sortie)
 
 Les bar charts ne montreront PLUS que les contrats du siège (DSI,
-Direction Commerciale, etc.) — pas BANDIA/Boutique/MERMOZ.
+Direction Commerciale, etc.) - pas BANDIA/Boutique/MERMOZ.
 
 ### Fichiers modifiés (2)
 
@@ -387,7 +387,7 @@ Direction Commerciale, etc.) — pas BANDIA/Boutique/MERMOZ.
 
 ---
 
-## [V1.1 — Sprint 1C.2 fix] 2026-05-03 1500 — Fix taux Arrivées/Départs aberrants Tab 3 Mouvements
+## [V1.1 - Sprint 1C.2 fix] 2026-05-03 1500 - Fix taux Arrivées/Départs aberrants Tab 3 Mouvements
 
 **Constat utilisateur** : sur Tab 3 EXTERNE 2026 filtré sur 🏢 Siège ELTON :
 - 11 arrivées, 4 départs, Effectif Fin = 2
@@ -446,7 +446,7 @@ Sous-titres également ajustés : « arrivées / contrats moy. » et
 
 Avant : 11/3 = 366,7 % et 4/3 = 133,3 %
 Après : 11/~6 = ~183 % et 4/~6 = ~67 % (selon contrats actifs moyens
-réels — ratio acceptable car turnover élevé au siège).
+réels - ratio acceptable car turnover élevé au siège).
 
 Si tous les 11 contrats sont actifs en moyenne sur l'année, on aurait
 11/11 = 100 % (renouvellement total).
@@ -460,7 +460,7 @@ Si tous les 11 contrats sont actifs en moyenne sur l'année, on aurait
 
 ---
 
-## [V1.1 — Sprint 1B.2] 2026-05-03 1230 — Hot-fix duplication grille Unités sur Site_DetailView
+## [V1.1 - Sprint 1B.2] 2026-05-03 1230 - Hot-fix duplication grille Unités sur Site_DetailView
 
 **Constat utilisateur (screenshot)** : sur la fiche d'un site (BANDIA), la
 grille des Unités organisationnelles apparaît **deux fois** dupliquée.
@@ -489,7 +489,7 @@ explicites. Conserver uniquement le `<PropertyEditor Id="Type">` qui
 4. Onglet **« Contrats Intérim »** : UNE seule grille
 5. Liste générale des Sites → colonne `Type` visible
 
-### Bonus — confirmation visuelle du seed (screenshot user)
+### Bonus - confirmation visuelle du seed (screenshot user)
 
 Les 4 BU de BANDIA seedées sont correctement créées avec leurs couleurs :
 - 🟧 Boutique (Orange ELTON)
@@ -501,7 +501,7 @@ Le seed démo fonctionne, il ne reste qu'à corriger l'affichage en doublon.
 
 ---
 
-## [V1.1 — Sprint 1B] 2026-05-03 1130 — Seed démo COMPLET + Controller wipe + flag appsettings + RBAC
+## [V1.1 - Sprint 1B] 2026-05-03 1130 - Seed démo COMPLET + Controller wipe + flag appsettings + RBAC
 
 **Objet** : créer un jeu de données de démonstration COMPLET pour tester
 les 6 dashboards EXTERNE (Mouvements, Rémunération, Bilan Social ligne
@@ -545,7 +545,7 @@ Tous les enregistrements seedés ont :
 
 ### Contrôle activation/désactivation
 
-3 sources lues dans l'ordre (priorité décroissante) — sans dépendance NuGet
+3 sources lues dans l'ordre (priorité décroissante) - sans dépendance NuGet
 supplémentaire :
 
 1. **Variable d'environnement** `DASHBOARDS_SEED_DEMO=false`
@@ -583,7 +583,7 @@ Bouton XAF « Vider les données démo » sur la fiche utilisateur → exécute
 
 Les seeds existants (rubriques de paie, paramètres, catégories) ont des
 codes métier réels (BRUT_BASE, IPRES_RG, CAT_CADRE…) qui **ne commencent
-JAMAIS par `DEMO_`** — ils sont donc invisibles au wiper. Garantie
+JAMAIS par `DEMO_`** - ils sont donc invisibles au wiper. Garantie
 mathématique, pas conventionnelle.
 
 ### Test post-build attendu
@@ -598,9 +598,9 @@ mathématique, pas conventionnelle.
 
 ---
 
-## [V1.1 — Sprint 1A.2] 2026-05-03 1015 — Vues XAF pour Site + garanties anti-suppression seeds réels
+## [V1.1 - Sprint 1A.2] 2026-05-03 1015 - Vues XAF pour Site + garanties anti-suppression seeds réels
 
-### Hot-fix UI — colonne Type invisible
+### Hot-fix UI - colonne Type invisible
 
 Constat utilisateur post-build Sprint 1A : la nouvelle propriété `Type` sur
 `Site` est bien créée en base mais **n'apparaît pas dans le formulaire XAF**.
@@ -624,13 +624,13 @@ des données démo V1.1.
 |---|---|---|
 | Rubriques de paie (BRUT_BASE, IPRES_RG…) | code métier réel | ✅ |
 | RubriqueTypeRef (BRUTE, COTSOC…) | code métier réel | ✅ |
-| ParametresPaie (singleton) | — | ✅ |
+| ParametresPaie (singleton) | - | ✅ |
 | Catégories (Cadre, Non Cadre…) | code métier | ✅ |
 | Sites V1.1 démo | `DEMO_BANDIA`, `DEMO_SIEGE` | ❌ supprimés au wipe |
 | Unités V1.1 démo | `DEMO_BU_BOUTIQUE_BANDIA` | ❌ supprimés au wipe |
 
 Le Controller « Vider données démo » filtre **uniquement** sur
-`Code.StartsWith("DEMO_")` — les enregistrements avec un Code métier
+`Code.StartsWith("DEMO_")` - les enregistrements avec un Code métier
 réel ne sont jamais touchés.
 
 ### Fichiers modifiés (2)
@@ -642,7 +642,7 @@ réel ne sont jamais touchés.
 
 ---
 
-## [V1.1 — Sprint 1A] 2026-05-03 0930 — Modèle Site + UniteOrganisationnelle (cohabitation)
+## [V1.1 - Sprint 1A] 2026-05-03 0930 - Modèle Site + UniteOrganisationnelle (cohabitation)
 
 **Stratégie de migration** : pas de big-bang. Les nouvelles entités/champs
 **coexistent avec les anciennes** (Station, BU, EstDG) pour ne rien casser.
@@ -678,7 +678,7 @@ anciens champs en attendant la suppression définitive.
 
 ---
 
-## [V1.1 — Phase 1 abandonnée] 2026-05-03 0830 — Référentiel BusinessUnitType (regroupement transversal des BU)
+## [V1.1 - Phase 1 abandonnée] 2026-05-03 0830 - Référentiel BusinessUnitType (regroupement transversal des BU)
 
 **⚠️ Cette Phase 1 est ABANDONNÉE** au profit du modèle Sprint 1A
 (Site + UniteOrganisationnelle) qui est plus complet et couvre les
@@ -688,7 +688,7 @@ sera supprimé au Sprint 1D.
 
 ---
 
-## [V1.1 — Phase 1 originale] 2026-05-03 0830 — Référentiel BusinessUnitType (regroupement transversal des BU)
+## [V1.1 - Phase 1 originale] 2026-05-03 0830 - Référentiel BusinessUnitType (regroupement transversal des BU)
 
 **Constat utilisateur** : impossible de produire des KPI cross-stations
 (« Boutique = somme de toutes les Boutique de toutes les stations »)
@@ -704,17 +704,17 @@ Création d'un **référentiel partagé `BusinessUnitType`** avec FK depuis
 ### Implémentation Phase 1 (modèle + seed + migration)
 
 **Nouvelle entité `BusinessUnitType`** (`BusinessObjects/RH/BusinessUnitType.cs`) :
-- `Code` (unique, indexed) — clé technique normalisée (BOUTIQUE, PISTE…)
-- `Libelle` — affichage UX (Boutique, Piste, E-Service…)
-- `Palette` — **enum `CouleurPalette` rendue en combobox visuelle** avec
+- `Code` (unique, indexed) - clé technique normalisée (BOUTIQUE, PISTE…)
+- `Libelle` - affichage UX (Boutique, Piste, E-Service…)
+- `Palette` - **enum `CouleurPalette` rendue en combobox visuelle** avec
   carrés colorés Unicode dans les libellés (🟧 Orange ELTON, 🟦 Navy ELTON,
   🟥 Rouge ELTON, 🟦 Bleu clair, 🟩 Vert, 🟪 Violet, 🟨 Jaune, 🟫 Marron,
   🌸 Rose, 🩶 Gris). 11 valeurs y compris « ⬛ Aucune » (défaut navy).
-- `CouleurHex` — propriété calculée `NonPersistent` qui retourne le hex
-  associé via `CouleurPaletteHelper.GetHex()` — utilisée par les services
+- `CouleurHex` - propriété calculée `NonPersistent` qui retourne le hex
+  associé via `CouleurPaletteHelper.GetHex()` - utilisée par les services
   dashboards pour styler les bar charts.
-- `Ordre` — tri d'affichage
-- `Actif` — désactivation sans suppression
+- `Ordre` - tri d'affichage
+- `Actif` - désactivation sans suppression
 - Association inverse `BUType-BUs` → `XPCollection<BusinessUnitStation>`
 - Navigation : « GRH - Administration »
 
@@ -727,16 +727,16 @@ Création d'un **référentiel partagé `BusinessUnitType`** avec FK depuis
 **FK ajoutée sur `BusinessUnitStation`** :
 - `public BusinessUnitType Type { get; set; }`
 - Association `BUType-BUs`
-- **Pas de RuleRequiredField** pour le moment (transition douce — sera
+- **Pas de RuleRequiredField** pour le moment (transition douce - sera
   activé en V1.2 une fois tous les BU historiques rattachés)
 
-**Updater.cs** — 3 nouvelles méthodes idempotentes :
-1. `EnsureBusinessUnitTypesSeed()` — crée les 4 types initiaux s'ils
+**Updater.cs** - 3 nouvelles méthodes idempotentes :
+1. `EnsureBusinessUnitTypesSeed()` - crée les 4 types initiaux s'ils
    n'existent pas (Boutique, Piste, E-Service, Espace Auto)
-2. `MigrateBUsToTypes()` — pour chaque BU sans Type, assigne le bon
+2. `MigrateBUsToTypes()` - pour chaque BU sans Type, assigne le bon
    Type en matchant le Libelle (case-insensitive, trim, variantes
    « Espace Auto »/« EspaceAuto »)
-3. `GrantBusinessUnitTypeReadAccess()` — étend les permissions Read
+3. `GrantBusinessUnitTypeReadAccess()` - étend les permissions Read
    sur `BusinessUnitType` aux rôles RH_Manager / RH / DAF
 
 ### Fichiers créés / modifiés (3)
@@ -761,10 +761,10 @@ Après build & lancement de l'app :
 ### Phase 2 (à venir, ~2h)
 
 Adapter les dashboards pour exploiter le nouveau Type BU :
-- Tab 2 (Analyse Effectif EXTERNE) — + filtre « Type BU »
-- Tab 3 (Mouvements EXTERNE) — + bar chart « par Type BU »
-- Tab 4 (Rémunération EXTERNE) — + tableau Égalité par Type BU ⭐
-- Tab 6 (Bilan Social ligne intérimaires) — + ventilation par Type BU
+- Tab 2 (Analyse Effectif EXTERNE) - + filtre « Type BU »
+- Tab 3 (Mouvements EXTERNE) - + bar chart « par Type BU »
+- Tab 4 (Rémunération EXTERNE) - + tableau Égalité par Type BU ⭐
+- Tab 6 (Bilan Social ligne intérimaires) - + ventilation par Type BU
 
 ### Branche Git / Commit
 
@@ -774,18 +774,18 @@ Adapter les dashboards pour exploiter le nouveau Type BU :
 
 ---
 
-## [Étape FINAL] 2026-05-03 0700 — Livrables : README + install.sql
+## [Étape FINAL] 2026-05-03 0700 - Livrables : README + install.sql
 
 **Objet** : clôture de la mission Tableaux de Bord RH avec 2 livrables :
 
-1. **`docs/dashboards/README.md`** (~370 lignes) — documentation
+1. **`docs/dashboards/README.md`** (~370 lignes) - documentation
    en 3 parties :
    - **Partie DRH** : accès, RBAC, 6 tableaux en 1 coup d'œil, boutons communs
    - **Partie Dev** : architecture, build, dépendances, patterns clés, pièges
    - **Partie Annexes** : scripts SQL, limitations, évolutions futures
    - ToC complète + style markdown propre
 
-2. **`sql/dashboards/install.sql`** (~600 lignes) — script consolidé
+2. **`sql/dashboards/install.sql`** (~600 lignes) - script consolidé
    regroupant les 6 modules SQL avec :
    - En-tête commenté (rôle du script, usages prévus)
    - **Table des matières** numérotée § 0 à § 6
@@ -809,16 +809,16 @@ Adapter les dashboards pour exploiter le nouveau Type BU :
 
 | # | Étape | Hash | Date |
 |---|---|---|---|
-| 0 | Préparation Git + journalisation | — | 2026-05-02 |
-| 1 | Analyse de l'existant | — | 2026-05-02 |
-| 2 | Architecture cible + DI + rôle RH_Manager | — | 2026-05-02 |
+| 0 | Préparation Git + journalisation | - | 2026-05-02 |
+| 1 | Analyse de l'existant | - | 2026-05-02 |
+| 2 | Architecture cible + DI + rôle RH_Manager | - | 2026-05-02 |
 | 3 | Page d'accueil DashboardHome (6 cartes) | `5d57771e` | 2026-05-02 |
-| 4.1 | Tableau N°1 — Effectif détaillé | `45bb075` | 2026-05-02 |
-| 4.2 | Tableau N°2 — Analyse de l'Effectif (Interne+Externe) | `504cb1ee` | 2026-05-02 |
-| 4.3 | Tableau N°3 — Mouvements (Arrivées/Départs) | `2e1347bd` | 2026-05-02 |
-| 4.4 | Tableau N°4 — Rémunération (Égalité salaires) | _consolidé_ | 2026-05-02 |
-| 4.5 | Tableau N°5 — Suivi des Absences | `686fb3b8` | 2026-05-02 |
-| 4.6 | Tableau N°6 — Bilan Social Mensuel | `cae0763` | 2026-05-03 |
+| 4.1 | Tableau N°1 - Effectif détaillé | `45bb075` | 2026-05-02 |
+| 4.2 | Tableau N°2 - Analyse de l'Effectif (Interne+Externe) | `504cb1ee` | 2026-05-02 |
+| 4.3 | Tableau N°3 - Mouvements (Arrivées/Départs) | `2e1347bd` | 2026-05-02 |
+| 4.4 | Tableau N°4 - Rémunération (Égalité salaires) | _consolidé_ | 2026-05-02 |
+| 4.5 | Tableau N°5 - Suivi des Absences | `686fb3b8` | 2026-05-02 |
+| 4.6 | Tableau N°6 - Bilan Social Mensuel | `cae0763` | 2026-05-03 |
 | 7.1+7.2+7.4 | Aide en ligne + Excel + Bilan Social option B | _consolidé_ | 2026-05-03 |
 | 7.3 | Export PDF QuestPDF | _consolidé_ | 2026-05-03 |
 | 7.SEC | Hot-fix nouvel onglet + lisibilité boutons + Bootstrap Icons | `6faecfc` | 2026-05-03 |
@@ -848,7 +848,7 @@ Pour merger sur `main` : voir README § « Maintenance / contact ».
 
 ---
 
-## [Étape 7.UX] 2026-05-03 0600 — Nettoyage menus « Tableaux de bord » en doublon
+## [Étape 7.UX] 2026-05-03 0600 - Nettoyage menus « Tableaux de bord » en doublon
 
 **Constat utilisateur** : 4 entrées « Tableaux de bord » apparaissaient dans
 le menu de gauche (3 héritées d'anciens BO/menus, 1 nouveau).
@@ -871,7 +871,7 @@ NavigationItems root :
 ```
 
 Les BusinessObjects legacy (`TableauBordInterimaire`, `TableauBordEffectif`,
-`RapportPowerBI`) **ne sont pas supprimés** — la suppression définitive
+`RapportPowerBI`) **ne sont pas supprimés** - la suppression définitive
 est différée pour permettre un rollback rapide si besoin.
 
 ### Fichier modifié
@@ -891,10 +891,10 @@ Quand validé en prod sur quelques semaines :
 
 ---
 
-## [Étape 7.SEC RBAC] 2026-05-03 0530 — RBAC complet (4 rôles autorisés)
+## [Étape 7.SEC RBAC] 2026-05-03 0530 - RBAC complet (4 rôles autorisés)
 
 **Demande utilisateur** : ajouter un vrai check RBAC (rôle) au-delà du simple
-check d'authentification — éviter qu'un salarié logué quelconque puisse
+check d'authentification - éviter qu'un salarié logué quelconque puisse
 voir le Bilan Social complet et les données rémunération de tous ses
 collègues (risque RGPD).
 
@@ -935,7 +935,7 @@ collègues (risque RGPD).
 | Fichier | Type | Nature |
 |---|---|---|
 | `Blazor.Server/Services/DashboardAuthHelper.cs` | nouveau | Helper RBAC partagé |
-| `Module/Services/Dashboards/DashboardAuthHelper.cs` | modif | Vide (commentaire de redirection — l'implem est côté Blazor.Server à cause de la dép. INonSecuredObjectSpaceFactory) |
+| `Module/Services/Dashboards/DashboardAuthHelper.cs` | modif | Vide (commentaire de redirection - l'implem est côté Blazor.Server à cause de la dép. INonSecuredObjectSpaceFactory) |
 | `Module/DatabaseUpdate/Updater.cs` | modif | + méthode `GrantDashboardAccessToExistingRole` + appels pour RH et DAF |
 | `Blazor.Server/_Imports.razor` | modif | + @using Blazor.Server.Services |
 | `Blazor.Server/Pages/Dashboards/DashboardHome.razor` | modif | utilise helper |
@@ -956,7 +956,7 @@ collègues (risque RGPD).
 
 ---
 
-## [Étape 7.2 enrichissement] 2026-05-03 0445 — Onglet Synthèse + DataBars visuels (Excel)
+## [Étape 7.2 enrichissement] 2026-05-03 0445 - Onglet Synthèse + DataBars visuels (Excel)
 
 **Constat utilisateur** : l'export Excel multi-onglets fonctionne mais
 l'utilisateur découvrant l'export ne voyait que la 1ʳᵉ feuille (KPI) et
@@ -1004,7 +1004,7 @@ disponibles pour analyse détaillée et création de TCD.
 
 ---
 
-## [Étape 7 hot-fix sécurité] 2026-05-03 0400 — Guard d'authentification + Bootstrap Icons CDN
+## [Étape 7 hot-fix sécurité] 2026-05-03 0400 - Guard d'authentification + Bootstrap Icons CDN
 
 **🚨 Faille de sécurité corrigée** : les pages `/dashboards/*` étaient
 accessibles **sans authentification**. Cause racine : `App.razor` utilise
@@ -1068,7 +1068,7 @@ protection effective immédiate. Solution **défense en profondeur**.
 
 ---
 
-## [Étape 7.3] 2026-05-03 0330 — Export PDF (QuestPDF) + lisibilité boutons header
+## [Étape 7.3] 2026-05-03 0330 - Export PDF (QuestPDF) + lisibilité boutons header
 
 **Objet** : finalisation des exports avec génération PDF native (QuestPDF)
 pour les 6 tableaux + amélioration du contraste des boutons icônes du
@@ -1103,7 +1103,7 @@ CSS `.ed-btn` modifié dans `dashboards-elton.css` :
 
 - `AdiPAIE_V02.Module/Services/Dashboards/IDashboardPdfExportService.cs`
 - `AdiPAIE_V02.Module/Services/Dashboards/DashboardPdfExportService.cs`
-  (~330 lignes — 6 méthodes Export*, helpers `BuildDocument`, `Kpi`,
+  (~330 lignes - 6 méthodes Export*, helpers `BuildDocument`, `Kpi`,
   `SectionTitle`, `Th/Td/TdTotal`, `BarTable`, `EgaliteTable`,
   format `Fcfa/Pct/Ans`)
 
@@ -1131,7 +1131,7 @@ CSS `.ed-btn` modifié dans `dashboards-elton.css` :
   prochaine étape = générer des SVG inline avec `Svg()` de QuestPDF
   ou utiliser SkiaSharp.
 - **Mémoire** : les PDF sont sérialisés en base64 dans la connexion
-  SignalR — taille raisonnable pour < 5 MB. Pour très gros bilans,
+  SignalR - taille raisonnable pour < 5 MB. Pour très gros bilans,
   basculer sur un endpoint MVC `FileResult`.
 
 ### Branche Git / Commit
@@ -1143,7 +1143,7 @@ CSS `.ed-btn` modifié dans `dashboards-elton.css` :
 
 ---
 
-## [Étape 7 hot-fix] 2026-05-03 0230 — Tableaux de bord ouvrent dans un nouvel onglet
+## [Étape 7 hot-fix] 2026-05-03 0230 - Tableaux de bord ouvrent dans un nouvel onglet
 
 **Constat utilisateur** : depuis le menu XAF principal, le clic sur
 « Ouvrir les Tableaux de Bord » naviguait dans la même fenêtre
@@ -1178,7 +1178,7 @@ fonction JS `window.AdiPAIE.openInNewTab(url)` avec fallback sur
 
 ---
 
-## [Étape 7.1 + 7.2 + 7.4] 2026-05-03 0200 — Aide en ligne + Export Excel + Bilan Social option B
+## [Étape 7.1 + 7.2 + 7.4] 2026-05-03 0200 - Aide en ligne + Export Excel + Bilan Social option B
 
 **Objet** : trio d'améliorations transversales sur les 6 tableaux :
 - **7.1** : 7 pages d'aide HTML statiques sous `/wwwroot/help/dashboards/` +
@@ -1189,7 +1189,7 @@ fonction JS `window.AdiPAIE.openInNewTab(url)` avec fallback sur
   bar charts, tableaux, évolution, etc.) avec en-tête navy, format FCFA,
   format pourcentage, ligne TOTAL stylée.
 - **7.4** : ligne complémentaire « dont Intérimaires » sur le Bilan Social
-  Mensuel (option B validée par utilisateur — info managériale hors DTSS officiel).
+  Mensuel (option B validée par utilisateur - info managériale hors DTSS officiel).
 
 ### Fichiers créés (10)
 
@@ -1224,7 +1224,7 @@ fonction JS `window.AdiPAIE.openInNewTab(url)` avec fallback sur
 
 - **Téléchargement Excel** : utilise la fonction JS existante
   `window.AdiPAIE.downloadFile(fileName, mimeType, base64)` déjà présente
-  dans `wwwroot/js/adipaie.js` — pas de nouveau JS à ajouter.
+  dans `wwwroot/js/adipaie.js` - pas de nouveau JS à ajouter.
 - **Pages d'aide** : indépendantes de Blazor (HTML statique) → ouvrent
   instantanément dans un nouvel onglet, ne sollicitent pas le serveur.
 - **Charte help** : navy ELTON pour cohérence visuelle (l'aide générale
@@ -1238,9 +1238,9 @@ Reste à implémenter via QuestPDF ou DevExpress XtraReport (choix utilisateur).
 
 ---
 
-## [Étape 4.6] 2026-05-03 0030 — Tableau N°6 « Bilan Social Mensuel »
+## [Étape 4.6] 2026-05-03 0030 - Tableau N°6 « Bilan Social Mensuel »
 
-**Objet** : implémentation du dernier dashboard — synthèse mensuelle DTSS-style
+**Objet** : implémentation du dernier dashboard - synthèse mensuelle DTSS-style
 sur le périmètre INTERNE. Tableau 12 mois × 8 indicateurs principaux + ligne
 TOTAL en queue, le tout consolidant les sources Salarie / Bulletin /
 BulletinLigne / CongeDemande déjà cartographiées dans les Tab 1-5.
@@ -1252,12 +1252,12 @@ BulletinLigne / CongeDemande déjà cartographiées dans les Tab 1-5.
 - **Indicateurs codés (8)** : Effectif fin mois, Embauches, Départs,
   Masse Salariale, Charges Patronales, Coût Employeur (calc), Employés
   Absents, Jours d'Absence.
-- **Indicateurs N/A** (renvoyés `null` côté DTO, affichés « — » côté UI) :
+- **Indicateurs N/A** (renvoyés `null` côté DTO, affichés « - » côté UI) :
   Mouvements emplois, Mesures disciplinaires, Accidents (travail/trajet),
   Maladies professionnelles, Budget Formation, Heures Formation, Employés
   Formés. Section « TODO méthodologique » dans la page documente quelles
   entités créer pour les activer.
-- **Ligne TOTAL** : fond navy ELTON + bordure orange dorée + texte clair —
+- **Ligne TOTAL** : fond navy ELTON + bordure orange dorée + texte clair -
   visuellement distincte des 12 lignes mensuelles.
 - **KPI complétude** : ratio cellules non vides sur les 12 mois × 5
   indicateurs principaux (indicateur qualité données pour le RH).
@@ -1311,11 +1311,11 @@ git reset --hard 686fb3b8
 
 ### Validé par
 
-_À renseigner — validation en cours côté utilisateur après build + test._
+_À renseigner - validation en cours côté utilisateur après build + test._
 
 ---
 
-## [Étape 4.5] 2026-05-02 2330 — Tableau N°5 « Suivi des Absences »
+## [Étape 4.5] 2026-05-02 2330 - Tableau N°5 « Suivi des Absences »
 
 **Objet** : implémentation complète du Tableau N°5 sur le périmètre INTERNE
 uniquement (les intérimaires n'ont pas de système de demande de congé).
@@ -1390,14 +1390,14 @@ git reset --hard <hash_etape_4_4>
 
 ### Validé par
 
-_À renseigner — validation en cours côté utilisateur après build + test._
+_À renseigner - validation en cours côté utilisateur après build + test._
 
 ---
 
-## [Étape 4.4] 2026-05-02 2200 — Tableau N°4 « Rémunération (Égalité des salaires) »
+## [Étape 4.4] 2026-05-02 2200 - Tableau N°4 « Rémunération (Égalité des salaires) »
 
 **Objet** : implémentation complète du Tableau N°4 sur les périmètres
-INTERNE (Bulletin / BulletinLigne) et EXTERNE (ContratInterim) — avec
+INTERNE (Bulletin / BulletinLigne) et EXTERNE (ContratInterim) - avec
 toggles Personnel et Mode (Coût Employeur / Rémunération Nette). UI
 alignée sur la maquette PowerBI utilisateur (5 KPI cartes circulaires,
 2 tableaux Égalité des salaires par Segment et Catégorie avec barres de
@@ -1415,7 +1415,7 @@ décomposition par 7 familles macro de rubrique).
   durée du recouvrement contrat/année (DateDebut..min(DateFin, finAnnee)).
 - **Périodicité** : année calendaire avec slicer Année.
 - **Décomposition rubriques** : 7 familles macro (BRUTE, INDEM_IMPOSA,
-  INDEM_NON_IMPOSA, AV_NATURE, COTSOC, COTFISC, RETENUE) — INTERNE seulement.
+  INDEM_NON_IMPOSA, AV_NATURE, COTSOC, COTFISC, RETENUE) - INTERNE seulement.
 - **Format FCFA** : NumberGroupSeparator = espace ` `, 0 décimales.
 - **Source** : SPEC_PowerBI_DAX_to_SQL.sql + TestData/PowerBI/SPEC_Custom_Dashboard_SQL.sql (utilisateur).
 
@@ -1450,7 +1450,7 @@ décomposition par 7 familles macro de rubrique).
   de Sexe). Si métier le demande : ajouter le champ via migration XPO.
 - **Filtre Ancienneté** : volontairement omis pour ce tableau (peu pertinent
   côté rémunération annuelle ; restera disponible en Tab 5/6).
-- **Décomposition rubriques** : agrégation côté mémoire (pas SQL) — un peu
+- **Décomposition rubriques** : agrégation côté mémoire (pas SQL) - un peu
   coûteuse pour des bulletins très volumineux. Si > 50 000 lignes, basculer
   côté SQL via vue.
 - Boutons Export PDF / Excel : toast « à venir » (Étape 7).
@@ -1472,14 +1472,14 @@ git reset --hard 2e1347bd
 
 ### Validé par
 
-_À renseigner — validation en cours côté utilisateur après build + test._
+_À renseigner - validation en cours côté utilisateur après build + test._
 
 ---
 
-## [Étape 4.3] 2026-05-02 1930 — Tableau N°3 « Mouvements (Arrivées / Départs) »
+## [Étape 4.3] 2026-05-02 1930 - Tableau N°3 « Mouvements (Arrivées / Départs) »
 
 **Objet** : implémentation complète du Tableau N°3 sur les périmètres
-INTERNE (Salarie) et EXTERNE (Interimaire / ContratInterim) — avec toggle.
+INTERNE (Salarie) et EXTERNE (Interimaire / ContratInterim) - avec toggle.
 7 KPI cartes (Arrivées, Départs, Solde net, %Arrivées, %Départs, Effectif
 Début, Effectif Fin), section Arrivées (12 mois + Site + Catégorie), section
 Départs (12 mois + Motif + Site + Catégorie). Charte ELTON Oil héritée du
@@ -1499,7 +1499,7 @@ CSS partagé.
   {Resilie, Termine}) dont `DateFinReelle ?? DateFin` tombe dans l'année.
 - **Effectif Début / Fin** : utilisés pour les taux %Arrivées et %Départs ;
   diviseur = effectif moyen `(début+fin)/2`.
-- **CSS** : pas de nouveau fichier — utilisation directe du
+- **CSS** : pas de nouveau fichier - utilisation directe du
   `dashboards-elton.css` partagé + petites variantes locales (`--blue` =
   Arrivées, `--red` = Départs).
 
@@ -1523,11 +1523,11 @@ CSS partagé.
 | `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/Startup.cs` | `docs/dashboards/backup/2026-05-02_1930/.../Startup.cs.bak` | DI : `services.AddScoped<IMouvementsDashboardService, MouvementsDashboardService>()`. |
 | `docs/dashboards/CHANGELOG.md` | (suivi git) | Cette entrée. |
 
-### Patch post-validation EXTERNE — Dénominateur anti-aberration
+### Patch post-validation EXTERNE - Dénominateur anti-aberration
 
 Constat utilisateur après build :
 1. Première version : `% Arrivées = 228,6 %` (formule `(0 + 35) / 2 = 17,5`).
-2. Après ETP pondéré 13 points : `% Arrivées = 162 %` — encore visuellement
+2. Après ETP pondéré 13 points : `% Arrivées = 162 %` - encore visuellement
    choquant car ramp-up complet (équipe entièrement créée en 2024).
 
 **Correctif final** :
@@ -1545,7 +1545,7 @@ salariés (population stable).
 
 ### Limitations connues / TODO
 
-- **EXTERNE — Motifs de départ** : à défaut d'un champ libre sur
+- **EXTERNE - Motifs de départ** : à défaut d'un champ libre sur
   `ContratInterim`, on regroupe par `Statut` (Termine / Resilie). Pour un
   détail plus fin, il faudrait croiser `MouvementInterimaire.TypeMouvement`
   + le champ `Motif` (texte libre) déjà présent sur `MouvementInterimaire`.
@@ -1575,14 +1575,14 @@ git reset --hard <hash_etape_4_2>
 
 ### Validé par
 
-_À renseigner — validation en cours côté utilisateur après build + test._
+_À renseigner - validation en cours côté utilisateur après build + test._
 
 ---
 
-## [Étape 4.2] 2026-05-02 1800 — Tableau N°2 « Analyse de l'Effectif »
+## [Étape 4.2] 2026-05-02 1800 - Tableau N°2 « Analyse de l'Effectif »
 
 **Objet** : implémentation complète du Tableau N°2 sur les périmètres
-INTERNE (Salarie) et EXTERNE (Interimaire) — avec toggle. Mode Global /
+INTERNE (Salarie) et EXTERNE (Interimaire) - avec toggle. Mode Global /
 Moyen, 7 KPI cartes, courbe d'évolution 8 ans, 5 bar charts (tranche d'âge,
 ancienneté, segment, catégorie Top 5, type contrat). Charte ELTON Oil.
 
@@ -1593,7 +1593,7 @@ ancienneté, segment, catégorie Top 5, type contrat). Charte ELTON Oil.
 - `AdiPAIE_V02/AdiPAIE_V02.Module/Models/Dashboards/AnalyseEffectifDto.cs`
 - `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/IAnalyseEffectifDashboardService.cs`
 - `AdiPAIE_V02/AdiPAIE_V02.Module/Services/Dashboards/AnalyseEffectifDashboardService.cs`
-- `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/wwwroot/css/dashboards-elton.css` (charte ELTON partagée — sera utilisée par les 6 tableaux)
+- `AdiPAIE_V02/AdiPAIE_V02.Blazor.Server/wwwroot/css/dashboards-elton.css` (charte ELTON partagée - sera utilisée par les 6 tableaux)
 - `sql/dashboards/02_analyse_effectif.sql`
 
 ### Fichiers modifiés (4)
@@ -1612,10 +1612,10 @@ ancienneté, segment, catégorie Top 5, type contrat). Charte ELTON Oil.
   `BusinessUnitStation.Libelle` pour EXTERNE.
 - **Catégorie pro** : `Categories.Intitule` (cohérent Tableau N°1).
 - **Effectif Moyen** : formule `(effectif 1/1 + effectif 31/12) / 2` (alignée SPEC PowerBI mesure 5).
-- **CSS partagé** : extrait dans `wwwroot/css/dashboards-elton.css` —
+- **CSS partagé** : extrait dans `wwwroot/css/dashboards-elton.css` -
   réutilisable par Tableaux N°3 → N°6 (réduit la dette technique de design).
 
-### Périmètre EXTERNE — implémentation complète
+### Périmètre EXTERNE - implémentation complète
 
 Mappings métier confirmés et codés :
 
@@ -1656,11 +1656,11 @@ git reset --hard <hash_etape_4_1>
 
 ### Validé par
 
-_À renseigner — validation en cours côté utilisateur après build + test._
+_À renseigner - validation en cours côté utilisateur après build + test._
 
 ---
 
-## [Étape 4.1] 2026-05-02 1530 — Tableau N°1 « Effectif détaillé »
+## [Étape 4.1] 2026-05-02 1530 - Tableau N°1 « Effectif détaillé »
 
 **Objet** : implémentation complète du Tableau N°1 sur le périmètre INTERNE.
 KPI âge & ancienneté (global / hommes / femmes), évolution effectif sur
@@ -1697,8 +1697,8 @@ horizontal empilé Femmes / Hommes.
 ### Limitations connues / TODO
 
 - Boutons **Export PDF** et **Export Excel** : non câblés (toast « à venir »). Implémentation à l'Étape 7 (UI commune).
-- Filtre **TypeContrat** ET filtre **DateSortie** : appliqués en post-filtrage en mémoire (LINQ-to-Objects après `.ToList()`). Raison pour DateSortie : `DateTime.MinValue` (sentinelle des salariés actifs) est en dehors de la plage `SqlDateTime` (1753–9999) — l'envoyer comme paramètre déclenche `SqlDateTime overflow`. À optimiser via SQL natif si la volumétrie l'exige (>10k salariés).
-- Le bar chart F/H est rendu en HTML/CSS pur (pas de `DxChart`) — robustesse vs. évolutions DevExpress Blazor.
+- Filtre **TypeContrat** ET filtre **DateSortie** : appliqués en post-filtrage en mémoire (LINQ-to-Objects après `.ToList()`). Raison pour DateSortie : `DateTime.MinValue` (sentinelle des salariés actifs) est en dehors de la plage `SqlDateTime` (1753-9999) - l'envoyer comme paramètre déclenche `SqlDateTime overflow`. À optimiser via SQL natif si la volumétrie l'exige (>10k salariés).
+- Le bar chart F/H est rendu en HTML/CSS pur (pas de `DxChart`) - robustesse vs. évolutions DevExpress Blazor.
 
 ### Décisions techniques imposées par l'environnement
 
@@ -1707,7 +1707,7 @@ horizontal empilé Femmes / Hommes.
 
 ### Design
 
-Le rendu visuel actuel est **fonctionnel mais minimaliste**. La référence Power BI fournie par l'utilisateur (KPI tiles groupées G/H/F, toggles Effectif Moyen/Total et Temps plein, layout 2 colonnes Power BI-style, sparklines par tranche, couleurs orange/gris pour F/H) sera implémentée dans une **passe design globale à l'Étape 6 (UI commune)** — après que les 6 tableaux soient fonctionnellement validés.
+Le rendu visuel actuel est **fonctionnel mais minimaliste**. La référence Power BI fournie par l'utilisateur (KPI tiles groupées G/H/F, toggles Effectif Moyen/Total et Temps plein, layout 2 colonnes Power BI-style, sparklines par tranche, couleurs orange/gris pour F/H) sera implémentée dans une **passe design globale à l'Étape 6 (UI commune)** - après que les 6 tableaux soient fonctionnellement validés.
 
 ### Branche Git / Commit
 
@@ -1726,11 +1726,11 @@ git reset --hard 5d57771ea16fb84a1fbc5d80aa9d17c1108053d6
 
 ### Validé par
 
-_À renseigner — validation en cours côté utilisateur après build + test._
+_À renseigner - validation en cours côté utilisateur après build + test._
 
 ---
 
-## [Étape 3] 2026-05-02 1500 — Page d'accueil DashboardHome (6 cartes)
+## [Étape 3] 2026-05-02 1500 - Page d'accueil DashboardHome (6 cartes)
 
 **Objet** : remplacement du placeholder par la grille responsive des
 6 cartes cliquables, et création de 6 pages-placeholders correspondantes
@@ -1780,11 +1780,11 @@ git reset --hard a9b010eabc6ada2ded41473ff5f129c0bf4b34e0
 
 ### Validé par
 
-Abdoulaye Dieng &lt;dienguis@hotmail.com&gt; (capture d'écran transmise — 6 cartes affichées correctement).
+Abdoulaye Dieng &lt;dienguis@hotmail.com&gt; (capture d'écran transmise - 6 cartes affichées correctement).
 
 ---
 
-## [Hotfix] 2026-05-02 1430 — Doublon de route @page
+## [Hotfix] 2026-05-02 1430 - Doublon de route @page
 
 **Objet** : suppression d'une directive `@page "/dashboards/"` redondante
 dans `DashboardHome.razor` qui causait `System.InvalidOperationException:
@@ -1813,7 +1813,7 @@ Abdoulaye Dieng &lt;dienguis@hotmail.com&gt; (build vert + page Login OK).
 
 ---
 
-## [WIP integration] 2026-05-02 1330 — Réintégration des fichiers untracked du stash
+## [WIP integration] 2026-05-02 1330 - Réintégration des fichiers untracked du stash
 
 **Objet** : à la première tentative de build post-Étape 2, on a découvert
 que la branche `dev` (au commit `83ef23c`) contenait des modifications
@@ -1908,12 +1908,12 @@ Abdoulaye Dieng &lt;dienguis@hotmail.com&gt;.
 
 ---
 
-## [Étape 2] 2026-05-02 1300 — Architecture cible (squelette)
+## [Étape 2] 2026-05-02 1300 - Architecture cible (squelette)
 
 **Objet** : poser l'arborescence Pages/Shared/Models, l'entrée de menu XAF
 qui ouvre les dashboards, le rôle d'accès `RH_Manager` et l'enregistrement DI
 du `IMemoryCache` utilisé par les services à venir. Aucun service métier
-n'est encore branché — chaque tableau apportera son service au cours de
+n'est encore branché - chaque tableau apportera son service au cours de
 l'Étape 4.
 
 ### Fichiers créés
@@ -1956,7 +1956,7 @@ _Aucun._
 - **Coût intérimaire** : exposé par `ContratInterim.TauxJournalier` (FCFA/jour)
   et `CoutTotalEstime` (NonPersistent). Pour les KPI Min/Max/Moy, on
   mensualise `TauxJournalier × 22 jours ouvrés`.
-- **Mapping `Type de contrat`** virtuel — `Salarie.TypeContrat` réel pour
+- **Mapping `Type de contrat`** virtuel - `Salarie.TypeContrat` réel pour
   Interne (CDI/CDD/Stage), valeur fixe `INTERIM` pour Externe. Aucune
   modification du schéma `DomainEnums.TypeContrat`.
 
@@ -1981,7 +1981,7 @@ Abdoulaye Dieng &lt;dienguis@hotmail.com&gt;
 
 ---
 
-## [Étape 1] 2026-05-02 1230 — Analyse de l'existant
+## [Étape 1] 2026-05-02 1230 - Analyse de l'existant
 
 **Objet** : cartographier le projet AdiPAIE_V02, identifier les conventions
 et le mapping entités → KPI à utiliser. **Aucune modification de fichier
@@ -2005,14 +2005,14 @@ _Aucun._
   Site EXTERNE = `StationService` (réseau de stations service ELTON).
 - Existant exploitable pour Tableau N°6 : `Services/BilanSocialService.cs`
   (méthodes statiques `PreRemplir` / `Generer`).
-- Aucun composant DevExpress Blazor utilisé en `.razor` jusqu'ici — base
+- Aucun composant DevExpress Blazor utilisé en `.razor` jusqu'ici - base
   visuelle à établir.
-- Aucune migration DB nécessaire — toutes les KPI sont dérivables des
+- Aucune migration DB nécessaire - toutes les KPI sont dérivables des
   entités existantes.
 
 ### Commit
 
-_Pas de commit dédié_ — l'analyse Étape 1 est consignée dans cette entrée
+_Pas de commit dédié_ - l'analyse Étape 1 est consignée dans cette entrée
 et accompagne le commit Étape 2.
 
 ### Validé par
@@ -2022,7 +2022,7 @@ bloquantes : point d'entrée, rôle, coût intérim, mapping contrat).
 
 ---
 
-## [Étape 0] 2026-05-02 — Initialisation du module
+## [Étape 0] 2026-05-02 - Initialisation du module
 
 **Objet** : préparation Git, mise en place de la structure de journalisation
 et du dossier de sauvegardes.
@@ -2043,7 +2043,7 @@ _Aucun._
 ### Branche Git
 
 `feature/dashboards-rh` créée à partir de `dev` au commit
-`85f717c — GRH v27 - Audit complet, consultation RH bulletins…`.
+`85f717c - GRH v27 - Audit complet, consultation RH bulletins…`.
 Le travail en cours précédent a été mis de côté :
 `stash@{0}: On dev: WIP avant feature/dashboards-rh`.
 

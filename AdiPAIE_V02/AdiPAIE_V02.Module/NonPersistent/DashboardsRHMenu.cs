@@ -1,13 +1,13 @@
 // =============================================================================
 //  DashboardsRHMenu.cs
-//  Module « Tableaux de Bord RH » — entrée de navigation XAF.
+//  Module « Tableaux de Bord RH » - entrée de navigation XAF.
 //
 //  Cette classe non persistante sert d'« ancre » pour faire apparaître une
 //  entrée « Tableaux de Bord RH » dans la navigation XAF. Lorsqu'un utilisateur
 //  ouvre cette entrée, le contrôleur DashboardsRHNavigationController affiche
 //  un bouton "Ouvrir les Tableaux de Bord" qui redirige le navigateur vers la
 //  page Razor `/dashboards/` (Pages/Dashboards/DashboardHome.razor) où vit la
-//  vraie UI (DevExpress Blazor — DxGrid, DxChart, DxComboBox, ...).
+//  vraie UI (DevExpress Blazor - DxGrid, DxChart, DxComboBox, ...).
 //
 //  Pourquoi ce détour ?
 //  - L'application est XAF (Blazor Server) : le menu principal est piloté par

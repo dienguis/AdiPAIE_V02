@@ -1,5 +1,5 @@
 // =============================================================================
-//  IBulletinInterimImportService.cs — V1.3 Sprint 1
+//  IBulletinInterimImportService.cs - V1.3 Sprint 1
 // =============================================================================
 
 using System;

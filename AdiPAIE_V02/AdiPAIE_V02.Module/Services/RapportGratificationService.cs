@@ -1,5 +1,5 @@
 // =============================================================================
-//  RapportGratificationService.cs — V1.7.2e
+//  RapportGratificationService.cs - V1.7.2e
 //
 //  Agrège les Gratifications persistantes par (Salarié × Année) pour
 //  reporting a posteriori. Inclut uniquement les statuts IntegreeBulletin

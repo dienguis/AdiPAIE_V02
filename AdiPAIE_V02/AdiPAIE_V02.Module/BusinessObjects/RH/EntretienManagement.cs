@@ -10,7 +10,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.BusinessObjects.RH
 {
     /// <summary>
-    /// Partie III — Aptitudes au management.
+    /// Partie III - Aptitudes au management.
     /// Uniquement pour les collaborateurs en situation d'encadrement.
     /// 7 aptitudes standard + appréciation libre.
     /// </summary>

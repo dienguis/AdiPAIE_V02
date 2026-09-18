@@ -40,7 +40,7 @@ namespace AdiPAIE_V02.Module.Services
             ws.Style.Font.FontSize = 10;
 
             // Titre
-            ws.Cell("A1").Value = $"RAPPORT EXÉCUTIF CEO — {d.EntrepriseNom}";
+            ws.Cell("A1").Value = $"RAPPORT EXÉCUTIF CEO - {d.EntrepriseNom}";
             ws.Cell("A1").Style.Font.Bold = true;
             ws.Cell("A1").Style.Font.FontSize = 14;
             ws.Range("A1:F1").Merge().Style.Font.FontColor = XLColor.FromHtml("#0d1b4a");
@@ -287,7 +287,7 @@ namespace AdiPAIE_V02.Module.Services
             var header = XLColor.FromHtml("#0d1b4a");
             int row = 1;
 
-            ws.Cell(row, 1).Value = $"Congés & absences — {NomMois(d.Mois)} {d.Annee}";
+            ws.Cell(row, 1).Value = $"Congés & absences - {NomMois(d.Mois)} {d.Annee}";
             ws.Cell(row, 1).Style.Font.Bold = true;
             ws.Cell(row, 1).Style.Font.FontSize = 12;
             row += 2;
@@ -344,7 +344,7 @@ namespace AdiPAIE_V02.Module.Services
             var header = XLColor.FromHtml("#0d1b4a");
             int row = 1;
 
-            ws.Cell(row, 1).Value = $"Turnover — {NomMois(d.Mois)} {d.Annee}";
+            ws.Cell(row, 1).Value = $"Turnover - {NomMois(d.Mois)} {d.Annee}";
             ws.Cell(row, 1).Style.Font.Bold = true;
             ws.Cell(row, 1).Style.Font.FontSize = 12;
             row += 2;

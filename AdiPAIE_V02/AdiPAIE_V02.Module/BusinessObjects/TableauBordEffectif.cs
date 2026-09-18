@@ -11,7 +11,7 @@ using DevExpress.ExpressApp.Data;
 namespace AdiPAIE_V02.Module.BusinessObjects
 {
     /// <summary>
-    /// Objet non-persistant — Tableau de Bord Effectifs RH.
+    /// Objet non-persistant - Tableau de Bord Effectifs RH.
     /// Affiché dans une DetailView avec KPIs et grilles de distribution.
     /// </summary>
     [DomainComponent]

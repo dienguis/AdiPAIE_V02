@@ -11,6 +11,7 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Mime;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 using Attachment = System.Net.Mail.Attachment;
@@ -32,9 +33,11 @@ namespace AdiPAIE_V02.Module.Controllers
                 Caption = "Valider",
                 ImageName = "btn_valider",
                 PaintStyle = ActionItemPaintStyle.Caption,
-                ToolTip = "Valide le bulletin sans l'envoyer.",
-                SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
-                ConfirmationMessage = "Valider ce bulletin ?"
+                ToolTip = "Valide le(s) bulletin(s) sélectionné(s) sans les envoyer.",
+                // V1.8.6 - Passage en multi-sélection pour permettre la
+                // validation en masse (avant : un seul bulletin à la fois).
+                SelectionDependencyType = SelectionDependencyType.RequireMultipleObjects,
+                ConfirmationMessage = "Valider le(s) bulletin(s) sélectionné(s) ?"
             };
             _valider.Execute += OnValider;
 
@@ -64,8 +67,8 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             base.OnActivated();
 
-            // V1.4.3 — ValiderEtEnvoyer et RenvoyerBulletin sont OBSOLÈTES.
-            // Le nouveau workflow : Valider → Publier → (Re-notifier).
+            // V1.4.3 - ValiderEtEnvoyer et RenvoyerBulletin sont OBSOLÈTES.
+            // Le nouveau workflow : Valider -> Publier -> (Re-notifier).
             // L'envoi de PDF chiffré par email est remplacé par notification +
             // accès Espace Salarié (cf. BulletinPublishController).
             // On force ces actions à inactives pour les masquer en attendant
@@ -85,35 +88,69 @@ namespace AdiPAIE_V02.Module.Controllers
 
         private void OnValider(object sender, SimpleActionExecuteEventArgs e)
         {
-            var b = View.CurrentObject as Bulletin
-                    ?? throw new UserFriendlyException("Aucun bulletin en contexte.");
-
-            if (b.Statut != DomainEnums.BulletinStatut.Brouillon)
+            // V1.8.6 - Boucle sur les objets sélectionnés (validation en masse).
+            // Avant : ne traitait que View.CurrentObject -> un seul bulletin.
+            var bulletins = new System.Collections.Generic.List<Bulletin>();
+            if (e.SelectedObjects != null)
             {
-                Application.ShowViewStrategy.ShowMessage(
-                    $"Le bulletin est déjà en statut {b.Statut}.",
-                    InformationType.Info, 3000, InformationPosition.Top);
-                return;
+                foreach (var obj in e.SelectedObjects)
+                    if (obj is Bulletin b0) bulletins.Add(b0);
+            }
+            // Fallback DetailView : si aucune sélection multiple, on prend le courant.
+            if (bulletins.Count == 0 && View.CurrentObject is Bulletin bCur)
+                bulletins.Add(bCur);
+
+            if (bulletins.Count == 0)
+                throw new UserFriendlyException("Aucun bulletin sélectionné.");
+
+            int nbValides = 0, nbIgnores = 0;
+            var messagesIgnoreParStatut = new System.Collections.Generic.Dictionary<BulletinStatut, int>();
+
+            foreach (var b in bulletins)
+            {
+                if (b.Statut != BulletinStatut.Brouillon)
+                {
+                    nbIgnores++;
+                    if (!messagesIgnoreParStatut.ContainsKey(b.Statut))
+                        messagesIgnoreParStatut[b.Statut] = 0;
+                    messagesIgnoreParStatut[b.Statut]++;
+                    continue;
+                }
+
+                var ancienStatut = b.Statut;
+
+                // 1. Passer en Valide
+                b.Statut = BulletinStatut.Valide;
+
+                // 2. Marquer les échéances du mois comme Prélevées
+                b.ValiderRemboursementsPrets();
+
+                ObjectSpace.SetModified(b);
+                nbValides++;
+
+                SvcAudit.Enregistrer(Application, "Bulletin", "Valider",
+                    b.Oid.ToString(), b.DisplayName,
+                    $"Net à payer : {b.NetAPayer:N0} FCFA",
+                    ancienStatut: ancienStatut.ToString(), nouveauStatut: "Validé");
             }
 
-            // 1. Passer en Valide
-            b.Statut = DomainEnums.BulletinStatut.Valide;
-
-            // 2. Marquer automatiquement les échéances du mois comme Prélevées
-            b.ValiderRemboursementsPrets();
-
-            ObjectSpace.SetModified(b);
             ObjectSpace.CommitChanges();
             View.ObjectSpace.Refresh();
 
-            SvcAudit.Enregistrer(Application, "Bulletin", "Valider",
-                b.Oid.ToString(), b.DisplayName,
-                $"Net à payer : {b.NetAPayer:N0} FCFA",
-                ancienStatut: "Brouillon", nouveauStatut: "Validé");
+            var msg = nbValides > 0
+                ? $"{nbValides} bulletin(s) validé(s) - remboursements prêts enregistrés."
+                : "Aucun bulletin validé.";
+            if (nbIgnores > 0)
+            {
+                var detailsIgnores = string.Join(", ",
+                    messagesIgnoreParStatut.Select(kv => $"{kv.Value} en {kv.Key}"));
+                msg += $" {nbIgnores} ignoré(s) (déjà validé(s)/clôturé(s) : {detailsIgnores}).";
+            }
 
             Application.ShowViewStrategy.ShowMessage(
-                "Bulletin validé — remboursements prêts enregistrés.",
-                InformationType.Success, 2500, InformationPosition.Top);
+                msg,
+                nbValides > 0 ? InformationType.Success : InformationType.Info,
+                4500, InformationPosition.Top);
         }
 
         private async void OnValiderEtEnvoyerAsync(object sender, SimpleActionExecuteEventArgs e)
@@ -159,7 +196,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 var senderSvc = p.CreateEmailSender()
                              ?? throw new UserFriendlyException("Service d'envoi d'e-mails indisponible.");
 
-                var subject = $"Bulletin de paie – {bReloaded.Periode}";
+                var subject = $"Bulletin de paie - {bReloaded.Periode}";
                 var bodyHtml = $@"<p>Bonjour {bReloaded.Salarie?.FullName},</p>
 <p>Veuillez trouver ci-joint votre bulletin de paie pour <b>{bReloaded.Periode}</b>.</p>
 <p><i>Ce document est protégé par votre clé personnelle.</i></p>
@@ -214,7 +251,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 var senderSvc = p.CreateEmailSender()
                              ?? throw new UserFriendlyException("Service d'envoi indisponible.");
 
-                var subject = $"[RENVOI] Bulletin de paie – {bReloaded.Periode}";
+                var subject = $"[RENVOI] Bulletin de paie - {bReloaded.Periode}";
                 var bodyHtml = $@"<p>Bonjour {bReloaded.Salarie?.FullName},</p>
 <p>Je vous renvoie votre bulletin de paie pour <b>{bReloaded.Periode}</b> en pièce jointe.</p>
 <p>Cordialement,<br/>{p.MailFromDisplayName}</p>";

@@ -1,5 +1,5 @@
 // =============================================================================
-//  DashboardAuthHelper.cs — DÉPLACÉ
+//  DashboardAuthHelper.cs - DÉPLACÉ
 //
 //  Ce fichier est conservé vide pour éviter des conflits de namespace.
 //  L'implémentation réelle est dans :

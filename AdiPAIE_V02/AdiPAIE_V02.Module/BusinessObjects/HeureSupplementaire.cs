@@ -56,7 +56,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         private decimal nombreHeures;
 
-        // ── Taux de majoration (%) — calculé automatiquement, modifiable ──
+        // ── Taux de majoration (%) - calculé automatiquement, modifiable ──
         [XafDisplayName("Taux majoration (%)")]
         [DbType("decimal(18,2)")]
         [ModelDefault("DisplayFormat", "N2"), ModelDefault("EditMask", "N2")]
@@ -131,7 +131,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         // ── Display ──
         [NonPersistent]
-        public string DisplayName => $"{TypeHS} — {NombreHeures:N2}h";
+        public string DisplayName => $"{TypeHS} - {NombreHeures:N2}h";
 
         // ── Logique métier ──
 

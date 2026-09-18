@@ -1,5 +1,5 @@
 // AdiPAIE_V02.Module/Services/RapportCEOData.cs
-// DTO 100 % primitifs — thread-safe, aucun objet XPO.
+// DTO 100 % primitifs - thread-safe, aucun objet XPO.
 using System;
 using System.Collections.Generic;
 

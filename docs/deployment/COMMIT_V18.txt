@@ -1,4 +1,4 @@
-V1.8 — Refonte calcul congés + ICCP + RBAC autonomes + Net hors AvNature
+V1.8 - Refonte calcul congés + ICCP + RBAC autonomes + Net hors AvNature
 
 Préparation mise en production ELTON. Refonte du calcul des indemnités de
 congé et de l'ICCP pour aligner sur la CCT Sénégal Art. 57/58 et la pratique
@@ -6,20 +6,20 @@ réelle ELTON validée par le RH. Plus correctifs RBAC pour décombiner les rôl
 managers (RH/DAF/DG) du rôle Employé.
 
 ═══════════════════════════════════════════════════════════════════════════
-BLOC A — Corrections moteur de paie (formule CCT Sénégal)
+BLOC A - Corrections moteur de paie (formule CCT Sénégal)
 ═══════════════════════════════════════════════════════════════════════════
 
 - ProvisionCongesService : diviseur 22 → 24 (= 2 j/mois × 12 jours CCT)
 - ProvisionCongesService.CalculerBonusAnciennete : seuils inclusifs (>=)
   + bonus 25+ ans à 7 (convention ELTON plus favorable que CCT +6)
 - ProvisionCongesService.CalculerBonusEnfants : suppression de la "règle A"
-  (1j/enfant <14ans) — pas dans CCT L150. Garde règles B et C.
+  (1j/enfant <14ans) - pas dans CCT L150. Garde règles B et C.
 - DossierOffboarding.CalculerSoldeToutCompte : ICCP refait avec
   (Σ brut imposable 12 mois / 12) × Solde / 24 au lieu de SalaireBase × Solde / 26
 - DossierOffboarding.CalculerBrutImposableMoyen12Mois : nouvelle méthode privée
 
 ═══════════════════════════════════════════════════════════════════════════
-BLOC B — Modèle enrichi pour la mise en prod
+BLOC B - Modèle enrichi pour la mise en prod
 ═══════════════════════════════════════════════════════════════════════════
 
 - SoldeConge : ajout SoldeArreteAu (DateTime?), SoldeAVerifier (bool),
@@ -29,10 +29,10 @@ BLOC B — Modèle enrichi pour la mise en prod
 - SeedService : nouvelle rubrique ICCP "Indemnité de congés compensatrice"
   (ordre 24, après CONGE_PAYE ordre 23) avec TypeRef AV_NAT_IMPOS
 - SeedService : nouveau TypeRef AV_NAT_NON_IMP (avantages nature non imposables)
-- SeedService : AV_TEL corrigé — passe de tBrute à tAvNatureImpos
+- SeedService : AV_TEL corrigé - passe de tBrute à tAvNatureImpos
 
 ═══════════════════════════════════════════════════════════════════════════
-BLOC C — Service métier + Popups UI
+BLOC C - Service métier + Popups UI
 ═══════════════════════════════════════════════════════════════════════════
 
 - BulletinCongeService (NEW) : calcul allocation + génération lignes bulletin
@@ -47,7 +47,7 @@ BLOC C — Service métier + Popups UI
 - SaisieSoldeInitialController (NEW) : action "Saisir solde initial"
 
 ═══════════════════════════════════════════════════════════════════════════
-BLOC D — Boutons DetailView Bulletin
+BLOC D - Boutons DetailView Bulletin
 ═══════════════════════════════════════════════════════════════════════════
 
 - BulletinRecalcController : refactor en 2 actions distinctes
@@ -55,11 +55,11 @@ BLOC D — Boutons DetailView Bulletin
   * "Recalculer cotisations" (NEW) → RecalculerSurGrilleExistante (léger,
     préserve les rubriques manuelles)
 - BulletinAjouterLigneController (NEW) : workaround bug XAF Blazor sur
-  collections Aggregated — action "Ajouter une ligne" dans la barre Edit
+  collections Aggregated - action "Ajouter une ligne" dans la barre Edit
   qui ouvre un popup BulletinLigne avec Bulletin pré-rempli
 
 ═══════════════════════════════════════════════════════════════════════════
-BLOC E — Fixes RBAC critiques
+BLOC E - Fixes RBAC critiques
 ═══════════════════════════════════════════════════════════════════════════
 
 - HideEspaceSalarieController (NEW) : masque "Mon espace" pour RH/DAF/DG
@@ -79,12 +79,12 @@ BLOC E — Fixes RBAC critiques
   en SecuredObjectSpace combo RH+Employé)
 - BulletinEspaceSalarieReadOnlyController : EstSalarieConnecte →
   DoitRestreindreEspaceSalarie (le DetailView Bulletin passait en
-  lecture seule pour les managers liés à un Salarié — bug critique)
+  lecture seule pour les managers liés à un Salarié - bug critique)
 - EspaceSalarieColumnsController : même fix (masquait les colonnes
   Bulletin_ListView pour les managers)
 
 ═══════════════════════════════════════════════════════════════════════════
-BLOC F — Modèle et UI
+BLOC F - Modèle et UI
 ═══════════════════════════════════════════════════════════════════════════
 
 - BulletinLigne : RuleCombinationOfPropertiesIsUnique sur (Bulletin, Rubrique)
@@ -92,10 +92,10 @@ BLOC F — Modèle et UI
 - Bulletin.CalculerBaseCFCE_SelonParametres : nouvelle méthode qui lit
   ParametresPaie.ModeBaseCFCE pour déterminer si la CFCE inclut ou non
   les avantages en nature (configurable par le DAF)
-- Bulletin.RecalculerTotauxDepuisLignes : V1.8.1 — Net APayer exclut
+- Bulletin.RecalculerTotauxDepuisLignes : V1.8.1 - Net APayer exclut
   maintenant les avantages en nature (gainsAvantagesNature séparé).
   Avant : Net incluait les 20 000 d'avantage à tort.
-- Bulletin.UpdateSyntheseFiscale : V1.8.1 — Cumuls YTD
+- Bulletin.UpdateSyntheseFiscale : V1.8.1 - Cumuls YTD
   (BrutFiscal/BrutSocial/NetAPayer) calculés via LINQ XPO + valeur
   courante en mémoire au lieu de Session.Evaluate (qui ne voit pas
   les modifs non commitées)
@@ -103,7 +103,7 @@ BLOC F — Modèle et UI
   (p0 → N0, valeur en base inchangée, juste affichage 30 % au lieu de 3 000 %)
 
 ═══════════════════════════════════════════════════════════════════════════
-BLOC G — Help mis à jour (encadrés orange "V1.8 juin 2026")
+BLOC G - Help mis à jour (encadrés orange "V1.8 juin 2026")
 ═══════════════════════════════════════════════════════════════════════════
 
 - wwwroot/help/conges.html : formule CCT Art. 57, bonus ancienneté/mère,
@@ -116,7 +116,7 @@ BLOC G — Help mis à jour (encadrés orange "V1.8 juin 2026")
   + impact pour forts cumuls (DAF 220 j)
 
 ═══════════════════════════════════════════════════════════════════════════
-BLOC H — Déploiement
+BLOC H - Déploiement
 ═══════════════════════════════════════════════════════════════════════════
 
 - docs/deployment/Deploy-AdiPAIE-V18.ps1 (NEW) : script PowerShell

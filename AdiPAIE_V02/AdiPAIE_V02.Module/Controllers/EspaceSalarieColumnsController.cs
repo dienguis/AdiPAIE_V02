@@ -54,7 +54,7 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             base.OnActivated();
 
-            // V1.8 — Bug corrigé : on utilisait EstSalarieConnecte qui retournait
+            // V1.8 - Bug corrigé : on utilisait EstSalarieConnecte qui retournait
             // true pour TOUT user lié à un Salarie (même les managers RH/DAF/DG/Admin
             // qui ont leur Email = UserName). Conséquence : les colonnes
             // "RH" du Bulletin_ListView (BrutFiscal, BrutSocial, Matricule,

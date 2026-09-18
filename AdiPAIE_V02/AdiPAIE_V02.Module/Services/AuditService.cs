@@ -54,7 +54,7 @@ namespace AdiPAIE_V02.Module.Services
 
         /// <summary>
         /// Enregistre une action d'audit à partir d'une Session XPO existante.
-        /// Ne fait PAS de commit — l'appelant doit gérer le commit.
+        /// Ne fait PAS de commit - l'appelant doit gérer le commit.
         /// </summary>
         public static void EnregistrerDansSession(
             Session session,

@@ -24,7 +24,7 @@ namespace AdiPAIE_V02.Module.Controllers
         protected override void OnActivated()
         {
             base.OnActivated();
-            // Masquer partout — remplacé par l'envoi en lot
+            // Masquer partout - remplacé par l'envoi en lot
             action.Active["Obsolete"] = false;
         }
 

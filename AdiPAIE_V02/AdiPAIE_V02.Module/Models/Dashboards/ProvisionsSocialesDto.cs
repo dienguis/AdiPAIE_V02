@@ -1,5 +1,5 @@
 // =============================================================================
-//  ProvisionsSocialesDto.cs — V1.2 (mai 2026)
+//  ProvisionsSocialesDto.cs - V1.2 (mai 2026)
 //
 //  DTO du dashboard "Provisions Sociales" (cf. MISSION_STATE 9.3).
 //  Calcule les provisions IDR (Indemnité de Départ à la Retraite, barème

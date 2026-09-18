@@ -98,7 +98,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             AuditService.Enregistrer(Application, "DemandeAttestation", "Rejeter",
                 demande.Oid.ToString(), demande.Salarie?.FullName,
-                $"Demande d'attestation {demande.Nature} du {demande.DateDemande:dd/MM/yyyy} rejetée — Motif : {demande.CommentaireRH ?? "aucun motif enregistré"}",
+                $"Demande d'attestation {demande.Nature} du {demande.DateDemande:dd/MM/yyyy} rejetée - Motif : {demande.CommentaireRH ?? "aucun motif enregistré"}",
                 ancienStatut: ancienStatut, nouveauStatut: demande.Statut.ToString());
             ObjectSpace.CommitChanges();
             View.Refresh();
@@ -189,14 +189,14 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
                 var valideurs = demande.ValideurN1?.FullName
                     + (demande.ValideurN2 != null ? " → " + demande.ValideurN2.FullName : "");
-                var sujet = $"[AdiPAIE] Demande d'attestation validée — {demande.Salarie?.FullName}";
+                var sujet = $"[AdiPAIE] Demande d'attestation validée - {demande.Salarie?.FullName}";
                 var body = WorkflowEmailHelper.HtmlTableau(
-                    "Demande d'attestation — validée par la hiérarchie",
+                    "Demande d'attestation - validée par la hiérarchie",
                     "La demande est disponible pour traitement dans AdiPAIE.",
                     new[]
                     {
-                        ("Salarié",      demande.Salarie?.FullName ?? "—"),
-                        ("Nature",       demande.Nature?.ToString() ?? "—"),
+                        ("Salarié",      demande.Salarie?.FullName ?? "-"),
+                        ("Nature",       demande.Nature?.ToString() ?? "-"),
                         ("Date demande", demande.DateDemande.ToString("dd/MM/yyyy")),
                         ("Validé par",   valideurs),
                     });

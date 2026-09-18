@@ -10,7 +10,7 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 namespace AdiPAIE_V02.Module.BusinessObjects.RH
 {
     [DefaultClassOptions]
-    [ImageName("BO_Company")]  // V1.1 — icône XAF native (entreprise tierce)
+    [ImageName("BO_Company")]  // V1.1 - icône XAF native (entreprise tierce)
     [XafDisplayName("Societe d'interim")]
     [DefaultProperty(nameof(RaisonSociale))]
    // [NavigationItem("GRH - Interimaires")]
@@ -50,7 +50,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
     }
 
     [DefaultClassOptions]
-    [ImageName("BO_Notification")]  // V1.1 — icône XAF native (alerte/notification)
+    [ImageName("BO_Notification")]  // V1.1 - icône XAF native (alerte/notification)
     [XafDisplayName("Alerte interimaire")]
     [DefaultProperty(nameof(Message))]
    // [NavigationItem("GRH - Interimaires")]

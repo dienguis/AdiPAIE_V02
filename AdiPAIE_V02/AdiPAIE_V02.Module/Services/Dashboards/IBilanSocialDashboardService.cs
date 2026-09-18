@@ -1,6 +1,6 @@
 // =============================================================================
 //  IBilanSocialDashboardService.cs
-//  Tableau N°6 (Bilan Social Mensuel) — INTERNE.
+//  Tableau N°6 (Bilan Social Mensuel) - INTERNE.
 // =============================================================================
 
 using System.Collections.Generic;

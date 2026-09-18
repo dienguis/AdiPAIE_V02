@@ -1,5 +1,5 @@
 // =============================================================================
-//  SaisieCongeController.cs — V1.8 (juin 2026)
+//  SaisieCongeController.cs - V1.8 (juin 2026)
 //
 //  Action "Saisir un congé" sur le DetailView de Salarie.
 //
@@ -66,7 +66,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
         // ─────────────────────────────────────────────────────────────
         //  Construction du popup avec pré-remplissage intelligent
-        //  V1.8 — Pour requêter des entités persistentes (CongeType,
+        //  V1.8 - Pour requêter des entités persistentes (CongeType,
         //  Bulletin) depuis un NonPersistentObjectSpace, on doit ajouter
         //  l'OS persistent à AdditionalObjectSpaces. Sans ça XAF lève
         //  une ArgumentException "Cannot handle the type".
@@ -85,7 +85,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             var request = osNp.CreateObject<SaisieCongeRequest>();
 
-            // Pré-remplissage par défaut — query sur l'OS persistent additionnel
+            // Pré-remplissage par défaut - query sur l'OS persistent additionnel
             request.TypeConge = osP.GetObjectsQuery<CongeType>()
                 .ToList()
                 .FirstOrDefault(t => string.Equals(t.Code, "CPAYE",
@@ -117,7 +117,7 @@ namespace AdiPAIE_V02.Module.Controllers
             }
 
             var detailView = Application.CreateDetailView(osNp, request);
-            detailView.Caption = $"Saisir un congé — {salarie?.FullName ?? "salarié"}";
+            detailView.Caption = $"Saisir un congé - {salarie?.FullName ?? "salarié"}";
 
             e.View = detailView;
         }
@@ -161,7 +161,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
                     if (!res.Succes || res.Montant <= 0)
                     {
-                        ShowError("Calcul AUTO impossible — vérifiez que le " +
+                        ShowError("Calcul AUTO impossible - vérifiez que le " +
                                   "salarié a au moins 1 bulletin sur les 12 " +
                                   "derniers mois. Passez en mode MANUEL si " +
                                   "saisie rétroactive.");
@@ -184,7 +184,7 @@ namespace AdiPAIE_V02.Module.Controllers
                 var modeBulletin = parametres?.ModeBulletinConges
                     ?? DomainEnums.ModeBulletinConges.BulletinUnique;
 
-                // ─── 3. V1.8 — Bascule en bulletin de congé (si demandé)
+                // ─── 3. V1.8 - Bascule en bulletin de congé (si demandé)
                 //    Supprime les rubriques de salaire normal AVANT d'ajouter
                 //    l'indemnité de congé. Uniquement pour AllocationConge.
                 int nbLignesSupprimees = 0;
@@ -192,7 +192,7 @@ namespace AdiPAIE_V02.Module.Controllers
                     && request.BasculerEnBulletinDeConge)
                 {
                     // Chercher le bulletin existant (sera créé par CreerLigneAllocationConge
-                    // s'il n'existe pas — dans ce cas, rien à nettoyer)
+                    // s'il n'existe pas - dans ce cas, rien à nettoyer)
                     var bulletinExistant = os.GetObjectsQuery<Bulletin>()
                         .FirstOrDefault(b => b.Salarie.Oid == salarie.Oid
                                           && b.Annee == request.AnneeBulletin
@@ -244,14 +244,14 @@ namespace AdiPAIE_V02.Module.Controllers
                             (request.TypeOperation == TypeOperationConge.AllocationConge
                                 ? "Congé pris"
                                 : "Rachat ICCP")
-                            + $" — {montant:N0} FCFA"
+                            + $" - {montant:N0} FCFA"
                             + (string.IsNullOrWhiteSpace(request.Motif)
                                 ? ""
-                                : $" — {request.Motif}"));
+                                : $" - {request.Motif}"));
                 }
                 catch (Exception exSolde)
                 {
-                    // Non bloquant — la ligne bulletin est créée même si le
+                    // Non bloquant - la ligne bulletin est créée même si le
                     // débit solde échoue (à régulariser manuellement)
                     Application.ShowViewStrategy?.ShowMessage(
                         $"⚠️ Ligne bulletin créée mais débit solde a échoué : {exSolde.Message}",

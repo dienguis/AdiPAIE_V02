@@ -1,5 +1,5 @@
 // =============================================================================
-//  SuiviAbsencesDto.cs — V1.3.2 (mai 2026)
+//  SuiviAbsencesDto.cs - V1.3.2 (mai 2026)
 //
 //  REFONTE pour atteindre le niveau de l'Excel "SUIVI ABSENCES 2026" ELTON :
 //    - 6 KPIs (Effectif Moyen, se sont Absentés, Total jours, Taux Absentéisme,
@@ -56,7 +56,7 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         /// <summary>Par département.</summary>
         public List<DimRowDto> ParDepartement { get; set; } = new();
 
-        /// <summary>Évolution mensuelle 12 mois — Absentéisme + Programmées séparées.</summary>
+        /// <summary>Évolution mensuelle 12 mois - Absentéisme + Programmées séparées.</summary>
         public List<MoisAbsenceDto> ParMois { get; set; } = new();
 
         /// <summary>Liste détaillée par employé avec décomposition motif (toutes lignes).</summary>

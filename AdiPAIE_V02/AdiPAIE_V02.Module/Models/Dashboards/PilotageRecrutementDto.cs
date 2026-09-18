@@ -1,7 +1,7 @@
 // =============================================================================
-//  PilotageRecrutementDto.cs — V1.4 (mai 2026)
+//  PilotageRecrutementDto.cs - V1.4 (mai 2026)
 //
-//  Dashboard N°12 — Pilotage Recrutement.
+//  Dashboard N°12 - Pilotage Recrutement.
 //  Vue 360° du processus de recrutement ELTON :
 //   - KPIs hauts : postes ouverts, candidatures actives, embauches, délai moyen
 //   - Pipeline (funnel) par étape (Reçue → Embauché)

@@ -146,7 +146,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
         [NonPersistent]
         public string DisplayName =>
-            $"{Categorie} — {Titre}";
+            $"{Categorie} - {Titre}";
 
         // ── Init ──────────────────────────────────────────────
         public override void AfterConstruction()

@@ -144,9 +144,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
                 ref renouvelerAnneeProchaine, value);
         }
 
-        // ── Évaluation à froid — champs du formulaire ────────────
+        // ── Évaluation à froid - champs du formulaire ────────────
 
-        // Q1 — Besoin réel de suivre la formation ?
+        // Q1 - Besoin réel de suivre la formation ?
         BesoinFormationReponse? besoinReel;
         [XafDisplayName("Besoin réel de cette formation")]
         [Category("Évaluation à froid")]
@@ -157,7 +157,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(BesoinReel), ref besoinReel, value);
         }
 
-        // Q2 — La formation répondait-elle au besoin ?
+        // Q2 - La formation répondait-elle au besoin ?
         AdequationFormationReponse? adequationBesoin;
         [XafDisplayName("Formation adaptée au besoin")]
         [Category("Évaluation à froid")]
@@ -168,7 +168,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(AdequationBesoin), ref adequationBesoin, value);
         }
 
-        // Q2b — Si non/partiellement, pourquoi ?
+        // Q2b - Si non/partiellement, pourquoi ?
         string raisonInadequation;
         [Size(500)]
         [XafDisplayName("Raison si inadéquation")]
@@ -179,7 +179,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(RaisonInadequation), ref raisonInadequation, value?.Trim());
         }
 
-        // Q3 — Initiative de la formation ?
+        // Q3 - Initiative de la formation ?
         InitiativeFormationReponse? initiativeFormation;
         [XafDisplayName("Initiative de la formation")]
         [Category("Évaluation à froid")]
@@ -189,7 +189,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(InitiativeFormation), ref initiativeFormation, value);
         }
 
-        // Q4 — Mise en pratique des connaissances ?
+        // Q4 - Mise en pratique des connaissances ?
         MisePratiqueReponse? misePratique;
         [XafDisplayName("Mise en pratique des connaissances")]
         [Category("Évaluation à froid")]
@@ -200,7 +200,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(MisePratique), ref misePratique, value);
         }
 
-        // Q5 — Fréquence de mise en pratique ?
+        // Q5 - Fréquence de mise en pratique ?
         FrequencePratiqueReponse? frequencePratique;
         [XafDisplayName("Fréquence de mise en pratique")]
         [Category("Évaluation à froid")]
@@ -210,7 +210,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(FrequencePratique), ref frequencePratique, value);
         }
 
-        // Q5b — Si non/partiellement, pourquoi ?
+        // Q5b - Si non/partiellement, pourquoi ?
         string raisonNonPratique;
         [Size(500)]
         [XafDisplayName("Obstacle à la mise en pratique")]
@@ -221,7 +221,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(RaisonNonPratique), ref raisonNonPratique, value?.Trim());
         }
 
-        // Q6 — Facteurs favorisant la mise en pratique ?
+        // Q6 - Facteurs favorisant la mise en pratique ?
         string facteursavorisants;
         [Size(500)]
         [XafDisplayName("Facteurs favorisant la pratique")]
@@ -232,7 +232,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(FacteursFavorisants), ref facteursavorisants, value?.Trim());
         }
 
-        // Q7 — Entretien fait avec le collaborateur ?
+        // Q7 - Entretien fait avec le collaborateur ?
         bool? entretienFait;
         [XafDisplayName("Entretien fait avec le collaborateur")]
         [Category("Évaluation à froid")]
@@ -242,7 +242,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(EntretienFait), ref entretienFait, value);
         }
 
-        // Q8 — Remarques du collaborateur
+        // Q8 - Remarques du collaborateur
         string remarquesCollaborateur;
         [Size(1000)]
         [XafDisplayName("Remarques du collaborateur")]
@@ -253,7 +253,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
             set => SetPropertyValue(nameof(RemarquesCollaborateur), ref remarquesCollaborateur, value?.Trim());
         }
 
-        // Q9 — Résultat atteint ?
+        // Q9 - Résultat atteint ?
         ResultatAtteintReponse? resultatAtteint;
         [XafDisplayName("Résultat atteint")]
         [Category("Évaluation à froid")]
@@ -266,9 +266,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Affichage ─────────────────────────────────────────
         [NonPersistent]
         public string DisplaySuivi =>
-            $"{Salarie?.LastName} — {IntituleFormation} ({DateFormation:dd/MM/yyyy})";
+            $"{Salarie?.LastName} - {IntituleFormation} ({DateFormation:dd/MM/yyyy})";
 
-        // ── Factory — crée depuis une inscription ─────────────
+        // ── Factory - crée depuis une inscription ─────────────
         /// <summary>
         /// Crée un SuiviFormation depuis une InscriptionFormation à la clôture de session.
         /// Appelé par le controller de workflow.

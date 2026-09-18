@@ -1,7 +1,7 @@
 // =============================================================================
-//  CoutReelInterimDto.cs — V1.3 Sprint 1 (mai 2026)
+//  CoutReelInterimDto.cs - V1.3 Sprint 1 (mai 2026)
 //
-//  Dashboard N°11 — Coût Réel Intérimaires.
+//  Dashboard N°11 - Coût Réel Intérimaires.
 //  Compare le coût réel facturé (BulletinInterim.TTC) avec le coût théorique
 //  contrat (TauxJournalier × 22 jours × nbMois). Ventilé par intérimaire,
 //  par site, par société d'intérim, sur 12 mois glissants.
@@ -25,7 +25,7 @@ namespace AdiPAIE_V02.Module.Models.Dashboards
         // Évolution sur 12 mois glissants (TTC mensuel)
         public List<EvolutionTTCDto> Evolution { get; set; } = new();
 
-        // Comparaison contrat (théorique) vs réel (TTC) — détail par intérimaire
+        // Comparaison contrat (théorique) vs réel (TTC) - détail par intérimaire
         public List<EcartContratReelDto> EcartContratReel { get; set; } = new();
 
         // Coût par société d'intérim

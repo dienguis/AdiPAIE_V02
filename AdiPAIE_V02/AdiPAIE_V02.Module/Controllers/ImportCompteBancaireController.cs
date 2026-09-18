@@ -21,8 +21,8 @@ namespace AdiPAIE_V02.Module.Controllers
     /// Controller placé sur le DetailView du Centre d'imports.
     ///
     /// Deux actions (catégorie "ImportsHub") :
-    ///   1. « Importer Comptes » — popup avec FileData + ImportCompteBancaireService.Importer()
-    ///   2. « Modèle Comptes »   — télécharge un Excel modèle vide
+    ///   1. « Importer Comptes » - popup avec FileData + ImportCompteBancaireService.Importer()
+    ///   2. « Modèle Comptes »   - télécharge un Excel modèle vide
     /// </summary>
     public class ImportCompteBancaireController
         : ObjectViewController<DetailView, CentreImports>

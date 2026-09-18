@@ -1,6 +1,6 @@
 // =============================================================================
 //  EffectifDetailleDashboardService.cs
-//  Tableau N°1 (Effectif détaillé) — implémentation XPO du service.
+//  Tableau N°1 (Effectif détaillé) - implémentation XPO du service.
 //
 //  Pattern :
 //   - Service agnostique XAF : prend IObjectSpace en paramètre des méthodes.
@@ -31,7 +31,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
     {
         private readonly IMemoryCache _cache;
 
-        // TTL du cache mémoire — 5 min par défaut (suffisant pour usage dashboard).
+        // TTL du cache mémoire - 5 min par défaut (suffisant pour usage dashboard).
         private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(5);
 
         public EffectifDetailleDashboardService(IMemoryCache cache)
@@ -40,7 +40,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        //  GetData — orchestration KPIs / Évolution / Tableaux / Bar chart
+        //  GetData - orchestration KPIs / Évolution / Tableaux / Bar chart
         // ─────────────────────────────────────────────────────────────────────
         public EffectifDetailleDto GetData(
             EffectifDetailleFilterModel filter,
@@ -82,7 +82,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
         //   1) On matérialise la base (DateEmbauche <= dateRef + filtres
         //      indexables Site / Sexe) en SQL pur.
         //   2) On applique le filtre DateSortie en mémoire (LINQ-to-Objects)
-        //      qui n'envoie plus rien à SQL — DateTime.MinValue y est OK.
+        //      qui n'envoie plus rien à SQL - DateTime.MinValue y est OK.
         //   3) On applique aussi le filtre TypeContrat en mémoire (déjà
         //      le cas avant ce fix).
         // ─────────────────────────────────────────────────────────────────────
@@ -99,12 +99,12 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             if (filter.Genre.HasValue)
                 qSql = qSql.Where(s => s.Sexe == filter.Genre.Value);
 
-            // Matérialisation — la suite est en mémoire.
+            // Matérialisation - la suite est en mémoire.
             var materialized = qSql.ToList();
 
             // ── Étape 2 : filtre DateSortie en mémoire (évite SqlDateTime
             //              overflow sur les sentinelles, et couvre toute valeur
-            //              < 1900-01-01 — épôque Excel et DateTime.MinValue) ──
+            //              < 1900-01-01 - épôque Excel et DateTime.MinValue) ──
             //              Convention alignée sur SPEC_PowerBI_DAX_to_SQL.sql.
             var sentinelleSortie = new DateTime(1900, 1, 1);
             IEnumerable<Salarie> q = materialized.Where(s =>
@@ -308,7 +308,7 @@ namespace AdiPAIE_V02.Module.Services.Dashboards
             // On essaie d'inférer l'année minimum à partir des DateEmbauche en
             // base, mais on borne entre N-15 et N+0 quoi qu'il arrive. Si la
             // requête min() échoue (DB vide, schéma incomplet), on retombe
-            // sur les 6 dernières années par défaut — comme ça l'utilisateur
+            // sur les 6 dernières années par défaut - comme ça l'utilisateur
             // a TOUJOURS un choix non vide.
             int anneeMin;
             int anneeMax = DateTime.Today.Year;

@@ -35,7 +35,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             if (salConn == null)
             {
-                // RH / Admin — voit tout
+                // RH / Admin - voit tout
                 View.CollectionSource.Criteria["InscriptionFilter"] = null;
                 return;
             }
@@ -97,7 +97,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
     // ══════════════════════════════════════════════════════════════════════
     // FILTRE SESSIONS DE FORMATION
     //   Salarié    → uniquement les sessions Confirmées ou En cours
-    //               (pas les sessions Planifiée/Annulée — pas encore publiques)
+    //               (pas les sessions Planifiée/Annulée - pas encore publiques)
     //   Manager    → idem
     //   RH / Admin → toutes (aucun filtre)
     // ══════════════════════════════════════════════════════════════════════
@@ -120,7 +120,7 @@ namespace AdiPAIE_V02.Module.Controllers.RH
 
             if (user?.Salarie == null)
             {
-                // RH / Admin — voit tout
+                // RH / Admin - voit tout
                 View.CollectionSource.Criteria["SessionFilter"] = null;
                 return;
             }

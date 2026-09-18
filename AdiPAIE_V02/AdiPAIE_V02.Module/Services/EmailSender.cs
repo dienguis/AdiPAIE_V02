@@ -11,7 +11,7 @@ namespace AdiPAIE_V02.Module.Services
     }
 
     /// <summary>
-    /// V1.5.2 (QW4) — SmtpEmailSender amélioré :
+    /// V1.5.2 (QW4) - SmtpEmailSender amélioré :
     ///   - Timeout configurable (par défaut 30 secondes)
     ///   - Retry exponentiel (3 tentatives avec backoff 1s / 3s / 9s) sur
     ///     erreurs transitoires (timeout, déconnexion réseau, status 4xx/5xx
@@ -23,7 +23,7 @@ namespace AdiPAIE_V02.Module.Services
     ///     constants (cas chez ELTON)
     ///
     /// Le SendAsync (extension dans EmailSenderAsyncExtensions) délègue
-    /// au threadpool — cumul de Send synchrones, déjà non bloquant pour l'UI.
+    /// au threadpool - cumul de Send synchrones, déjà non bloquant pour l'UI.
     /// </summary>
     public class SmtpEmailSender : IEmailSender
     {
@@ -34,7 +34,7 @@ namespace AdiPAIE_V02.Module.Services
         private readonly string pass;
         private readonly string from;
 
-        // V1.5.2 — config robustesse
+        // V1.5.2 - config robustesse
         private readonly int timeoutMs;
         private readonly int maxRetries;
         private readonly int initialBackoffMs;

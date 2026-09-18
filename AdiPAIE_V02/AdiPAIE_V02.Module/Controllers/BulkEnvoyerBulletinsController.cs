@@ -57,7 +57,7 @@ namespace AdiPAIE_V02.Module.Controllers
 
             var dv = Application.CreateDetailView(npos, prm, true);
             dv.ViewEditMode = DevExpress.ExpressApp.Editors.ViewEditMode.Edit;
-            dv.Caption = $"Paramètres d'envoi — {periode.DisplayName}";
+            dv.Caption = $"Paramètres d'envoi - {periode.DisplayName}";
 
             var svp = new ShowViewParameters
             {
@@ -130,8 +130,8 @@ namespace AdiPAIE_V02.Module.Controllers
             var viewId = Application.FindListViewId(typeof(BulkSendPreviewItem));
             var lv = Application.CreateListView(viewId, cs, false);
             lv.Caption = prm.DryRun
-                ? $"Aperçu [DRY-RUN → {prm.OverrideEmail}] — {prm.PeriodeCaption}"
-                : $"Aperçu [RÉEL] — {prm.PeriodeCaption}";
+                ? $"Aperçu [DRY-RUN → {prm.OverrideEmail}] - {prm.PeriodeCaption}"
+                : $"Aperçu [RÉEL] - {prm.PeriodeCaption}";
 
             var svp = new ShowViewParameters
             {
@@ -142,7 +142,7 @@ namespace AdiPAIE_V02.Module.Controllers
             var dc = Application.CreateController<DialogController>();
             dc.SaveOnAccept = false;
 
-            // AcceptAction renommé "Envoyer" — déclenche l'envoi
+            // AcceptAction renommé "Envoyer" - déclenche l'envoi
             // Le popup se ferme PUIS le rapport s'affiche dans un nouveau popup
             dc.AcceptAction.Caption = prm.DryRun
                 ? "Envoyer (Dry-run)"
@@ -193,7 +193,7 @@ namespace AdiPAIE_V02.Module.Controllers
                     Application.ShowViewStrategy.ShowMessage(
                         sb.ToString(),
                         ko.Count == 0 ? InformationType.Success : InformationType.Warning,
-                        30000,  // 30 secondes — suffisant pour lire le rapport
+                        30000,  // 30 secondes - suffisant pour lire le rapport
                         InformationPosition.Top);
                 });
             };

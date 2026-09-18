@@ -1,5 +1,5 @@
 // =============================================================================
-//  BulletinInterimImportController.cs — V1.3 Sprint 1 (mai 2026)
+//  BulletinInterimImportController.cs - V1.3 Sprint 1 (mai 2026)
 //
 //  Ajoute le bouton "Charger livre de paie" dans la barre d'actions de la
 //  ListView de ImportBulletinInterimBatch. Le clic redirige vers la page

@@ -110,7 +110,7 @@ namespace AdiPAIE_V02.Module.Services
             };
 
             // Date de naissance (si disponible sur Person)
-            string birthday = "—";
+            string birthday = "-";
             try
             {
                 var bd = (sal as DevExpress.Persistent.BaseImpl.Person)?.Birthday;
@@ -119,10 +119,10 @@ namespace AdiPAIE_V02.Module.Services
             catch { }
 
             // Fonction
-            var fonctionIntitule = sal.Fonction?.Intitule ?? sal.Categories?.Intitule?? "—";
+            var fonctionIntitule = sal.Fonction?.Intitule ?? sal.Categories?.Intitule?? "-";
 
             // Échelon
-            var echelon = sal.Echelon?.Code ?? sal.Categories?.Intitule ?? "—";
+            var echelon = sal.Echelon?.Code ?? sal.Categories?.Intitule ?? "-";
 
             // Référence auto : format RH/NNN/MM/AA
             var numRef = $"RH/{new Random().Next(1, 999):D3}/{DateTime.Today:MM/yy}";
@@ -136,22 +136,22 @@ namespace AdiPAIE_V02.Module.Services
             var marqueurs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["{{Civilite}}"] = civilite,
-                ["{{FullName}}"] = sal.FullName ?? "—",
-                ["{{Matricule}}"] = sal.Matricule ?? "—",
-                //["{{Matricule}}"] = sal.Email ?? "—",
+                ["{{FullName}}"] = sal.FullName ?? "-",
+                ["{{Matricule}}"] = sal.Matricule ?? "-",
+                //["{{Matricule}}"] = sal.Email ?? "-",
                 ["{{Birthday}}"] = birthday,
                 ["{{DateEmbauche}}"] = sal.DateEmbauche != default
                                             ? sal.DateEmbauche.ToString("dd MMMM yyyy", cultureFr)
-                                            : "—",
+                                            : "-",
                 ["{{Fonction}}"] = fonctionIntitule,
                 ["{{Echelon}}"] = echelon,
                 ["{{NumeroRef}}"] = numRef,
                 ["{{DateDocument}}"] = DateTime.Today.ToString("dd MMMM yyyy", cultureFr),
                 ["{{VilleFait}}"] = "Dakar",
-                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "—",
+                ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "-",
                 ["{{AdresseSociete}}"] = adresse,
-                ["{{SignataireNom}}"] = prm?.SignatoryName ?? prm?.SignatureName ?? "—",
-                ["{{SignataireTitre}}"] = prm?.SignatoryTitle ?? prm?.SignatureTitle ?? "—",
+                ["{{SignataireNom}}"] = prm?.SignatoryName ?? prm?.SignatureName ?? "-",
+                ["{{SignataireTitre}}"] = prm?.SignatoryTitle ?? prm?.SignatureTitle ?? "-",
                 ["{{NombreParts}}"] = sal.NombrePartsFiscales.ToString("N1"),
                 ["{{SalaireBase}}"] = sal.SalaireBase.ToString("N0") + " FCFA",
             };
@@ -169,10 +169,10 @@ namespace AdiPAIE_V02.Module.Services
             else
             {
                 // Valeurs vides pour éviter les marqueurs non remplacés dans le template
-                marqueurs["{{DateDebutConge}}"] = "—";
-                marqueurs["{{DateFinConge}}"] = "—";
-                marqueurs["{{NombreJours}}"] = "—";
-                marqueurs["{{TypeConge}}"] = "—";
+                marqueurs["{{DateDebutConge}}"] = "-";
+                marqueurs["{{DateFinConge}}"] = "-";
+                marqueurs["{{NombreJours}}"] = "-";
+                marqueurs["{{TypeConge}}"] = "-";
                 marqueurs["{{MotifConge}}"] = string.Empty;
             }
 
@@ -182,22 +182,22 @@ namespace AdiPAIE_V02.Module.Services
             //return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             //{
             //    ["{{Civilite}}"] = civilite,
-            //    ["{{FullName}}"] = sal.FullName ?? "—",
-            //    ["{{Matricule}}"] = sal.Matricule ?? "—",
+            //    ["{{FullName}}"] = sal.FullName ?? "-",
+            //    ["{{Matricule}}"] = sal.Matricule ?? "-",
             //    ["{{Birthday}}"] = birthday,
 
             //    ["{{DateEmbauche}}"] = sal.DateEmbauche != default
             //     ? sal.DateEmbauche.ToString("dd MMMM yyyy", cultureFr)
-            //                             : "—",
+            //                             : "-",
             //    ["{{Fonction}}"] = fonctionIntitule,
             //    ["{{Echelon}}"] = echelon,
             //    ["{{NumeroRef}}"] = numRef,
             //    ["{{DateDocument}}"] = DateTime.Today.ToString("dd MMMM yyyy", cultureFr),
             //    ["{{VilleFait}}"] = "Dakar",
-            //    ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "—",
+            //    ["{{RaisonSociale}}"] = company?.RaisonSociale ?? "-",
             //    ["{{AdresseSociete}}"] = adresse,
-            //    ["{{SignataireNom}}"] = prm?.SignatoryName ?? prm?.SignatureName ?? "—",
-            //    ["{{SignataireTitre}}"] = prm?.SignatoryTitle ?? prm?.SignatureTitle ?? "—",
+            //    ["{{SignataireNom}}"] = prm?.SignatoryName ?? prm?.SignatureName ?? "-",
+            //    ["{{SignataireTitre}}"] = prm?.SignatoryTitle ?? prm?.SignatureTitle ?? "-",
             //    ["{{NombreParts}}"] = sal.NombrePartsFiscales.ToString("N1"),
             //    ["{{SalaireBase}}"] = sal.SalaireBase.ToString("N0") + " FCFA",
 
@@ -224,7 +224,7 @@ namespace AdiPAIE_V02.Module.Services
                     xml = reader.ReadToEnd();
 
                 // Étape 1 : nettoie les marqueurs fragmentés
-                // Word peut écrire {{Ma<w:r/>tricule}} — on nettoie les balises
+                // Word peut écrire {{Ma<w:r/>tricule}} - on nettoie les balises
                 // qui interrompent les marqueurs entre {{ et }}
                 xml = NettoierMarqueursFragmentes(xml);
 

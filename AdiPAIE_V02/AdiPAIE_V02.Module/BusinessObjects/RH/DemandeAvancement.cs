@@ -297,7 +297,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // ── Affichage ─────────────────────────────────────────
         [NonPersistent]
         public string DisplayAvancement =>
-            $"{Reference} — {Salarie?.FullName} ({TypeAvancement}) — {Statut}";
+            $"{Reference} - {Salarie?.FullName} ({TypeAvancement}) - {Statut}";
 
         // ── Collection inverse HistoriquePoste ───────────────
         [Association("Avancement-Historique"), Aggregated]
