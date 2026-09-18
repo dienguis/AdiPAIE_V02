@@ -3308,4 +3308,155 @@ Si le fichier référence une **agence / site / BU** absent de la BDD :
 - Détection changement d'agence : si un intérimaire déjà en base a changé d'agence dans le fichier → créer un mouvement `TransfertAgence`
 - Wizard 4 étapes en Razor (comme le livre de paie interim V1.3) si le popup XAF montre ses limites en charge
 
+---
+
+## 🩹 V1.9.1 - Fix crash SQL FileData sur import
+
+Bug : "String or binary data would be truncated" à l'insertion du batch
+d'import avec le FileData binaire embarqué (colonne `Content` mal
+dimensionnée sur schémas anciens ; ou fichier > taille max).
+
+Fix :
+- Le controller détache `batch.Fichier = null` AVANT commit
+- Ajout d'un champ `FichierNom` (string 255) pour la traçabilité
+- Le binaire n'est jamais persisté en base -> impossible d'avoir le crash
+
+Le fix code se suffit à lui-même : PAS besoin d'ALTER TABLE sur prod.
+
+---
+
+## 🩹 V1.9.2 - Fix collision codes Site IMP-DIOURBEL
+
+Bug : `Site.Code` est Required + Unique. Quand plusieurs intérimaires
+partagent le même site (ex: 5 en "DIOURBEL"), le service créait 5 Sites
+avec le code `IMP-DIOURBEL` puis crashait au commit sur l'index unique
+`iCode_Site`. XPQuery ne voit pas les objets créés en session avant commit.
+
+Fix : 3 caches locaux dans `Importer()` :
+- `cacheSites` (clé = nom normalisé)
+- `cacheBUs` (clé = nom|SiteOid pour éviter collision multi-site)
+- `cacheAgences` (clé = raison sociale)
+- 2 HashSet `codesSitesUtilises` / `codesBUsUtilises` préchargés depuis
+  la BDD + incrémentés pendant l'import
+- `GenererCodeUnique` teste juste dans le HashSet (fini les XPQuery
+  aveugles à la session)
+
+Résultat : import de 747 intérimaires + 49 Sites + 8 BUs sans doublon.
+
+---
+
+## 🔎 V1.9.3 - Effet de l'import rendu visible
+
+Après un import réussi, ta capture montrait "Effectif actuel = 0" partout
+et "Affectation actuelle" vide sur les fiches. Cause : propriétés
+calculées basées sur le modèle LEGACY (Station/BU) alors que l'import
+remplit le modèle V1.1 (Site/UniteOrganisationnelle).
+
+Fix :
+- `Site.cs` : + `EffectifActuelInterim` (compte ContratsInterim EnCours)
+  + `EffectifSalariesInternes`
+- `Interimaire.AffectationActuelle` : lit `Site + Unites` V1.1 en priorité,
+  fallback sur Station/BU legacy
+- Menu `GRH Intérimaires -> Sites/Stations` redirigé vers `Site_ListView`
+  (V1.1) au lieu de `StationService_ListView` (Deprecated V1.0)
+- `ListView Site` : ajout colonnes EffectifActuelInterim + EffectifSalariesInternes
+
+---
+
+## 🧹 Nettoyage tirets longs (17 sept 2026)
+
+Directive : éliminer tous les caractères "typiquement IA" dans le code
+et les libellés affichés à l'écran (le RH voyait "BOUTIQUE - Oasis Cap
+des Biches" avec un em-dash au milieu).
+
+Caractères remplacés (Unicode -> ASCII) :
+
+| Original | Remplacement | Volume |
+|---|---|---|
+| `-` (em-dash, U+2014) | `-` | ~1000 |
+| `-` (en-dash, U+2013) | `-` | ~200 |
+| `-` (box light, U+2500) | `-` | ~9000 |
+| `━` (box heavy, U+2501) | `-` | ~10 |
+| `═` (box double, U+2550) | `=` | ~800 |
+| `•` (bullet, U+2022) | `*` | ~50 |
+| `->`, `<-`, `<->` (arrows) | `->`, `<-`, `<->` | ~30 |
+
+**Volumes** :
+- Code C# `.Module` : **1 185 em-dashes** + 10 015 box-drawing/spéciaux
+  dans **264 fichiers**
+- Docs (md/txt/sql/html) : **3 022 caractères** dans **11 fichiers**
+
+**Cas concret visible dans l'UI** : `BusinessUnitStation.ToString()`
+retournait `$"{Libelle} - {Station.Nom}"` -> `$"{Libelle} - {Station.Nom}"`.
+La ListView affiche maintenant `BOUTIQUE - Oasis Cap des Biches`.
+
+---
+
+## 📦 Clôture Git V1.9 (18 septembre 2026)
+
+**Commit consolidé V1.9** effectué via le fichier `docs/deployment/COMMIT_V19.txt`
+qui regroupe les 10 sous-versions post-V1.8 (V1.8.1 -> V1.9.3) + le
+nettoyage tirets/box-drawing.
+
+**Contexte** : ce fil de conversation contient TOUS les développements
+post-commit V1.8 (`4bd896e` sur branche `dev`) menant à la mise en prod.
+
+**Métadonnées du commit** (à compléter après push) :
+
+| Élément | Valeur |
+|---|---|
+| Branche | `dev` |
+| Hash commit V1.8 précédent | `4bd896e` |
+| Hash commit V1.9 | *(à renseigner après `git log -1 --oneline`)* |
+| Date | 18 septembre 2026 |
+| Fichiers modifiés estimés | ~280 (dont ~1 200 tirets nettoyés + 15 nouveaux fichiers) |
+| Titre | `V1.9 - Correctifs post-V1.8 + Import Excel intérimaires + Nettoyage tirets` |
+
+**Procédure exécutée** :
+
+```powershell
+cd C:\Dev\AdiPAIE_V02
+git add .
+git commit -F docs\deployment\COMMIT_V19.txt
+git push origin dev
+```
+
+**Sous-versions incluses** :
+
+| Version | Description | Migration BDD | SQL manuel |
+|---|---|---|---|
+| V1.8.1 | Fix IPRES Cadre "Non cadre" | + Categories.EstCadre | V181 optionnel |
+| V1.8.2 | Fix IR parts fiscales figées | Aucune | Aucun |
+| V1.8.3 | Rubriques REGUL IR/TRIMF | Aucune | V183 optionnel |
+| V1.8.4 | TRANS hors IPRES + proratisation | Aucune | V184 obligatoire |
+| V1.8.5 | Solde anticipé prêt | Aucune | Aucun |
+| V1.8.6 | Val/Clôture masse + workflow strict | Aucune | Aucun |
+| V1.8.7 | Menu Contrôle intégrité + REGUL_PRET | Aucune | Aucun |
+| V1.8.8 | Suspension cotisations sociales | + 2 colonnes Bulletin | Aucun |
+| V1.9 | Import Excel 747 intérimaires | + 4 colonnes Interimaire + table ImportInterimaireRequest | Aucun |
+| V1.9.1 | Fix crash SQL FileData | Aucune | Aucun |
+| V1.9.2 | Fix collision codes Site | Aucune | Aucun |
+| V1.9.3 | Effectif Site + AffectationActuelle V1.1 | Aucune | Aucun |
+| Nettoyage | 1 185 tirets code + 3 022 tirets docs | Aucune | Aucun |
+
+**Actions post-déploiement prod** (voir COMMIT_V19.txt pour détail) :
+
+1. Backup BDD prod
+2. `dotnet build` (verif compil)
+3. Deploy IIS via `Deploy-AdiPAIE-V18.ps1`
+4. Migration BDD auto par XAF Updater au 1er démarrage
+5. SQL `V184_FIX_TRANS_HorsIPRES.sql` obligatoire
+6. Login Admin -> ParametresPaie -> Init. rôles GRH
+7. Login Admin -> ParametresPaie -> Recharger le référentiel paie
+8. Checklist de tests (12 points) dans COMMIT_V19.txt
+
+**Fichiers de référence dans le repo** :
+- `docs/deployment/COMMIT_V19.txt` (message de commit + procédure)
+- `docs/deployment/sql/V181_INIT_EstCadre.sql`
+- `docs/deployment/sql/V183_CREATE_RegulRubriques.sql`
+- `docs/deployment/sql/V184_FIX_TRANS_HorsIPRES.sql`
+- `docs/deployment/Deploy-AdiPAIE-V18.ps1` (script IIS réutilisé)
+
+## ⭐ MISSION V1.9 TERMINÉE - prête pour déploiement recette/prod ⭐
+
 
