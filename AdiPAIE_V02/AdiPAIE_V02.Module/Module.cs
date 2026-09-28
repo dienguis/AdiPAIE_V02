@@ -63,6 +63,8 @@ namespace AdiPAIE_V02.Module
             // V1.8.7 - Menu Contrôle d'intégrité (ListView non-persistante).
             AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.AnomalieIntegrite));
             // V1.9 - ImportInterimaireRequest est BaseObject (persistant), auto-découvert.
+            // V1.10 - Popup sortie intérimaire.
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.SortirInterimaireRequest));
 
             // =================================
 

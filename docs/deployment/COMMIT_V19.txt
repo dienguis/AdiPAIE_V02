@@ -1,4 +1,4 @@
-V1.9 - Correctifs post-V1.8 + Import Excel intérimaires + Nettoyage tirets
+V1.10 - Correctifs post-V1.8 + Import Excel intérimaires + Sortie intérim + Nettoyage tirets
 
 Consolidation de 9 sous-versions post-commit V1.8 (4bd896e) menant à la
 mise en prod. Inclut : 7 hotfixes moteur paie, 1 gros feature (menu Controle
@@ -211,6 +211,56 @@ V1.9.3 : Effet de l'import rendu visible.
 - Menu GRH Interimaires -> Sites/Stations redirige vers Site_ListView V1.1
   (au lieu de StationService_ListView deprecated)
 - ListView Site : ajout colonnes EffectifActuelInterim et EffectifSalariesInternes
+
+V1.9.4 : Nettoyage UI + Association AC Sites V1.1.
+- Champs [Legacy] Direction Generale / Station / BU masques du DetailView
+  ContratInterim (VisibleInDetailView=false). Donnees conservees en base.
+- 15 libelles nettoyes : "Site (V1.1)" -> "Site", "Unites (V1.1)" -> "Unites",
+  prefixes [Legacy] retires des XafDisplayName.
+- Nouvelle association N-N "AC-SitesGeres" :
+  - Site.AssistantsCommerciaux (XPCollection<Salarie>)
+  - Salarie.SitesGeres (XPCollection<Site>)
+- Le RH configure manuellement les AC pour les nouveaux Sites V1.1.
+- Si aucun AC defini pour un site, workflow tombe sur validateur par defaut RH.
+- Ancienne association AC-StationsGerees (legacy) preservee pour compat.
+
+============================================================================
+V1.10 - Sortie interimaire en 1 clic
+============================================================================
+
+Bug UX identifie : pas de bouton dedie pour sortir un interimaire.
+Le RH devait faire 3 etapes manuelles (Statut + Contrats + Mouvement).
+
+Fichiers ajoutes/modifies :
+- Domain/DomainEnums.cs : + enum MotifSortieInterim (FinMission, Demission,
+  RuptureContrat, FinCDD, Blackliste, Autre)
+- BusinessObjects/RH/Interimaire.cs : + DateSortieAgence (DateTime?)
+  + MotifSortie (enum, read-only apres saisie)
+- NonPersistent/SortirInterimaireRequest.cs (NEW) : DTO popup avec
+  Date de sortie + Motif + Observations
+- Controllers/InterimaireSortirController.cs (NEW) : action "Sortir
+  interimaire" sur ObjectView Interimaire. Visible si Statut n'est ni
+  Inactif ni Blackliste.
+- Module.cs : enregistrement SortirInterimaireRequest
+
+Comportement en 1 clic :
+1. Interimaire.Statut -> Inactif (ou Blackliste si Motif=Blackliste)
+2. Interimaire.DateSortieAgence + MotifSortie remplis
+3. Tous les ContratInterim EnCours -> Statut=Termine + DateFinReelle
+4. MouvementInterimaire cree (TypeMouvement mappe depuis Motif)
+5. ValideRH=true + DateValidation + ValideParNom sur le mouvement
+
+Migration BDD : + 2 colonnes sur Interimaire (DateSortieAgence + MotifSortie),
+ajoutees automatiquement par XAF Updater au 1er demarrage.
+
+Workflow RH :
+- Ouvrir la fiche Interimaire (ou selectionner dans la ListView)
+- Cliquer "Sortir interimaire" (visible seulement si Actif/EnMission/Disponible)
+- Popup : saisir Date de sortie + Motif + Observations optionnelles
+- Confirmer -> tout se fait en cascade, message flash de confirmation
+
+Idempotent : si l'interimaire est deja Inactif/Blackliste, l'action est
+masquee via TargetObjectsCriteria.
 
 ============================================================================
 NETTOYAGE - Suppression des tirets longs et box-drawing (17 sept 2026)

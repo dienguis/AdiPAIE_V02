@@ -666,6 +666,17 @@ namespace AdiPAIE_V02.Module.Domain
             [XafDisplayName("Résilié")] Resilie = 3,
         }
 
+        // V1.10 - Motif de sortie d'un intérimaire (action "Sortir intérimaire")
+        public enum MotifSortieInterim
+        {
+            [XafDisplayName("Fin de mission")] FinMission = 0,
+            [XafDisplayName("Démission")] Demission = 1,
+            [XafDisplayName("Rupture de contrat")] RuptureContrat = 2,
+            [XafDisplayName("Fin CDD")] FinCDD = 3,
+            [XafDisplayName("Blacklisté")] Blackliste = 4,
+            [XafDisplayName("Autre")] Autre = 5,
+        }
+
         public enum DemandeInterimaireStatut
         {
             [XafDisplayName("Brouillon")] Brouillon = 0,

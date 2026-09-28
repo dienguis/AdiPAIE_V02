@@ -3457,6 +3457,63 @@ git push origin dev
 - `docs/deployment/sql/V184_FIX_TRANS_HorsIPRES.sql`
 - `docs/deployment/Deploy-AdiPAIE-V18.ps1` (script IIS réutilisé)
 
-## ⭐ MISSION V1.9 TERMINÉE - prête pour déploiement recette/prod ⭐
+---
+
+## 🚪 V1.10 - Sortie intérimaire en 1 clic
+
+### Bug UX identifié
+
+Pas de bouton dédié pour "sortir" un intérimaire. Le RH devait faire 3 étapes
+manuelles :
+1. Fiche Interimaire -> Statut = Inactif
+2. Chaque ContratInterim EnCours -> Statut = Termine + DateFinReelle
+3. Créer un MouvementInterimaire (TypeMouvement = FinMission/...)
+
+De plus l'entité Interimaire n'avait pas de `DateSortieAgence` (asymétrie avec
+`DateEntreeAgence` V1.9) - impossible de savoir quand un intérimaire est parti.
+
+### Fix V1.10
+
+**Enum + 2 champs** :
+- `MotifSortieInterim` : FinMission, Demission, RuptureContrat, FinCDD, Blackliste, Autre
+- `Interimaire.DateSortieAgence` (DateTime?)
+- `Interimaire.MotifSortie` (enum, read-only)
+
+**Fichiers créés (2)** :
+
+| Fichier | Rôle |
+|---|---|
+| `NonPersistent/SortirInterimaireRequest.cs` | DTO popup : DateSortie + Motif + Observations |
+| `Controllers/InterimaireSortirController.cs` | Action "Sortir intérimaire" sur ObjectView Interimaire |
+
+**Comportement en 1 clic** :
+1. `Interimaire.Statut` = Inactif (ou Blackliste si Motif=Blackliste)
+2. `Interimaire.DateSortieAgence` + `MotifSortie` remplis
+3. Tous les `ContratInterim` EnCours -> Termine + `DateFinReelle`
+4. `MouvementInterimaire` créé (TypeMouvement mappé depuis Motif) + validé RH
+
+**Migration BDD** : 2 colonnes ajoutées auto par XAF Updater.
+
+**Idempotence** : action masquée via `TargetObjectsCriteria` si Statut est déjà
+`Inactif` ou `Blackliste`.
+
+### Workflow RH
+
+1. Ouvrir la fiche `Interimaire` (ou sélectionner dans la ListView)
+2. Cliquer **"Sortir intérimaire"** (visible seulement si actif)
+3. Popup : Date de sortie + Motif (dropdown) + Observations facultatives
+4. **Confirmer** -> tout se fait en cascade, message flash
+
+### Tests à valider en recette
+
+- Sortir un intérimaire avec 1 contrat EnCours -> Statut Inactif, contrat Terminé,
+  DateFinReelle = date sortie, 1 mouvement FinMission créé
+- Motif = Blackliste -> Statut passe à Blackliste (pas Inactif)
+- Sortir un intérimaire sans contrat actif -> juste Statut+DateSortie+MotifSortie
+- Cliquer sur un intérimaire déjà Inactif -> action non visible
+
+---
+
+## ⭐ MISSION V1.10 TERMINÉE - prête pour déploiement recette/prod ⭐
 
 

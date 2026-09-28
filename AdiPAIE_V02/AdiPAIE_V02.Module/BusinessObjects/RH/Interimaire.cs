@@ -117,6 +117,27 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         DateTime? dateEntreeAgence;
 
+        // V1.10 - Sortie de l'intérimaire (renseignée par l'action "Sortir intérimaire")
+        [XafDisplayName("Date de sortie agence")]
+        [ToolTip("Date de fin de mise à disposition. Renseignée automatiquement par " +
+                 "l'action « Sortir intérimaire » ou saisie manuellement.")]
+        [ModelDefault("AllowEdit", "False")]
+        public DateTime? DateSortieAgence
+        {
+            get => dateSortieAgence;
+            set => SetPropertyValue(nameof(DateSortieAgence), ref dateSortieAgence, value);
+        }
+        DateTime? dateSortieAgence;
+
+        [XafDisplayName("Motif de sortie")]
+        [ModelDefault("AllowEdit", "False")]
+        public MotifSortieInterim? MotifSortie
+        {
+            get => motifSortie;
+            set => SetPropertyValue(nameof(MotifSortie), ref motifSortie, value);
+        }
+        MotifSortieInterim? motifSortie;
+
         [NonPersistent]
         [XafDisplayName("Ancienneté (années)")]
         public int? AncienneteAns
