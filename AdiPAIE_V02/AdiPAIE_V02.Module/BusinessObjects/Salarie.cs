@@ -287,6 +287,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         public XPCollection<StationService> StationsGerees =>
             GetCollection<StationService>(nameof(StationsGerees));
 
+        // -- V1.9.4 - Sites sous responsabilité (V1.1) --
+        // Remplace progressivement StationsGerees (Legacy).
+        // Un même AC peut être responsable de plusieurs Sites V1.1.
+        [Association("AC-SitesGeres")]
+        [XafDisplayName("Sites sous responsabilité (AC)")]
+        [VisibleInListView(false)]
+        public XPCollection<AdiPAIE_V02.Module.BusinessObjects.Site> SitesGeres =>
+            GetCollection<AdiPAIE_V02.Module.BusinessObjects.Site>(nameof(SitesGeres));
+
         // ── État civil complet ────────────────────────────────
         [VisibleInListView(false)]
         [Size(100)]

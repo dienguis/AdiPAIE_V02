@@ -426,8 +426,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         //   doivent PLUS être saisies. Utilisez Site (V1.1) + Unites à la place.
         //   Les dashboards V1.1 lisent uniquement Site/Unites.
 
-        [VisibleInListView(false)]
-        [XafDisplayName("[Legacy] Direction Générale")]
+        [VisibleInListView(false), VisibleInDetailView(false)]
+        [XafDisplayName("Direction Générale")]
         [ImmediatePostData]
         public bool EstDG
         {
@@ -444,9 +444,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         bool estDG;
 
-        [VisibleInListView(false)]
+        [VisibleInListView(false), VisibleInDetailView(false)]
         [Association("Station-Contrats")]
-        [XafDisplayName("[Legacy] Station de service")]
+        [XafDisplayName("Station de service")]
         [DataSourceCriteria("Actif = true")]
         [Appearance("CI_StationDisabled", Criteria = "EstDG = true", Enabled = false,
             TargetItems = "Station")]
@@ -462,9 +462,9 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         StationService station;
 
-        [VisibleInListView(false)]
+        [VisibleInListView(false), VisibleInDetailView(false)]
         [Association("BU-Contrats")]
-        [XafDisplayName("[Legacy] Business Unit")]
+        [XafDisplayName("Business Unit")]
         [DataSourceCriteria("Actif = true AND Station.Oid = '@This.Station.Oid'")]
         [Appearance("CI_BUDisabled", Criteria = "EstDG = true OR Station Is Null", Enabled = false,
             TargetItems = "BU")]
@@ -487,7 +487,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         /// Remplace progressivement la combinaison Station + EstDG.
         /// </summary>
         [Association("Site-ContratsInterim")]
-        [XafDisplayName("Site (V1.1)")]
+        [XafDisplayName("Site")]
         [DataSourceCriteria("Actif = true")]
         public Site Site
         {
@@ -501,7 +501,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         /// (BU / Département / Segment). N-N sans notion de % de temps.
         /// </summary>
         [Association("Contrat-Unites")]
-        [XafDisplayName("Unités (V1.1)")]
+        [XafDisplayName("Unités")]
         public XPCollection<UniteOrganisationnelle> Unites
             => GetCollection<UniteOrganisationnelle>(nameof(Unites));
 
@@ -689,7 +689,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         // -- Origine [Legacy V1.0] - masqué UI depuis V1.5 -------------
         // Données conservées en BD pour ne pas casser les services qui les
         // utilisent encore. À supprimer définitivement en V1.6 après migration.
-        [XafDisplayName("[Legacy] Station origine")]
+        [XafDisplayName("Station origine")]
         [VisibleInListView(false), VisibleInDetailView(false)]
         public StationService StationOrigine
         {
@@ -698,7 +698,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         StationService stationOrigine;
 
-        [XafDisplayName("[Legacy] BU origine")]
+        [XafDisplayName("BU origine")]
         [DataSourceCriteria("Station.Oid = '@This.StationOrigine.Oid'")]
         [VisibleInListView(false), VisibleInDetailView(false)]
         public BusinessUnitStation BUOrigine
@@ -708,7 +708,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         BusinessUnitStation buOrigine;
 
-        [XafDisplayName("[Legacy] DG -> Station (origine)")]
+        [XafDisplayName("DG -> Station (origine)")]
         [VisibleInListView(false), VisibleInDetailView(false)]
         public bool OrigineEstDG
         {
@@ -718,7 +718,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         bool origineEstDG;
 
         // -- Destination [Legacy V1.0] - masqué UI depuis V1.5 ---------
-        [XafDisplayName("[Legacy] Station destination")]
+        [XafDisplayName("Station destination")]
         [VisibleInListView(false), VisibleInDetailView(false)]
         public StationService StationDestination
         {
@@ -727,7 +727,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         StationService stationDestination;
 
-        [XafDisplayName("[Legacy] BU destination")]
+        [XafDisplayName("BU destination")]
         [DataSourceCriteria("Station.Oid = '@This.StationDestination.Oid'")]
         [VisibleInListView(false), VisibleInDetailView(false)]
         public BusinessUnitStation BUDestination
@@ -737,7 +737,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         BusinessUnitStation buDestination;
 
-        [XafDisplayName("[Legacy] Destination = Direction Générale")]
+        [XafDisplayName("Destination = Direction Générale")]
         [VisibleInListView(false), VisibleInDetailView(false)]
         public bool DestinationEstDG
         {
@@ -750,7 +750,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         //  V1.1 - Mouvements via Site + Unité (cohabitation)
         // ================================================================
 
-        [XafDisplayName("Site origine (V1.1)")]
+        [XafDisplayName("Site origine")]
         public Site SiteOrigineV1
         {
             get => siteOrigineV1;
@@ -758,7 +758,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         Site siteOrigineV1;
 
-        [XafDisplayName("Unité origine (V1.1)")]
+        [XafDisplayName("Unité origine")]
         [DataSourceCriteria("Site.Oid = '@This.SiteOrigineV1.Oid'")]
         public UniteOrganisationnelle UniteOrigineV1
         {
@@ -767,7 +767,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         UniteOrganisationnelle uniteOrigineV1;
 
-        [XafDisplayName("Site destination (V1.1)")]
+        [XafDisplayName("Site destination")]
         public Site SiteDestinationV1
         {
             get => siteDestinationV1;
@@ -775,7 +775,7 @@ namespace AdiPAIE_V02.Module.BusinessObjects.RH
         }
         Site siteDestinationV1;
 
-        [XafDisplayName("Unité destination (V1.1)")]
+        [XafDisplayName("Unité destination")]
         [DataSourceCriteria("Site.Oid = '@This.SiteDestinationV1.Oid'")]
         public UniteOrganisationnelle UniteDestinationV1
         {

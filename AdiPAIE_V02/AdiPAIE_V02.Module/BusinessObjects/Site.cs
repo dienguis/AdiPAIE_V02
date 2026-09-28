@@ -129,6 +129,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [XafDisplayName("Salariés")]
         public XPCollection<Salarie> Salaries => GetCollection<Salarie>(nameof(Salaries));
 
+        // -- V1.9.4 - Assistants Commerciaux responsables du site (V1.1) --
+        // Remplace progressivement StationService.AssistantsCommerciaux (Legacy).
+        // Utilisé par DemandeMouvementInterimAcFilterController pour filtrer
+        // les intérimaires qu'un AC peut sélectionner (via ContratInterim.Site).
+        [Association("AC-SitesGeres")]
+        [XafDisplayName("Assistants Commerciaux")]
+        public XPCollection<Salarie> AssistantsCommerciaux
+            => GetCollection<Salarie>(nameof(AssistantsCommerciaux));
+
         // -- ⭐ V1.1 : contrats intérim sur ce site --
         [Association("Site-ContratsInterim")]
         [XafDisplayName("Contrats intérim")]
