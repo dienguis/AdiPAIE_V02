@@ -1,7 +1,9 @@
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.Validation;
+using DevExpress.Xpo;
 using System;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
