@@ -54,6 +54,14 @@ namespace AdiPAIE_V02.Module.Controllers
             creerTreiziemeAction.Execute += CreerTreiziemeAction_Execute;
         }
 
+        // V1.10 - Masquer l'action sur les LookupListView (popup Link)
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+            var isLookup = View?.Id?.EndsWith("_LookupListView", StringComparison.OrdinalIgnoreCase) == true;
+            creerTreiziemeAction.Active["NotLookupView"] = !isLookup;
+        }
+
         void CreerTreiziemeAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             try

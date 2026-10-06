@@ -289,6 +289,15 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<AdiPAIE_V02.Module.NonPersistent.ProvisionConges>(rh, "r");
             nbPerms += 1;
 
+            // V1.10 - Permissions interim pour le RH (sortie interimaire,
+            // gestion des contrats et mouvements). Avant : seul AssistantRH
+            // avait ces permissions, le RH ne voyait pas le bouton "Sortir
+            // interimaire" sur la fiche Interimaire.
+            AddType<Interimaire>(rh, "rwcd");             nbPerms += 4;
+            AddType<ContratInterim>(rh, "rwcd");          nbPerms += 4;
+            AddType<MouvementInterimaire>(rh, "rwcd");    nbPerms += 4;
+            AddType<AlerteInterimaire>(rh, "rw");         nbPerms += 2;
+
             // V1.7.2 - Navigation permissions (menus principaux)
             AddNavManagerMenus(rh);
             nbPerms += 30;

@@ -48,6 +48,15 @@ namespace AdiPAIE_V02.Module.Controllers
             creerGratifAction.Execute += CreerGratifAction_Execute;
         }
 
+        // V1.10 - Masquer l'action sur les LookupListView (popup Link),
+        // sinon elle pollue les colonnes du lookup Salarié.
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+            var isLookup = View?.Id?.EndsWith("_LookupListView", StringComparison.OrdinalIgnoreCase) == true;
+            creerGratifAction.Active["NotLookupView"] = !isLookup;
+        }
+
         void CreerGratifAction_Execute(object sender, SimpleActionExecuteEventArgs e)
         {
             try

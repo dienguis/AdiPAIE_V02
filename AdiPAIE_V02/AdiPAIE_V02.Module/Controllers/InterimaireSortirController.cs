@@ -25,7 +25,10 @@ using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.Controllers
 {
-    public class InterimaireSortirController : ObjectViewController<ObjectView, Interimaire>
+    // V1.10 - Sortie interimaire limitée au DetailView (fiche individuelle)
+    // pour éviter les sorties accidentelles depuis la ListView.
+    // Le RH doit ouvrir la fiche avant de sortir un intérimaire.
+    public class InterimaireSortirController : ObjectViewController<DetailView, Interimaire>
     {
         private readonly PopupWindowShowAction _action;
 
@@ -40,7 +43,10 @@ namespace AdiPAIE_V02.Module.Controllers
                 ToolTip = "Marque l'intérimaire comme sorti : ferme les contrats en cours, " +
                           "crée un mouvement de fin de mission, renseigne date+motif de sortie.",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject,
-                TargetObjectsCriteria = "Statut <> 'Inactif' AND Statut <> 'Blackliste'"
+                // V1.10.1 - Syntaxe XAF enum (le string 'Inactif' ne matchait rien)
+                TargetObjectsCriteria =
+                    "Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+InterimaireStatut,Inactif# " +
+                    "AND Statut <> ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+InterimaireStatut,Blackliste#"
             };
             _action.CustomizePopupWindowParams += CustomizePopupWindowParams;
             _action.Execute += Execute;

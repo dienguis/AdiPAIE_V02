@@ -3517,3 +3517,24 @@ De plus l'entité Interimaire n'avait pas de `DateSortieAgence` (asymétrie avec
 ## ⭐ MISSION V1.10 TERMINÉE - prête pour déploiement recette/prod ⭐
 
 
+---
+
+## 📝 Backlog post-V1.10 (noté le 30 sept. 2026)
+
+### UX - Bouton "Créer bulletins" masqué sans explication
+
+**Constat prod (30/09/2026)** : le RH ne voyait plus le bouton "Créer bulletins"
+sur `Salarie_Paie_ListView` alors qu'il apparaissait en dev.
+Cause : aucune période de paie au statut `Ouverte` en prod. Ce n'est pas un bug
+de code : résolu en ouvrant la période.
+
+**Mécanisme** : `CreateBulletinsForPeriodController.UpdateActionActive()`
+met `createAction.Active["OneOpenPeriod"] = (nb périodes Ouvertes == 1)`.
+L'action est donc **masquée** (et pas grisée) si 0 ou 2+ périodes sont ouvertes.
+Elle n'est aussi réévaluée qu'à l'ouverture de la vue (ou au commit du Salarié),
+pas quand la période est ouverte dans un autre onglet.
+
+**Amélioration prévue (prochaine version)** :
+- Utiliser `Enabled` au lieu de `Active` : bouton visible mais grisé
+- ToolTip explicite : "Aucune période ouverte" / "2 périodes ouvertes : 09/2026, 10/2026"
+- Réévaluer à chaque affichage de la vue (ex. `View.CurrentObjectChanged` / `Frame.ViewChanged`)
