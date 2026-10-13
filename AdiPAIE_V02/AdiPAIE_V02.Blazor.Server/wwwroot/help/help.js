@@ -1,5 +1,5 @@
 // =============================================================
-//  SunuPaie — Aide contextuelle
+//  SunuPaie - Aide contextuelle
 //  Emplacement : wwwroot/help/help.js
 // =============================================================
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie — Paramétrage (Guide complet)</title>
+    <title>SunuPaie - Paramétrage (Guide complet)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
@@ -17,18 +17,18 @@
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>⚙️ Paramétrage — Guide complet</h1>
+    <h1>⚙️ Paramétrage - Guide complet</h1>
     <p>Le paramétrage de SunuPaie regroupe tout ce qui détermine le calcul
     de la paie : <strong>rubriques</strong> (gains et retenues),
     <strong>barèmes</strong> légaux (IR, TRIMF, parts familiales),
     <strong>cotisations sociales</strong> (IPRES, CSS, CFCE), et la
     configuration <strong>SMTP</strong> pour les notifications.</p>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <div style="background:#fff8e1;border:2px solid #ffa726;border-radius:8px;padding:1em 1.5em;margin:1.5em 0;">
-        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) — Nouveaux paramètres</h2>
+        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) - Nouveaux paramètres</h2>
 
-        <h3 style="color:#e65100;">⚙️ Onglet Fiscalité — Mode base CFCE</h3>
+        <h3 style="color:#e65100;">⚙️ Onglet Fiscalité - Mode base CFCE</h3>
         <p>Détermine si les <strong>avantages en nature</strong> (véhicule,
         téléphone, logement) sont inclus ou non dans la base de calcul de la
         CFCE (Contribution Forfaitaire à la Charge de l'Employeur) :</p>
@@ -46,7 +46,7 @@
         APRÈS</strong> la modification (pas les bulletins déjà clôturés).
         Garder le même mode pour l'ensemble des salariés.</p>
 
-        <h3 style="color:#e65100;">⚙️ Onglet Référentiel paie — Mode bulletin de congé</h3>
+        <h3 style="color:#e65100;">⚙️ Onglet Référentiel paie - Mode bulletin de congé</h3>
         <p>Détermine comment le bulletin est généré quand un salarié part en
         congé tout le mois :</p>
         <ul>
@@ -63,15 +63,15 @@
 
         <h3 style="color:#e65100;">🐛 Correctifs format affichage</h3>
         <ul>
-            <li><strong>IR – IMAB (% abattement)</strong> : le format affichait
+            <li><strong>IR - IMAB (% abattement)</strong> : le format affichait
                 3 000 % au lieu de 30 %. La valeur stockée est correcte (30) ;
                 seul l'affichage était buggé. Corrigé en V1.8.</li>
-            <li><strong>Réduction familiale – % par défaut</strong> : même bug,
+            <li><strong>Réduction familiale - % par défaut</strong> : même bug,
                 même correctif.</li>
         </ul>
 
         <h3 style="color:#e65100;">🆕 Nouvelle rubrique <code>ICCP</code></h3>
-        <p>"Indemnité de congés compensatrice" — rubrique distincte de
+        <p>"Indemnité de congés compensatrice" - rubrique distincte de
         <code>CONGE_PAYE</code> (code 23) pour permettre de tracer dans le
         reporting :</p>
         <ul>
@@ -85,24 +85,24 @@
         du référentiel paie (bouton "Recharger le référentiel" sur
         ParametresPaie).</p>
     </div>
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
 
     <div class="toc">
         <strong>📑 Sections</strong>
         <ol>
             <li><a href="#vue-ensemble">Vue d'ensemble</a></li>
-            <li><a href="#etape1">Étape 1 — Rubriques de paie</a></li>
-            <li><a href="#etape2">Étape 2 — Barèmes (IR, TRIMF, parts)</a></li>
-            <li><a href="#etape3">Étape 3 — Cotisations sociales Sénégal</a></li>
-            <li><a href="#etape4">Étape 4 — Paramètres SMTP</a></li>
-            <li><a href="#abattement">IR — Abattement professionnel</a></li>
+            <li><a href="#etape1">Étape 1 - Rubriques de paie</a></li>
+            <li><a href="#etape2">Étape 2 - Barèmes (IR, TRIMF, parts)</a></li>
+            <li><a href="#etape3">Étape 3 - Cotisations sociales Sénégal</a></li>
+            <li><a href="#etape4">Étape 4 - Paramètres SMTP</a></li>
+            <li><a href="#abattement">IR - Abattement professionnel</a></li>
             <li><a href="#cas-usage">Cas d'usage concrets</a></li>
             <li><a href="#regles">Règles métier</a></li>
             <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
         </ol>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="vue-ensemble">📋 Vue d'ensemble</h2>
 
     <div class="workflow">
@@ -119,8 +119,8 @@
         d'exercice (1er janvier) ou lors de changements légaux (lois de finances).
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape1">📋 Étape 1 — Rubriques de paie</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape1">📋 Étape 1 - Rubriques de paie</h2>
 
     <div class="step">
         <h3><span class="num">1</span>Aller dans Paramétrage → Rubriques</h3>
@@ -157,8 +157,8 @@
         Le moteur de calcul s'appuie dessus pour appliquer la bonne formule.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape2">📊 Étape 2 — Barèmes (IR, TRIMF, parts)</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape2">📊 Étape 2 - Barèmes (IR, TRIMF, parts)</h2>
 
     <p>Les barèmes sont à mettre à jour <strong>chaque année</strong>
     suite aux lois de finances. Ils sont rétroactifs au 1er janvier.</p>
@@ -179,8 +179,8 @@
         de parts (1, 1,5, 2, 2,5, etc.). Détermine la réduction d'impôt.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape3">💼 Étape 3 — Cotisations sociales Sénégal</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape3">💼 Étape 3 - Cotisations sociales Sénégal</h2>
 
     <table>
         <thead>
@@ -200,8 +200,8 @@
         Ne les modifier que sur instruction officielle (réforme).
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape4">📧 Étape 4 — Paramètres SMTP</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape4">📧 Étape 4 - Paramètres SMTP</h2>
 
     <div class="step">
         <h3><span class="num">1</span>Paramétrage → Paramètres SMTP</h3>
@@ -236,8 +236,8 @@
         de validation (congés, missions, avancements), relances workflow.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="abattement">💰 IR — Abattement professionnel</h2>
+    <!-- =============================================================== -->
+    <h2 id="abattement">💰 IR - Abattement professionnel</h2>
 
     <div class="alerte">
         <ul>
@@ -249,10 +249,10 @@
         progressif. Configuré au niveau <em>Paramètres de paie</em>.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
 
-    <h3>Cas 1 — Mise à jour annuelle après loi de finances</h3>
+    <h3>Cas 1 - Mise à jour annuelle après loi de finances</h3>
     <div class="exemple">
         Janvier 2027 : la DGID publie le nouveau barème IR. Le RH ouvre
         <em>Paramétrage → Barèmes → IR</em>, ajuste les tranches/taux,
@@ -260,7 +260,7 @@
         automatiquement le nouveau barème.
     </div>
 
-    <h3>Cas 2 — Création d'une nouvelle prime</h3>
+    <h3>Cas 2 - Création d'une nouvelle prime</h3>
     <div class="exemple">
         L'entreprise crée une <em>Prime de fin d'année</em> versée en
         décembre. Le RH ajoute une rubrique : Code = <code>PRIME_FIN_ANNEE</code>,
@@ -268,13 +268,13 @@
         Cette prime apparaîtra dans les bulletins de décembre.
     </div>
 
-    <h3>Cas 3 — Activation des heures supplémentaires</h3>
+    <h3>Cas 3 - Activation des heures supplémentaires</h3>
     <div class="exemple">
         Voir <a href="/help/heures-supplementaires.html">Guide Heures
         supplémentaires</a> pour la procédure complète d'activation.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="regles">📜 Règles métier</h2>
 
     <div class="alerte">
@@ -287,7 +287,7 @@
         </ul>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
 
     <div class="erreur">
@@ -315,7 +315,7 @@
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 — Module Paramétrage — Mise à jour mai 2026
+        SunuPaie v1.1 - Module Paramétrage - Mise à jour mai 2026
     </p>
 </body>
 </html>

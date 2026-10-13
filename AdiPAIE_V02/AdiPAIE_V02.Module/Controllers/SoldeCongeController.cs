@@ -1,13 +1,16 @@
 ﻿using AdiPAIE_V02.Module.BusinessObjects;
+using AdiPAIE_V02.Module.NonPersistent;
 using AdiPAIE_V02.Module.Services;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
+using DevExpress.ExpressApp.Templates;
 using DevExpress.ExpressApp.Xpo;
 using DevExpress.Persistent.Base;
 using DevExpress.Xpo;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using System.Text;
 using static AdiPAIE_V02.Module.Domain.DomainEnums;
 
 namespace AdiPAIE_V02.Module.Controllers
@@ -142,6 +145,7 @@ namespace AdiPAIE_V02.Module.Controllers
         private const string ReasonKey = "RhOnlyAction";
         readonly SimpleAction lancerBatchAction;
         readonly SimpleAction reporterExerciceAction;
+        readonly PopupWindowShowAction rattraperAction;
 
         public AcquisitionMensuelleController()
         {
@@ -182,11 +186,88 @@ namespace AdiPAIE_V02.Module.Controllers
                     ObjectSpace, anneeSource);
                 View.Refresh();
 
-                var msg = $"Report {anneeSource}→{anneeSource + 1} terminé - {result}";
+                var msg = $"Report {anneeSource}->{anneeSource + 1} termine - {result}";
                 Application.ShowViewStrategy?.ShowMessage(
                     msg,
                     result.HasErrors ? InformationType.Warning : InformationType.Success,
                     5000, InformationPosition.Top);
+            };
+
+            // V1.11 - Rattrapage multi-mois (bascule en cours d'annee)
+            // Boucle sur une plage de mois et appelle AcquerirTousSalaries
+            // pour chaque mois. Idempotent via AcquerirMensuel.
+            rattraperAction = new PopupWindowShowAction(this,
+                "Batch_RattraperAcquisitions", PredefinedCategory.Edit)
+            {
+                Caption = "Rattraper acquisitions",
+                ImageName = "Action_History",
+                ToolTip = "Rattraper les acquisitions mensuelles sur une plage de mois (bascule en cours d'annee)."
+            };
+            rattraperAction.CustomizePopupWindowParams += (s, e) =>
+            {
+                var os = Application.CreateObjectSpace(typeof(RattraperAcquisitionsRequest));
+                var dto = os.CreateObject<RattraperAcquisitionsRequest>();
+                e.View = Application.CreateDetailView(os, dto);
+                e.View.Caption = "Rattraper acquisitions - plage de mois";
+                e.DialogController.SaveOnAccept = false;
+                e.DialogController.AcceptAction.Caption = "Lancer le rattrapage";
+                e.DialogController.CancelAction.Caption = "Annuler";
+            };
+            rattraperAction.Execute += (s, e) =>
+            {
+                var dto = e.PopupWindowView.CurrentObject as RattraperAcquisitionsRequest;
+                if (dto == null)
+                    throw new UserFriendlyException("Formulaire invalide.");
+
+                // Validation ordre debut/fin
+                var startIdx = dto.AnneeDebut * 12 + dto.MoisDebut;
+                var endIdx   = dto.AnneeFin   * 12 + dto.MoisFin;
+                if (endIdx < startIdx)
+                    throw new UserFriendlyException(
+                        "Le mois de fin doit etre superieur ou egal au mois de debut.");
+
+                int nbMoisTraites = 0;
+                int nbAcquisitionsCreees = 0;
+                int nbIgnorees = 0;
+                int nbErreurs = 0;
+                var detailLines = new StringBuilder();
+
+                for (int idx = startIdx; idx <= endIdx; idx++)
+                {
+                    int annee = idx / 12;
+                    int mois  = idx % 12;
+                    if (mois == 0) { annee--; mois = 12; }
+
+                    try
+                    {
+                        var r = SoldeCongeCalculService.AcquerirTousSalaries(
+                            ObjectSpace, annee, mois);
+                        nbMoisTraites++;
+                        nbAcquisitionsCreees += r.NbTraites;
+                        nbIgnorees += r.NbIgnores;
+                        nbErreurs += r.Erreurs.Count;
+                        detailLines.AppendLine(
+                            $"{mois:D2}/{annee} : {r.NbTraites} cree(s), {r.NbIgnores} ignore(s)" +
+                            (r.HasErrors ? $", {r.Erreurs.Count} erreur(s)" : ""));
+                    }
+                    catch (Exception ex)
+                    {
+                        nbErreurs++;
+                        detailLines.AppendLine($"{mois:D2}/{annee} : ECHEC - {ex.Message}");
+                    }
+                }
+
+                View.Refresh();
+
+                var resume = $"Rattrapage termine : {nbMoisTraites} mois, " +
+                             $"{nbAcquisitionsCreees} acquisition(s) creee(s), " +
+                             $"{nbIgnorees} ignoree(s)" +
+                             (nbErreurs > 0 ? $", {nbErreurs} erreur(s)" : "");
+
+                Application.ShowViewStrategy?.ShowMessage(
+                    resume + "\n\n" + detailLines.ToString(),
+                    nbErreurs > 0 ? InformationType.Warning : InformationType.Success,
+                    12000, InformationPosition.Top);
             };
         }
 
@@ -199,6 +280,7 @@ namespace AdiPAIE_V02.Module.Controllers
             {
                 lancerBatchAction.Active[ReasonKey] = false;
                 reporterExerciceAction.Active[ReasonKey] = false;
+                rattraperAction.Active[ReasonKey] = false;
             }
         }
 
@@ -206,6 +288,7 @@ namespace AdiPAIE_V02.Module.Controllers
         {
             lancerBatchAction.Active.RemoveItem(ReasonKey);
             reporterExerciceAction.Active.RemoveItem(ReasonKey);
+            rattraperAction.Active.RemoveItem(ReasonKey);
             base.OnDeactivated();
         }
 

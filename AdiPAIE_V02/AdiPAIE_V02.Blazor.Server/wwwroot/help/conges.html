@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie — Congés et absences (Guide complet)</title>
+    <title>SunuPaie - Congés et absences (Guide complet)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
@@ -20,14 +20,14 @@
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>🏖️ Congés et absences — Guide complet</h1>
+    <h1>🏖️ Congés et absences - Guide complet</h1>
     <p>Ce module gère les demandes de congés (annuels, maladie, maternité,
     événement familial, sans solde, récupération), leur validation
     hiérarchique à 2 niveaux, et le suivi des soldes par type de congé.</p>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <div style="background:#fff8e1;border:2px solid #ffa726;border-radius:8px;padding:1em 1.5em;margin:1.5em 0;">
-        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) — Nouveautés majeures congés</h2>
+        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) - Nouveautés majeures congés</h2>
 
         <h3 style="color:#e65100;">📐 Formule officielle de l'indemnité de congé (CCT Sénégal Art. 57)</h3>
         <p>L'indemnité versée quand un salarié part en congé suit désormais la
@@ -46,7 +46,7 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
             <li>Allocation = 5 427 562 × 26 / 24 = <strong>5 879 859 FCFA</strong></li>
         </ul>
 
-        <h3 style="color:#e65100;">🎯 Bonus ancienneté — seuils inclusifs ≥</h3>
+        <h3 style="color:#e65100;">🎯 Bonus ancienneté - seuils inclusifs ≥</h3>
         <table>
             <tr><th>Ancienneté</th><th>Bonus</th><th>Exemple</th></tr>
             <tr><td>&lt; 10 ans</td><td>0 j</td><td>9 ans, 11 mois → 0 j</td></tr>
@@ -56,10 +56,10 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
             <tr><td>≥ 25 ans</td><td><strong>+7 j</strong></td><td>convention ELTON plus favorable que CCT (+6)</td></tr>
         </table>
 
-        <h3 style="color:#e65100;">👩 Bonus mère de famille — règles B et C uniquement</h3>
+        <h3 style="color:#e65100;">👩 Bonus mère de famille - règles B et C uniquement</h3>
         <ul>
-            <li><strong>Règle B</strong> — Mère &lt; 21 ans : +2 j par enfant à charge</li>
-            <li><strong>Règle C</strong> — Mère ≥ 21 ans : +2 j par enfant mineur <strong>à partir du 4e</strong></li>
+            <li><strong>Règle B</strong> - Mère &lt; 21 ans : +2 j par enfant à charge</li>
+            <li><strong>Règle C</strong> - Mère ≥ 21 ans : +2 j par enfant mineur <strong>à partir du 4e</strong></li>
             <li>⛔ <em>L'ancienne règle A (1j/enfant&lt;14ans) a été supprimée : non conforme CCT L150</em></li>
         </ul>
 
@@ -104,18 +104,18 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         modifier un montant existant, éditer directement la ligne dans le
         bulletin.</p>
     </div>
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
 
     <div class="toc">
         <strong>📑 Étapes du processus</strong>
         <ol>
             <li><a href="#vue-ensemble">Vue d'ensemble du workflow d'approbation</a></li>
-            <li><a href="#etape1">Étape 1 — Salarié : créer une demande</a></li>
-            <li><a href="#etape2">Étape 2 — Salarié : soumettre</a></li>
-            <li><a href="#etape3">Étape 3 — N+1 / N+2 : valider hiérarchie</a></li>
-            <li><a href="#etape4">Étape 4 — RH : accorder ou refuser</a></li>
-            <li><a href="#etape5">Étape 5 — Suivi du solde de congés (RH opérationnel)</a></li>
-            <li><a href="#etape6">Étape 6 — Provision congés annuelle (DAF / comptabilité)</a></li>
+            <li><a href="#etape1">Étape 1 - Salarié : créer une demande</a></li>
+            <li><a href="#etape2">Étape 2 - Salarié : soumettre</a></li>
+            <li><a href="#etape3">Étape 3 - N+1 / N+2 : valider hiérarchie</a></li>
+            <li><a href="#etape4">Étape 4 - RH : accorder ou refuser</a></li>
+            <li><a href="#etape5">Étape 5 - Suivi du solde de congés (RH opérationnel)</a></li>
+            <li><a href="#etape6">Étape 6 - Provision congés annuelle (DAF / comptabilité)</a></li>
             <li><a href="#migration">Migration prod : ajustement initial</a></li>
             <li><a href="#cas-usage">Cas d'usage concrets</a></li>
             <li><a href="#regles">Règles métier et notifications</a></li>
@@ -124,7 +124,7 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         </ol>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="vue-ensemble">📋 Vue d'ensemble du workflow d'approbation</h2>
 
     <div class="workflow">
@@ -151,13 +151,13 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
             <tr><td>En attente N+2</td><td>2</td><td><span class="badge badge-rh">N+2</span></td><td>Valider ou Rejeter</td></tr>
             <tr><td>Soumise</td><td>10</td><td><span class="badge badge-rh">RH</span></td><td>Accorder / Refuser / Modifier dates</td></tr>
             <tr><td>Accordée</td><td>20</td><td><span class="badge badge-rh">RH</span></td><td>Annuler (si nécessaire)</td></tr>
-            <tr><td>Refusée</td><td>30</td><td>—</td><td>Final</td></tr>
-            <tr><td>Annulée</td><td>40</td><td>—</td><td>Final</td></tr>
+            <tr><td>Refusée</td><td>30</td><td>-</td><td>Final</td></tr>
+            <tr><td>Annulée</td><td>40</td><td>-</td><td>Final</td></tr>
         </tbody>
     </table>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape1">📝 Étape 1 — Salarié : créer une demande</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape1">📝 Étape 1 - Salarié : créer une demande</h2>
 
     <div class="step">
         <h3><span class="num">1</span>Naviguer vers Mes congés</h3>
@@ -172,7 +172,7 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
                 <dt>Salarié *</dt><dd>Pré-rempli automatiquement (vous-même)</dd>
                 <dt>Type de congé *</dt><dd>Annuel / Maladie / Maternité / Événement familial / Sans solde / Récupération</dd>
                 <dt>Date de début *</dt><dd>JJ/MM/AAAA</dd>
-                <dt>Date de fin *</dt><dd>JJ/MM/AAAA — calculée automatiquement selon les jours ouvrés</dd>
+                <dt>Date de fin *</dt><dd>JJ/MM/AAAA - calculée automatiquement selon les jours ouvrés</dd>
                 <dt>Durée (jours)</dt><dd>Auto-calculée selon configuration du type (jours ouvrables ou calendaires)</dd>
                 <dt>Motif</dt><dd>Texte libre (recommandé pour traçabilité)</dd>
                 <dt>Justificatif</dt><dd>Fichier PDF (obligatoire pour Maladie/Maternité)</dd>
@@ -192,8 +192,8 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         - Solde disponible auto-vérifié : 18 jours → OK
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape2">📤 Étape 2 — Salarié : soumettre</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape2">📤 Étape 2 - Salarié : soumettre</h2>
 
     <div class="step">
         <h3><span class="num">1</span>Cliquer Soumettre</h3>
@@ -204,8 +204,8 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         <strong>📧 Email automatique</strong> envoyé au valideur N+1 avec un lien direct vers la demande.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape3">✅ Étape 3 — N+1 / N+2 : valider hiérarchie</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape3">✅ Étape 3 - N+1 / N+2 : valider hiérarchie</h2>
 
     <div class="step">
         <h3><span class="num">A</span>N+1 ouvre la demande reçue par email</h3>
@@ -231,8 +231,8 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         valider la demande à la place.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape4">🎯 Étape 4 — RH : accorder ou refuser</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape4">🎯 Étape 4 - RH : accorder ou refuser</h2>
 
     <div class="step">
         <h3><span class="num">A</span>RH ouvre les demandes Soumises</h3>
@@ -268,8 +268,8 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         Le salarié devra modifier puis resoumettre.</p>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape5">📊 Étape 5 — Suivi du solde de congés</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape5">📊 Étape 5 - Suivi du solde de congés</h2>
 
     <p>Chaque salarié a un solde par type de congé, mis à jour mensuellement
     par acquisition automatique.</p>
@@ -280,14 +280,14 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         <tbody>
             <tr><td><strong>Congé annuel</strong></td><td><strong>2 jours ouvrables</strong></td><td><strong>24 jours/an</strong> (4 semaines)</td></tr>
             <tr><td>Maladie</td><td>Selon convention</td><td>Variable (≤ 6 mois assimilés au temps de service)</td></tr>
-            <tr><td>Maternité</td><td>—</td><td>14 semaines (+ 3 sem. absence pathologique éventuelle)</td></tr>
-            <tr><td>Événement familial</td><td>—</td><td>≤ 10 jours/an cumulé (déduits du congé acquis au-delà)</td></tr>
-            <tr><td>Récupération</td><td>—</td><td>Selon heures sup. accumulées</td></tr>
+            <tr><td>Maternité</td><td>-</td><td>14 semaines (+ 3 sem. absence pathologique éventuelle)</td></tr>
+            <tr><td>Événement familial</td><td>-</td><td>≤ 10 jours/an cumulé (déduits du congé acquis au-delà)</td></tr>
+            <tr><td>Récupération</td><td>-</td><td>Selon heures sup. accumulées</td></tr>
         </tbody>
     </table>
 
     <div class="info">
-        <strong>📌 Référence légale</strong> : Art. L.149 Code du Travail Sénégal —
+        <strong>📌 Référence légale</strong> : Art. L.149 Code du Travail Sénégal -
         <em>« Sauf dispositions plus favorables (ex. convention collective), un salarié
         acquiert 2 jours ouvrables de congés payés par mois de service, soit 24 jours
         ouvrables ou 4 semaines de congés par an. »</em><br><br>
@@ -309,14 +309,14 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         Le surplus est perdu. Configurable dans <code>Paramétrage → Types de congés</code>.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape6">💰 Étape 6 — Provision congés annuelle (DAF / comptabilité)</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape6">💰 Étape 6 - Provision congés annuelle (DAF / comptabilité)</h2>
 
     <p>Cet écran complète le <strong>Solde des congés (opérationnel)</strong> en
     apportant la <strong>vue comptable</strong> attendue par la DAF pour la
     clôture d'exercice. Il calcule la <em>provision congés payés</em> que
     l'entreprise doit inscrire au passif du bilan, conformément au
-    <strong>Code du Travail Sénégal — Loi N° 97-17 du 1er décembre 1997
+    <strong>Code du Travail Sénégal - Loi N° 97-17 du 1er décembre 1997
     Art. L.149</strong>.</p>
 
     <div class="info">
@@ -350,20 +350,20 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         </tbody>
     </table>
 
-    <h3>👩‍👧 Bonus mère de famille (CCT Art. L.149 — femmes salariées uniquement)</h3>
+    <h3>👩‍👧 Bonus mère de famille (CCT Art. L.149 - femmes salariées uniquement)</h3>
     <p>Les 3 règles ci-dessous sont <strong>cumulables</strong> selon l'âge de la
     mère au 31 décembre de l'année :</p>
     <table>
         <thead><tr><th>Règle</th><th>Condition</th><th>Bonus</th></tr></thead>
         <tbody>
-            <tr><td><strong>A</strong> — toutes mères</td><td>par enfant &lt; 14 ans à l'état-civil</td><td>+1 jour</td></tr>
-            <tr><td><strong>B</strong> — mère &lt; 21 ans</td><td>par enfant à charge (sans condition d'âge)</td><td>+2 jours</td></tr>
-            <tr><td><strong>C</strong> — mère &gt; 21 ans</td><td>par enfant mineur à charge à partir du 4ème enfant</td><td>+2 jours</td></tr>
+            <tr><td><strong>A</strong> - toutes mères</td><td>par enfant &lt; 14 ans à l'état-civil</td><td>+1 jour</td></tr>
+            <tr><td><strong>B</strong> - mère &lt; 21 ans</td><td>par enfant à charge (sans condition d'âge)</td><td>+2 jours</td></tr>
+            <tr><td><strong>C</strong> - mère &gt; 21 ans</td><td>par enfant mineur à charge à partir du 4ème enfant</td><td>+2 jours</td></tr>
         </tbody>
     </table>
 
     <div class="info">
-        <strong>📌 Exemple</strong> — Une femme de 35 ans avec 5 enfants tous mineurs &lt; 14 ans :<br>
+        <strong>📌 Exemple</strong> - Une femme de 35 ans avec 5 enfants tous mineurs &lt; 14 ans :<br>
         • Règle A : 5 × 1 = <strong>5 jours</strong><br>
         • Règle C : 2 enfants après le 3ème (le 4ème + le 5ème) × 2 = <strong>4 jours</strong><br>
         Total bonus mère : <strong>9 jours</strong><br><br>
@@ -378,10 +378,10 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
             <tr><td>Mois</td><td>Nombre de bulletins dans l'année (= mois travaillés)</td></tr>
             <tr><td>Base (j)</td><td>2 × Mois (acquisition CCT de base)</td></tr>
             <tr><td>+Ancienneté</td><td>Bonus selon palier (0 / +1 / +2 / +3 / +7)</td></tr>
-            <tr><td>+Enfants</td><td>Bonus mère (3 règles A/B/C cumulables) — <span style="background:Pink;color:DeepPink;font-weight:bold;padding:2px 6px;">surligné rose</span> si > 0</td></tr>
+            <tr><td>+Enfants</td><td>Bonus mère (3 règles A/B/C cumulables) - <span style="background:Pink;color:DeepPink;font-weight:bold;padding:2px 6px;">surligné rose</span> si > 0</td></tr>
             <tr><td>Total jours</td><td>Total acquis théorique <span style="background:PaleGreen;color:DarkGreen;font-weight:bold;padding:2px 6px;">vert</span> si ≥ 30</td></tr>
             <tr><td>Brut mensuel</td><td>Σ rubriques imposables / 12 (base de valorisation)</td></tr>
-            <tr><td><strong>Provision FCFA</strong></td><td>Total jours × (Brut mensuel / 22) — montant à provisionner</td></tr>
+            <tr><td><strong>Provision FCFA</strong></td><td>Total jours × (Brut mensuel / 22) - montant à provisionner</td></tr>
             <tr><td>Solde réel</td><td>Cumul SoldeConge.JoursAcquis (alimenté par le cron mensuel)</td></tr>
             <tr><td><strong>Écart</strong></td><td>Théorique − Réel.
                 <span style="background:PaleGreen;color:DarkGreen;font-weight:bold;padding:2px 6px;">Vert</span> si |Écart| ≤ 1 j (cohérent).
@@ -396,7 +396,7 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
             <tr><td>Persistance</td><td>Persistant en BDD</td><td>Calculé à la volée</td></tr>
             <tr><td>Granularité</td><td>Salarié × Année × Type congé</td><td>Salarié × Année (tous types)</td></tr>
             <tr><td>Mise à jour</td><td>Mensuelle par cron + temps réel sur prises</td><td>Au chargement de la page</td></tr>
-            <tr><td>Inclut les jours pris ?</td><td>Oui (JoursPris, JoursEnAttente)</td><td>Non — théorique pur (acquis)</td></tr>
+            <tr><td>Inclut les jours pris ?</td><td>Oui (JoursPris, JoursEnAttente)</td><td>Non - théorique pur (acquis)</td></tr>
             <tr><td>Inclut bonus CCT ?</td><td>Selon configuration TypeConge</td><td>Toujours (formule légale stricte)</td></tr>
             <tr><td>Public cible</td><td>RH (validations quotidiennes)</td><td>DAF / Comptable / Audit</td></tr>
         </tbody>
@@ -410,11 +410,11 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         (le cron par défaut ne crédite que la base 2 j/mois, le bonus est
         normalement octroyé en fin d'année).<br>
         3. Si écart négatif &lt; -1 : un ajustement manuel a probablement été fait
-        sur SoldeConge — chercher le MouvementSolde de type "AjustementManuel"
+        sur SoldeConge - chercher le MouvementSolde de type "AjustementManuel"
         et vérifier qu'il a un commentaire justificatif.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="migration">🚀 Migration en production : ajustement initial des soldes</h2>
 
     <div class="alerte">
@@ -444,7 +444,7 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         <strong>Initialisation</strong> pour traçabilité.</li>
         <li><strong>Le cron mensuel</strong> continue à alimenter les acquis
         à partir du mois courant. <strong>Pas de backfill</strong> des mois
-        passés — l'historique avant go-live reste dans l'ancien système.</li>
+        passés - l'historique avant go-live reste dans l'ancien système.</li>
     </ol>
 
     <h3>📊 Comportement de l'année de transition</h3>
@@ -474,24 +474,24 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         <code>MouvementSolde.AcquisitionMensuelle</code> sur tout l'historique.
         Perte de temps et données peu fiables côté ancien système.</li>
         <li><strong>Ne pas mettre le solde initial dans <code>JoursAcquis</code></strong>
-        directement — utilisez <code>JoursReportes</code>. Sinon les statistiques
+        directement - utilisez <code>JoursReportes</code>. Sinon les statistiques
         d'acquisition mensuelle seront faussées.</li>
         <li><strong>Ne pas oublier le <code>MouvementSolde</code> de type
-        Initialisation</strong> — sans lui, l'audit trail sera incomplet et
+        Initialisation</strong> - sans lui, l'audit trail sera incomplet et
         on ne pourra pas justifier le solde initial 5 ans plus tard.</li>
     </ul>
 
     <div class="info">
         <strong>📚 Sources légales utilisées dans le calcul</strong> :<br>
-        • <a href="https://africapaierh.com/juridique/les-conges-payes-au-senegal/" target="_blank">AfricaPaieRH — Les congés payés au Sénégal</a><br>
+        • <a href="https://africapaierh.com/juridique/les-conges-payes-au-senegal/" target="_blank">AfricaPaieRH - Les congés payés au Sénégal</a><br>
         • Code du Travail Sénégal Loi N° 97-17 du 1er décembre 1997, Art. L.149<br>
         • Convention Collective Nationale Interprofessionnelle du Sénégal
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="cas-usage">💼 Cas d'usage concrets</h2>
 
-    <h3>Cas 1 — Congé annuel standard</h3>
+    <h3>Cas 1 - Congé annuel standard</h3>
     <ol>
         <li>Mamadou (Salarié) demande 12 jours ouvrables en juillet</li>
         <li>Soumet → notification au manager Awa (N+1)</li>
@@ -500,7 +500,7 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         <li>Le mois suivant : pas d'impact bulletin (congé payé)</li>
     </ol>
 
-    <h3>Cas 2 — Congé sans solde</h3>
+    <h3>Cas 2 - Congé sans solde</h3>
     <ol>
         <li>Salarié demande 1 mois de Sans solde pour raisons personnelles</li>
         <li>Workflow normal (N+1 → RH)</li>
@@ -508,7 +508,7 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         <li>Le bulletin du mois affiche : Salaire base proratisé + ligne « Retenue congé sans solde »</li>
     </ol>
 
-    <h3>Cas 3 — Maladie avec justificatif</h3>
+    <h3>Cas 3 - Maladie avec justificatif</h3>
     <ol>
         <li>Salarié de retour d'arrêt maladie de 5 jours</li>
         <li>Saisit demande type « Maladie » avec dates rétroactives + scan certificat médical</li>
@@ -517,7 +517,7 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         <li>Pas de retenue (maladie payée selon convention)</li>
     </ol>
 
-    <h3>Cas 4 — Refus pour incompatibilité de planning</h3>
+    <h3>Cas 4 - Refus pour incompatibilité de planning</h3>
     <ol>
         <li>Salarié demande congé en juillet (haute saison Boutique)</li>
         <li>Manager regarde le planning équipe → trop de monde absent</li>
@@ -525,7 +525,7 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         <li>Salarié resoumet sur août</li>
     </ol>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="regles">📜 Règles métier et notifications</h2>
 
     <h3>Règles métier</h3>
@@ -554,7 +554,7 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         </tbody>
     </table>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
 
     <h3>Q : Le bouton « Soumettre » est grisé</h3>
@@ -593,7 +593,7 @@ Jours dus = 24 (annuel standard) + Bonus ancienneté + Bonus mère
         Toggle « + En attente » pour voir aussi les Soumises et En attente N+1/N+2.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
 
     <h3>Côté Salarié</h3>

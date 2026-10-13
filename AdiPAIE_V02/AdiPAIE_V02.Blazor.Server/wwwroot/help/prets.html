@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie — Prêts et avances (Guide complet)</title>
+    <title>SunuPaie - Prêts et avances (Guide complet)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
     <style>td.num { text-align: right; font-family: monospace; }</style>
 </head>
@@ -21,16 +21,16 @@
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>💰 Prêts et avances sur salaire — Guide complet</h1>
+    <h1>💰 Prêts et avances sur salaire - Guide complet</h1>
     <p>Ce module gère le cycle complet d'un prêt employeur : création,
     génération de l'échéancier (principal constant ou annuité constante),
     intégration automatique des retenues mensuelles dans les bulletins,
     suivi du remboursement, suspension/reprise, et clôture en fin
     d'amortissement.</p>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <div style="background:#fff8e1;border:2px solid #ffa726;border-radius:8px;padding:1em 1.5em;margin:1.5em 0;">
-        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) — Reprise d'un prêt en cours (mise en prod)</h2>
+        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) - Reprise d'un prêt en cours (mise en prod)</h2>
 
         <p>Quand vous reprenez dans AdiPAIE un prêt déjà en cours d'amortissement
         depuis l'ancien système, suivez <strong>impérativement</strong> cette
@@ -109,18 +109,18 @@
                 mensualité plus grosse que les autres.</li>
         </ul>
     </div>
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
 
     <div class="toc">
         <strong>📑 Étapes du processus</strong>
         <ol>
             <li><a href="#vue-ensemble">Vue d'ensemble du cycle de vie</a></li>
-            <li><a href="#etape1">Étape 1 — Créer le prêt (en-tête)</a></li>
-            <li><a href="#etape2">Étape 2 — Choisir le mode d'amortissement</a></li>
-            <li><a href="#etape3">Étape 3 — Renseigner la rubrique de retenue</a></li>
-            <li><a href="#etape4">Étape 4 — Générer l'échéancier</a></li>
-            <li><a href="#etape5">Étape 5 — Suivi mensuel sur les bulletins</a></li>
-            <li><a href="#etape6">Étape 6 — Suspension / reprise / clôture</a></li>
+            <li><a href="#etape1">Étape 1 - Créer le prêt (en-tête)</a></li>
+            <li><a href="#etape2">Étape 2 - Choisir le mode d'amortissement</a></li>
+            <li><a href="#etape3">Étape 3 - Renseigner la rubrique de retenue</a></li>
+            <li><a href="#etape4">Étape 4 - Générer l'échéancier</a></li>
+            <li><a href="#etape5">Étape 5 - Suivi mensuel sur les bulletins</a></li>
+            <li><a href="#etape6">Étape 6 - Suspension / reprise / clôture</a></li>
             <li><a href="#calculs">Méthodes de calcul détaillées</a></li>
             <li><a href="#cas-usage">Cas d'usage concrets</a></li>
             <li><a href="#regles">Règles métier</a></li>
@@ -129,7 +129,7 @@
         </ol>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="vue-ensemble">📋 Vue d'ensemble du cycle de vie</h2>
 
     <div class="workflow">
@@ -155,8 +155,8 @@
         </tbody>
     </table>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape1">📝 Étape 1 — Créer le prêt (en-tête)</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape1">📝 Étape 1 - Créer le prêt (en-tête)</h2>
 
     <div class="step">
         <h3><span class="num">1</span>Naviguer vers Paie → Prêts → + Nouveau</h3>
@@ -202,8 +202,8 @@
         </tbody>
     </table>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape2">📐 Étape 2 — Choisir le mode d'amortissement</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape2">📐 Étape 2 - Choisir le mode d'amortissement</h2>
 
     <div class="step">
         <h3><span class="num">1</span>Sélectionner Principal constant ou Annuité constante</h3>
@@ -230,8 +230,8 @@
         un résultat identique (mensualité = montant / durée).
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape3">🏷️ Étape 3 — Renseigner la rubrique de retenue</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape3">🏷️ Étape 3 - Renseigner la rubrique de retenue</h2>
 
     <div class="step">
         <h3><span class="num">1</span>Champ Rubrique de retenue (obligatoire)</h3>
@@ -244,18 +244,18 @@
     <div class="alerte">
         Le système cherche la rubrique de retenue dans cet ordre de priorité :
         <ol>
-            <li><strong>Pret.RubriqueRetenue</strong> — si renseignée directement
+            <li><strong>Pret.RubriqueRetenue</strong> - si renseignée directement
                 sur le prêt (recommandé)</li>
-            <li><strong>TypePret.RubriqueRetenue</strong> — si définie sur le type
+            <li><strong>TypePret.RubriqueRetenue</strong> - si définie sur le type
                 de prêt (par défaut)</li>
-            <li><strong>ParamètresPaie</strong> — rubrique par défaut selon la
+            <li><strong>ParamètresPaie</strong> - rubrique par défaut selon la
                 nature (Prêt ou Avance)</li>
         </ol>
         Renseigner toujours la rubrique au niveau du prêt évite toute ambiguïté.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape4">📊 Étape 4 — Générer l'échéancier</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape4">📊 Étape 4 - Générer l'échéancier</h2>
 
     <div class="step">
         <h3><span class="num">1</span>Cliquer sur Générer l'échéancier</h3>
@@ -278,8 +278,8 @@
         concernés ou créer un nouveau prêt.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape5">💵 Étape 5 — Suivi mensuel sur les bulletins</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape5">💵 Étape 5 - Suivi mensuel sur les bulletins</h2>
 
     <div class="step">
         <h3><span class="num">1</span>Recalcul automatique du bulletin</h3>
@@ -311,8 +311,8 @@
         <code>RET_PRET = 60 000 FCFA</code>.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape6">⏸️ Étape 6 — Suspension / reprise / clôture</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape6">⏸️ Étape 6 - Suspension / reprise / clôture</h2>
 
     <h3>Suspension</h3>
     <div class="step">
@@ -344,7 +344,7 @@
         prochain chargement.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="calculs">🧮 Méthodes de calcul détaillées</h2>
 
     <div class="info">
@@ -395,7 +395,7 @@
 
     <div class="exemple">
         <strong>Exemple :</strong> Prêt de 600 000 FCFA, taux 12 % annuel, durée 6 mois<br>
-        r = 0,01 — Annuité = 600 000 × 0,01 / (1 − 1/1,01^6) ≈ 103 025 FCFA/mois
+        r = 0,01 - Annuité = 600 000 × 0,01 / (1 − 1/1,01^6) ≈ 103 025 FCFA/mois
         <table>
             <thead><tr><th>Mois</th><th>Capital restant</th><th>Capital</th><th>Intérêt</th><th>Mensualité</th></tr></thead>
             <tbody>
@@ -423,10 +423,10 @@
         retenue = 50 000 FCFA/mois.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
 
-    <h3>Cas 1 — Prêt logement 24 mois</h3>
+    <h3>Cas 1 - Prêt logement 24 mois</h3>
     <div class="exemple">
         <strong>Modou (Cadre)</strong> demande un prêt logement de 4 800 000 FCFA
         à 6 % annuel sur 24 mois, mode <em>Annuité constante</em>.<br>
@@ -435,7 +435,7 @@
         Modou voit la ligne <code>RET_PRET_LOGEMENT</code> sur son bulletin.
     </div>
 
-    <h3>Cas 2 — Avance ponctuelle de scolarité</h3>
+    <h3>Cas 2 - Avance ponctuelle de scolarité</h3>
     <div class="exemple">
         <strong>Aïssa</strong> demande une avance de 200 000 FCFA pour la
         rentrée scolaire, à rembourser sur 2 mois (taux 0 %).<br>
@@ -443,7 +443,7 @@
         de septembre et octobre.
     </div>
 
-    <h3>Cas 3 — Suspension pour congé sans solde</h3>
+    <h3>Cas 3 - Suspension pour congé sans solde</h3>
     <div class="exemple">
         <strong>Coumba</strong> part en congé sans solde 3 mois (formation
         externe). Son prêt logement est <em>Suspendu</em>. Aucune retenue
@@ -452,7 +452,7 @@
         durée du prêt est étendue de 3 mois.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="regles">📜 Règles métier</h2>
 
     <table>
@@ -467,7 +467,7 @@
         </tbody>
     </table>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
 
     <div class="erreur">
@@ -515,7 +515,7 @@
         <strong>📊 Export Excel</strong>.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
 
     <div class="bouton">
@@ -537,7 +537,7 @@
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 — Module Prêts et avances — Mise à jour mai 2026
+        SunuPaie v1.1 - Module Prêts et avances - Mise à jour mai 2026
     </p>
 </body>
 </html>

@@ -66,6 +66,9 @@ namespace AdiPAIE_V02.Module
             // V1.10 - Popup sortie intérimaire.
             AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.SortirInterimaireRequest));
 
+            // V1.11 - Rattrapage multi-mois des acquisitions de conges
+            AdditionalExportedTypes.Add(typeof(AdiPAIE_V02.Module.NonPersistent.RattraperAcquisitionsRequest));
+
             // =================================
 
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.SystemModule.SystemModule));

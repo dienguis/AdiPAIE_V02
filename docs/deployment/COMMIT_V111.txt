@@ -1,0 +1,115 @@
+V1.11 - Rattrapage acquisitions multi-mois + Permissions SoldeConge RH + Nettoyage help
+
+================================================================================
+1. NOUVEAU : Action "Rattraper acquisitions" (plage de mois)
+================================================================================
+
+Cas d'usage metier : bascule vers SunuPaie en cours d'annee.
+Les salaries n'ont jamais recu les acquisitions mensuelles automatiques des
+mois precedant la bascule. Resultat : les soldes sont a 0 (ou negatifs si des
+conges ont ete pris et saisis manuellement).
+
+L'action "Acquis. mensuelle" existante ne traite que le mois courant (idempotent).
+Pour un salarie vierge en octobre, elle credite seulement +2j au lieu des +20j
+cumules depuis janvier.
+
+Solution : nouveau bouton "Rattraper acquisitions" sur ListView SoldeConge.
+Popup demande la plage (Mois/Annee debut + Mois/Annee fin). L'action boucle
+mois par mois et appelle AcquerirTousSalaries pour chaque, de maniere idempotente.
+
+Resultat teste en local (13/10/2026) :
+  - Avant : diop Modou solde = -24,00 (0 acquis, 24 pris)
+  - Rattrapage janvier a septembre 2026 (9 mois)
+  - Apres : diop Modou solde = -6,00 (18 acquis, 24 pris)
+  - Fatou NDIAYE solde = +18,00 (nouvelle beneficiaire)
+  - Total : 18 acquisitions creees, 0 ignorees, 0 erreur
+
+Rapport detaille mois par mois dans le message de confirmation
+(ex. "01/2026 : 2 cree(s), 0 ignore(s)...").
+
+Fichiers crees :
+  - AdiPAIE_V02.Module/NonPersistent/RattraperAcquisitionsRequest.cs (DTO popup)
+
+Fichiers modifies :
+  - AdiPAIE_V02.Module/Controllers/SoldeCongeController.cs
+    (ajout PopupWindowShowAction dans AcquisitionMensuelleController)
+  - AdiPAIE_V02.Module/Module.cs
+    (enregistrement du DTO dans AdditionalExportedTypes)
+
+Idempotent : relancer l'action deux fois sur la meme plage ne cree rien de nouveau
+(AcquerirMensuel verifie la presence d'un MouvementSolde AcquisitionMensuelle
+sur le mois en cours).
+
+================================================================================
+2. FIX V1.10.2 : Permissions SoldeConge/MouvementSolde pour le role RH
+================================================================================
+
+Bug : le role RH n'avait aucune permission sur SoldeConge ni MouvementSolde.
+Resultat : le menu "GRH -> Soldes de conges (operationnel RH)" etait invisible
+pour le RH et le bouton "Acquis. mensuelle" inaccessible.
+
+Cause racine : lors de la mise en place du strict DenyAllByDefault, seule la
+permission AddType<SoldeConge>(dg, "r") avait ete declaree, oubli pour le role RH.
+
+Correctif : ajout dans InitialiserRolesGRHController :
+  - SoldeConge      rwcd  (consultation + corrections manuelles)
+  - MouvementSolde  rwcd  (tracage + correction des mouvements)
+  - CongeType       rw    (edition des parametres par type de conge)
+
+Post-deploiement : clic sur "Init. roles GRH" dans l'app + deconnexion/reconnexion
+du user RH.
+
+================================================================================
+3. PHASE A - Nettoyage du Help HTML (tirets longs)
+================================================================================
+
+Nettoyage automatise de 15 666 caracteres non-ASCII dans 37 fichiers HTML, CSS, JS
+du dossier wwwroot/help/ :
+
+  - em-dash (—)   : 624 occurrences remplacees par '-'
+  - en-dash (–)   : 4 occurrences remplacees par '-'
+  - box-horiz (─) : 44 occurrences remplacees par '-'
+  - box-double (═): 14 994 occurrences remplacees par '='
+
+Motif : les tirets longs sont une signature visuelle de texte genere par IA.
+Consigne utilisateur reiteree : n'utiliser que le tiret simple '-' dans toute
+l'app et la documentation.
+
+Reste a faire (Phase A2, semi-manuel, deferre) :
+  - 86 marqueurs V1.x a reformuler ("V1.8 (juin 2026) - Nouveautes majeures" etc.)
+  - 7 marqueurs [Legacy] a supprimer
+  - 33 mentions "mai 2026" a actualiser
+  - 4 "desormais" a reformuler
+
+Ces reformulations se feront en Phase B (refonte complete de conges.html) et
+Phase C (harmonisation des autres pages).
+
+================================================================================
+4. NOUVEAU : Dossier captures help/img/conges/
+================================================================================
+
+5 captures de qualite pour illustrer le help congés refondu (Phase B) :
+  01-liste-soldes-boutons.jpg      - vue initiale ListView SoldeConge
+  02-detail-solde-mouvements.jpg   - detail avec probleme -24 (diop Modou)
+  03-liste-avec-3-boutons.jpg      - nouvelle liste avec les 3 boutons batch
+  04-popup-rattraper.jpg           - popup Rattraper acquisitions (jan a sep 2026)
+  05-resultat-rattrapage.jpg       - message succes + nouveau solde -6
+
+================================================================================
+DEPLOIEMENT PROD
+================================================================================
+
+1. git pull origin dev
+2. dotnet build -c Release
+3. publish AdiPAIE_V02.Blazor.Server
+4. zip -> sunuPaie.zip dans Downloads
+5. serveur : .\Deploy-SunuPaie-Server.ps1
+6. Login Admin -> Parametres de paie -> "Init. roles GRH" -> clic
+7. User RH : deconnexion/reconnexion
+8. Verifier :
+   - Menu "GRH -> Soldes de conges (operationnel RH)" visible
+   - 3 boutons presents : "Acquis. mensuelle", "Report N->N+1", "Rattraper acquisitions"
+9. (Si bascule janvier) : clic "Rattraper acquisitions" plage 01-01-2026 a mois precedent
+
+Pas de migration SQL requise.
+Pas de restart IIS apres "Init. roles GRH".

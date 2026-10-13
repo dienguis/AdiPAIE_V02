@@ -298,6 +298,16 @@ namespace AdiPAIE_V02.Module.Controllers
             AddType<MouvementInterimaire>(rh, "rwcd");    nbPerms += 4;
             AddType<AlerteInterimaire>(rh, "rw");         nbPerms += 2;
 
+            // V1.10.2 - Permissions soldes de conges pour le RH.
+            // Avant : seul le DG avait AddType<SoldeConge>(dg, "r"), donc le RH
+            // ne voyait meme pas le menu "Soldes de conges" ni le bouton
+            // "Acquis. mensuelle" (batch mensuel d'acquisition des jours).
+            // Le RH doit pouvoir faire : acquisition mensuelle, report N->N+1,
+            // consulter les mouvements de solde pour tous les salaries.
+            AddType<SoldeConge>(rh, "rwcd");              nbPerms += 4;
+            AddType<MouvementSolde>(rh, "rwcd");          nbPerms += 4;
+            AddType<CongeType>(rh, "rw");                 nbPerms += 2;
+
             // V1.7.2 - Navigation permissions (menus principaux)
             AddNavManagerMenus(rh);
             nbPerms += 30;

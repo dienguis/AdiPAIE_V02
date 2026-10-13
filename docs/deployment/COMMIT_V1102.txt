@@ -1,0 +1,39 @@
+V1.10.2 - Permissions SoldeConge/MouvementSolde pour le role RH
+
+Fix : le role RH n'avait aucune permission sur SoldeConge ni sur
+MouvementSolde. Resultat : le menu "GRH -> Soldes de conges
+(operationnel RH)" etait invisible pour le RH, et le bouton
+"Acquis. mensuelle" (batch mensuel d'acquisition des jours de
+conge pour tous les salaries actifs) inaccessible.
+
+Impact metier : l'acquisition mensuelle des jours de conge ne
+pouvait etre lancee que par le DG, ce qui bloquait l'operationnel
+RH quotidien (acquisition en debut de mois, report N->N+1 en
+cloture d'exercice).
+
+Cause racine : lors de la mise en place du strict DenyAllByDefault,
+seule la permission AddType<SoldeConge>(dg, "r") avait ete declaree,
+oubli pour le role RH.
+
+Correctif : ajout dans InitialiserRolesGRHController des permissions
+RH suivantes :
+  - SoldeConge      rwcd  (consultation + corrections manuelles)
+  - MouvementSolde  rwcd  (traca et correction des mouvements)
+  - CongeType       rw    (edition des parametres par type de conge)
+
+Workflow apres deploiement :
+  1. Login Admin -> Parametres de paie -> Init. roles GRH -> clic
+  2. Deconnexion/reconnexion du user RH
+  3. Menu "GRH -> Soldes de conges (operationnel RH)" visible
+  4. Actions "Acquis. mensuelle" et "Report N->N+1" accessibles
+     dans la barre d'actions de la ListView
+
+Fichier modifie :
+  AdiPAIE_V02.Module/Controllers/InitialiserRolesGRHController.cs
+  (+10 permissions, +9 lignes de code)
+
+Pas de migration SQL requise - les permissions sont ecrites par
+l'action "Init. roles GRH" directement en base.
+
+Pas de restart IIS requis apres Init. roles GRH - les permissions
+sont rechargees a la prochaine connexion de l'utilisateur RH.

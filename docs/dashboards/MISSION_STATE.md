@@ -3519,6 +3519,100 @@ De plus l'entité Interimaire n'avait pas de `DateSortieAgence` (asymétrie avec
 
 ---
 
+## 🆕 V1.11 - Rattrapage acquisitions multi-mois + Nettoyage help (13 oct. 2026)
+
+### Besoin metier
+Lors de la bascule vers SunuPaie en cours d'annee, les salaries n'ont jamais recu
+les acquisitions mensuelles automatiques des mois precedant la bascule. Resultat :
+soldes a 0 ou negatifs si des conges ont ete pris et saisis manuellement.
+
+Exemple reel observe (test prod 13/10/2026) :
+- Salarie "diop Modou" : 24 jours pris saisis en juin 2026, 0 jour acquis -> solde = -24
+
+### Solution V1.11
+Nouvelle action "Rattraper acquisitions" sur ListView SoldeConge.
+Popup demande la plage (Mois/Annee debut + fin). L'action boucle mois par mois
+et appelle `AcquerirTousSalaries` pour chaque mois, idempotent via `AcquerirMensuel`.
+
+### Resultat teste
+- Avant : diop Modou solde = -24,00
+- Rattrapage janvier a septembre 2026 (9 mois)
+- Apres : diop Modou solde = -6,00 (18 acquis - 24 pris)
+- Fatou NDIAYE : passee de 0 a +18
+- Rapport : 18 acquisitions creees, 0 ignorees, detail mois par mois
+
+### Phase A - Nettoyage help HTML
+15 666 caracteres non-ASCII nettoyes dans 37 fichiers HTML/CSS/JS :
+- em-dash (—) : 624
+- en-dash (–) : 4
+- box-horiz (─) : 44
+- box-double (═) : 14 994
+
+Motif : signature visuelle de texte genere par IA, consigne utilisateur
+reiteree. Reste a faire (Phase A2 differe) : 86 "V1.x", 7 "[Legacy]",
+33 "mai 2026" a reformuler contextuellement.
+
+### Dossier captures
+Cree `wwwroot/help/img/conges/` avec 5 captures demonstratives V1.11 :
+01-liste-soldes, 02-detail-probleme, 03-liste-3-boutons, 04-popup-rattraper,
+05-resultat.
+
+### Fichiers
+- `NonPersistent/RattraperAcquisitionsRequest.cs` (nouveau DTO)
+- `Controllers/SoldeCongeController.cs` (action ajoutee)
+- `Module.cs` (enregistrement DTO)
+- `wwwroot/help/*.html` (nettoyage global)
+- `wwwroot/help/img/conges/*.jpg` (5 captures)
+
+### Deploiement
+Rebuild + Deploy-SunuPaie-Server.ps1. Pas de SQL. Clic "Init. roles GRH" post-deploy.
+
+---
+
+## 🔑 V1.10.2 - Permissions SoldeConge pour RH (12 oct. 2026)
+
+### Constat prod
+Le RH connecté ne voyait pas le menu **"GRH -> Soldes de congés (opérationnel RH)"**
+ni le bouton **"Acquis. mensuelle"** permettant l'acquisition mensuelle automatique
+des jours de congé pour tous les salariés actifs.
+
+### Cause racine
+Dans `InitialiserRolesGRHController`, seul le rôle DG recevait `AddType<SoldeConge>(dg, "r")`.
+Le rôle RH n'avait aucune permission sur `SoldeConge` ni `MouvementSolde` -> en strict
+`DenyAllByDefault`, le menu et toutes les actions associées étaient masqués.
+
+### Fix
+Ajout de 3 permissions dans le rôle RH :
+- `SoldeConge` rwcd  (consultation + corrections manuelles)
+- `MouvementSolde` rwcd  (traçabilité + correction mouvements)
+- `CongeType` rw  (édition paramètres par type de congé)
+
+### Workflow opérationnel RH débloqué
+
+Après **Init. rôles GRH** + reconnexion du user RH :
+
+1. **Acquisition mensuelle** (début de chaque mois) : menu Soldes de congés -> bouton "Acquis. mensuelle"
+   -> crédite N jours à tous les salariés actifs (barème CCT Sénégal : 2j/mois pour CPAYE)
+2. **Report N->N+1** (clôture d'exercice fin décembre) : bouton "Report N->N+1"
+   -> transfère les soldes de l'année écoulée dans la limite des plafonds
+3. **Saisie congé** (congé pris par un salarié) : fiche Salarié -> bouton "Saisir un congé"
+   -> débit solde + ligne CONGE_PAYE dans bulletin
+4. **Saisie historique janvier-mai 2026** : même action en mode MANUEL avec montant
+   repris de l'ancien système
+
+### Fichiers modifiés
+- `AdiPAIE_V02.Module/Controllers/InitialiserRolesGRHController.cs`
+
+### Déploiement
+- Rebuild + republish via `Deploy-SunuPaie-Server.ps1`
+- Post-deploy : clic sur "Init. rôles GRH" dans l'app
+- Reconnexion du user RH
+
+### Pas de SQL requis
+Les permissions sont écrites par l'action "Init. rôles GRH" directement en base.
+
+---
+
 ## 📝 Backlog post-V1.10 (noté le 30 sept. 2026)
 
 ### UX - Bouton "Créer bulletins" masqué sans explication

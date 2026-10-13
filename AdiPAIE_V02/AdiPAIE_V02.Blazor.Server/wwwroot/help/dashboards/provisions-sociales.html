@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Provisions Sociales — Aide Tableau N°8</title>
+    <title>Provisions Sociales - Aide Tableau N°8</title>
     <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
 </head>
 <body>
     <nav>
-        <a href="/help/index.html">SunuPaie — Guide utilisateur</a>
+        <a href="/help/index.html">SunuPaie - Guide utilisateur</a>
         <span class="sep">|</span>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
         <span class="sep">|</span>
@@ -34,7 +34,7 @@
             <li>L'<strong>indemnité de départ à la retraite</strong> due à chaque salarié, calculée pro-rata temporis sur l'ancienneté acquise.</li>
             <li>La <strong>valeur des congés payés acquis non pris</strong> à la date de clôture, qui constitue une dette envers les salariés.</li>
         </ul>
-        <p>Sans ce dashboard, le calcul est typiquement fait manuellement en fin d'année par le DAF — d'où le risque de mauvaise surprise au moment de la clôture (ajustements significatifs demandés par le commissaire aux comptes).</p>
+        <p>Sans ce dashboard, le calcul est typiquement fait manuellement en fin d'année par le DAF - d'où le risque de mauvaise surprise au moment de la clôture (ajustements significatifs demandés par le commissaire aux comptes).</p>
 
         <h2>Pour qui</h2>
         <ul>
@@ -43,7 +43,7 @@
             <li><strong>RH Manager</strong> : visibilité sur les engagements futurs liés à l'ancienneté.</li>
         </ul>
 
-        <h2 id="formule-idr">Formule de calcul — IDR (Indemnité Départ Retraite)</h2>
+        <h2 id="formule-idr">Formule de calcul - IDR (Indemnité Départ Retraite)</h2>
         <p>Le barème appliqué est celui de la <strong>Convention Collective Interprofessionnelle du Sénégal</strong>, adopté par défaut dans le secteur privé. Le taux varie selon la tranche d'ancienneté :</p>
 
         <table>
@@ -93,7 +93,7 @@
             <p><strong>Provision IDR</strong> = 620 000 × 30 % × 8,21 = <strong>1 527 060 FCFA</strong></p>
         </div>
 
-        <h2 id="formule-cp">Formule de calcul — Congés Payés acquis non pris</h2>
+        <h2 id="formule-cp">Formule de calcul - Congés Payés acquis non pris</h2>
         <p>Le code du travail sénégalais accorde aux salariés <strong>2,5 jours ouvrables de congés par mois travaillé</strong> (soit 30 jours par an). À la clôture, le solde acquis non encore pris constitue une dette à provisionner.</p>
 
         <table>
@@ -140,7 +140,7 @@
             <tbody>
                 <tr><td><strong>Provision IDR totale</strong></td><td>Somme des provisions IDR individuelles de tous les salariés actifs à la date de référence.</td></tr>
                 <tr><td><strong>Provision CP totale</strong></td><td>Somme des provisions congés payés.</td></tr>
-                <tr><td><strong>Total à provisionner</strong></td><td>Somme IDR + CP — c'est le montant à inscrire au passif du bilan.</td></tr>
+                <tr><td><strong>Total à provisionner</strong></td><td>Somme IDR + CP - c'est le montant à inscrire au passif du bilan.</td></tr>
                 <tr><td><strong>Moyenne IDR par salarié</strong></td><td>Provision IDR totale ÷ nombre de salariés concernés.</td></tr>
                 <tr><td><strong>Variation mois</strong></td><td>Différence entre la provision totale du mois courant et celle du mois précédent (calculée à partir de l'évolution glissante).</td></tr>
             </tbody>
@@ -148,7 +148,7 @@
 
         <h2>Sections du tableau</h2>
 
-        <h3>Top 10 — Provision IDR la plus élevée</h3>
+        <h3>Top 10 - Provision IDR la plus élevée</h3>
         <p>Liste des 10 salariés avec la provision IDR la plus forte. Permet d'identifier les engagements concentrés (anciens salariés à fort salaire).</p>
 
         <h3>Ventilation par tranche d'ancienneté</h3>
@@ -194,11 +194,11 @@
                 <tr><td>Pourquoi mon salarié a une provision IDR à 0 ?</td><td>Soit aucun bulletin disponible sur les 12 derniers mois, soit DateEmbauche dans le futur, soit le salarié est sorti avant la date de référence.</td></tr>
                 <tr><td>Pourquoi le total varie sur le même mois si je recalcule ?</td><td>Le cache TTL est de 5 minutes. Pour forcer un recalcul, attendre 5 min ou changer puis revenir sur la date.</td></tr>
                 <tr><td>Comment exporter le détail pour le CAC ?</td><td>L'export Excel détaillé par salarié arrive en V1.2.1 (ce dashboard est en lecture seule en V1.2 initiale).</td></tr>
-                <tr><td>Le barème change si la convention collective d'ELTON est différente ?</td><td>Oui — sera paramétrable via <code>ParametresPaie.BaremeIDR_*</code> en V1.2.1. Pour l'instant, valeurs en dur dans le service (cf. <code>ProvisionsSocialesDashboardService.ComputeTauxIDR</code>).</td></tr>
+                <tr><td>Le barème change si la convention collective d'ELTON est différente ?</td><td>Oui - sera paramétrable via <code>ParametresPaie.BaremeIDR_*</code> en V1.2.1. Pour l'instant, valeurs en dur dans le service (cf. <code>ProvisionsSocialesDashboardService.ComputeTauxIDR</code>).</td></tr>
             </tbody>
         </table>
 
-        <p class="footer-help">SunuPaie — V1.2 (mai 2026) — Tableau N°8 Provisions Sociales</p>
+        <p class="footer-help">SunuPaie - V1.2 (mai 2026) - Tableau N°8 Provisions Sociales</p>
     </main>
 </body>
 </html>

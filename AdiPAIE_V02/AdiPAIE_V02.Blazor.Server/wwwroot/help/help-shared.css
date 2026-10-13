@@ -1,5 +1,5 @@
 /* ====================================================================
-   help-shared.css — Style partagé du Guide utilisateur SunuPaie
+   help-shared.css - Style partagé du Guide utilisateur SunuPaie
    Charte verte SunuPaie (#0F6E56). Format step-by-step avec exemples
    inspiré de interimaires.html (V1.1 mai 2026).
    ==================================================================== */
@@ -20,7 +20,7 @@ nav a { color: white; text-decoration: none; margin-right: 15px; font-size: 14px
 nav a:hover, nav a.active { opacity: 1; text-decoration: underline; }
 nav .sep { color: rgba(255,255,255,0.3); }
 
-/* ── Table des matières ── */
+/* -- Table des matières -- */
 .toc {
     background: #e8f5e9;
     border-left: 4px solid #0F6E56;
@@ -32,7 +32,7 @@ nav .sep { color: rgba(255,255,255,0.3); }
 .toc a { color: #0F6E56; text-decoration: none; font-weight: 600; }
 .toc a:hover { text-decoration: underline; }
 
-/* ── Étape numérotée ── */
+/* -- Étape numérotée -- */
 .step {
     background: white;
     border: 1px solid #ddd;
@@ -52,7 +52,7 @@ nav .sep { color: rgba(255,255,255,0.3); }
     margin-right: 8px;
 }
 
-/* ── Boîtes colorées ── */
+/* -- Boîtes colorées -- */
 .exemple {
     background: #fffbf0;
     border-left: 4px solid #ff9800;
@@ -113,7 +113,7 @@ nav .sep { color: rgba(255,255,255,0.3); }
 }
 .bouton strong { color: #0F6E56; }
 
-/* ── Tableaux ── */
+/* -- Tableaux -- */
 table {
     border-collapse: collapse;
     width: 100%;
@@ -131,7 +131,7 @@ td {
 }
 tr:nth-child(even) td { background: #f9f9f9; }
 
-/* ── Code et clavier ── */
+/* -- Code et clavier -- */
 code {
     background: #eef;
     padding: 2px 5px;
@@ -156,7 +156,7 @@ pre code {
     overflow-x: auto;
 }
 
-/* ── Workflow visuel ── */
+/* -- Workflow visuel -- */
 .workflow {
     display: flex;
     align-items: center;
@@ -178,7 +178,7 @@ pre code {
     font-weight: bold;
 }
 
-/* ── Badges ── */
+/* -- Badges -- */
 .badge {
     display: inline-block;
     padding: 2px 8px;
@@ -193,7 +193,7 @@ pre code {
 .badge-warning  { background: #ff9800; color: white; }
 .badge-info     { background: #607d8b; color: white; }
 
-/* ── Liste de champs (description list stylée) ── */
+/* -- Liste de champs (description list stylée) -- */
 .field-list {
     background: #fafafa;
     border: 1px solid #ddd;
@@ -212,7 +212,7 @@ pre code {
     font-size: 0.92em;
 }
 
-/* ── Footer ── */
+/* -- Footer -- */
 .footer-help {
     margin-top: 40px;
     padding: 16px;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie — Journal d'audit (Guide complet)</title>
+    <title>SunuPaie - Journal d'audit (Guide complet)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
@@ -18,7 +18,7 @@
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>🔍 Journal d'audit — Guide complet</h1>
+    <h1>🔍 Journal d'audit - Guide complet</h1>
     <p>Le journal d'audit trace automatiquement <strong>toutes les actions
     significatives</strong> dans SunuPaie. Chaque entrée enregistre :
     qui a fait quoi, quand, sur quel objet, et avec quels détails.
@@ -31,14 +31,14 @@
             <li><a href="#vue-ensemble">Vue d'ensemble du fonctionnement</a></li>
             <li><a href="#actions-tracees">Actions tracées par module</a></li>
             <li><a href="#champs">Informations enregistrées</a></li>
-            <li><a href="#etape1">Mode opératoire — Consultation</a></li>
+            <li><a href="#etape1">Mode opératoire - Consultation</a></li>
             <li><a href="#cas-usage">Cas d'usage concrets</a></li>
             <li><a href="#regles">Règles métier et garanties</a></li>
             <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
         </ol>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="vue-ensemble">📋 Vue d'ensemble du fonctionnement</h2>
 
     <div class="workflow">
@@ -59,7 +59,7 @@
         s'exécute quand même (le métier prime sur l'audit).
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="actions-tracees">📊 Actions tracées par module</h2>
 
     <table>
@@ -73,7 +73,7 @@
         </tbody>
     </table>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="champs">🗂️ Informations enregistrées</h2>
 
     <table>
@@ -84,15 +84,15 @@
             <tr><td>Entité</td><td>Type d'objet concerné</td><td>Bulletin</td></tr>
             <tr><td>Action</td><td>Nom de l'action effectuée</td><td>Valider</td></tr>
             <tr><td>Identifiant objet</td><td>Clé unique (Oid) de l'objet</td><td>3fa85f64-…</td></tr>
-            <tr><td>Libellé objet</td><td>Description lisible de l'objet</td><td>DIOP Moussa — 04/2026</td></tr>
+            <tr><td>Libellé objet</td><td>Description lisible de l'objet</td><td>DIOP Moussa - 04/2026</td></tr>
             <tr><td>Détails</td><td>Informations complémentaires</td><td>Net à payer : 385 000 FCFA</td></tr>
             <tr><td>Ancien statut</td><td>Statut avant l'action</td><td>Brouillon</td></tr>
             <tr><td>Nouveau statut</td><td>Statut après l'action</td><td>Validé</td></tr>
         </tbody>
     </table>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <h2 id="etape1">🔍 Mode opératoire — Consultation</h2>
+    <!-- =============================================================== -->
+    <h2 id="etape1">🔍 Mode opératoire - Consultation</h2>
 
     <div class="step">
         <h3><span class="num">1</span>Aller dans Administration → Journal d'audit</h3>
@@ -115,17 +115,17 @@
         données associées.</p>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
 
-    <h3>Cas 1 — Qui a validé ce bulletin ?</h3>
+    <h3>Cas 1 - Qui a validé ce bulletin ?</h3>
     <div class="exemple">
         Filtrer : Entité = <em>Bulletin</em>, Action = <em>Valider</em>,
-        rechercher le libellé du bulletin (<em>DIOP Moussa — 04/2026</em>).
+        rechercher le libellé du bulletin (<em>DIOP Moussa - 04/2026</em>).
         L'entrée affiche l'utilisateur et la date/heure exacte.
     </div>
 
-    <h3>Cas 2 — Historique complet d'un dossier de départ</h3>
+    <h3>Cas 2 - Historique complet d'un dossier de départ</h3>
     <div class="exemple">
         Filtrer : Entité = <em>DossierOffboarding</em>, recherche par
         nom du salarié dans le libellé. Toutes les étapes du workflow
@@ -133,34 +133,34 @@
         avec leurs horodatages.
     </div>
 
-    <h3>Cas 3 — Audit des sanctions disciplinaires d'un mois</h3>
+    <h3>Cas 3 - Audit des sanctions disciplinaires d'un mois</h3>
     <div class="exemple">
         Filtrer : Entité = <em>DossierDisciplinaire</em>, Action =
         <em>Prononcer sanction</em>, Date entre 01/05/2026 et 31/05/2026.
         Liste de toutes les sanctions prononcées en mai avec leurs auteurs.
     </div>
 
-    <h3>Cas 4 — Détecter une activité anormale</h3>
+    <h3>Cas 4 - Détecter une activité anormale</h3>
     <div class="exemple">
         Filtrer : Utilisateur = <em>compte_X</em>, Action = <em>Réouverture forcée</em>.
         Permet de vérifier qu'aucune action sensible n'a été effectuée hors
         de la procédure normale.
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="regles">📜 Règles métier et garanties</h2>
 
     <div class="alerte">
         <ul>
-            <li>Les entrées d'audit sont <strong>en lecture seule</strong> — aucune modification ni suppression possible</li>
-            <li>L'audit ne <strong>bloque jamais le flux métier</strong> — en cas d'erreur d'écriture audit, l'action principale s'exécute quand même</li>
+            <li>Les entrées d'audit sont <strong>en lecture seule</strong> - aucune modification ni suppression possible</li>
+            <li>L'audit ne <strong>bloque jamais le flux métier</strong> - en cas d'erreur d'écriture audit, l'action principale s'exécute quand même</li>
             <li>Chaque entrée utilise un <strong>ObjectSpace séparé</strong> pour garantir l'intégrité (transaction indépendante)</li>
             <li>Les entrées sont <strong>indexées</strong> par date, utilisateur et entité pour des recherches rapides</li>
             <li>Pas de purge automatique : les entrées sont conservées indéfiniment (à archiver hors-base si volume important au bout de plusieurs années)</li>
         </ul>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- =============================================================== -->
     <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
 
     <div class="info">
@@ -183,7 +183,7 @@
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 — Module Journal d'audit — Mise à jour mai 2026
+        SunuPaie v1.1 - Module Journal d'audit - Mise à jour mai 2026
     </p>
 </body>
 </html>

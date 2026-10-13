@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coût Complet par Salarié — Aide Tableau N°9</title>
+    <title>Coût Complet par Salarié - Aide Tableau N°9</title>
     <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
 </head>
 <body>
     <nav>
-        <a href="/help/index.html">SunuPaie — Guide utilisateur</a>
+        <a href="/help/index.html">SunuPaie - Guide utilisateur</a>
         <span class="sep">|</span>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
         <span class="sep">|</span>
@@ -26,7 +26,7 @@
     <main>
         <div class="num">Tableau N°9 · V1.2</div>
         <h1>Coût Complet par Salarié (Fully Loaded Cost)</h1>
-        <p class="lead">Coût réel d'un salarié pour l'employeur — au-delà du salaire brut, intégrant charges patronales, avantages en nature et formation.</p>
+        <p class="lead">Coût réel d'un salarié pour l'employeur - au-delà du salaire brut, intégrant charges patronales, avantages en nature et formation.</p>
 
         <h2>À quoi sert ce tableau</h2>
         <p>Quand on dit qu'un salarié "coûte 500 000 FCFA", on parle généralement de son brut. Le <strong>coût employeur réel</strong> est typiquement <strong>40 à 50 % plus élevé</strong> au Sénégal une fois les cotisations IPRES, CSS, IPM, FPS, les avantages (logement, transport, téléphone) et la formation ajoutés.</p>
@@ -94,12 +94,12 @@
         <p>Visualise les 5 composantes (Net / Cotisations sal. / Charges pat. / Avantages / Formation) avec leur montant et leur poids en % du total. Identifie immédiatement les postes les plus lourds.</p>
 
         <h3>Coût moyen par catégorie professionnelle</h3>
-        <p>Cadres / Maîtrise / Employés / Ouvriers — avec le coût moyen et le brut moyen de chaque catégorie. Permet de vérifier la cohérence des grilles salariales.</p>
+        <p>Cadres / Maîtrise / Employés / Ouvriers - avec le coût moyen et le brut moyen de chaque catégorie. Permet de vérifier la cohérence des grilles salariales.</p>
 
         <h3>Coût total par site</h3>
-        <p>Comparaison stations-service / siège / dépôts. Utile pour ELTON (multi-sites) — identifier les sites où le coût/ETP est anormalement élevé.</p>
+        <p>Comparaison stations-service / siège / dépôts. Utile pour ELTON (multi-sites) - identifier les sites où le coût/ETP est anormalement élevé.</p>
 
-        <h3>Top 10 — Coût employeur le plus élevé</h3>
+        <h3>Top 10 - Coût employeur le plus élevé</h3>
         <p>Liste des 10 salariés au coût total annuel le plus haut. Affiche le multiplicateur pour chacun. Permet d'identifier les "high cost" qui méritent une analyse de valeur ajoutée.</p>
 
         <h2>Filtres disponibles</h2>
@@ -131,12 +131,12 @@
             <thead><tr><th>Question</th><th>Réponse</th></tr></thead>
             <tbody>
                 <tr><td>Pourquoi mon multiplicateur paraît bas (×1,2) ?</td><td>Charges patronales sous-déclarées dans BulletinLigne, ou avantages non affectés à des rubriques type AV_NATURE.</td></tr>
-                <tr><td>Le coût total est inférieur au brut ?</td><td>Bug de données — vérifier que les BulletinLigne sont bien associées aux Bulletins (pas de FK orpheline).</td></tr>
+                <tr><td>Le coût total est inférieur au brut ?</td><td>Bug de données - vérifier que les BulletinLigne sont bien associées aux Bulletins (pas de FK orpheline).</td></tr>
                 <tr><td>Comment ajouter le coût télétravail / repas ?</td><td>Créer une rubrique <code>AV_NATURE_REPAS</code> ou <code>AV_NATURE_TT</code>, ses montants seront automatiquement intégrés.</td></tr>
             </tbody>
         </table>
 
-        <p class="footer-help">SunuPaie — V1.2 (mai 2026) — Tableau N°9 Coût Complet par Salarié</p>
+        <p class="footer-help">SunuPaie - V1.2 (mai 2026) - Tableau N°9 Coût Complet par Salarié</p>
     </main>
 </body>
 </html>
