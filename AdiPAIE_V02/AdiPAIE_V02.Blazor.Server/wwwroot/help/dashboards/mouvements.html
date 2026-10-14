@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mouvements - Aide Tableau N°3</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SunuPaie - Mouvements (arrivées / départs) - Guide RH</title>
     <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
 </head>
 <body>
     <nav>
-        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <a href="/help/index.html">Accueil</a>
         <span class="sep">|</span>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
         <span class="sep">|</span>
@@ -18,60 +19,113 @@
         <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
         <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
     </nav>
-    <main>
-        <div class="num">Tableau N°3</div>
-        <h1>Mouvements (Arrivées / Départs)</h1>
-        <p class="lead">Vue annuelle des entrées et sorties, avec répartition mensuelle, par site,
-        par catégorie et par motif. Toggle Interne / Externe.</p>
 
-        <h2>Sources de données</h2>
-        <table>
-            <thead><tr><th>Périmètre</th><th>Arrivées</th><th>Départs</th></tr></thead>
-            <tbody>
-                <tr>
-                    <td><strong>INTERNE</strong></td>
-                    <td><code>Salarie.DateEmbauche</code> dans l'année</td>
-                    <td><code>Salarie.DateSortie</code> dans l'année + <code>MotifDepart</code> (enum)</td>
-                </tr>
-                <tr>
-                    <td><strong>EXTERNE</strong></td>
-                    <td><code>ContratInterim.DateDebut</code> dans l'année</td>
-                    <td><code>ContratInterim</code> clos (Statut Terminé/Résilié) avec <code>DateFinReelle</code> dans l'année</td>
-                </tr>
-            </tbody>
-        </table>
+    <h1>Mouvements (arrivées / départs) - Guide RH</h1>
+    <p>Ce tableau donne la vue annuelle des entrées et sorties de
+    personnel, avec répartition mensuelle, par site, par catégorie
+    et par motif. Il propose un toggle Interne (salariés) / Externe
+    (intérimaires).</p>
 
-        <h2>Lecture des 7 KPI</h2>
+    <div class="toc">
+        <strong>Sommaire</strong>
+        <ol>
+            <li><a href="#vue-ensemble">Vue d'ensemble et sources</a></li>
+            <li><a href="#kpis">Comment lire les KPIs</a></li>
+            <li><a href="#sections">Sections du tableau</a></li>
+            <li><a href="#filtres">Filtres</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
+        </ol>
+    </div>
+
+    <h2 id="vue-ensemble">1. Vue d'ensemble et sources</h2>
+
+    <table>
+        <tr><th>Périmètre</th><th>Arrivées</th><th>Départs</th></tr>
+        <tr>
+            <td><strong>Interne</strong></td>
+            <td><code>Salarie.DateEmbauche</code> dans l'année</td>
+            <td><code>Salarie.DateSortie</code> dans l'année (&gt;= 1900-01-01) avec <code>MotifDepart</code></td>
+        </tr>
+        <tr>
+            <td><strong>Externe</strong></td>
+            <td><code>ContratInterim.DateDebut</code> dans l'année</td>
+            <td><code>ContratInterim</code> clos (statut Terminé / Résilié) avec <code>DateFinReelle</code> dans l'année</td>
+        </tr>
+    </table>
+
+    <p>La sentinelle 1900-01-01 filtre les sorties fictives issues des imports Excel (<code>DateTime.MinValue</code> ou epoch).</p>
+
+    <h2 id="kpis">2. Comment lire les KPIs</h2>
+
+    <ul>
+        <li><strong>Arrivées</strong> et <strong>Départs</strong> : nombres bruts sur l'année.</li>
+        <li><strong>Solde net</strong> = Arrivées - Départs (signé).</li>
+        <li><strong>% Arrivées</strong> et <strong>% Départs</strong> : rapportés à l'effectif moyen (moyenne effectif début et fin d'année).</li>
+        <li><strong>Effectif Début</strong> et <strong>Effectif Fin</strong> : au 1er janvier et au 31 décembre de l'année.</li>
+    </ul>
+
+    <div class="alerte">
+        <strong>Cas Externe en année de ramp-up :</strong> si tous les contrats démarrent en cours d'année (effectif début = 0), les % arrivées peuvent paraître très élevés. Pour éviter les valeurs aberrantes, le dénominateur est plafonné par <code>MAX(ETP pondéré 13 dates, nb intérimaires distincts dans l'année)</code>, ce qui ramène le taux à environ 100 % en cas de renouvellement complet.
+    </div>
+
+    <h2 id="sections">3. Sections du tableau</h2>
+
+    <div class="step">
+        <h3><span class="num">3.1</span>Section Arrivées</h3>
+        <p>Bar chart vertical sur 12 mois (Jan à Déc) en bleu, puis 2 bar charts horizontaux :</p>
         <ul>
-            <li><strong>Arrivées</strong> / <strong>Départs</strong> - nombre brut sur l'année</li>
-            <li><strong>Solde net</strong> = Arrivées − Départs (signé +/−)</li>
-            <li><strong>% Arrivées</strong> et <strong>% Départs</strong> = sur effectif moyen</li>
-            <li><strong>Effectif Début</strong> et <strong>Fin</strong> = au 1/1 et au 31/12 de l'année</li>
+            <li>Arrivées par site</li>
+            <li>Arrivées par catégorie (Interne) ou par poste / fonction (Externe)</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3.2</span>Section Départs</h3>
+        <p>Bar chart vertical sur 12 mois en rouge, puis 3 bar charts horizontaux :</p>
+        <ul>
+            <li>Départs par motif (enum <code>MotifDepart</code> en Interne, statut de contrat en Externe)</li>
+            <li>Départs par site</li>
+            <li>Départs par catégorie</li>
         </ul>
 
-        <div class="alerte">
-            <strong>Cas EXTERNE en année de ramp-up :</strong> si tous les contrats démarrent
-            en cours d'année (Effectif Début = 0), les % arrivées peuvent paraître très élevés.
-            Pour éviter les valeurs aberrantes, le dénominateur est plafonné par
-            <code>MAX(ETP pondéré 13 dates, nb intérimaires distincts dans l'année)</code>,
-            ce qui ramène le taux à ~100% en cas de renouvellement complet.
-        </div>
-
-        <h2>Section Arrivées</h2>
-        <p>Bar chart vertical 12 mois (Jan→Déc) en bleu, puis 2 bar charts horizontaux par site
-        et par catégorie (ou poste pour EXTERNE).</p>
-
-        <h2>Section Départs</h2>
-        <p>Bar chart vertical 12 mois en rouge, puis 3 bar charts horizontaux : par
-        <strong>motif de départ</strong> (enum MotifDepart pour INTERNE, statut contrat pour
-        EXTERNE), par site, par catégorie.</p>
-
         <div class="info">
-            <strong>Motifs de départ INTERNE :</strong> Démission · Licenciement · Retraite ·
-            Fin de CDD · Rupture conventionnelle · Décès · Autre.
+            <strong>Motifs de départ Interne :</strong> Démission, Licenciement, Retraite, Fin de CDD, Rupture conventionnelle, Décès, Autre.
         </div>
+    </div>
 
-        <div class="footer">ELTON Oil · Tableau N°3 · Étape 4.3</div>
-    </main>
+    <h2 id="filtres">4. Filtres</h2>
+    <ul>
+        <li><strong>Personnel</strong> : Interne (salariés) ou Externe (intérimaires).</li>
+        <li><strong>Année</strong> : année civile de référence.</li>
+        <li><strong>Site</strong> : filtre par implantation (Interne : <code>Salarie.Site</code>).</li>
+        <li><strong>Genre</strong> : Tous, Masculin, Féminin (Interne uniquement).</li>
+        <li><strong>Catégorie</strong> : focus sur une catégorie professionnelle.</li>
+    </ul>
+
+    <h2 id="depannage">5. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>Un départ enregistré n'apparaît pas dans les Départs</h3>
+        <p>Vérifier que <code>DateSortie</code> est bien dans l'année sélectionnée et qu'elle est postérieure au 1er janvier 1900. Une date <code>DateTime.MinValue</code> est traitée comme "pas de sortie".</p>
+    </div>
+
+    <div class="step">
+        <h3>Les % arrivées / départs Externe paraissent trop élevés</h3>
+        <p>Comportement normal en année de ramp-up (effectif début à 0). Le dénominateur est automatiquement plafonné pour éviter des taux à plusieurs centaines de pourcents.</p>
+    </div>
+
+    <div class="step">
+        <h3>Un motif de départ affiche "(Non renseigné)"</h3>
+        <p>Le champ <code>Salarie.MotifDepart</code> n'a pas été saisi au moment de la sortie. Ouvrir la fiche du salarié parti et renseigner le motif pour un reporting propre.</p>
+    </div>
+
+    <div class="step">
+        <h3>Un contrat intérim terminé n'est pas compté en départ Externe</h3>
+        <p>Deux conditions doivent être réunies : statut Terminé ou Résilié ET <code>DateFinReelle</code> renseignée dans l'année. Vérifier les deux champs sur le contrat.</p>
+    </div>
+
+    <p class="footer-help">
+        SunuPaie - Guide tableau Mouvements
+    </p>
 </body>
 </html>

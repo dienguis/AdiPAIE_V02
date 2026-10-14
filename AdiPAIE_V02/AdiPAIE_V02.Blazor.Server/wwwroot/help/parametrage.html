@@ -3,319 +3,422 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - Paramétrage (Guide complet)</title>
+    <title>SunuPaie - Paramétrage (Guide Admin)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/parametrage.html" class="active">Paramétrage</a>
-        <a href="/help/heures-supplementaires.html">Heures Sup.</a>
+        <a href="/help/periodes.html">Périodes</a>
         <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/conges.html">Congés</a>
+        <a href="/help/parametrage.html" class="active">Paramétrage</a>
         <span class="sep">|</span>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>⚙️ Paramétrage - Guide complet</h1>
-    <p>Le paramétrage de SunuPaie regroupe tout ce qui détermine le calcul
-    de la paie : <strong>rubriques</strong> (gains et retenues),
-    <strong>barèmes</strong> légaux (IR, TRIMF, parts familiales),
-    <strong>cotisations sociales</strong> (IPRES, CSS, CFCE), et la
-    configuration <strong>SMTP</strong> pour les notifications.</p>
-
-    <!-- =============================================================== -->
-    <div style="background:#fff8e1;border:2px solid #ffa726;border-radius:8px;padding:1em 1.5em;margin:1.5em 0;">
-        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) - Nouveaux paramètres</h2>
-
-        <h3 style="color:#e65100;">⚙️ Onglet Fiscalité - Mode base CFCE</h3>
-        <p>Détermine si les <strong>avantages en nature</strong> (véhicule,
-        téléphone, logement) sont inclus ou non dans la base de calcul de la
-        CFCE (Contribution Forfaitaire à la Charge de l'Employeur) :</p>
-        <ul>
-            <li><strong>Avec avantages en nature</strong> (défaut V1.8, position
-                DAF actuel ELTON) : la CFCE est calculée sur le brut fiscal
-                complet, aligné sur IR / TRIMF / IRPP.
-                Plus simple à justifier auprès du fisc.</li>
-            <li><strong>Sans avantages en nature</strong> (ancien système ELTON) :
-                la CFCE exclut les avantages en nature. Donne une base CFCE
-                identique à celle de l'ancien système (utile pour audit
-                cohérence ancien/nouveau).</li>
-        </ul>
-        <p>⚠️ Le changement prend effet sur les bulletins <strong>recalculés
-        APRÈS</strong> la modification (pas les bulletins déjà clôturés).
-        Garder le même mode pour l'ensemble des salariés.</p>
-
-        <h3 style="color:#e65100;">⚙️ Onglet Référentiel paie - Mode bulletin de congé</h3>
-        <p>Détermine comment le bulletin est généré quand un salarié part en
-        congé tout le mois :</p>
-        <ul>
-            <li><strong>Bulletin unique</strong> (défaut V1.8, pratique ELTON
-                actuelle) : un seul bulletin mensuel avec la rubrique
-                <code>CONGE_PAYE</code> qui remplace les rubriques de salaire
-                (SB, sursalaire, indemnités). Conforme article 56 CCT Sénégal
-                ("l'employeur doit porter sur le bulletin de paye du
-                travailleur la mention des dates de départ et de reprise").</li>
-            <li><strong>Bulletin de congé séparé</strong> (option future) : deux
-                bulletins distincts (salaire normal + bulletin de congé).
-                Anticipation d'une évolution éventuelle des pratiques internes.</li>
-        </ul>
-
-        <h3 style="color:#e65100;">🐛 Correctifs format affichage</h3>
-        <ul>
-            <li><strong>IR - IMAB (% abattement)</strong> : le format affichait
-                3 000 % au lieu de 30 %. La valeur stockée est correcte (30) ;
-                seul l'affichage était buggé. Corrigé en V1.8.</li>
-            <li><strong>Réduction familiale - % par défaut</strong> : même bug,
-                même correctif.</li>
-        </ul>
-
-        <h3 style="color:#e65100;">🆕 Nouvelle rubrique <code>ICCP</code></h3>
-        <p>"Indemnité de congés compensatrice" - rubrique distincte de
-        <code>CONGE_PAYE</code> (code 23) pour permettre de tracer dans le
-        reporting :</p>
-        <ul>
-            <li><strong>CONGE_PAYE</strong> : versée quand le salarié part en
-                congé physique</li>
-            <li><strong>ICCP</strong> : compensation monétaire des jours non
-                pris (rachat ponctuel ou départ retraite)</li>
-        </ul>
-        <p>Soumise aux mêmes cotisations (IPRES/CSS/IR/TRIMF/CFCE) que
-        <code>CONGE_PAYE</code>. Créée automatiquement au prochain rechargement
-        du référentiel paie (bouton "Recharger le référentiel" sur
-        ParametresPaie).</p>
-    </div>
-    <!-- =============================================================== -->
+    <h1>Paramétrage - Guide Admin</h1>
+    <p>Ce guide décrit la configuration structurante de SunuPaie :
+    référentiel des <strong>rubriques</strong> et de leurs types, <strong>barèmes</strong>
+    fiscaux (IR progressif DGID, TRIMF mensuel et annuel), <strong>cotisations
+    sociales</strong> (IPRES RG et RC, CSS, CFCE), <strong>paramètres de paie</strong>
+    globaux (abattement IMAB, réduction familiale, mode de calcul CFCE,
+    mode bulletin congé), <strong>initialisation des rôles GRH</strong> et
+    configuration <strong>SMTP / Microsoft Graph</strong> pour les
+    notifications. Toute modification impacte les bulletins recalculés
+    après la mise à jour : à faire en début d'exercice ou sur instruction
+    officielle (loi de finances, réforme sociale).</p>
 
     <div class="toc">
-        <strong>📑 Sections</strong>
+        <strong>Sommaire</strong>
         <ol>
-            <li><a href="#vue-ensemble">Vue d'ensemble</a></li>
-            <li><a href="#etape1">Étape 1 - Rubriques de paie</a></li>
-            <li><a href="#etape2">Étape 2 - Barèmes (IR, TRIMF, parts)</a></li>
-            <li><a href="#etape3">Étape 3 - Cotisations sociales Sénégal</a></li>
-            <li><a href="#etape4">Étape 4 - Paramètres SMTP</a></li>
-            <li><a href="#abattement">IR - Abattement professionnel</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#regles">Règles métier</a></li>
-            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du paramétrage</a></li>
+            <li><a href="#rubriques">Rubriques et types de rubrique</a></li>
+            <li><a href="#baremes">Barèmes IR et TRIMF</a></li>
+            <li><a href="#cotisations">Taux de cotisations (IPRES, CSS, CFCE)</a></li>
+            <li><a href="#parametres-paie">Paramètres de paie (IR, CFCE, modèle bulletin)</a></li>
+            <li><a href="#roles-grh">Initialisation des rôles GRH</a></li>
+            <li><a href="#smtp">SMTP, Microsoft Graph et notifications</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble du paramétrage</h2>
 
     <div class="workflow">
-        <div class="box">📋 Rubriques</div>
-        <div class="box">📊 Barèmes</div>
-        <div class="box">💼 Cotisations</div>
-        <div class="box">📧 SMTP</div>
-        <div class="box">🔌 Intégrations</div>
+        <div class="box">Rubriques</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Barèmes IR / TRIMF</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Paramètres de paie</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Rôles et SMTP</div>
     </div>
+
+    <h3>Qui fait quoi</h3>
+    <table>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>Administrator</td><td>Modifie rubriques, barèmes, cotisations, SMTP, lance l'init. des rôles GRH</td></tr>
+        <tr><td>RH</td><td>Consulte le paramétrage. Ne modifie pas (RBAC)</td></tr>
+        <tr><td>DAF</td><td>Arbitre les choix fiscaux (ex. base CFCE avec ou sans avantages en nature)</td></tr>
+    </table>
 
     <div class="alerte">
-        ⚠️ Le paramétrage est <strong>structurant</strong>. Toute modification
-        impacte les calculs des bulletins futurs. À effectuer en début
-        d'exercice (1er janvier) ou lors de changements légaux (lois de finances).
+        Le paramétrage est <strong>structurant</strong> : toute modification impacte
+        les bulletins recalculés après la mise à jour (jamais ceux déjà
+        clôturés). Rester cohérent sur l'ensemble des salariés.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape1">📋 Étape 1 - Rubriques de paie</h2>
+    <h2 id="rubriques">2. Rubriques et types de rubrique</h2>
+
+    <p>Une <code>Rubrique</code> est une ligne de bulletin (gain, retenue
+    ou information). Chaque rubrique est rattachée à un <code>RubriqueTypeRef</code>
+    qui porte les défauts métier (type de calcul, brut fiscal, brut social,
+    ordre d'impression, section).</p>
 
     <div class="step">
-        <h3><span class="num">1</span>Aller dans Paramétrage → Rubriques</h3>
+        <h3><span class="num">2.1</span>Ouvrir la liste des rubriques</h3>
+        <p>Menu : <strong>Paramétrage &rsaquo; Rubriques</strong>.</p>
+        <p>Les rubriques officielles ELTON sont créées automatiquement par
+        le seed du référentiel si la case <code>Activer le seed du référentiel paie</code>
+        est cochée sur Paramètres de paie au premier démarrage. Le seed est
+        idempotent : ne crée que ce qui manque.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Champs clés d'une rubrique</h3>
+        <h3><span class="num">2.2</span>Champs clés d'une rubrique</h3>
         <dl class="field-list">
             <dt>Code</dt>
-            <dd>Identifiant court (ex. <code>SAL_BASE</code>, <code>IPRES_RG</code>).</dd>
-            <dt>Libellé</dt>
-            <dd>Texte affiché sur le bulletin.</dd>
+            <dd>Identifiant court, MAJUSCULES, 2 à 20 caractères A-Z 0-9 _. Unique en base. Exemples : <code>SAL_BASE</code>, <code>IPRES_RG</code>, <code>TRIMF</code>, <code>CONGE_PAYE</code>, <code>ICCP</code>.</dd>
+            <dt>Libelle</dt>
+            <dd>Texte affiché sur le bulletin. Normalisé en Title Case français.</dd>
             <dt>Canonique</dt>
-            <dd>Rôle technique : <code>SalaireDeBase</code>, <code>IPRES_RG</code>,
-                <code>TRIMF</code>, <code>HeuresSupplementaires</code>, etc.
-                Permet la reconnaissance auto par le moteur de calcul.</dd>
-            <dt>Type calcul</dt>
-            <dd>Gain (positif) / Retenue (négatif) / Information.</dd>
-            <dt>Brut Fiscal</dt>
-            <dd>Oui = entre dans la base de calcul TRIMF/IR.</dd>
-            <dt>Brut Social</dt>
-            <dd>Oui = entre dans la base de calcul IPRES/CSS.</dd>
-            <dt>Taux 1 / Taux 2</dt>
-            <dd>Taux 1 = part salariale ; Taux 2 = part patronale.</dd>
-            <dt>Ordre d'affichage</dt>
-            <dd>Ordre dans le bulletin (10, 20, 30…). Trier par centaines pour insérer entre.</dd>
-            <dt>Col 13/14 état 1024</dt>
-            <dd>Pour la déclaration DGID annuelle.</dd>
+            <dd>Rôle technique utilisé par le moteur de calcul (<code>SalaireDeBase</code>, <code>IPRES_RG</code>, <code>TRIMF</code>, <code>RemboursementPret</code>, <code>RemboursementAvance</code>, etc.). Doit rester unique en base. Ne jamais le modifier après mise en production.</dd>
+            <dt>TypeRef</dt>
+            <dd>Type de rubrique obligatoire. Son changement applique automatiquement les défauts du type (TypeCalcul, BrutFiscal, BrutSocial, ordre, section). Action <code>Reprendre défauts du type</code> disponible pour les reprendre à tout moment.</dd>
+            <dt>TypeCalcul</dt>
+            <dd>Gain, Retenue ou Information.</dd>
+            <dt>BrutFiscal</dt>
+            <dd>Oui : la rubrique entre dans la base IR / TRIMF.</dd>
+            <dt>BrutSocial</dt>
+            <dd>Oui : la rubrique entre dans la base IPRES / CSS.</dd>
+            <dt>OrdreAffichage</dt>
+            <dd>Ordre dans le bulletin imprimé. Trier par pas de 10 (10, 20, 30&hellip;) pour pouvoir insérer entre.</dd>
+            <dt>Actif</dt>
+            <dd>Non : la rubrique disparaît des listes de saisie mais reste utilisable pour les bulletins historiques. On ne supprime jamais une rubrique déjà utilisée (intégrité référentielle).</dd>
+            <dt>SectionImpression</dt>
+            <dd>Alias calculé sur <code>TypeRef.Groupe.Libelle</code>. Regroupe les rubriques sur le PDF du bulletin.</dd>
         </dl>
     </div>
 
     <div class="info">
-        💡 Un canonique <strong>doit rester unique</strong> dans la base.
-        Le moteur de calcul s'appuie dessus pour appliquer la bonne formule.
+        Deux rubriques distinctes servent le congé : <strong>CONGE_PAYE</strong>
+        (versée quand le salarié part physiquement en congé) et <strong>ICCP</strong>
+        (indemnité compensatrice, versée pour un reliquat ou un départ sans
+        prise de congé). Même traitement cotisations (IPRES / CSS / IR / TRIMF
+        / CFCE), tracées séparément pour le reporting.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape2">📊 Étape 2 - Barèmes (IR, TRIMF, parts)</h2>
+    <h2 id="baremes">3. Barèmes IR et TRIMF</h2>
 
-    <p>Les barèmes sont à mettre à jour <strong>chaque année</strong>
-    suite aux lois de finances. Ils sont rétroactifs au 1er janvier.</p>
+    <p>Les barèmes sont historisés par code et par dates (<code>DateDebut</code>
+    / <code>DateFin</code>). Un ancien bulletin recalculé utilise le barème
+    en vigueur à sa date. Mettre à jour chaque année après publication de
+    la loi de finances.</p>
 
-    <div class="bouton">
-        <strong>📊 IR (IRPP) :</strong> barème progressif DGID. Plusieurs
-        tranches avec taux croissants. Mettre à jour chaque année après
-        publication de la loi de finances.
+    <div class="step">
+        <h3><span class="num">3.1</span>Barème IR (DPP annuel)</h3>
+        <p>Menu : <strong>Paramétrage &rsaquo; Barèmes IR</strong>.</p>
+        <p>Entité <code>BaremeIR</code> : un code unique (ex. <code>IR_DPP_2026</code>),
+        un drapeau <code>Actif</code>, une plage de validité, et une collection
+        de <code>BaremeIRTranche</code>.</p>
+        <p>Chaque tranche porte :</p>
+        <ul>
+            <li><code>MontantMin</code> et <code>MontantMax</code> (bornes incluses)</li>
+            <li><code>Taux</code> en pourcentage</li>
+        </ul>
+        <p>Règles : <code>MontantMin &lt;= MontantMax</code>, triplet
+        (barème + Min + Max) unique. Les tranches couvrent la plage
+        complète sans trou.</p>
+        <p>Le code du barème IR actif est référencé par <code>ParametresPaie.CodeBaremeIR_Annuel</code>
+        (défaut <code>IR_DPP_{YYYY}</code>, résolu à l'exécution avec l'année).</p>
     </div>
 
-    <div class="bouton">
-        <strong>📊 TRIMF :</strong> barème mensuel et annuel. À mettre à
-        jour chaque année. Calculé sur le brut fiscal après abattement.
+    <div class="step">
+        <h3><span class="num">3.2</span>Barèmes TRIMF (mensuel et annuel)</h3>
+        <p>Menu : <strong>Paramétrage &rsaquo; Barèmes TRIMF</strong>.</p>
+        <p>Deux codes distincts sont référencés par <code>ParametresPaie</code> :</p>
+        <ul>
+            <li><code>CodeBaremeTRIMF_Mensuel</code> (défaut <code>TRIMF_{YYYY}</code>) - utilisé sur les bulletins mensuels</li>
+            <li><code>CodeBaremeTRIMF_Annuel</code> (défaut <code>TRIMF_AN_{YYYY}</code>) - utilisé pour la régularisation annuelle</li>
+        </ul>
+        <p>Les tokens <code>{YYYY}</code> et <code>{YY}</code> sont remplacés
+        à la volée par l'année résolue (année courante par défaut). Permet
+        de garder un paramétrage stable d'une année à l'autre.</p>
     </div>
 
-    <div class="bouton">
-        <strong>📊 Réduction familiale IR :</strong> barème par nombre
-        de parts (1, 1,5, 2, 2,5, etc.). Détermine la réduction d'impôt.
-    </div>
+    <h2 id="cotisations">4. Taux de cotisations (IPRES, CSS, CFCE)</h2>
 
-    <!-- =============================================================== -->
-    <h2 id="etape3">💼 Étape 3 - Cotisations sociales Sénégal</h2>
+    <p>Les cotisations sociales sénégalaises sont portées par des <code>Rubrique</code>
+    de type Retenue avec <code>BrutSocial = Oui</code>. Les taux sont stockés
+    directement sur la rubrique (part salariale / part patronale) et sur
+    les champs plafond propres à chaque régime. Ne les modifier que sur
+    instruction officielle.</p>
 
     <table>
-        <thead>
-            <tr><th>Cotisation</th><th>Salarié</th><th>Employeur</th><th>Plafond mensuel</th></tr>
-        </thead>
-        <tbody>
-            <tr><td>IPRES RG</td><td>5,60 %</td><td>8,40 %</td><td>432 000 FCFA</td></tr>
-            <tr><td>IPRES RC (cadres)</td><td>2,40 %</td><td>3,60 %</td><td>1 296 000 FCFA</td></tr>
-            <tr><td>CSS AT (Accident Travail)</td><td>0 %</td><td>Variable selon risque</td><td>Pas de plafond</td></tr>
-            <tr><td>CSS AF (Allocation Familiale)</td><td>0 %</td><td>Variable</td><td>Pas de plafond</td></tr>
-            <tr><td>CFCE</td><td>0 %</td><td>Variable</td><td>Base = brut fiscal</td></tr>
-        </tbody>
+        <tr><th>Rubrique canonique</th><th>Code usuel</th><th>Base</th><th>Portée</th></tr>
+        <tr><td>IPRES_RG</td><td>IPRES_RG</td><td>Brut social plafonné (régime général)</td><td>Tous les salariés</td></tr>
+        <tr><td>IPRES_RC</td><td>IPRES_RC</td><td>Brut social plafonné (régime complémentaire cadres)</td><td>Cadres uniquement</td></tr>
+        <tr><td>CSS_PF</td><td>CSS_PF</td><td>Prestations familiales (part patronale)</td><td>Tous</td></tr>
+        <tr><td>CSS_AT</td><td>CSS_AT</td><td>Accident du travail (part patronale, taux fonction du risque)</td><td>Tous</td></tr>
+        <tr><td>CFCE</td><td>CFCE</td><td>Contribution forfaitaire charge employeur (base = brut fiscal selon mode)</td><td>Tous</td></tr>
     </table>
 
     <div class="info">
-        💡 Les taux IPRES sont <strong>pré-configurés</strong> dans la base.
-        Ne les modifier que sur instruction officielle (réforme).
+        La base CFCE peut inclure ou exclure les <strong>avantages en nature</strong>
+        (véhicule, téléphone, logement). Le choix est porté par <code>ParametresPaie.ModeBaseCFCE</code>
+        (voir section 5). Garder le même mode pour tous les salariés et
+        aligner avec la position du DAF ou de l'audit fiscal.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape4">📧 Étape 4 - Paramètres SMTP</h2>
+    <h2 id="parametres-paie">5. Paramètres de paie (IR, CFCE, modèle bulletin)</h2>
+
+    <p>Menu : <strong>Paramétrage &rsaquo; Paramètres de paie</strong>.
+    Un seul enregistrement est autorisé (singleton soft : la sauvegarde
+    d'un second enregistrement est bloquée).</p>
 
     <div class="step">
-        <h3><span class="num">1</span>Paramétrage → Paramètres SMTP</h3>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Renseigner</h3>
+        <h3><span class="num">5.1</span>Onglet Général</h3>
         <dl class="field-list">
-            <dt>Serveur SMTP</dt>
-            <dd>ex. <em>smtp.gmail.com</em>, <em>smtp.office365.com</em>.</dd>
-            <dt>Port</dt>
-            <dd>587 (TLS) ou 465 (SSL).</dd>
-            <dt>Utilisateur</dt>
-            <dd>Adresse email d'envoi.</dd>
-            <dt>Mot de passe</dt>
-            <dd>Password ou App Password (Gmail/Office365).</dd>
-            <dt>SSL/TLS</dt>
-            <dd>Activer selon le port choisi.</dd>
-            <dt>Expéditeur</dt>
-            <dd>Nom affiché dans les emails (ex. <em>SunuPaie ELTON</em>).</dd>
+            <dt>ActiverSeedReferentiel</dt>
+            <dd>Coche avant le 1er démarrage pour initialiser le référentiel ELTON (conventions, catégories, échelons, plan comptable, rubriques, barèmes). Idempotent, ne crée pas de salariés démo. Décocher après init.</dd>
+            <dt>ModeBulletinConges</dt>
+            <dd><code>BulletinUnique</code> (défaut) : la ligne CONGE_PAYE s'ajoute au bulletin mensuel. <code>BulletinSepare</code> : un bulletin de congé distinct est émis. Modifiable à tout moment, prend effet sur les bulletins générés après le changement.</dd>
+            <dt>Signataire (nom, fonction, logo, signature, cachet)</dt>
+            <dd>Images et libellés imprimés en pied du bulletin PDF et des attestations.</dd>
         </dl>
     </div>
 
     <div class="step">
-        <h3><span class="num">3</span>Tester avec le bouton Test email</h3>
-        <p>Envoie un email de test à l'utilisateur connecté pour valider la
-        configuration.</p>
+        <h3><span class="num">5.2</span>Onglet Fiscalité</h3>
+        <dl class="field-list">
+            <dt>CodeBaremeTRIMF_Mensuel / CodeBaremeTRIMF_Annuel</dt>
+            <dd>Patterns de code avec tokens <code>{YYYY}</code> / <code>{YY}</code>. Résolus à l'exécution via <code>ResolveCodeTRIMFMensuel</code> / <code>ResolveCodeTRIMFAnnuel</code>.</dd>
+            <dt>CodeBaremeIR_Annuel</dt>
+            <dd>Pattern de code pour le barème IR DPP (défaut <code>IR_DPP_{YYYY}</code>).</dd>
+            <dt>R_IR_TronquerBaseAuxMille</dt>
+            <dd>Si Oui : la base IR est tronquée au millier inférieur avant application du barème (défaut Oui, conforme DGID).</dd>
+            <dt>ModeBaseCFCE</dt>
+            <dd><code>AvecAvantagesNature</code> (défaut) : base CFCE = brut fiscal complet, aligné sur IR / TRIMF. <code>SansAvantagesNature</code> : exclut les avantages en nature. Changement effectif sur les bulletins recalculés après modification.</dd>
+            <dt>R_IR_Abattement_TauxPercent (IMAB)</dt>
+            <dd>Taux d'abattement professionnel en pourcentage, saisi en valeur brute (ex. 30 pour 30 %). Défaut Sénégal : 30 %.</dd>
+            <dt>R_IR_Abattement_PlafondAnnuel / PlafondMensuel</dt>
+            <dd>Plafonds de l'abattement. Défaut Sénégal : 900 000 FCFA annuel, 75 000 FCFA mensuel.</dd>
+            <dt>IR_Regularisation_FinAnnee</dt>
+            <dd>Si Oui : régularisation IR en fin d'exercice sur le bulletin de décembre (défaut Oui).</dd>
+            <dt>IR_Regularisation_MoisDepart</dt>
+            <dd>Si Oui : régularisation IR sur le bulletin du mois de départ d'un salarié (défaut Oui).</dd>
+            <dt>R_IR_ReductionFamille_Pourcentage / MinParPart_Annuel / MaxParPart_Annuel</dt>
+            <dd>Paramètres de la réduction familiale par part. Pourcentage saisi en valeur brute. Fallback utilisé quand le barème par parts n'est pas défini.</dd>
+        </dl>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.3</span>Onglet Modèle bulletin</h3>
+        <dl class="field-list">
+            <dt>ModeleAuto_CreerAuSave</dt>
+            <dd>Si Oui : un modèle de bulletin est créé automatiquement au Save&amp;Close d'un nouveau salarié avec les valeurs par défaut ci-dessous.</dd>
+            <dt>ModeleAuto_Defaut_Sursalaire / PrimeTransport / AvantageVehicule</dt>
+            <dd>Montants par défaut injectés dans le modèle à la création.</dd>
+            <dt>RubriqueRetenuePretDefaut / RubriqueRetenueAvanceDefaut</dt>
+            <dd>Rubriques utilisées par défaut pour les remboursements de prêt et d'avance. Si vide, le moteur résout automatiquement sur canonique <code>RemboursementPret</code> ou <code>RemboursementAvance</code>, à défaut sur code <code>PRET</code> ou <code>AVANCE_SAL</code>.</dd>
+        </dl>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.4</span>Onglet Heures supplémentaires</h3>
+        <dl class="field-list">
+            <dt>ActiverHeuresSupplementaires</dt>
+            <dd>Si Non : la saisie d'heures supplémentaires est désactivée sur les bulletins.</dd>
+            <dt>TauxHS_JourOuvrable / Nuit / DimancheFerie / NuitDimancheFerie</dt>
+            <dd>Majorations en pourcentage. Défauts Sénégal : 15 %, 40 %, 60 %, 100 %. Si un taux est à 0, le moteur applique le taux légal par défaut via <code>HeureSupplementaire.GetTauxLegalDefaut</code>.</dd>
+        </dl>
+    </div>
+
+    <h2 id="roles-grh">6. Initialisation des rôles GRH</h2>
+
+    <div class="step">
+        <h3><span class="num">6.1</span>Action "Init. rôles GRH"</h3>
+        <p>Sur la vue Détail de <strong>Paramètres de paie</strong>, le bouton
+        <strong>"Init. rôles GRH"</strong> (contrôleur <code>InitialiserRolesGRHController</code>)
+        crée les 8 rôles standards :</p>
+        <ul>
+            <li>Employe</li>
+            <li>Responsable</li>
+            <li>AssistantRH</li>
+            <li>AssistantCommercial</li>
+            <li>RH</li>
+            <li>DAF</li>
+            <li>DG (Directeur Général)</li>
+            <li>Comptable</li>
+        </ul>
+        <p>L'action est <strong>idempotente</strong> : les rôles existants ne
+        sont jamais écrasés, les permissions sont ajoutées sans doublon. La
+        logique est portée par <code>RolesGRHInitializer.Initialize</code>,
+        réutilisée au démarrage de l'application (<code>DatabaseUpdate.Updater</code>).</p>
+        <p>Résultat : un toast indique le nombre de rôles créés et de permissions
+        ajoutées. Relancer l'application pour que les droits soient actifs.</p>
     </div>
 
     <div class="info">
-        💡 SMTP est utilisé pour : envoi des bulletins PDF, notifications
-        de validation (congés, missions, avancements), relances workflow.
+        Pour qu'un salarié voie <strong>Mon espace</strong>, son compte
+        utilisateur doit porter le rôle <code>Employe</code> et son champ
+        <code>Email</code> doit correspondre à son UserName.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="abattement">💰 IR - Abattement professionnel</h2>
+    <h2 id="smtp">7. SMTP, Microsoft Graph et notifications</h2>
 
-    <div class="alerte">
+    <p>Les paramètres de messagerie sont portés par <strong>Paramètres de paie</strong>,
+    onglet <strong>Messagerie</strong>. Deux fournisseurs sont supportés via
+    <code>EmailProviderKind</code> : <code>Smtp</code> (défaut) ou <code>Graph</code>
+    (Microsoft Graph API).</p>
+
+    <div class="step">
+        <h3><span class="num">7.1</span>Activer la messagerie</h3>
+        <p>Cocher <code>EmailActif</code>. Si décoché, la fabrique <code>CreateEmailSender</code>
+        lève une exception explicite.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">7.2</span>Mode SMTP</h3>
+        <dl class="field-list">
+            <dt>SmtpHost</dt>
+            <dd>Serveur SMTP. Défaut <code>smtp.office365.com</code>.</dd>
+            <dt>SmtpPort</dt>
+            <dd>Port TCP (plage 1-65535). Défaut 587.</dd>
+            <dt>SmtpUseSsl</dt>
+            <dd>Active TLS/SSL. Défaut Oui.</dd>
+            <dt>SmtpUserName / SmtpPassword</dt>
+            <dd>Identifiants du compte d'envoi. Pour Gmail / Office 365, utiliser un App Password dédié avec 2FA activée.</dd>
+            <dt>MailFromAddress / MailFromDisplayName</dt>
+            <dd>Adresse et nom affiché de l'expéditeur. Défaut nom "Service Paie".</dd>
+            <dt>MailReplyTo / MailBccDefault</dt>
+            <dd>Reply-to par défaut et liste BCC (séparés par ; ou ,).</dd>
+        </dl>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">7.3</span>Mode Microsoft Graph</h3>
+        <p>Choisir <code>EmailProviderKind = Graph</code> et renseigner :</p>
         <ul>
-            <li><strong>30 % du revenu brut fiscal</strong></li>
-            <li>Minimum annuel : 0 FCFA</li>
-            <li>Maximum annuel : 900 000 FCFA (75 000 FCFA/mois)</li>
+            <li><code>GraphTenantId</code> - Tenant ID Azure AD</li>
+            <li><code>GraphClientId</code> - Client ID de l'application enregistrée</li>
+            <li><code>GraphClientSecret</code> - Secret client (masqué)</li>
+            <li><code>GraphFromUserUpn</code> - UPN de l'expéditeur. Si vide, retombe sur <code>MailFromAddress</code>.</li>
         </ul>
-        Cet abattement est appliqué automatiquement avant calcul de l'IR
-        progressif. Configuré au niveau <em>Paramètres de paie</em>.
+        <p>L'application doit avoir la permission <code>Mail.Send</code> en
+        Application permissions sur Azure AD.</p>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
-
-    <h3>Cas 1 - Mise à jour annuelle après loi de finances</h3>
-    <div class="exemple">
-        Janvier 2027 : la DGID publie le nouveau barème IR. Le RH ouvre
-        <em>Paramétrage → Barèmes → IR</em>, ajuste les tranches/taux,
-        enregistre. Tous les bulletins de janvier 2027 et après utilisent
-        automatiquement le nouveau barème.
+    <div class="step">
+        <h3><span class="num">7.4</span>Alertes RH et notifications</h3>
+        <dl class="field-list">
+            <dt>DelaiAlertAttestationJours</dt>
+            <dd>Délai en jours avant qu'une demande "Soumise" génère une alerte RH. 0 à 365, défaut 2. 0 désactive les alertes.</dd>
+            <dt>EmailsRHAlertes</dt>
+            <dd>Un ou plusieurs destinataires RH, séparés par ;.</dd>
+            <dt>HeureEnvoiAlertes</dt>
+            <dd>Heure de déclenchement du service d'alertes (0-23). Défaut 8.</dd>
+            <dt>EmailDAF</dt>
+            <dd>Email du DAF pour les notifications d'ordre de mission approuvé.</dd>
+            <dt>EmailsComptable</dt>
+            <dd>Un ou plusieurs comptables pour les notifications de décaissement, séparés par ;.</dd>
+        </dl>
     </div>
 
-    <h3>Cas 2 - Création d'une nouvelle prime</h3>
-    <div class="exemple">
-        L'entreprise crée une <em>Prime de fin d'année</em> versée en
-        décembre. Le RH ajoute une rubrique : Code = <code>PRIME_FIN_ANNEE</code>,
-        Type = Gain, Brut Fiscal = Oui, Brut Social = Oui, Ordre = 250.
-        Cette prime apparaîtra dans les bulletins de décembre.
-    </div>
-
-    <h3>Cas 3 - Activation des heures supplémentaires</h3>
-    <div class="exemple">
-        Voir <a href="/help/heures-supplementaires.html">Guide Heures
-        supplémentaires</a> pour la procédure complète d'activation.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="regles">📜 Règles métier</h2>
-
-    <div class="alerte">
+    <div class="step">
+        <h3><span class="num">7.5</span>Templates Word GRH</h3>
+        <p>Les templates <code>.docx</code> suivants sont uploadés directement
+        sur Paramètres de paie, onglet <strong>GRH - Templates</strong> :</p>
         <ul>
-            <li>Les modifications de paramétrage sont <strong>tracées dans le journal d'audit</strong>.</li>
-            <li>Aucune rubrique ne peut être supprimée si elle a déjà été utilisée dans un bulletin (intégrité référentielle).</li>
-            <li>Pour désactiver une rubrique sans la supprimer, mettre <em>Actif = Non</em>.</li>
-            <li>Les barèmes sont historisés : le calcul d'un ancien bulletin utilise toujours le barème en vigueur à sa date.</li>
-            <li>Le canonique d'une rubrique ne doit jamais être modifié après mise en production.</li>
+            <li>Attestation de travail</li>
+            <li>Attestation de congés</li>
+            <li>Certificat d'emploi</li>
+            <li>Cessation de paiement</li>
+            <li>Entretien annuel</li>
+            <li>Bilan social</li>
+            <li>Ordre de mission</li>
+            <li>État de frais de mission</li>
+            <li>Attestation de formation</li>
+            <li>Contrat CDI / CDD / stage</li>
         </ul>
+        <p>Les marqueurs <code>{{...}}</code> dans les templates sont
+        substitués à la génération.</p>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+    <h2 id="depannage">8. Dépannage et FAQ</h2>
 
-    <div class="erreur">
-        <strong>"Test email échoué : authentification refusée"</strong>
-        → Pour Gmail/Office365, créer un <em>App Password</em> spécifique
-        plutôt qu'utiliser le mot de passe principal. Activer la 2FA d'abord.
+    <div class="step">
+        <h3>"Un seul enregistrement Paramètres de paie est autorisé"</h3>
+        <p>La sauvegarde est bloquée par <code>OnSaving</code> si un second
+        enregistrement existe. Supprimer le doublon ou éditer l'enregistrement
+        existant.</p>
     </div>
 
-    <div class="erreur">
-        <strong>"Cotisation IPRES = 0 sur le bulletin"</strong>
-        → Vérifier que la rubrique IPRES_RG (et IPRES_RC pour les cadres)
-        existe, est active, et a les bons Taux 1/Taux 2.
+    <div class="step">
+        <h3>"La messagerie n'est pas activée dans Paramètres de paie"</h3>
+        <p>Cocher <code>EmailActif</code>. Puis vérifier que <code>SmtpHost</code>
+        et <code>MailFromAddress</code> sont renseignés (mode SMTP), ou que
+        les champs Graph (TenantId / ClientId / ClientSecret) sont complets
+        (mode Graph).</p>
     </div>
 
-    <div class="erreur">
-        <strong>"Cette rubrique ne peut pas être supprimée"</strong>
-        → Elle est référencée dans des bulletins. Mettre <em>Actif = Non</em>
-        au lieu de supprimer.
+    <div class="step">
+        <h3>Test email : authentification refusée (Gmail / Office 365)</h3>
+        <p>Créer un <strong>App Password</strong> dédié sur le compte d'envoi
+        et activer la 2FA. Le mot de passe principal est refusé par ces
+        fournisseurs pour SMTP.</p>
     </div>
 
-    <div class="info">
-        💡 <strong>Quels rôles peuvent modifier le paramétrage ?</strong>
-        Uniquement <em>Administrators</em>. Le RH peut consulter mais
-        pas modifier (RBAC).
+    <div class="step">
+        <h3>Cotisation IPRES à 0 sur le bulletin</h3>
+        <p>Vérifier que la rubrique <code>IPRES_RG</code> (et <code>IPRES_RC</code>
+        pour les cadres) existe, est Active, porte <code>BrutSocial = Oui</code>
+        et a les bons taux (part salariale / part patronale).</p>
+    </div>
+
+    <div class="step">
+        <h3>"Cette rubrique ne peut pas être supprimée"</h3>
+        <p>Elle est référencée par des bulletins. L'intégrité référentielle
+        bloque la suppression. Passer <code>Actif = Non</code> pour la retirer
+        des listes de saisie sans casser l'historique.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le menu "Soldes de congés" (ou autre menu GRH) n'apparaît pas</h3>
+        <p>Permission manquante sur le rôle. Lancer <strong>Paramètres de paie
+        &rsaquo; Init. rôles GRH</strong>, puis déconnecter / reconnecter
+        l'utilisateur concerné.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le barème IR appliqué n'est pas le bon</h3>
+        <p>Vérifier le pattern <code>CodeBaremeIR_Annuel</code> sur Paramètres
+        de paie, et que le barème <code>BaremeIR</code> correspondant pour
+        l'année existe, est Actif, et couvre bien la date du bulletin via
+        <code>DateDebut</code> / <code>DateFin</code>.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le canonique d'une rubrique a été modifié par erreur</h3>
+        <p>Le canonique ne doit jamais changer après mise en production : le
+        moteur de calcul s'en sert pour appliquer la formule. Restaurer la
+        valeur d'origine depuis une sauvegarde ou via le script de seed.</p>
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 - Module Paramétrage - Mise à jour mai 2026
+        SunuPaie - Guide Paramétrage - Admin
     </p>
 </body>
 </html>

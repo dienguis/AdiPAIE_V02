@@ -3557,6 +3557,47 @@ Cree `wwwroot/help/img/conges/` avec 5 captures demonstratives V1.11 :
 01-liste-soldes, 02-detail-probleme, 03-liste-3-boutons, 04-popup-rattraper,
 05-resultat.
 
+### Phase B Vague 1 - Refonte help modules prioritaires
+Refonte complete de 5 pages help (1 895 lignes) selon un pattern unifie :
+- `conges.html` (399 l, 8 sections + 5 captures)
+- `bulletins.html` (335 l, 8 sections)
+- `salaries.html` (376 l, 8 sections)
+- `prets.html` (397 l, 9 sections)
+- `interimaires.html` (388 l, 8 sections)
+
+Pattern : nav unifie, h1 "Guide RH", sommaire ancre, sections numerotees
+avec `.step` boxes, callouts `.flux/.alerte/.info/.ok`, section finale
+"Depannage et FAQ".
+
+Ton : imperatif present, aucun langage de changelog, aucun marqueur de version.
+Contenu audite contre le code (zero invention).
+
+### Phase B Vague 2 - Cycle paie etendu
+Refonte complete de 4 pages help (1 235 lignes) :
+- `periodes.html` (287 l, 8 sections) - cycle mensuel + bouton "Etats / Exports"
+- `primes-13mois.html` (360 l, 8 sections) - 13ieme + gratifications + STC
+- `heures-supplementaires.html` (315 l, 6 sections) - bareme CCT 15/40/60/100
+- `livre-de-paye.html` (273 l, 6 sections) - registre legal Art. L.120
+
+Cumul Phase B apres Vague 2 : 9 pages, 3 130 lignes.
+
+### Phase B Vagues 3 a 6 - Refonte complete du help
+Refonte totale du help SunuPaie en applicant le pattern conges.html a toutes
+les pages :
+
+- Vague 3 (RH developpement, 4 pages) : formations, evaluations, recrutement,
+  mouvements-interim - 1 480 lignes
+- Vague 4 (vie contrat + imports, 8 pages) : disciplinaire, offboarding,
+  missions, avancements, 4 imports - 2 395 lignes
+- Vague 5 (dashboards, 12 pages) : 1 764 lignes
+- Vague 6 (admin + index, 4 pages) : parametrage, audit, index, dashboards/index - 1 114 lignes
+
+CUMUL FINAL : 36 pages refondues, 9 883 lignes de help professionnel.
+Zero caractere non ASCII typique de l'IA. Contenu audite contre le code source
+(aucune invention de fonctionnalite). Toutes les sections suivent la meme
+structure : nav unifie, h1 "Guide RH" ou "Guide Admin", sommaire ancre,
+sections numerotees, callouts, FAQ depannage, footer-help.
+
 ### Fichiers
 - `NonPersistent/RattraperAcquisitionsRequest.cs` (nouveau DTO)
 - `Controllers/SoldeCongeController.cs` (action ajoutee)

@@ -21,357 +21,373 @@
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>🎓 Formations - Guide complet</h1>
-    <p>Ce module pilote l'ensemble du <strong>plan de formation annuel</strong> :
-    recensement des besoins, planification des sessions, inscription des salariés,
-    suivi des présences, génération des attestations et évaluation à froid à
-    J+30 et J+90.</p>
+    <h1>Formations - Guide RH</h1>
+    <p>Ce guide décrit le cycle complet des formations dans SunuPaie :
+    le plan annuel soumis à la Direction, les sessions planifiées puis réalisées,
+    les inscriptions, le suivi des présences, la génération des attestations,
+    puis l'évaluation à froid consignée dans le suivi post-formation.
+    Il s'adresse au RH opérationnel.</p>
 
     <div class="toc">
-        <strong>📑 Étapes du processus</strong>
+        <strong>Sommaire</strong>
         <ol>
             <li><a href="#vue-ensemble">Vue d'ensemble du cycle annuel</a></li>
-            <li><a href="#etape1">Étape 1 - RH : créer le plan de formation annuel</a></li>
-            <li><a href="#etape2">Étape 2 - RH : créer une session de formation</a></li>
-            <li><a href="#etape3">Étape 3 - Inscription des participants</a></li>
-            <li><a href="#etape4">Étape 4 - N+1 : valider les inscriptions</a></li>
-            <li><a href="#etape5">Étape 5 - Réalisation et suivi de présence</a></li>
-            <li><a href="#etape6">Étape 6 - Clôture et attestations</a></li>
-            <li><a href="#etape7">Étape 7 - Évaluation à froid (J+30, J+90)</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#regles">Règles métier</a></li>
-            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
-            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
+            <li><a href="#plan">Plan annuel de formation</a></li>
+            <li><a href="#session">Organiser une session</a></li>
+            <li><a href="#inscriptions">Inscriptions et présences</a></li>
+            <li><a href="#attestation">Génération des attestations</a></li>
+            <li><a href="#froid">Évaluation à froid (suivi post-formation)</a></li>
+            <li><a href="#bilan">Bilan de formation</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble du cycle annuel</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble du cycle annuel</h2>
 
+    <h3>Les grandes étapes</h3>
     <div class="workflow">
-        <div class="box">📋 Plan annuel</div>
-        <span class="arrow">→</span>
-        <div class="box">📅 Session</div>
-        <span class="arrow">→</span>
-        <div class="box">✍️ Inscriptions</div>
-        <span class="arrow">→</span>
-        <div class="box">✅ Validation N+1</div>
-        <span class="arrow">→</span>
-        <div class="box">🎓 Réalisation</div>
-        <span class="arrow">→</span>
-        <div class="box">📄 Attestations</div>
-        <span class="arrow">→</span>
-        <div class="box">📊 Évaluation à froid</div>
+        <div class="box">Plan annuel<br>(RH &gt; Direction)</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Sessions<br>planifiées</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Inscriptions<br>et présences</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Attestations</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Suivi à froid</div>
     </div>
+
+    <h3>Qui fait quoi</h3>
+    <table>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>RH</td><td>Crée le plan annuel, le soumet, crée les sessions, saisit les inscriptions et les présences, génère les attestations, saisit le suivi à froid.</td></tr>
+        <tr><td>Direction</td><td>Approuve ou rejette le plan soumis.</td></tr>
+        <tr><td>N+1</td><td>Alimente le suivi post-formation (acquis, impact poste, note globale) à J+30 / J+90.</td></tr>
+    </table>
+
+    <h3>Les 5 entités principales</h3>
+    <dl class="field-list">
+        <dt>PlanFormation</dt>
+        <dd>Plan annuel : titre, année, budget prévisionnel, statut. Cycle : Brouillon &rsaquo; Soumis &rsaquo; Approuvé &rsaquo; En cours &rsaquo; Clôturé (ou Annulé).</dd>
+
+        <dt>DomaineFormation</dt>
+        <dd>Référentiel des domaines (Sécurité, Management, Informatique, Langues...). Chaque session est rattachée à un domaine.</dd>
+
+        <dt>SessionFormation</dt>
+        <dd>Occurrence concrète : intitulé, dates, lieu, formateur, modalité (Présentiel / Distanciel / Mixte / E-learning), capacité, coût prévisionnel et coût réel. Cycle : Planifiée &rsaquo; Confirmée &rsaquo; En cours &rsaquo; Terminée (ou Annulée).</dd>
+
+        <dt>InscriptionFormation</dt>
+        <dd>Lien salarié x session : statut (En attente, Confirmée, Absente, Annulée), présence, 10 notes d'évaluation à chaud, pièce jointe attestation PDF.</dd>
+
+        <dt>SuiviFormation</dt>
+        <dd>Suivi post-formation créé automatiquement à la clôture de la session. Porte l'évaluation à froid remplie par le N+1 et visible depuis la fiche salarié.</dd>
+    </dl>
 
     <h3>Statuts d'une session</h3>
     <table>
-        <thead><tr><th>Statut</th><th>Action possible</th></tr></thead>
-        <tbody>
-            <tr><td>Planifiée</td><td>Modifier dates/contenu, inscrire participants</td></tr>
-            <tr><td>Confirmée</td><td>Inscriptions clôturées, en attente du jour J</td></tr>
-            <tr><td>En cours</td><td>Saisie des présences journalières</td></tr>
-            <tr><td>Terminée</td><td>Génération attestations, évaluation à froid</td></tr>
-            <tr><td>Annulée</td><td>Final - toutes les inscriptions sont annulées</td></tr>
-        </tbody>
+        <tr><th>Statut</th><th>Ce qui est possible</th></tr>
+        <tr><td>Planifiée</td><td>Modifier dates et contenu, créer les inscriptions.</td></tr>
+        <tr><td>Confirmée</td><td>Convocations envoyées, préparation du jour J.</td></tr>
+        <tr><td>En cours</td><td>Saisie des présences.</td></tr>
+        <tr><td>Terminée</td><td>Attestations à générer, suivis à froid créés.</td></tr>
+        <tr><td>Annulée</td><td>État final. Les inscrits ont été notifiés avec motif.</td></tr>
     </table>
 
-    <!-- =============================================================== -->
-    <h2 id="etape1">📋 Étape 1 - RH : créer le plan de formation annuel</h2>
+    <h2 id="plan">2. Plan annuel de formation</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>Naviguer vers Plan de formation</h3>
-        <p>Menu : <strong>Paramétrage → Plan de formation</strong> →
-        <strong>Nouveau plan</strong>.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Renseigner l'en-tête du plan</h3>
-        <dl class="field-list">
-            <dt>Année</dt>
-            <dd>Année du plan (ex. 2026).</dd>
-            <dt>Budget total alloué</dt>
-            <dd>Enveloppe annuelle en FCFA.</dd>
-            <dt>Axes stratégiques</dt>
-            <dd>Liste des thèmes prioritaires (ex. <em>Sécurité, Management,
-                Digital, Conformité légale</em>).</dd>
-        </dl>
-    </div>
-
-    <div class="exemple">
-        <strong>Exemple - ELTON Plan 2026 :</strong> budget 25 M FCFA, axes :
-        <em>Sécurité station-service (40 %)</em>, <em>Management terrain (25 %)</em>,
-        <em>Digital/SAP (20 %)</em>, <em>Comptabilité OHADA (15 %)</em>.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape2">📅 Étape 2 - RH : créer une session de formation</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Aller dans Formations → Sessions → Nouveau</h3>
+        <h3><span class="num">2.1</span>Créer le plan</h3>
+        <p>Menu : <strong>GRH &rsaquo; Formation &rsaquo; Plans de formation</strong>, bouton <strong>Nouveau</strong>.</p>
+        <p>Renseigner :</p>
+        <ul>
+            <li><code>Titre du plan</code> (ex. "Plan de formation 2026")</li>
+            <li><code>Année</code> (pré-rempli avec l'année en cours)</li>
+            <li><code>Entreprise</code></li>
+            <li><code>Budget prévisionnel (FCFA)</code></li>
+        </ul>
+        <p>Sauvegarder. Le plan est au statut <strong>Brouillon</strong>.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Renseigner la session</h3>
-        <dl class="field-list">
-            <dt>Intitulé</dt>
-            <dd>Nom de la formation (ex. <em>"Sécurité incendie en station-service"</em>).</dd>
-            <dt>Axe / Thème</dt>
-            <dd>Lié au plan annuel.</dd>
-            <dt>Organisme</dt>
-            <dd>Formateur interne ou prestataire externe.</dd>
-            <dt>Coût pédagogique</dt>
-            <dd>Coût HT facturé par l'organisme.</dd>
-            <dt>Lieu</dt>
-            <dd>Salle, hôtel, e-learning…</dd>
-            <dt>Date de début / Date de fin</dt>
-            <dd>Durée totale en jours (ouvrés).</dd>
-            <dt>Nombre de places</dt>
-            <dd>Capacité maximale (1 à 50).</dd>
-            <dt>Pré-requis</dt>
-            <dd>Texte libre (catégorie professionnelle, expérience, etc.).</dd>
-        </dl>
-    </div>
+        <h3><span class="num">2.2</span>Soumettre à la Direction</h3>
+        <p>Sur la fiche du plan, cliquer sur <strong>"Soumettre"</strong>. Le statut passe à <strong>Soumis</strong> et la date de soumission est horodatée.</p>
 
-    <div class="info">
-        💡 Le coût total de la session sera <strong>réparti automatiquement
-        au prorata du nombre d'inscrits</strong> pour la consommation budgétaire.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape3">✍️ Étape 3 - Inscription des participants</h2>
-
-    <p>Trois modes d'inscription possibles :</p>
-
-    <div class="step">
-        <h3><span class="num">A</span>Inscription individuelle (par le salarié)</h3>
-        <p>Le salarié va dans <strong>Mon espace → Mes formations →
-        Demander une inscription</strong>, choisit la session ouverte,
-        justifie sa demande et soumet.</p>
+        <div class="flux">
+            Le plan reste en lecture seule pour le RH tant que la Direction n'a pas statué.
+        </div>
     </div>
 
     <div class="step">
-        <h3><span class="num">B</span>Inscription managériale (par le N+1)</h3>
-        <p>Le manager peut inscrire d'office un membre de son équipe depuis
-        l'écran de la session : <strong>+ Inscrire un collaborateur</strong>.</p>
+        <h3><span class="num">2.3</span>Décision de la Direction</h3>
+        <p>Le compte Direction ouvre le plan et choisit :</p>
+        <ul>
+            <li><strong>"Approuver"</strong> : statut &rsaquo; Approuvé, date d'approbation horodatée, approbateur enregistré. Un email est envoyé au RH.</li>
+            <li><strong>"Rejeter"</strong> : le motif doit être saisi au préalable dans le champ <code>Commentaire</code>. Le plan retourne en Brouillon pour correction puis resoumission.</li>
+        </ul>
     </div>
 
     <div class="step">
-        <h3><span class="num">C</span>Inscription en masse (par le RH)</h3>
-        <p>Depuis la liste des sessions : sélectionner la session →
-        <strong>Inscrire en masse</strong> → cocher les salariés concernés
-        depuis la liste filtrable (par service, catégorie, site).</p>
+        <h3><span class="num">2.4</span>Démarrer et clôturer</h3>
+        <p>Une fois approuvé, cliquer sur <strong>"Démarrer"</strong>. Statut &rsaquo; En cours. C'est à partir de là que les sessions sont rattachées au plan.</p>
+        <p>En fin d'exercice, cliquer sur <strong>"Clôturer"</strong>. Statut &rsaquo; Clôturé. Un plan clôturé ne peut plus être annulé.</p>
+
+        <div class="info">
+            Le bouton <strong>"Annuler le plan"</strong> reste disponible tant que le plan n'est ni Clôturé ni déjà Annulé.
+        </div>
     </div>
 
-    <div class="exemple">
-        <strong>Exemple :</strong> RH inscrit en masse les <em>32 chefs de
-        station ELTON</em> à la session <em>"Sécurité incendie"</em> en cochant
-        le filtre <code>Catégorie = Chef station</code>.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape4">✅ Étape 4 - N+1 : valider les inscriptions</h2>
+    <h2 id="session">3. Organiser une session</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>Notification automatique au N+1</h3>
-        <p>Chaque inscription individuelle déclenche un email au manager
-        avec un lien direct vers la fiche.</p>
+        <h3><span class="num">3.1</span>Créer la session</h3>
+        <p>Depuis la fiche du plan, onglet <strong>Sessions de formation</strong>, bouton <strong>Nouveau</strong>. Ou menu <strong>GRH &rsaquo; Formation &rsaquo; Sessions de formation</strong>, et choisir le plan.</p>
+        <p>Champs à renseigner :</p>
+        <ul>
+            <li><code>Intitulé de la formation</code> (obligatoire)</li>
+            <li><code>Référence</code> (optionnelle, mise en majuscules)</li>
+            <li><code>Domaine</code> (obligatoire, choisi dans le référentiel)</li>
+            <li><code>Modalité</code> : Présentiel / Distanciel / Mixte / E-learning</li>
+            <li><code>Date de début</code>, <code>Date de fin</code> : la durée en jours est recalculée automatiquement</li>
+            <li><code>Durée (heures)</code> : à saisir si pertinent pour l'attestation</li>
+            <li><code>Lieu</code>, <code>Formateur / Organisme</code>, case <code>Formateur interne</code></li>
+            <li><code>Coût prévisionnel</code>, <code>Coût réel</code> (FCFA)</li>
+            <li><code>Capacité max</code> (défaut 20)</li>
+            <li><code>Objectifs pédagogiques</code>, <code>Programme / Contenu</code></li>
+        </ul>
+        <p>La session démarre au statut <strong>Planifiée</strong>.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Le N+1 valide ou refuse</h3>
-        <p>Boutons : <strong>✅ Valider</strong> /
-        <strong>❌ Refuser (motif obligatoire)</strong>.</p>
+        <h3><span class="num">3.2</span>Confirmer la session</h3>
+        <p>Quand les inscriptions sont stabilisées et la logistique bouclée, cliquer sur <strong>"Confirmer session"</strong>. Le système :</p>
+        <ol>
+            <li>Passe la session au statut <strong>Confirmée</strong>.</li>
+            <li>Crée une <strong>NotificationSalarie</strong> de catégorie Formation pour chaque inscrit (statut Confirmée ou En attente).</li>
+            <li>Envoie un email de convocation à chaque inscrit disposant d'une adresse email, avec le tableau récapitulatif (intitulé, domaine, dates, durée, lieu, formateur).</li>
+        </ol>
     </div>
+
+    <div class="step">
+        <h3><span class="num">3.3</span>Démarrer puis terminer</h3>
+        <p>Le jour du démarrage, cliquer sur <strong>"Démarrer"</strong>. Statut &rsaquo; En cours.</p>
+        <p>En fin de session, après avoir saisi les présences (section 4), cliquer sur <strong>"Terminer"</strong>. Statut &rsaquo; Terminée. Le système crée automatiquement un <strong>SuiviFormation</strong> pour chaque inscription non annulée (Confirmée, Absente, En attente). L'opération est idempotente : relancer "Terminer" ne crée pas de doublon.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3.4</span>Annuler une session</h3>
+        <p>Tant que la session n'est ni Terminée ni déjà Annulée, le bouton <strong>"Annuler session"</strong> reste actif. Il exige qu'un motif ait été saisi au préalable dans le champ <code>Motif d'annulation</code>.</p>
+        <p>L'annulation crée une notification "Session annulée" à chaque inscrit non annulé.</p>
+    </div>
+
+    <h2 id="inscriptions">4. Inscriptions et présences</h2>
+
+    <div class="step">
+        <h3><span class="num">4.1</span>Inscrire un salarié</h3>
+        <p>Sur la fiche de la session, onglet <strong>Inscriptions</strong>, bouton <strong>Nouveau</strong>. Choisir le salarié. La date d'inscription et le champ <code>Inscrit par</code> sont renseignés automatiquement. Le statut initial est <strong>En attente</strong>.</p>
+
+        <div class="info">
+            Chaque inscription appartient à une seule session. Le même salarié peut être inscrit à plusieurs sessions.
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.2</span>Confirmer ou annuler l'inscription</h3>
+        <p>Sur la fiche de l'inscription :</p>
+        <ul>
+            <li><strong>"Confirmer"</strong> : passe l'inscription de En attente à Confirmée.</li>
+            <li><strong>"Annuler inscr."</strong> : exige la saisie d'un <code>Motif d'annulation</code>. Statut &rsaquo; Annulée.</li>
+            <li><strong>"Marquer absent"</strong> : disponible sur une inscription Confirmée. Statut &rsaquo; Absente, Présence = faux.</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.3</span>Saisir la présence effective</h3>
+        <p>En fin de session, cocher le champ <code>Présent</code> sur chaque inscription des participants qui ont effectivement suivi la formation.</p>
+
+        <div class="flux">
+            Le taux de présence de la session est recalculé : <code>Nb présents</code> / <code>Nb inscrits</code> (inscriptions non annulées).
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.4</span>Évaluation à chaud</h3>
+        <p>Chaque inscription porte un formulaire d'évaluation à chaud, catégorie <strong>Évaluation à chaud</strong> dans la fiche. Dix critères notés sur une échelle unique :</p>
+        <ul>
+            <li>Note contenu, Note formateur, Note organisation</li>
+            <li>Adéquation avec les objectifs</li>
+            <li>Apport immédiat pour le poste</li>
+            <li>Progression (rythme, alternance théorie/pratique)</li>
+            <li>Clarté du contenu</li>
+            <li>Disponibilité de l'animateur</li>
+            <li>Niveau par rapport au groupe</li>
+            <li>Supports de formation transmis</li>
+        </ul>
+        <p>Un champ libre <code>Ce que la formation m'apportera</code> complète le questionnaire. La <code>Note moyenne globale</code> est calculée automatiquement sur les notes renseignées.</p>
+    </div>
+
+    <h2 id="attestation">5. Génération des attestations</h2>
 
     <div class="alerte">
-        ⚠️ Tant que le N+1 n'a pas validé, l'inscription reste au statut
-        <strong>"Demandée"</strong> et la place n'est pas réservée. Une fois
-        la session pleine, les nouvelles demandes passent en
-        <strong>liste d'attente</strong>.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape5">🎓 Étape 5 - Réalisation et suivi de présence</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Confirmer la session (J-7)</h3>
-        <p>Le RH clique sur <strong>Confirmer la session</strong>. Tous les
-        participants reçoivent une convocation par email avec le lieu, la date
-        et le programme. Les inscriptions sont verrouillées.</p>
+        Pré-requis : l'inscription doit être au statut <strong>Confirmée</strong> ET la case <code>Présent</code> doit être cochée. Sans ces deux conditions, l'action est inactive.
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Saisir les présences journalières</h3>
-        <p>Pendant la session, le RH ou le formateur ouvre la grille
-        <strong>Présences</strong> et coche pour chaque participant et chaque
-        jour : <em>Présent / Absent / Retard / Justifié</em>.</p>
-    </div>
+        <h3><span class="num">5.1</span>Charger le template Word</h3>
+        <p>Une seule fois : menu <strong>Paramétrage &rsaquo; Paramètres de paie</strong>, champ <code>Template attestation formation</code>. Uploader un fichier <code>.docx</code> contenant les marqueurs {{...}}.</p>
 
-    <div class="exemple">
-        <strong>Exemple - Session 3 jours, 12 participants :</strong>
-        Jour 1 : 12/12 présents. Jour 2 : 11/12 (1 absent justifié).
-        Jour 3 : 12/12. <strong>Taux d'assiduité = 97,2 %</strong>.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape6">📄 Étape 6 - Clôture et attestations</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Cliquer sur Clôturer la session</h3>
-        <p>Une fois les présences saisies pour tous les jours, le RH clique
-        sur <strong>Clôturer</strong>. La session passe au statut
-        <strong>Terminée</strong>.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Génération automatique des attestations</h3>
-        <p>Pour chaque participant ayant un taux de présence ≥ 80 %, le système
-        génère un <strong>PDF d'attestation</strong> :</p>
+        <p>Marqueurs disponibles :</p>
         <ul>
-            <li>Logo entreprise + en-tête</li>
-            <li>Nom complet du salarié + matricule</li>
-            <li>Intitulé de la formation, organisme, dates, durée totale</li>
-            <li>Taux de présence calculé</li>
-            <li>Signature du RH (image PNG configurée dans Paramétrage)</li>
+            <li>Salarié : <code>{{Civilite}}</code>, <code>{{FullName}}</code>, <code>{{Prenom}}</code>, <code>{{Nom}}</code>, <code>{{Matricule}}</code>, <code>{{Fonction}}</code>, <code>{{Departement}}</code></li>
+            <li>Formation : <code>{{Intitule}}</code>, <code>{{Domaine}}</code>, <code>{{Modalite}}</code>, <code>{{DateDebut}}</code>, <code>{{DateFin}}</code>, <code>{{DureeJours}}</code>, <code>{{DureeHeures}}</code>, <code>{{Lieu}}</code>, <code>{{FormateurNom}}</code>, <code>{{Objectifs}}</code>, <code>{{NumeroAttestation}}</code></li>
+            <li>Société : <code>{{RaisonSociale}}</code>, <code>{{AdresseSociete}}</code>, <code>{{VilleSociete}}</code></li>
+            <li>Signataire : <code>{{SignataireNom}}</code>, <code>{{SignataireTitre}}</code></li>
+            <li>Document : <code>{{DateDocument}}</code>, <code>{{VilleDocument}}</code></li>
         </ul>
-        <p>L'attestation est consultable depuis la fiche du salarié et
-        depuis <em>Mon espace → Mes formations</em>.</p>
-    </div>
-
-    <div class="erreur">
-        <strong>Attestation non générée pour un participant ?</strong><br>
-        → Vérifier que son taux de présence est ≥ 80 %. En dessous, l'attestation
-        n'est pas créée automatiquement (le RH peut la forcer manuellement avec
-        motif).
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape7">📊 Étape 7 - Évaluation à froid (J+30, J+90)</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Envoi automatique J+30</h3>
-        <p>30 jours après la clôture, un email est envoyé au <strong>N+1</strong>
-        de chaque participant avec un formulaire à 5 questions sur la mise en
-        application des compétences.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Envoi automatique J+90</h3>
-        <p>90 jours après, un second formulaire est envoyé pour mesurer
-        l'impact à moyen terme. Les réponses sont consolidées dans le
-        rapport annuel <em>Bilan Plan de Formation</em>.</p>
-    </div>
+        <h3><span class="num">5.2</span>Générer pour une inscription</h3>
+        <p>Sur la fiche de l'inscription, cliquer sur <strong>"Attestation"</strong>. Le système :</p>
+        <ol>
+            <li>Génère un numéro <code>ATT-FORM-{annee}-{seq}</code> basé sur l'année de la session et le nombre d'attestations déjà générées cette année-là.</li>
+            <li>Fusionne les marqueurs dans le template Word (corps, en-têtes, pieds de page).</li>
+            <li>Convertit en PDF via LibreOffice headless (<code>soffice --headless --convert-to pdf</code>). Timeout 30 secondes ; en cas de timeout, le <code>.docx</code> fusionné est renvoyé en secours.</li>
+            <li>Attache le PDF au champ <code>Document attestation</code> de l'inscription et horodate <code>Date attestation</code>, coche <code>Attestation générée</code>.</li>
+            <li>Archive une copie dans le <strong>DossierSalarie</strong> (catégorie Autre), avec titre "Attestation formation - [Intitulé] ([Numéro])".</li>
+        </ol>
 
-    <div class="ok">
-        ✅ Cette double évaluation à froid permet de mesurer le
-        <strong>retour sur investissement (ROI)</strong> du plan de formation
-        pour la direction.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
-
-    <h3>Cas 1 - Formation interne obligatoire (Sécurité incendie)</h3>
-    <div class="exemple">
-        Le RH crée une session avec un formateur interne. Inscription en
-        masse de tous les chefs de station + agents de piste. Coût pédagogique
-        = 0 (interne). 2 jours, salle de l'agence centrale. Présence
-        obligatoire (aucun refus N+1 toléré).
-    </div>
-
-    <h3>Cas 2 - Formation externe individuelle (Excel avancé)</h3>
-    <div class="exemple">
-        Aïssa (Compta) fait une demande individuelle pour une formation
-        Excel avancé chez un prestataire (350 000 FCFA). Le N+1 valide.
-        Le RH suit le coût qui s'impute sur l'enveloppe de l'axe
-        <em>Digital</em>.
-    </div>
-
-    <h3>Cas 3 - Annulation d'une session</h3>
-    <div class="exemple">
-        Une session prévue le 20/05 doit être annulée car le formateur est
-        souffrant. Le RH ouvre la session → <strong>Annuler la session</strong>
-        (motif obligatoire). Tous les participants reçoivent un email
-        d'annulation. La session apparaît en <em>Annulée</em> dans l'historique
-        mais ne consomme pas de budget.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="regles">📜 Règles métier</h2>
-
-    <table>
-        <thead><tr><th>Règle</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td>Capacité max</td><td>Une session ne peut excéder le nombre de places défini.</td></tr>
-            <tr><td>Liste d'attente</td><td>Au-delà de la capacité, les inscriptions sont en attente. Si désistement, basculement automatique.</td></tr>
-            <tr><td>Validation N+1</td><td>Obligatoire pour toute inscription individuelle (sauf inscription en masse RH).</td></tr>
-            <tr><td>Seuil d'attestation</td><td>Présence ≥ 80 % requise pour générer l'attestation automatiquement.</td></tr>
-            <tr><td>Évaluation à froid</td><td>Email automatique au N+1 à J+30 puis J+90.</td></tr>
-            <tr><td>Budget</td><td>Le coût pédagogique d'une session s'impute sur l'axe correspondant du plan annuel.</td></tr>
-            <tr><td>Historique</td><td>Toutes les formations suivies sont conservées indéfiniment dans la fiche du salarié.</td></tr>
-        </tbody>
-    </table>
-
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
-
-    <div class="erreur">
-        <strong>"Aucune session ouverte aux inscriptions"</strong><br>
-        → Vérifier que la session est bien au statut <em>Planifiée</em> (et non
-        <em>Confirmée</em> qui ferme les inscriptions).
-    </div>
-
-    <div class="erreur">
-        <strong>"L'attestation est générée mais sans signature"</strong><br>
-        → Aller dans <em>Paramétrage → Identité entreprise</em> et téléverser
-        l'image PNG de la signature du RH.
-    </div>
-
-    <div class="erreur">
-        <strong>"La session apparaît en doublon dans la fiche du salarié"</strong><br>
-        → Vérifier qu'il n'a pas été inscrit deux fois (manuellement + en masse).
-        Le RH peut supprimer l'une des inscriptions tant que la session n'est
-        pas confirmée.
+        <div class="ok">
+            Message de succès attendu : "Attestation ATT-FORM-2026-NNNN générée et archivée."
+        </div>
     </div>
 
     <div class="info">
-        💡 <strong>Comment exporter le bilan annuel des formations ?</strong>
-        Menu <em>Formations → Bilan annuel</em> → bouton <strong>📊 Export Excel</strong>
-        : nombre de sessions, nb d'heures, nb de participants distincts, coût total
-        par axe, taux moyen de présence et de satisfaction.
+        LibreOffice doit être installé sur le serveur. Chemins testés en priorité :
+        <code>C:\Program Files\LibreOffice\program\soffice.exe</code>,
+        <code>C:\Program Files (x86)\LibreOffice\program\soffice.exe</code>,
+        puis <code>/usr/bin/soffice</code>, puis <code>soffice</code> dans le PATH.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+    <h2 id="froid">6. Évaluation à froid (suivi post-formation)</h2>
 
-    <div class="bouton">
-        <strong>📋 Nouveau plan :</strong> crée le plan annuel (axes + budget).
+    <p>À la clôture de la session (action <strong>"Terminer"</strong>), un <strong>SuiviFormation</strong> est créé pour chaque inscription non annulée. Le suivi est accessible :</p>
+    <ul>
+        <li>Depuis la fiche salarié, onglet <strong>Suivis formation</strong></li>
+        <li>Depuis la fiche inscription, onglet <strong>Suivi formation</strong></li>
+        <li>Via menu <strong>GRH &rsaquo; Formation &rsaquo; Suivis formation</strong></li>
+    </ul>
+
+    <div class="step">
+        <h3><span class="num">6.1</span>Snapshot renseigné automatiquement</h3>
+        <p>Dès création, le suivi contient (champs en lecture seule) :</p>
+        <ul>
+            <li><code>Salarié</code>, <code>Inscription</code></li>
+            <li><code>Intitulé formation</code>, <code>Domaine</code></li>
+            <li><code>Date de formation</code> (= DateDebut de la session), <code>Durée (jours)</code></li>
+            <li><code>Formateur / Organisme</code></li>
+        </ul>
     </div>
-    <div class="bouton">
-        <strong>📅 Nouvelle session :</strong> crée une session rattachée au plan.
+
+    <div class="step">
+        <h3><span class="num">6.2</span>Formulaire à froid à remplir par le N+1</h3>
+        <p>Catégorie <strong>Évaluation à froid</strong> dans la fiche. Questions :</p>
+        <ul>
+            <li><code>Besoin réel</code> de cette formation (BesoinFormationReponse)</li>
+            <li><code>Formation adaptée au besoin</code> (AdequationFormationReponse)</li>
+            <li><code>Raison si inadéquation</code> (texte libre, si Non ou Partiellement)</li>
+            <li><code>Initiative de la formation</code> (InitiativeFormationReponse)</li>
+            <li><code>Mise en pratique des connaissances</code> (MisePratiqueReponse)</li>
+            <li><code>Fréquence de mise en pratique</code> (FrequencePratiqueReponse)</li>
+            <li><code>Obstacle à la mise en pratique</code> (texte libre)</li>
+            <li><code>Facteurs favorisant la pratique</code> (texte libre)</li>
+            <li><code>Entretien fait avec le collaborateur</code> (Oui/Non)</li>
+            <li><code>Remarques du collaborateur</code> (texte libre)</li>
+            <li><code>Résultat atteint</code> (ResultatAtteintReponse)</li>
+        </ul>
+        <p>Champs de synthèse (bloc principal) :</p>
+        <ul>
+            <li><code>Compétences acquises / renforcées</code></li>
+            <li><code>Impact observé sur le poste</code></li>
+            <li><code>Note globale (N+1)</code></li>
+            <li><code>Date évaluation à froid</code> (à renseigner au moment de la saisie)</li>
+            <li><code>À renouveler l'année prochaine</code> (bascule pour l'alimentation du plan N+1)</li>
+        </ul>
+
+        <div class="info">
+            La pratique conseillée est deux passes : une à J+30 (acquis à chaud, premier retour), une à J+90 (impact durable). La date du dernier passage est consignée dans <code>Date évaluation à froid</code>.
+        </div>
     </div>
-    <div class="bouton">
-        <strong>✍️ Inscrire en masse :</strong> sélectionne plusieurs salariés filtrés (action RH).
+
+    <h2 id="bilan">7. Bilan de formation</h2>
+
+    <div class="step">
+        <h3><span class="num">7.1</span>Générer le bilan PDF du plan</h3>
+        <p>Sur la fiche du plan, cliquer sur <strong>"Générer le bilan"</strong>. Le PDF contient :</p>
+        <ol>
+            <li>Résumé exécutif (sessions, inscrits, taux de présence, budget consommé)</li>
+            <li>Tableau détaillé des sessions (coûts, présents, note moyenne)</li>
+            <li>Répartition par domaine (inscrits, heures, coût)</li>
+            <li>Top des participants (salariés les plus formés)</li>
+        </ol>
     </div>
-    <div class="bouton">
-        <strong>✅ Confirmer la session :</strong> ferme les inscriptions, envoie convocations (J-7).
+
+    <h3>KPIs du plan</h3>
+    <table>
+        <tr><th>KPI</th><th>Calcul</th></tr>
+        <tr><td>Nb sessions planifiées</td><td>Nombre de sessions rattachées au plan</td></tr>
+        <tr><td>Nb inscrits total</td><td>Somme des inscriptions sur toutes les sessions</td></tr>
+        <tr><td>Coût réel total</td><td>Somme des <code>CoutReel</code> des sessions</td></tr>
+        <tr><td>Taux consommation budget</td><td>Coût réel / Budget prévisionnel x 100</td></tr>
+    </table>
+
+    <h2 id="depannage">8. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>"Template d'attestation de formation introuvable"</h3>
+        <p>Le champ <code>Template attestation formation</code> dans <strong>Paramétrage &rsaquo; Paramètres de paie</strong> est vide. Uploader un fichier <code>.docx</code> contenant les marqueurs {{...}} listés en section 5.1.</p>
     </div>
-    <div class="bouton">
-        <strong>📋 Saisir présences :</strong> grille jour × participant (cochez P/A/R/J).
+
+    <div class="step">
+        <h3>Le bouton "Attestation" reste grisé</h3>
+        <p>Vérifier les deux pré-requis : statut de l'inscription = <strong>Confirmée</strong> ET case <code>Présent</code> cochée. L'inscription ne doit être ni En attente, ni Annulée, ni Absente.</p>
     </div>
-    <div class="bouton">
-        <strong>🏁 Clôturer la session :</strong> déclenche la génération automatique des attestations.
+
+    <div class="step">
+        <h3>L'attestation sort en .docx au lieu de PDF</h3>
+        <p>LibreOffice n'est pas installé sur le serveur ou n'a pas répondu dans les 30 secondes. Installer LibreOffice sur le chemin attendu (voir section 5.2) et relancer. Entre-temps, le .docx est fonctionnel et contient les bonnes données.</p>
     </div>
-    <div class="bouton">
-        <strong>🚫 Annuler la session :</strong> annule + notifie tous les inscrits + libère le budget.
+
+    <div class="step">
+        <h3>Les inscrits ne reçoivent pas la convocation à "Confirmer session"</h3>
+        <p>Deux causes possibles :</p>
+        <ul>
+            <li>Le champ <code>Email</code> du salarié n'est pas renseigné. Les notifications internes partent quand même, mais pas l'email.</li>
+            <li>Le compte SMTP d'envoi (sender) n'est pas configuré dans les paramètres email. Vérifier avec l'équipe technique.</li>
+        </ul>
     </div>
-    <div class="bouton">
-        <strong>📊 Export Bilan annuel :</strong> Excel récapitulatif par axe / période.
+
+    <div class="step">
+        <h3>"La session doit être en cours pour être clôturée"</h3>
+        <p>Il faut cliquer <strong>"Démarrer"</strong> avant <strong>"Terminer"</strong>. La transition Confirmée &rsaquo; Terminée directe n'est pas autorisée.</p>
+    </div>
+
+    <div class="step">
+        <h3>"Veuillez saisir un motif d'annulation avant d'annuler"</h3>
+        <p>Le champ <code>Motif d'annulation</code> doit être rempli dans la fiche (session ou inscription) avant de lancer l'action "Annuler".</p>
+    </div>
+
+    <div class="step">
+        <h3>Un suivi à froid n'a pas été créé pour un participant</h3>
+        <p>Vérifier le statut de l'inscription au moment du "Terminer" : seules les inscriptions Confirmée, Absente ou En attente génèrent un suivi. Les inscriptions Annulée sont exclues. Relancer "Terminer" ne crée pas de doublon pour les suivis déjà existants.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le plan reste bloqué en "Soumis"</h3>
+        <p>Seul un utilisateur avec le rôle Direction peut cliquer "Approuver" ou "Rejeter". Vérifier les droits sur <strong>PlanFormation</strong> dans les rôles.</p>
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 - Module Formations - Mise à jour mai 2026
+        SunuPaie - Guide Formations - RH opérationnel
     </p>
 </body>
 </html>

@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - Import du Livre de Paie Intérimaire (Guide complet)</title>
+    <title>SunuPaie - Import Livre de Paie Intérim (Guide RH)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
-        <a href="/help/index.html">SunuPaie - Guide utilisateur</a>
-        <span class="sep">|</span>
+        <a href="/help/index.html">Accueil</a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Périodes</a>
+        <a href="/help/salaries.html">Salariés</a>
         <a href="/help/interimaires.html">Intérimaires</a>
         <a href="/help/import-livre-paie-interim.html" class="active">Import Livre de Paie Intérim</a>
         <a href="/help/import-salaries.html">Import Salariés</a>
@@ -18,323 +20,384 @@
         <a href="/help/dashboards/cout-reel-interim.html">N°11 Coût Réel Intérim</a>
     </nav>
 
-    <h1>📥 Import du Livre de Paie Intérimaire - Guide complet</h1>
-    <p>Cette fonctionnalité permet de charger chaque mois le <strong>fichier Excel
-    de facturation</strong> envoyé par chaque société d'intérim, contenant le coût
-    réel TTC de chaque intérimaire. Une fois importé, le dashboard <strong>Tableau
-    N°11 - Coût Réel Intérimaires</strong> compare automatiquement le coût réel facturé
-    avec le coût théorique du contrat.</p>
-
-    <div class="info">
-        <strong>📌 Où dépose-t-on le fichier ?</strong><br>
-        On <strong>NE dépose PAS</strong> le fichier sur un dossier serveur. L'import se fait
-        entièrement dans l'application via le wizard d'import (menu
-        <em>Intérimaires → Charger livre de paie</em>). Le fichier reste sur votre poste,
-        on l'<em>upload</em> directement dans le navigateur. Il est ensuite stocké dans la base
-        de données via les entités <code>BulletinInterim</code> et
-        <code>ImportBulletinInterimBatch</code>.
-    </div>
+    <h1>Import Livre de Paie Interim (Excel) - Guide RH</h1>
+    <p>Ce guide décrit l'import mensuel du <strong>fichier Excel de facturation</strong>
+    envoyé par chaque société d'intérim partenaire d'ELTON. Ce fichier contient le
+    <strong>coût TTC réel</strong> de chaque intérimaire affecté sur site. Une fois
+    importé, il alimente le dashboard N°11 Coût Réel Intérim qui compare le coût
+    facturé au coût théorique du contrat. Le format attendu est un classeur
+    <strong>53 colonnes</strong>, dont un bloc facturation obligatoire
+    (Débours, Commission agence, Montant HT, TVA, TTC).</p>
 
     <div class="toc">
-        <strong>📑 Étapes du processus</strong>
+        <strong>Sommaire</strong>
         <ol>
-            <li><a href="#vue-ensemble">Vue d'ensemble</a></li>
-            <li><a href="#etape1">Étape 1 - Télécharger le modèle</a></li>
-            <li><a href="#etape2">Étape 2 - Recevoir et vérifier la facture mensuelle</a></li>
-            <li><a href="#etape3">Étape 3 - Importer dans SunuPaie (wizard 4 étapes)</a></li>
-            <li><a href="#etape4">Étape 4 - Compléter les fiches créées automatiquement</a></li>
-            <li><a href="#etape5">Étape 5 - Consulter le dashboard Coût Réel</a></li>
-            <li><a href="#colonnes">Colonnes attendues (référence 53 colonnes)</a></li>
-            <li><a href="#cas-particuliers">Cas particuliers (PRESTATAIRE, matricule manquant)</a></li>
-            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du processus</a></li>
+            <li><a href="#modele">Télécharger le modèle 53 colonnes</a></li>
+            <li><a href="#import">Lancer l'import (création du lot)</a></li>
+            <li><a href="#verification">Vérification du lot importé</a></li>
+            <li><a href="#correction">Correction et ré-import</a></li>
+            <li><a href="#completer">Compléter les fiches créées auto</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble du workflow</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble du processus</h2>
 
+    <h3>Pourquoi importer</h3>
+    <p>Chaque société d'intérim facture ELTON chaque mois pour les intérimaires
+    mis à disposition. Le fichier Excel reçu contient, pour chaque intérimaire,
+    le détail salarial et surtout la ligne de facturation (Débours, Commission,
+    HT, TVA, TTC). L'import permet de :</p>
+    <ul>
+        <li>Enregistrer le <strong>coût réel TTC</strong> payé à la société d'intérim</li>
+        <li>Comparer ce coût au coût théorique calculé depuis le contrat (TauxJournalier x jours)</li>
+        <li>Alimenter le dashboard N°11 Coût Réel Intérim (KPI, top 10, évolution 12 mois)</li>
+        <li>Créer automatiquement les fiches Intérimaire manquantes (nouvelles arrivées)</li>
+    </ul>
+
+    <h3>Les 3 moments clés</h3>
     <div class="workflow">
-        <div class="box">📧 Société intérim envoie facture (.xlsx)</div>
-        <span class="arrow">→</span>
-        <div class="box">📤 Wizard Import : Année / Mois / Société</div>
-        <span class="arrow">→</span>
-        <div class="box">📋 Preview des lignes</div>
-        <span class="arrow">→</span>
-        <div class="box">✅ Confirm</div>
-        <span class="arrow">→</span>
-        <div class="box">📊 Dashboard Coût Réel</div>
+        <div class="box">Réception<br>facture xlsx</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Import wizard<br>Preview + Commit</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Dashboard<br>Coût Réel</div>
     </div>
 
-    <div class="flux" style="display:flex; align-items:center; gap:15px;">
-        <div style="flex:1;">
-            <strong>Télécharger le modèle de fichier (53 colonnes) :</strong><br>
-            Ce fichier Excel reflète exactement le format envoyé par les sociétés
-            d'intérim partenaires d'ELTON. Il contient les en-têtes attendus et
-            2 lignes d'exemple (1 intérimaire normal + 1 prestataire).
-        </div>
-        <a href="/help/Modele_LivrePaieInterim.xlsx" download
-           style="background:#0F6E56; color:white; padding:12px 24px; border-radius:6px;
-                  text-decoration:none; font-weight:bold; white-space:nowrap; font-size:15px;">
-            📥 Modèle (.xlsx)
-        </a>
+    <h3>Les entités créées à l'import</h3>
+    <dl class="field-list">
+        <dt>ImportBulletinInterimBatch</dt>
+        <dd>Le lot d'import. Un lot = un fichier = une société d'intérim x un mois x une année. Un index unique interdit deux lots pour le même triplet.</dd>
+
+        <dt>BulletinInterim</dt>
+        <dd>Une ligne par intérimaire du fichier. Porte le détail salarial et le bloc facturation. Rattaché au lot et (si matricule connu) à la fiche Intérimaire.</dd>
+
+        <dt>Interimaire (créé si besoin)</dt>
+        <dd>Si le matricule n'existe pas encore, une fiche minimale est créée automatiquement avec Matricule, Nom, Prénom, Société, Fonction. Le RH complète ensuite les champs manquants et crée le contrat.</dd>
+    </dl>
+
+    <h3>Statuts d'un BulletinInterim</h3>
+    <table>
+        <tr><th>Statut</th><th>Signification</th></tr>
+        <tr><td>Importé OK</td><td>Matricule retrouvé dans la base, bulletin rattaché à sa fiche Intérimaire existante</td></tr>
+        <tr><td>Fiche créée auto</td><td>Matricule inconnu, fiche Intérimaire minimale créée. Le RH doit la compléter (voir section 6)</td></tr>
+        <tr><td>Prestataire</td><td>Matricule = PRESTATAIRE (ou PREST). Pas de fiche Intérimaire créée, l'<code>Interimaire</code> reste null. Le coût TTC est néanmoins inclus dans le total</td></tr>
+        <tr><td>Erreur</td><td>Ligne non interprétable</td></tr>
+    </table>
+
+    <h2 id="modele">2. Télécharger le modèle 53 colonnes</h2>
+
+    <p>Le classeur <code>Modele_LivrePaieInterim.xlsx</code> reflète le format attendu.
+    Il contient la ligne d'en-tête de référence et deux lignes d'exemple (un intérimaire
+    normal, un prestataire).</p>
+
+    <p><a href="/help/Modele_LivrePaieInterim.xlsx" download><strong>Télécharger Modele_LivrePaieInterim.xlsx</strong></a></p>
+
+    <div class="info">
+        <strong>Mapping fuzzy :</strong> le système identifie chaque colonne par son <em>titre d'en-tête</em>,
+        pas par sa position. Les variantes de casse, d'accents et d'espaces sont tolérées
+        (ex. "DEBOURS", "Débours", "debours" sont tous reconnus). La ligne d'en-tête est
+        détectée automatiquement dans les 30 premières lignes du classeur en cherchant le mot "matricule".
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape1">📥 Étape 1 - Télécharger le modèle (référence)</h2>
+    <h3>Les 53 colonnes attendues, par bloc</h3>
+    <table>
+        <tr><th>Bloc</th><th>Colonnes</th><th>Caractère</th></tr>
+        <tr>
+            <td><strong>Identification</strong></td>
+            <td>N° matricule, Noms, Prénoms, Sexe, Fonction, Site, Catégorie</td>
+            <td>Matricule, Noms, Prénoms obligatoires</td>
+        </tr>
+        <tr>
+            <td><strong>Présence</strong></td>
+            <td>30ème de présence (jours payés / 30)</td>
+            <td>Optionnel</td>
+        </tr>
+        <tr>
+            <td><strong>Brut salarié</strong></td>
+            <td>Salaire de base, Préavis, Congés payés, Sursalaire, Primes (Ancienneté, Caisse, Fonction, Logement, Responsabilité, Risques, Salissure, Inventaire, Nuit), Forfait HSup, Brut imposable</td>
+            <td>Recommandé pour analyse</td>
+        </tr>
+        <tr>
+            <td><strong>Cotisations sociales</strong></td>
+            <td>IPRES Gén. Sal, IPRES Gén. Pat, CSS All, CSS Acc, IPM Sal, IPM Pat</td>
+            <td>Recommandé</td>
+        </tr>
+        <tr>
+            <td><strong>Cotisations fiscales</strong></td>
+            <td>CFCE, Retenue IR, Retenue TRIMF</td>
+            <td>Recommandé</td>
+        </tr>
+        <tr>
+            <td><strong>Indemnités et retenues</strong></td>
+            <td>Prime de transport, Prime de panier, Indemnités diverses, Avances</td>
+            <td>Optionnel (info)</td>
+        </tr>
+        <tr>
+            <td><strong>Net</strong></td>
+            <td>Net à payer</td>
+            <td>Recommandé</td>
+        </tr>
+        <tr>
+            <td><strong>Facturation (coeur métier)</strong></td>
+            <td>Débours, Commission agence, Montant HT, TVA, <strong>TTC</strong></td>
+            <td><strong>OBLIGATOIRE</strong> - le TTC est le coût réel ELTON</td>
+        </tr>
+    </table>
+
+    <h2 id="import">3. Lancer l'import (création du lot)</h2>
+
+    <p>A faire une fois par mois et par société d'intérim, dès réception de la facture Excel.</p>
 
     <div class="step">
-        <h3><span class="num">1</span>Cliquer sur le bouton « Modèle (.xlsx) » ci-dessus</h3>
-        <p>Le fichier <code>Modele_LivrePaieInterim.xlsx</code> est téléchargé
-        sur votre poste.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Communiquer le format aux sociétés d'intérim</h3>
-        <p>Si vous travaillez avec une nouvelle société d'intérim, transmettez-lui
-        ce modèle pour qu'elle envoie ses factures dans le bon format. Le système
-        sait néanmoins lire des variantes proches (mapping fuzzy par titre de
-        colonne).</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape2">📧 Étape 2 - Recevoir et vérifier la facture mensuelle</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Recevoir le fichier .xlsx de la société d'intérim</h3>
-        <p>Chaque mois, chaque société d'intérim partenaire envoie un fichier
-        Excel contenant le détail des intérimaires affectés à ELTON et le coût TTC
-        à payer. Sauvegarder ce fichier sur votre poste.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Vérification rapide avant import</h3>
-        <p>Avant d'importer, ouvrez le fichier dans Excel et vérifiez :</p>
+        <h3><span class="num">3.1</span>Préparer le fichier reçu</h3>
+        <p>Enregistrer le .xlsx reçu de la société d'intérim sur le poste. Ouvrir
+        rapidement le fichier dans Excel et vérifier :</p>
         <ul>
-            <li>La <strong>période</strong> est bien le mois attendu (titre du fichier ou colonne dédiée)</li>
-            <li>La <strong>société émettrice</strong> est claire</li>
+            <li>La <strong>période</strong> couverte est bien le mois attendu</li>
+            <li>La <strong>société émettrice</strong> est claire (en-tête ou nom du fichier)</li>
             <li>Les colonnes <strong>Débours, Commission agence, Montant HT, TVA, TTC</strong> sont remplies</li>
             <li>Les totaux en bas du fichier sont cohérents (somme par colonne)</li>
         </ul>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape3">📤 Étape 3 - Importer dans SunuPaie (wizard 4 étapes)</h2>
-
     <div class="step">
-        <h3><span class="num">1</span>Aller dans le menu Intérimaires</h3>
-        <p>Cliquer sur <strong>Intérimaires → Charger livre de paie</strong>.
-        Le wizard d'import s'ouvre.</p>
+        <h3><span class="num">3.2</span>Ouvrir le wizard d'import</h3>
+        <p>Menu : <strong>Intérimaires &rsaquo; Lot d'import - Bulletin intérim</strong>, puis
+        bouton <strong>"Charger livre de paie"</strong> dans la barre d'actions.</p>
+        <p>Le wizard d'import s'ouvre dans un nouvel onglet.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Étape 1 du wizard - Sélection de la période et de la société</h3>
+        <h3><span class="num">3.3</span>Renseigner période et société</h3>
         <ul>
-            <li><strong>Année</strong> : ex 2026</li>
-            <li><strong>Mois</strong> : 1 à 12 (ex 3 pour mars)</li>
+            <li><strong>Année</strong> : ex. 2026</li>
+            <li><strong>Mois</strong> : 1 à 12 (ex. 3 pour mars)</li>
             <li><strong>Société d'intérim émettrice</strong> : choisir parmi les sociétés enregistrées</li>
         </ul>
-        <p>Si la société n'apparaît pas, créer d'abord la fiche dans
-        <em>Intérimaires → Sociétés d'intérim</em>.</p>
+        <p>Si la société n'apparaît pas dans la liste, créer d'abord sa fiche dans
+        <strong>Intérimaires &rsaquo; Sociétés d'intérim</strong> avant de reprendre le wizard.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">3</span>Étape 2 du wizard - Upload du fichier</h3>
-        <p>Cliquer sur <strong>Choisir le fichier</strong> et sélectionner le
-        .xlsx reçu de la société d'intérim. Le système parse le contenu sans
-        encore l'enregistrer en base.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">4</span>Étape 3 du wizard - Preview du résultat</h3>
-        <p>Le système affiche un résumé :</p>
+        <h3><span class="num">3.4</span>Uploader le fichier et lancer le preview</h3>
+        <p>Cliquer sur <strong>"Choisir le fichier"</strong> et sélectionner le .xlsx reçu.
+        Le système parse le contenu <strong>sans rien écrire en base</strong> et affiche
+        un résumé :</p>
         <ul>
-            <li><strong>X bulletins OK</strong> (matricule existant trouvé)</li>
+            <li><strong>X bulletins OK</strong> (matricule retrouvé)</li>
             <li><strong>Y fiches Intérimaire à créer auto</strong> (matricule inconnu)</li>
-            <li><strong>Z lignes Prestataire</strong> (cas spécifique)</li>
-            <li><strong>Total TTC du lot</strong> (le montant que vous allez payer)</li>
+            <li><strong>Z lignes Prestataire</strong> (matricule = PRESTATAIRE)</li>
+            <li><strong>Total TTC du lot</strong> (montant total à payer)</li>
         </ul>
-        <p>Si un batch existe déjà pour cette (Année, Mois, Société), un
-        avertissement apparaît : "Au commit, l'ancien sera remplacé". Cocher
-        <strong>Écraser</strong> pour confirmer.</p>
+        <p>Si un lot existe déjà pour ce triplet (Année, Mois, Société), un
+        avertissement <strong>"Batch déjà existant"</strong> apparaît. Voir section 5
+        pour l'écrasement.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">5</span>Étape 4 du wizard - Confirmation et commit</h3>
-        <p>Cliquer sur <strong>Confirmer l'import</strong>. Le système :</p>
+        <h3><span class="num">3.5</span>Confirmer le commit</h3>
+        <p>Cliquer sur <strong>"Confirmer l'import"</strong>. Le système, en une seule
+        transaction :</p>
+        <ol>
+            <li>Crée le lot <code>ImportBulletinInterimBatch</code></li>
+            <li>Crée N <code>BulletinInterim</code> rattachés au lot</li>
+            <li>Crée les fiches <code>Interimaire</code> manquantes (Matricule, Nom, Prénom, Société, Fonction)</li>
+            <li>Snapshotte le <code>MatriculeOriginal</code> sur chaque bulletin (traçabilité si renommage ultérieur)</li>
+            <li>Affiche le rapport final avec liens vers les fiches créées auto</li>
+        </ol>
+    </div>
+
+    <h2 id="verification">4. Vérification du lot importé</h2>
+
+    <div class="step">
+        <h3><span class="num">4.1</span>Ouvrir la fiche du lot</h3>
+        <p>Menu : <strong>Intérimaires &rsaquo; Lot d'import - Bulletin intérim</strong>.
+        Ouvrir le lot que vous venez de créer (identifié par Année, Mois, Société).</p>
+        <p>Contrôler :</p>
         <ul>
-            <li>Crée 1 lot d'import (<code>ImportBulletinInterimBatch</code>)</li>
-            <li>Crée N bulletins (<code>BulletinInterim</code>)</li>
-            <li>Crée les fiches <code>Interimaire</code> manquantes (Nom, Prénom, Matricule, Société, Fonction)</li>
-            <li>Affiche un rapport final avec liens vers les fiches créées auto</li>
+            <li><strong>Total TTC du lot</strong> = total facture reçue (contrôle par rapprochement direct)</li>
+            <li><strong>Nombre de bulletins</strong> = nombre de lignes dans le fichier source</li>
+            <li><strong>Nb fiches Intérimaire créées auto</strong> : indique combien de fiches sont à compléter</li>
         </ul>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape4">✅ Étape 4 - Compléter les fiches créées automatiquement</h2>
-
-    <div class="alerte" style="background:#FEF3E2;border-left:4px solid #F0AD4E;padding:0.7rem 1rem;border-radius:4px;">
-        <strong>⚠️ Action RH obligatoire :</strong> les fiches Intérimaire créées
-        automatiquement contiennent uniquement Matricule + Nom + Prénom + Société
-        + Fonction. Le RH doit ensuite compléter les champs additionnels (Date de
-        naissance, CNI, Adresse, Téléphone, Email) <strong>et créer le contrat
-        intérimaire correspondant</strong>.
-    </div>
-
     <div class="step">
-        <h3><span class="num">1</span>Récupérer la liste des fiches créées</h3>
-        <p>Dans <em>Intérimaires → Lots d'import</em>, ouvrir le batch que vous
-        venez d'importer. La colonne <strong>Nb fiches Intérimaire créées auto</strong>
-        indique combien de fiches sont à compléter.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Filtrer les bulletins avec statut "Fiche créée auto"</h3>
-        <p>Dans la liste des Bulletins intérim, filtrer sur
-        <strong>Statut = Fiche créée auto</strong>. Ces lignes pointent vers les
-        intérimaires nouvellement créés.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">3</span>Compléter chaque fiche + créer son contrat</h3>
-        <p>Pour chaque intérimaire dans cette liste, ouvrir sa fiche et :</p>
+        <h3><span class="num">4.2</span>Parcourir les bulletins par statut</h3>
+        <p>Dans la liste des bulletins intérim rattachés au lot, filtrer sur :</p>
         <ul>
-            <li>Renseigner Date de naissance, CNI, Adresse, Téléphone, Email</li>
-            <li>Créer le contrat (<em>Contrats intérimaires → Nouveau</em>)</li>
-            <li>Renseigner Site, Unité organisationnelle, Date début, Taux journalier</li>
+            <li><strong>Statut = Importé OK</strong> : rien à faire, bulletins rattachés à leur fiche existante</li>
+            <li><strong>Statut = Fiche créée auto</strong> : à traiter en section 6</li>
+            <li><strong>Statut = Prestataire</strong> : rien à faire, le TTC est bien pris en compte dans le total</li>
+            <li><strong>Statut = Erreur</strong> : ligne non interprétable, à investiguer</li>
         </ul>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape5">📊 Étape 5 - Consulter le dashboard Coût Réel</h2>
+    <div class="step">
+        <h3><span class="num">4.3</span>Contrôler le dashboard N°11</h3>
+        <p>Ouvrir <strong>Tableaux de bord &rsaquo; N°11 Coût Réel Intérim</strong>. Les
+        données du mois importé apparaissent immédiatement :</p>
+        <ul>
+            <li>KPI Total TTC mois, cumul YTD, multiplicateur Brut vers TTC, coût moyen</li>
+            <li>Comparaison contrat vs réel ligne par ligne</li>
+            <li>Top 10 des coûts du mois</li>
+            <li>Décomposition Brut / Charges / Commission / TVA</li>
+            <li>Évolution 12 mois</li>
+        </ul>
+        <p>Si un intérimaire a un écart contrat vs réel important, vérifier son contrat
+        (TauxJournalier à jour ?) et le détail de sa facturation sur le bulletin.</p>
+    </div>
 
-    <p>Une fois l'import effectué, le <strong>Tableau de Bord N°11 - Coût Réel
-    Intérimaires</strong> affiche automatiquement les données du mois importé :</p>
+    <h2 id="correction">5. Correction et ré-import</h2>
 
-    <ul>
-        <li><strong>KPIs</strong> : Total TTC mois, Cumul YTD, Multiplicateur Brut→TTC, Coût moyen par intérimaire</li>
-        <li><strong>Comparaison Contrat vs Réel</strong> : pour chaque intérimaire, écart entre le coût théorique (TauxJournalier × 22) et le TTC facturé</li>
-        <li><strong>Top 10 coûts</strong> : les 10 intérimaires les plus chers du mois</li>
-        <li><strong>Décomposition</strong> : Brut / Charges / Commission / TVA</li>
-        <li><strong>Évolution 12 mois</strong> : courbe TTC pour détecter les tendances</li>
-    </ul>
+    <div class="alerte">
+        <strong>Cas d'usage :</strong> la société d'intérim a envoyé une facture erronée
+        et renvoie un fichier corrigé pour le même mois.
+    </div>
 
-    <p>Lien : <a href="/help/dashboards/cout-reel-interim.html">Aide du Tableau N°11 Coût Réel Intérim →</a></p>
+    <div class="step">
+        <h3><span class="num">5.1</span>Relancer le wizard avec le nouveau fichier</h3>
+        <p>Reprendre la procédure section 3 avec le fichier corrigé, en indiquant le
+        <strong>même triplet Année, Mois, Société</strong> que le lot déjà présent.</p>
+        <p>Au preview, le système affiche l'avertissement <strong>"Batch déjà existant"</strong>.
+        Trois choix :</p>
+        <ul>
+            <li><strong>Annuler</strong> : rien n'est modifié, le lot existant reste en place</li>
+            <li><strong>Écraser</strong> : cocher la case <strong>"Écraser le batch existant"</strong> avant Commit</li>
+        </ul>
+    </div>
 
-    <!-- =============================================================== -->
-    <h2 id="colonnes">📑 Colonnes attendues (référence 53 colonnes)</h2>
+    <div class="step">
+        <h3><span class="num">5.2</span>Effet de l'écrasement</h3>
+        <p>A la confirmation, le système :</p>
+        <ol>
+            <li>Supprime l'ancien lot et tous ses bulletins</li>
+            <li>Flushe la transaction pour libérer l'index unique</li>
+            <li>Crée le nouveau lot et les nouveaux bulletins à partir du fichier corrigé</li>
+        </ol>
+        <p>Les <strong>fiches Intérimaire créées auto</strong> au premier import sont
+        <strong>conservées</strong>. Seuls les bulletins sont remplacés. L'opération est
+        <strong>irréversible</strong>.</p>
+    </div>
 
-    <p>Le fichier doit contenir une ligne d'entête (typiquement la ligne 10) avec
-    les titres ci-dessous. Le mapping est <strong>fuzzy</strong> : les variantes
-    de casse, accents et espaces sont tolérées (ex : "DEBOURS" / "Débours" /
-    "debours" → tous reconnus).</p>
+    <div class="step">
+        <h3><span class="num">5.3</span>Supprimer un lot sans le remplacer</h3>
+        <p>Pour annuler purement et simplement un import erroné, ouvrir le lot dans
+        <strong>Intérimaires &rsaquo; Lot d'import - Bulletin intérim</strong>, puis
+        <strong>Supprimer</strong>. La suppression en cascade détruit tous les bulletins
+        rattachés. Les fiches Intérimaire créées auto restent en base (à supprimer
+        manuellement si elles sont inutiles).</p>
+    </div>
 
-    <table>
-        <thead><tr><th>Bloc</th><th>Colonnes</th><th>Importance</th></tr></thead>
-        <tbody>
-            <tr>
-                <td><strong>Identification</strong></td>
-                <td>N° matricule, Noms, Prénoms, Fonction, Sexe, Site, Catégorie</td>
-                <td>Obligatoire (matricule, noms, prénoms)</td>
-            </tr>
-            <tr>
-                <td><strong>Présence</strong></td>
-                <td>30ème de présence</td>
-                <td>Optionnel</td>
-            </tr>
-            <tr>
-                <td><strong>Brut salarié</strong></td>
-                <td>Salaire de base, Préavis, Congés Payés, Sursalaire, Primes (Ancienneté, Caisse, Fonction, Logement, Responsabilité, Risques, Salissure, Inventaire, Nuit), Forfait HSup, Brut Imposable</td>
-                <td>Recommandé pour analyse</td>
-            </tr>
-            <tr>
-                <td><strong>Cotisations sociales</strong></td>
-                <td>IPRES Gen Sal, IPRES Gen Pat, CSS All, CSS Acc, IPM Pat, IPM Sal</td>
-                <td>Recommandé</td>
-            </tr>
-            <tr>
-                <td><strong>Cotisations fiscales</strong></td>
-                <td>CFCE, Retenue IR, Retenue TRIMF</td>
-                <td>Recommandé</td>
-            </tr>
-            <tr>
-                <td><strong>Indemnités / Retenues</strong></td>
-                <td>Prime Transport, Prime Panier, Indemnités diverses, Avances, etc.</td>
-                <td>Optionnel (info)</td>
-            </tr>
-            <tr>
-                <td><strong>Net à payer</strong></td>
-                <td>Net à Payer</td>
-                <td>Recommandé</td>
-            </tr>
-            <tr>
-                <td>★ <strong>Facturation (cœur métier)</strong></td>
-                <td>Débours, Commission agence, Montant HT, TVA, <strong>TTC</strong></td>
-                <td><strong>OBLIGATOIRE</strong> (le TTC est le coût réel ELTON)</td>
-            </tr>
-        </tbody>
-    </table>
+    <h2 id="completer">6. Compléter les fiches créées auto</h2>
 
-    <!-- =============================================================== -->
-    <h2 id="cas-particuliers">🎯 Cas particuliers</h2>
+    <div class="alerte">
+        <strong>Action RH obligatoire :</strong> les fiches créées automatiquement par
+        l'import ne contiennent que Matricule, Nom, Prénom, Société et Fonction. Les
+        autres champs (date de naissance, CNI, adresse, téléphone, email) et le contrat
+        intérimaire doivent être complétés manuellement.
+    </div>
 
-    <h3>Cas A - PRESTATAIRE indépendant</h3>
-    <p>Si la cellule "N° matricule" contient le texte <code>PRESTATAIRE</code>,
-    le système considère qu'il s'agit d'un prestataire indépendant mis à
-    disposition par la société d'intérim, sans fiche Intérimaire à créer :</p>
-    <ul>
-        <li>Le BulletinInterim est créé avec <code>Interimaire = null</code></li>
-        <li>Le statut est <code>Prestataire</code></li>
-        <li>Le coût TTC est inclus dans le total du batch</li>
-    </ul>
+    <div class="step">
+        <h3><span class="num">6.1</span>Récupérer la liste des fiches à compléter</h3>
+        <p>Dans la fiche du lot (section 4.1), consulter <strong>Nb fiches Intérimaire créées auto</strong>.
+        Ou filtrer la liste des bulletins sur <strong>Statut = Fiche créée auto</strong> pour
+        voir chaque bulletin et sa fiche cible.</p>
+    </div>
 
-    <h3>Cas B - Matricule inconnu (intérimaire pas encore dans le SI)</h3>
-    <p>Si le matricule existe dans le fichier mais aucune fiche Intérimaire n'a
-    ce matricule, le système :</p>
-    <ul>
-        <li>Crée automatiquement la fiche avec Matricule + Nom + Prénom + Société + Fonction</li>
-        <li>Le BulletinInterim a le statut <code>Fiche créée auto</code></li>
-        <li>Le RH doit ensuite compléter cette fiche et créer le contrat (cf. Étape 4)</li>
-    </ul>
+    <div class="step">
+        <h3><span class="num">6.2</span>Compléter chaque fiche Intérimaire</h3>
+        <p>Pour chaque intérimaire, ouvrir sa fiche et renseigner :</p>
+        <ul>
+            <li>Date de naissance, CNI, adresse, téléphone, email</li>
+            <li>Tout autre champ requis par la politique RH</li>
+        </ul>
+    </div>
 
-    <h3>Cas C - Réimport du même mois (correction)</h3>
-    <p>Si vous réimportez le même mois pour la même société (ex correction
-    d'erreur de facturation), le système détecte le batch existant et propose :</p>
-    <ul>
-        <li><strong>Annuler</strong> : ne rien faire</li>
-        <li><strong>Écraser</strong> : supprime l'ancien batch + ses bulletins, puis recrée à partir du nouveau fichier</li>
-    </ul>
-    <p>L'écrasement est <strong>irréversible</strong> mais conserve les fiches
-    Intérimaire créées auto précédemment (juste les bulletins sont remplacés).</p>
+    <div class="step">
+        <h3><span class="num">6.3</span>Créer le contrat intérimaire</h3>
+        <p>Dans <strong>Intérimaires &rsaquo; Contrats intérimaires &rsaquo; Nouveau</strong>, créer
+        le contrat correspondant :</p>
+        <ul>
+            <li>Site d'affectation</li>
+            <li>Unité organisationnelle</li>
+            <li>Date de début (et date de fin si CDD)</li>
+            <li>Taux journalier théorique (base de calcul du coût théorique dans le dashboard N°11)</li>
+        </ul>
+        <p>Sans ce contrat, l'écart contrat vs réel n'est pas calculable pour l'intérimaire
+        concerné dans le dashboard N°11.</p>
+    </div>
 
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ</h2>
+    <h2 id="depannage">7. Dépannage et FAQ</h2>
 
-    <table>
-        <thead><tr><th>Question</th><th>Réponse</th></tr></thead>
-        <tbody>
-            <tr>
-                <td>Le fichier Excel a un format légèrement différent (colonnes renommées).</td>
-                <td>Le mapping est fuzzy : tant que le titre contient le mot-clé attendu (ex "matricule", "debours", "ttc"), c'est reconnu. Si une colonne obligatoire est introuvable, le preview affiche une erreur explicite.</td>
-            </tr>
-            <tr>
-                <td>Je ne trouve pas le menu "Charger livre de paie".</td>
-                <td>Vérifier votre rôle (Administrators, RH_Manager, RH ou DAF). Le menu est dans <em>Intérimaires → Charger livre de paie</em>.</td>
-            </tr>
-            <tr>
-                <td>Combien de temps prend l'import ?</td>
-                <td>~5 secondes pour 250 lignes. La majorité du temps est passée sur le commit transactionnel (création des fiches manquantes + bulletins).</td>
-            </tr>
-            <tr>
-                <td>Comment annuler un import ?</td>
-                <td>Aller dans <em>Intérimaires → Lots d'import</em>, ouvrir le batch concerné, cliquer sur <strong>Delete</strong>. La suppression cascade détruit les bulletins associés. Les fiches Intérimaire créées auto sont conservées (à supprimer manuellement si besoin).</td>
-            </tr>
-            <tr>
-                <td>Combien d'années conserve-t-on l'historique ?</td>
-                <td>Tout est conservé sans purge automatique. Permet l'analyse historique sur 5+ ans dans le dashboard Coût Réel.</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="step">
+        <h3>Le preview affiche "Colonne obligatoire introuvable"</h3>
+        <p>Un titre de colonne obligatoire (Matricule, Noms, Prénoms, Débours, Commission, TVA, TTC)
+        n'a pas été reconnu, même en fuzzy. Ouvrir le fichier Excel et vérifier que le libellé contient
+        bien le mot-clé attendu (ex. "ttc", "debours"). Au besoin, renommer la colonne dans le fichier
+        et relancer l'import.</p>
+    </div>
 
-    <div class="footer-help">SunuPaie - V1.3 (mai 2026) - Import Livre de Paie Intérimaire</div>
+    <div class="step">
+        <h3>Le preview détecte 0 ligne alors que le fichier en contient</h3>
+        <p>La ligne d'en-tête n'a pas été trouvée dans les 30 premières lignes du classeur. Vérifier
+        qu'au moins une cellule de l'en-tête contient le mot "matricule". Supprimer les lignes vides
+        ou décoratives placées au-dessus de l'en-tête si elles dépassent 30 lignes.</p>
+    </div>
+
+    <div class="step">
+        <h3>Je ne vois pas le bouton "Charger livre de paie"</h3>
+        <p>Permission manquante sur le rôle de l'utilisateur. Le bouton n'est visible que pour les
+        rôles habilités (Administrators, RH_Manager, RH, DAF). Faire :</p>
+        <ol>
+            <li>Login Admin</li>
+            <li>Menu <strong>Paramètres de paie &rsaquo; Init. rôles GRH</strong>, clic</li>
+            <li>Déconnexion/reconnexion de l'utilisateur concerné</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3>Le commit échoue : "Batch déjà existant"</h3>
+        <p>Un lot existe déjà pour le même triplet Année, Mois, Société. Soit c'est un doublon
+        à ignorer (annuler), soit c'est une correction : cocher <strong>"Écraser le batch existant"</strong>
+        avant de valider. L'index unique de la base interdit deux lots pour le même triplet.</p>
+    </div>
+
+    <div class="step">
+        <h3>Un montant est manifestement faux (ex. 25 000 000 au lieu de 25 000)</h3>
+        <p>L'import lit la valeur numérique brute (<code>GetNumber()</code>) pour éviter les
+        confusions de séparateur décimal (virgule vs point). Si une valeur reste fausse, c'est que
+        la cellule contient du texte ou une formule non évaluée. Ouvrir le fichier, forcer la valeur
+        en nombre et relancer.</p>
+    </div>
+
+    <div class="step">
+        <h3>Une ligne "Total" du fichier a été importée comme bulletin</h3>
+        <p>Normalement, les lignes dont le matricule vaut "total" (insensible à la casse) ou qui sont
+        vides sont ignorées. Si une ligne de total passe quand même, c'est que son matricule contient
+        autre chose (ex. "Total général"). Modifier le fichier et relancer, ou supprimer le bulletin
+        parasite depuis la fiche du lot.</p>
+    </div>
+
+    <div class="step">
+        <h3>Un intérimaire a un gros écart contrat vs réel dans le dashboard N°11</h3>
+        <p>Trois causes à vérifier dans l'ordre :</p>
+        <ol>
+            <li>Son contrat intérimaire n'a pas de <strong>TauxJournalier</strong> à jour</li>
+            <li>Il n'a pas de contrat du tout (fiche créée auto mais pas de contrat associé - cf. section 6.3)</li>
+            <li>La facture reçue est effectivement anormale : contacter la société d'intérim</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3>Un bulletin a le statut "Prestataire" mais c'est en fait un intérimaire normal</h3>
+        <p>Le matricule dans le fichier commence par "PRESTATAIRE" ou "PREST". Corriger le matricule
+        dans le fichier Excel (mettre le vrai matricule) et ré-importer en écrasant le lot (section 5).</p>
+    </div>
+
+    <p class="footer-help">
+        SunuPaie - Guide Import Livre de Paie Intérim - RH opérationnel
+    </p>
 </body>
 </html>

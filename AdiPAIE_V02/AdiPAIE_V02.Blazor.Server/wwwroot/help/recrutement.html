@@ -3,401 +3,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module Recrutement - Guide utilisateur SunuPaie V1.4</title>
+    <title>SunuPaie - Recrutement (Guide complet)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
-    <style>
-        .step { background:#fff; border:1px solid #E2E8F0; border-left:4px solid #0F6E56; border-radius:8px; padding:16px 20px; margin:14px 0; }
-        .step-num { display:inline-block; background:#0F6E56; color:#fff; font-weight:700; padding:2px 10px; border-radius:12px; font-size:0.85em; margin-right:8px; }
-        .step h3 { color:#0F6E56; margin-top:0; }
-        .pipeline-box { background:#F1F5F9; border-radius:8px; padding:14px; margin:14px 0; }
-        .pipeline-box ol { margin:0; padding-left:24px; }
-        .pipeline-box li { margin-bottom:6px; }
-        .badge-statut { display:inline-block; padding:2px 8px; border-radius:10px; font-size:0.8em; font-weight:600; margin-right:4px; }
-        .b-blue { background:#DBEAFE; color:#1E40AF; }
-        .b-green { background:#D1FAE5; color:#166534; }
-        .b-red { background:#FEE2E2; color:#991B1B; }
-        .b-yellow { background:#FEF3C7; color:#78350F; }
-        .b-gray { background:#E2E8F0; color:#475569; }
-        .toc { background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:14px 18px; margin-bottom:20px; }
-        .toc ol { margin:8px 0 0 0; padding-left:24px; }
-        .toc a { color:#0F6E56; text-decoration:none; font-weight:500; }
-        .toc a:hover { text-decoration:underline; }
-        .tip { background:#EFF6FF; border-left:4px solid #3B82F6; padding:10px 14px; margin:10px 0; border-radius:4px; }
-        .warn { background:#FEF3C7; border-left:4px solid #F59E0B; padding:10px 14px; margin:10px 0; border-radius:4px; }
-    </style>
 </head>
 <body>
     <nav>
-        <a href="/help/index.html">SunuPaie - Guide utilisateur</a>
+        <a href="/help/index.html">Accueil</a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Périodes</a>
+        <a href="/help/prets.html">Prêts</a>
+        <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/interimaires.html">Intérimaires</a>
+        <a href="/help/conges.html">Congés</a>
+        <a href="/help/recrutement.html" class="active">Recrutement</a>
         <span class="sep">|</span>
-        <span>Module Recrutement V1.4</span>
+        <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
-    <main>
-        <h1>👤➕ Module Recrutement - Guide utilisateur</h1>
-        <p class="lead">Pilotage complet du processus de recrutement ELTON, de l'ouverture d'un poste à l'embauche et au suivi de la période d'essai. Ce module couvre 10 entités persistantes et alimente le <a href="/help/dashboards/pilotage-recrutement.html">Tableau de bord N°12 Pilotage Recrutement</a>.</p>
 
-        <div class="toc">
-            <strong>Sommaire - Étapes du processus</strong>
-            <ol>
-                <li><a href="#etape-1">Configurer les référentiels (préalable, 1 fois)</a></li>
-                <li><a href="#etape-2">Ouvrir un poste vacant</a></li>
-                <li><a href="#etape-3">Enregistrer un candidat</a></li>
-                <li><a href="#etape-4">Créer une candidature et la faire avancer dans le pipeline</a></li>
-                <li><a href="#etape-5">Planifier et noter les entretiens</a></li>
-                <li><a href="#etape-6">Proposer une offre d'emploi</a></li>
-                <li><a href="#etape-7">Procéder à l'embauche (création fiche Salarié)</a></li>
-                <li><a href="#etape-8">Suivre la période d'essai</a></li>
-                <li><a href="#etape-9">Piloter via le Dashboard N°12</a></li>
-            </ol>
-        </div>
+    <h1>Recrutement - Guide RH</h1>
+    <p>Ce guide decrit le processus complet de recrutement dans SunuPaie :
+    de l'ouverture d'un poste au suivi de la période d'essai, en passant par
+    la gestion des candidats, candidatures, entretiens et offres. Il s'adresse
+    au RH operationnel et au responsable recrutement. Le module alimente le
+    Tableau de bord N 12 (Pilotage Recrutement).</p>
 
-        <h2>Vue d'ensemble du pipeline</h2>
-        <div class="pipeline-box">
-            <strong>10 statuts de candidature</strong> (workflow numérique pour le tri du funnel) :
-            <p>
-                <span class="badge-statut b-gray">Reçue (0)</span>
-                → <span class="badge-statut b-blue">Pré-sélection (10)</span>
-                → <span class="badge-statut b-blue">Entretien planifié (20)</span>
-                → <span class="badge-statut b-blue">Entretien fait (30)</span>
-                → <span class="badge-statut b-blue">Offre proposée (40)</span>
-                → <span class="badge-statut b-green">Offre acceptée (50)</span>
-                → <span class="badge-statut b-green">Embauché (60)</span>
-            </p>
-            <p>États terminaux négatifs :
-                <span class="badge-statut b-red">Refusé (90)</span>
-                <span class="badge-statut b-red">Désistement candidat (91)</span>
-                <span class="badge-statut b-red">Annulé (99)</span>
-            </p>
-        </div>
+    <div class="toc">
+        <strong>Sommaire</strong>
+        <ol>
+            <li><a href="#vue-ensemble">Vue d'ensemble du pipeline</a></li>
+            <li><a href="#etape-1">Configurer les référentiels</a></li>
+            <li><a href="#etape-2">Ouvrir un poste vacant</a></li>
+            <li><a href="#etape-3">Enregistrer un candidat</a></li>
+            <li><a href="#etape-4">Créer une candidature et la faire avancer</a></li>
+            <li><a href="#etape-5">Planifier et noter les entretiens</a></li>
+            <li><a href="#etape-6">Proposer une offre d'emploi</a></li>
+            <li><a href="#etape-7">Embauche et période d'essai</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
+        </ol>
+    </div>
 
-        <!-- ============================================================== -->
-        <h2 id="etape-1"><span class="step-num">1</span> Configurer les référentiels</h2>
-        <p><strong>Quand</strong> : une seule fois à l'initialisation du module, ensuite mises à jour ponctuelles.</p>
-        <p><strong>Qui</strong> : DRH ou administrateur.</p>
+    <h2 id="vue-ensemble">1. Vue d'ensemble du pipeline</h2>
 
-        <div class="step">
-            <h3>Menu de navigation</h3>
-            <p>Tous les écrans du module sont regroupés dans le menu <strong>GRH - Recrutement</strong> de la barre latérale XAF. Vous y trouverez 10 entités classées :</p>
-            <ul>
-                <li><strong>Référentiels</strong> : Motif d'ouverture poste, Source de recrutement, Motif refus candidat, Motif refus offre</li>
-                <li><strong>Postes & Candidatures</strong> : Poste vacant, Candidat, Candidature</li>
-                <li><strong>Suivi</strong> : Entretien, Offre d'emploi, Période d'essai</li>
-            </ul>
-        </div>
+    <h3>Le flux global</h3>
+    <div class="workflow">
+        <div class="box">Référentiels<br>paramétrés</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Poste vacant<br>ouvert</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Candidat et<br>candidature</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Entretiens<br>et offre</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Embauche +<br>période d'essai</div>
+    </div>
 
-        <div class="step">
-            <h3>1.1 - Motifs d'ouverture poste</h3>
-            <ol>
-                <li>Cliquer sur <strong>Motif d'ouverture poste</strong> dans le menu</li>
-                <li>Cliquer <strong>+ New</strong></li>
-                <li>Renseigner Code unique (ex: <code>CROISSANCE</code>) + Libellé (ex: <code>Croissance d'activité</code>)</li>
-                <li>Cocher <em>Actif</em> et <strong>Save</strong></li>
-            </ol>
-            <p>Les 3 motifs standards à créer : <em>Croissance d'activité</em>, <em>Remplacement de salarié</em>, <em>Création de fonction</em>.</p>
-        </div>
+    <h3>Qui fait quoi</h3>
+    <table>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>DRH / Admin</td><td>Paramètre les référentiels, valide l'ouverture du poste, pilote le dashboard</td></tr>
+        <tr><td>Responsable recrutement</td><td>Enregistre candidats et candidatures, fait avancer le pipeline, saisit les offres</td></tr>
+        <tr><td>Manager hiérarchique</td><td>Déclenche l'ouverture du besoin, mène les entretiens techniques, décide final</td></tr>
+    </table>
 
-        <div class="step">
-            <h3>1.2 - Sources de recrutement (avec coût moyen)</h3>
-            <p>Étape <strong>importante</strong> car elle alimente le calcul du coût total de recrutement et du coût par embauche.</p>
-            <ol>
-                <li>Cliquer sur <strong>Source de recrutement</strong></li>
-                <li>Pour chaque source : Code unique, Libellé, et surtout <strong>Coût moyen / candidat (FCFA)</strong></li>
-            </ol>
-            <p>Exemples de coûts indicatifs au Sénégal :</p>
-            <ul>
-                <li>LinkedIn Premium : ~25 000 FCFA / candidat sourcé</li>
-                <li>Recommandation interne : ~5 000 FCFA (prime éventuelle)</li>
-                <li>ANEM (Agence Nationale Emploi) : 0 FCFA (gratuit)</li>
-                <li>Salon emploi : ~40 000 FCFA / candidat (stand + déplacement)</li>
-                <li>Cabinet de chasse : variable (souvent en % du salaire annuel)</li>
-            </ul>
-            <div class="tip">💡 Sans le coût renseigné, le KPI "Coût total recrutement YTD" du dashboard restera à 0 FCFA.</div>
-        </div>
+    <h3>Les 10 statuts de candidature</h3>
+    <p>Workflow numérique de la candidature (une seule valeur à la fois) :</p>
+    <table>
+        <tr><th>Statut</th><th>Code</th><th>Signification</th></tr>
+        <tr><td>Reçue</td><td>0</td><td>CV réceptionné, pas encore trié</td></tr>
+        <tr><td>Pré-sélection</td><td>10</td><td>CV qualifié pour la suite</td></tr>
+        <tr><td>Entretien planifié</td><td>20</td><td>RDV pris, Entretien créé</td></tr>
+        <tr><td>Entretien fait</td><td>30</td><td>Après le RDV, NoteFinale saisie</td></tr>
+        <tr><td>Offre proposée</td><td>40</td><td>OffreEmploi créée et envoyée</td></tr>
+        <tr><td>Offre acceptée</td><td>50</td><td>Candidat a accepté l'offre</td></tr>
+        <tr><td>Embauché</td><td>60</td><td>Fiche Salarié créée, lien renseigné</td></tr>
+        <tr><td>Refusé</td><td>90</td><td>ELTON refuse (motif obligatoire)</td></tr>
+        <tr><td>Désistement candidat</td><td>91</td><td>Le candidat se retire</td></tr>
+        <tr><td>Annulé</td><td>99</td><td>Poste annulé en cours de route</td></tr>
+    </table>
 
-        <div class="step">
-            <h3>1.3 - Motifs de refus (côté entreprise et côté candidat)</h3>
-            <p>Deux référentiels distincts :</p>
-            <ul>
-                <li><strong>Motif refus candidat</strong> (ELTON refuse) : Manque d'expérience, Habite trop loin, Prétentions trop élevées, Entretien non concluant</li>
-                <li><strong>Motif refus offre</strong> (le candidat refuse l'offre) : Rémunération insuffisante, Absence d'opportunités d'évolution, A préféré une autre offre</li>
-            </ul>
-            <p>Ces motifs alimentent le tableau "Motifs de refus" du dashboard et permettent l'analyse stratégique (revoir politique salariale si beaucoup de "Rémunération insuffisante").</p>
-        </div>
+    <h3>Les 10 entités du module</h3>
+    <dl class="field-list">
+        <dt>MotifOuverturePoste, SourceRecrutement, MotifRefusCandidat, MotifRefusOffre</dt>
+        <dd>Les 4 référentiels. A paramétrer une fois, consultés partout.</dd>
 
-        <!-- ============================================================== -->
-        <h2 id="etape-2"><span class="step-num">2</span> Ouvrir un poste vacant</h2>
-        <p><strong>Quand</strong> : dès qu'un besoin de recrutement est identifié.</p>
-        <p><strong>Qui</strong> : Manager hiérarchique → Validation DRH.</p>
+        <dt>PosteVacant</dt>
+        <dd>Un poste à pourvoir. Workflow 6 statuts : Brouillon &gt; Validé &gt; Publié &gt; En recrutement &gt; Pourvu / Annulé.</dd>
 
-        <div class="step">
-            <h3>Créer la fiche Poste Vacant</h3>
-            <ol>
-                <li>Menu <strong>GRH - Recrutement → Poste vacant → + New</strong></li>
-                <li>Renseigner les champs obligatoires :
-                    <ul>
-                        <li><strong>Code</strong> (unique, ex: <code>POSTE-2026-001</code>)</li>
-                        <li><strong>Libellé poste</strong> (ex: <code>Comptable Senior</code>)</li>
-                        <li><strong>Département</strong>, <strong>Catégorie pro</strong>, <strong>Site d'affectation</strong></li>
-                        <li><strong>Type contrat</strong> (CDI / CDD / Stage)</li>
-                        <li><strong>Motif d'ouverture</strong> (référentiel créé à l'étape 1.1)</li>
-                        <li><strong>Expérience requise (années)</strong></li>
-                        <li><strong>Profil recherché</strong> (description libre)</li>
-                        <li><strong>Fourchette salariale Min / Max (FCFA)</strong> - la règle valide que Min ≤ Max</li>
-                    </ul>
-                </li>
-                <li>Le statut initial est <span class="badge-statut b-gray">Brouillon</span></li>
-                <li>Save</li>
-            </ol>
-        </div>
+        <dt>Candidat</dt>
+        <dd>Une personne. 1 fiche par personne, même si elle postule à plusieurs postes.</dd>
 
-        <div class="step">
-            <h3>Workflow du poste - 6 statuts</h3>
-            <p>Modifier manuellement le statut au fur et à mesure :</p>
-            <p>
-                <span class="badge-statut b-gray">Brouillon</span>
-                → <span class="badge-statut b-blue">Validé DRH</span>
-                → <span class="badge-statut b-blue">Publié</span>
-                → <span class="badge-statut b-blue">En recrutement</span>
-                → <span class="badge-statut b-green">Pourvu</span>
-                / <span class="badge-statut b-red">Annulé</span>
-            </p>
-            <p>Le KPI "Postes ouverts" du dashboard compte les statuts <em>Validé / Publié / En recrutement</em>. Le KPI "Délai moyen recrutement" est calculé à partir de <code>DateOuverture</code> jusqu'à la <code>DateCloture</code> au passage à <em>Pourvu</em>.</p>
-            <div class="warn">⚠️ N'oubliez pas de saisir <strong>DateCloture</strong> au moment du passage en <em>Pourvu</em>, sinon le délai recrutement reste à 0.</div>
-        </div>
+        <dt>Candidature</dt>
+        <dd>Association d'un Candidat à un PosteVacant. Porte le statut pipeline (10 valeurs).</dd>
 
-        <!-- ============================================================== -->
-        <h2 id="etape-3"><span class="step-num">3</span> Enregistrer un candidat</h2>
-        <p><strong>Quand</strong> : à la réception d'une candidature (CV).</p>
-        <p><strong>Qui</strong> : DRH ou responsable recrutement.</p>
+        <dt>Entretien</dt>
+        <dd>Un RDV concret. Plusieurs entretiens possibles par candidature (RH, Manager, Final).</dd>
 
-        <div class="step">
-            <h3>Créer la fiche Candidat (1 fois par personne)</h3>
-            <ol>
-                <li>Menu <strong>GRH - Recrutement → Candidat → + New</strong></li>
-                <li><strong>Référence</strong> : code unique candidat (ex: <code>CAND-2026-0001</code>) - facilite la recherche et l'export</li>
-                <li><strong>Identité</strong> : Nom (en MAJUSCULES auto), Prénom, Sexe, Date de naissance</li>
-                <li><strong>Contact</strong> : Email (validation regex), Téléphone, Adresse</li>
-                <li><strong>Profil</strong> : Expérience (années), Compétences clés (texte 1000 car.)</li>
-                <li><strong>Source initiale</strong> : par quel canal le candidat est-il arrivé en base (LinkedIn, Recommandation…) - référentiel créé en 1.2</li>
-                <li>La date d'inscription est automatiquement remplie</li>
-            </ol>
-            <div class="tip">💡 <strong>1 fiche Candidat = 1 personne</strong>. Si la même personne postule à 3 postes différents, elle a 1 fiche Candidat et 3 fiches Candidature.</div>
-        </div>
+        <dt>OffreEmploi</dt>
+        <dd>Proposition formelle de contrat. Workflow 6 statuts : Préparée &gt; Envoyée &gt; Acceptée / Refusée candidat / Retirée entreprise / Expirée.</dd>
 
-        <!-- ============================================================== -->
-        <h2 id="etape-4"><span class="step-num">4</span> Créer une candidature et la faire avancer</h2>
-        <p><strong>Quand</strong> : à chaque association d'un candidat à un poste vacant.</p>
+        <dt>PeriodeEssai</dt>
+        <dd>Suivi des 1 à 3 premiers mois après embauche. Alimente le KPI "Taux rétention post-essai".</dd>
+    </dl>
 
-        <div class="step">
-            <h3>Créer la candidature</h3>
-            <p>Deux façons de procéder :</p>
-            <ol>
-                <li><strong>Depuis la fiche Candidat</strong> : onglet "Candidatures" → + New</li>
-                <li><strong>Direct</strong> : menu Candidature → + New</li>
-            </ol>
-            <p>Champs essentiels :</p>
-            <ul>
-                <li><strong>Candidat</strong> + <strong>Poste visé</strong> (FK)</li>
-                <li><strong>Source pour ce poste</strong> : peut différer de la source initiale du candidat (ex: candidat connu via LinkedIn mais re-sourcé via Recommandation pour ce poste)</li>
-                <li><strong>Date de soumission</strong> (auto = aujourd'hui)</li>
-                <li>Statut initial : <span class="badge-statut b-gray">Reçue</span></li>
-            </ul>
-        </div>
+    <h2 id="etape-1">2. Configurer les référentiels</h2>
 
-        <div class="step">
-            <h3>Faire avancer la candidature dans le pipeline</h3>
-            <p>Modifier le champ <strong>Statut</strong> au fil du processus :</p>
-            <ol>
-                <li><strong>Reçue</strong> → CV bien réceptionné</li>
-                <li><strong>Pré-sélection</strong> → CV qualifié pour la suite</li>
-                <li><strong>Entretien planifié</strong> → RDV pris (créer l'<em>Entretien</em> à l'étape 5)</li>
-                <li><strong>Entretien fait</strong> → après le RDV (renseigner <strong>NoteFinale</strong> 1-5)</li>
-                <li><strong>Offre proposée</strong> → quand l'<em>OffreEmploi</em> est créée (étape 6)</li>
-                <li><strong>Offre acceptée</strong> → contrat signé, embauche imminente</li>
-                <li><strong>Embauché</strong> → fiche Salarié créée (étape 7) + lien <strong>SalarieCree</strong> renseigné</li>
-            </ol>
-            <p>États terminaux :</p>
-            <ul>
-                <li><strong>Refusé</strong> : ELTON refuse - saisir <strong>MotifRefusCandidat</strong> + <strong>DateDecision</strong></li>
-                <li><strong>Désistement candidat</strong> : le candidat se retire</li>
-                <li><strong>Annulé</strong> : poste annulé en cours de route</li>
-            </ul>
-            <div class="warn">⚠️ <strong>Faites passer chaque candidature par toutes les étapes du pipeline</strong> (ne pas sauter de Reçue à Embauché). Le funnel du dashboard mesure les taux de conversion étape par étape - si vous sautez des étapes, vous perdez la traçabilité.</div>
-        </div>
+    <p>A faire une seule fois à la mise en place du module, ensuite mises à jour ponctuelles.</p>
 
-        <!-- ============================================================== -->
-        <h2 id="etape-5"><span class="step-num">5</span> Planifier et noter les entretiens</h2>
-
-        <div class="step">
-            <h3>Créer l'Entretien</h3>
-            <ol>
-                <li>Menu <strong>Entretien → + New</strong></li>
-                <li>Lier à la <strong>Candidature</strong> (FK)</li>
-                <li><strong>Date entretien</strong> + <strong>Type</strong> (Téléphonique / RH / Technique / Manager / Final / Test pratique)</li>
-                <li><strong>Intervieweur</strong> : choisir le salarié ELTON qui mène l'entretien (FK Salarié)</li>
-                <li><strong>Lieu / Plateforme</strong> : Salle siège, Visio Teams, Téléphone, etc.</li>
-            </ol>
-            <p>Une candidature peut avoir <strong>plusieurs entretiens</strong> (RH puis Manager puis Final). Chacun doit être créé séparément.</p>
-        </div>
-
-        <div class="step">
-            <h3>Noter l'entretien après le RDV</h3>
-            <p>Après l'entretien, retourner sur la fiche Entretien et compléter :</p>
-            <ul>
-                <li><strong>Note (1-5)</strong> : note globale</li>
-                <li><strong>Avis</strong> : Très favorable / Favorable / Mitigé / Défavorable</li>
-                <li><strong>Points forts</strong> et <strong>Points faibles / Réserves</strong> (texte libre 2000 car.)</li>
-                <li><strong>Commentaire</strong> général</li>
-            </ul>
-            <p>Si plusieurs entretiens existent, la <em>NoteFinale</em> de la Candidature est typiquement la moyenne des notes (à saisir manuellement sur la candidature).</p>
-        </div>
-
-        <!-- ============================================================== -->
-        <h2 id="etape-6"><span class="step-num">6</span> Proposer une offre d'emploi</h2>
-
-        <div class="step">
-            <h3>Créer l'Offre</h3>
-            <ol>
-                <li>Menu <strong>Offre d'emploi → + New</strong></li>
-                <li>Lier à la <strong>Candidature</strong></li>
-                <li><strong>Date proposition</strong> + <strong>Validité jusqu'au</strong> (date limite de réponse, typiquement +15 jours)</li>
-                <li><strong>Salaire proposé mensuel (FCFA)</strong> : doit être dans la fourchette du Poste</li>
-                <li><strong>Avantages mensuels (FCFA)</strong> : logement, transport, primes diverses</li>
-                <li><strong>Date prise de poste prévue</strong></li>
-                <li>Statut initial : <span class="badge-statut b-gray">Préparée</span></li>
-            </ol>
-            <p>KPIs calculés automatiquement :</p>
-            <ul>
-                <li><strong>Package mensuel total</strong> = Salaire + Avantages</li>
-                <li><strong>Délai réponse (jours)</strong> = DateRéponse - DateProposition</li>
-            </ul>
-        </div>
-
-        <div class="step">
-            <h3>Workflow de l'offre - 6 statuts</h3>
-            <p>
-                <span class="badge-statut b-gray">Préparée</span>
-                → <span class="badge-statut b-blue">Envoyée</span>
-                → <span class="badge-statut b-green">Acceptée</span> ✅
-                / <span class="badge-statut b-red">Refusée candidat</span> (saisir <strong>MotifRefus</strong>)
-                / <span class="badge-statut b-red">Retirée entreprise</span>
-                / <span class="badge-statut b-yellow">Expirée</span>
-            </p>
-            <p>Saisir <strong>DateRéponse</strong> dès que le candidat répond. Si refusée, le motif côté candidat alimente l'analyse stratégique du dashboard.</p>
-        </div>
-
-        <!-- ============================================================== -->
-        <h2 id="etape-7"><span class="step-num">7</span> Procéder à l'embauche</h2>
-
-        <div class="step">
-            <h3>Créer la fiche Salarié</h3>
-            <ol>
-                <li>Au moment de l'embauche (Offre Acceptée + signature du contrat) : menu <strong>GRH - Salariés → + New</strong></li>
-                <li>Renseigner la fiche Salarié complète (matricule, identité, salaire base, fonction, IPRES/CSS, etc.) - voir <a href="/help/salaries.html">Guide Salariés</a></li>
-                <li>Date d'embauche = date de prise de poste effective</li>
-            </ol>
-        </div>
-
-        <div class="step">
-            <h3>Lier la candidature à la fiche Salarié</h3>
-            <ol>
-                <li>Retourner sur la <strong>Candidature</strong></li>
-                <li>Changer le statut à <span class="badge-statut b-green">Embauché</span></li>
-                <li>Renseigner le champ <strong>Salarié créé (si embauché)</strong> - FK vers la fiche Salarié</li>
-                <li>Saisir <strong>Date de décision</strong> = date d'embauche effective</li>
-                <li>Save</li>
-            </ol>
-            <p>De la même façon, modifier le <strong>Poste vacant</strong> :</p>
-            <ul>
-                <li>Statut → <span class="badge-statut b-green">Pourvu</span></li>
-                <li>Date de clôture = date d'embauche</li>
-            </ul>
-            <div class="tip">💡 Cette liaison alimente la traçabilité complète : on peut remonter du Salarié vers sa Candidature → Source → Coût d'acquisition.</div>
-        </div>
-
-        <!-- ============================================================== -->
-        <h2 id="etape-8"><span class="step-num">8</span> Suivre la période d'essai</h2>
-
-        <div class="step">
-            <h3>Créer la PeriodeEssai</h3>
-            <ol>
-                <li>Menu <strong>Période d'essai → + New</strong></li>
-                <li>Lier à la fiche <strong>Salarié</strong> nouvellement créée</li>
-                <li>Optionnel : lier à la <strong>Candidature d'origine</strong> (traçabilité)</li>
-                <li><strong>Date début</strong> = date d'embauche</li>
-                <li><strong>Durée prévue (mois)</strong> : 3 mois par défaut (CCT Sénégal pour cadres). 1 mois pour employés/ouvriers.</li>
-                <li><strong>Date fin prévue</strong> = Date début + durée</li>
-                <li>Statut initial : <span class="badge-statut b-yellow">En cours</span></li>
-            </ol>
-        </div>
-
-        <div class="step">
-            <h3>Clôturer la période d'essai</h3>
-            <p>À l'échéance ou plus tôt en cas de rupture, modifier le statut :</p>
-            <ul>
-                <li><span class="badge-statut b-green">Concluante (confirmé)</span> - embauche définitive</li>
-                <li><span class="badge-statut b-yellow">Prolongée</span> - durée prolongée pour réévaluation</li>
-                <li><span class="badge-statut b-red">Rompue par employeur</span> - saisir motif</li>
-                <li><span class="badge-statut b-red">Rompue par salarié</span></li>
-                <li><span class="badge-statut b-gray">Rupture commune accord</span></li>
-            </ul>
-            <p>Renseigner <strong>Date fin réelle</strong>, <strong>Évaluation finale (1-5)</strong>, <strong>Appréciation manager</strong>, <strong>Motif rupture</strong> si applicable.</p>
-            <p>Le KPI <em>Taux rétention post-essai</em> = Concluantes / (Concluantes + Rompues) × 100. Indicateur clé de la qualité du recrutement.</p>
-        </div>
-
-        <!-- ============================================================== -->
-        <h2 id="etape-9"><span class="step-num">9</span> Piloter via le Dashboard N°12</h2>
-
-        <div class="step">
-            <h3>Accéder au dashboard</h3>
-            <ol>
-                <li>Menu <strong>GRH - Tableaux de bord → Pilotage Recrutement</strong></li>
-                <li>OU URL directe : <code>/dashboards/pilotage-recrutement</code></li>
-            </ol>
-        </div>
-
-        <div class="step">
-            <h3>Modes Interne / Externe</h3>
-            <p><strong>Toggle Interne / Externe</strong> en haut du dashboard :</p>
-            <ul>
-                <li><strong>Interne</strong> : recrutement de salariés (CDI/CDD/Stage) - vue complète avec funnel, sources, coûts, périodes d'essai. Filtres : Année, Type contrat, Catégories.</li>
-                <li><strong>Externe</strong> : recrutement intérimaire (via société d'intérim partenaire). Vue simplifiée car le sourcing est porté par la société d'intérim. Filtre : Année, Sites. Voir le <a href="/help/dashboards/cout-reel-interim.html">Tableau N°11 - Coût Réel Intérim</a> pour le suivi détaillé.</li>
-            </ul>
-            <div class="tip">💡 Au changement de toggle, les filtres sont automatiquement remis à zéro et le cache est invalidé.</div>
-        </div>
-
-        <div class="step">
-            <h3>Comprendre les 8 KPIs hauts</h3>
-            <ol>
-                <li><strong>Postes ouverts</strong> : Validés + Publiés + En recrutement</li>
-                <li><strong>Postes pourvus YTD</strong> : Pourvus dans l'année cible</li>
-                <li><strong>Embauches YTD</strong> + Taux conversion (Embauches / Candidatures reçues)</li>
-                <li><strong>Délai moyen recrutement</strong> : DateCloture - DateOuverture sur les Pourvus</li>
-                <li><strong>Coût total recrutement YTD</strong> + Coût moyen / embauche</li>
-                <li><strong>Candidatures actives</strong> : non-terminales</li>
-                <li><strong>Taux acceptation offres</strong> : Acceptées / Envoyées</li>
-                <li><strong>Périodes d'essai en cours</strong> + Taux rétention post-essai</li>
-            </ol>
-            <p>Voir détails complets : <a href="/help/dashboards/pilotage-recrutement.html">Aide Tableau N°12</a>.</p>
-        </div>
-
-        <h2>Bonnes pratiques de saisie</h2>
+    <div class="step">
+        <h3><span class="num">2.1</span>Motifs d'ouverture de poste</h3>
+        <p>Menu : <strong>GRH - Recrutement &rsaquo; Motif d'ouverture poste</strong></p>
+        <p>Pour chaque motif : saisir <code>Code</code> unique (ex. <code>CROISSANCE</code>), <code>Libellé</code>, cocher <code>Actif</code>, Save.</p>
+        <p>Les 3 motifs standards à créer :</p>
         <ul>
-            <li>✅ <strong>Saisir les coûts par source</strong> au démarrage : sans cela les KPIs financiers restent à 0.</li>
-            <li>✅ <strong>Workflow strict</strong> : passer chaque candidature par toutes les étapes du pipeline.</li>
-            <li>✅ <strong>Saisir les motifs de refus</strong> : analyse stratégique sinon impossible.</li>
-            <li>✅ <strong>Lier l'embauche à la fiche Salarié</strong> : traçabilité complète et création automatique de la PeriodeEssai recommandée.</li>
-            <li>✅ <strong>Date de clôture du poste</strong> obligatoire au passage en Pourvu (KPI délai recrutement).</li>
-            <li>❌ Ne jamais sauter d'étape dans le pipeline (ex: Reçue → directement Embauché).</li>
+            <li>Croissance d'activité</li>
+            <li>Remplacement de salarié</li>
+            <li>Création de fonction</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2.2</span>Sources de recrutement (avec coût moyen)</h3>
+        <p>Menu : <strong>GRH - Recrutement &rsaquo; Source de recrutement</strong></p>
+        <p>Pour chaque source : <code>Code</code>, <code>Libellé</code>, et surtout <code>Coût moyen / candidat (FCFA)</code>. Ce coût alimente les KPI financiers du dashboard.</p>
+        <table>
+            <tr><th>Source</th><th>Coût indicatif</th></tr>
+            <tr><td>LinkedIn Premium</td><td>~25 000 FCFA / candidat sourcé</td></tr>
+            <tr><td>Recommandation interne</td><td>~5 000 FCFA (prime éventuelle)</td></tr>
+            <tr><td>ANEM (Agence Nationale Emploi)</td><td>0 FCFA (gratuit)</td></tr>
+            <tr><td>Salon emploi</td><td>~40 000 FCFA / candidat (stand + déplacement)</td></tr>
+            <tr><td>Cabinet de chasse</td><td>Variable (souvent en % du salaire annuel)</td></tr>
+        </table>
+        <div class="info">
+            Sans le coût renseigné, le KPI "Coût total recrutement YTD" du dashboard reste à 0 FCFA.
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2.3</span>Motifs de refus (deux référentiels distincts)</h3>
+        <p>Menu : <strong>GRH - Recrutement &rsaquo; Motif refus candidat</strong> et <strong>Motif refus offre</strong></p>
+        <ul>
+            <li><strong>Motif refus candidat</strong> (ELTON refuse) : Manque d'expérience, Habite trop loin, Prétentions trop élevées, Entretien non concluant.</li>
+            <li><strong>Motif refus offre</strong> (le candidat refuse l'offre) : Rémunération insuffisante, Absence d'opportunités d'évolution, A préféré une autre offre.</li>
+        </ul>
+        <p>Ces motifs alimentent le bloc "Motifs de refus" du dashboard et permettent l'analyse stratégique (ex. revoir la politique salariale si beaucoup de "Rémunération insuffisante").</p>
+    </div>
+
+    <h2 id="etape-2">3. Ouvrir un poste vacant</h2>
+
+    <div class="step">
+        <h3><span class="num">3.1</span>Créer la fiche Poste Vacant</h3>
+        <p>Menu : <strong>GRH - Recrutement &rsaquo; Poste vacant &rsaquo; + New</strong></p>
+        <p>Champs obligatoires :</p>
+        <ul>
+            <li><code>Code</code> unique (ex. <code>POSTE-2026-001</code>)</li>
+            <li><code>Libellé poste</code> (ex. <code>Comptable Senior</code>)</li>
+            <li><code>Département</code>, <code>Catégorie professionnelle</code>, <code>Site d'affectation</code></li>
+            <li><code>Type de contrat</code> (CDI, CDD, Stage, etc.)</li>
+            <li><code>Motif d'ouverture</code> (référentiel 2.1)</li>
+            <li><code>Expérience requise (années)</code></li>
+            <li><code>Profil recherché</code> (texte libre jusqu'à 2000 car.)</li>
+            <li><code>Salaire mini</code> et <code>Salaire maxi (FCFA)</code> - une règle vérifie Min &lt;= Max</li>
+        </ul>
+        <p>A la création, <code>Statut = Brouillon</code> et <code>Date d'ouverture = aujourd'hui</code>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3.2</span>Workflow du poste - 6 statuts</h3>
+        <p>Modifier manuellement le <code>Statut</code> au fil de la vie du poste :</p>
+        <div class="workflow">
+            <div class="box">Brouillon</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Validé DRH</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Publié</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">En recrutement</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Pourvu / Annulé</div>
+        </div>
+
+        <ul>
+            <li>Le KPI "Postes ouverts" compte les statuts Validé + Publié + En recrutement.</li>
+            <li>Le KPI "Délai moyen recrutement" se calcule à partir de <code>DateOuverture</code> jusqu'à <code>DateCloture</code> au passage en Pourvu.</li>
         </ul>
 
-        <h2>Voir aussi</h2>
+        <div class="alerte">
+            Ne pas oublier de saisir <code>Date de clôture</code> au passage en Pourvu (ou Annulé), sinon le délai recrutement reste à 0 pour ce poste.
+        </div>
+    </div>
+
+    <h2 id="etape-3">4. Enregistrer un candidat</h2>
+
+    <div class="step">
+        <h3><span class="num">4.1</span>Créer la fiche Candidat</h3>
+        <p>Menu : <strong>GRH - Recrutement &rsaquo; Candidat &rsaquo; + New</strong></p>
+        <p>A faire 1 fois par personne. Si la même personne postule à 3 postes différents, elle a 1 fiche Candidat et 3 fiches Candidature.</p>
+
+        <h4>Champs à renseigner</h4>
         <ul>
-            <li><a href="/help/dashboards/pilotage-recrutement.html">📊 Aide Tableau N°12 - Pilotage Recrutement (KPIs détaillés)</a></li>
-            <li><a href="/help/salaries.html">👥 Guide Salariés (création fiche à l'embauche)</a></li>
-            <li><a href="/help/interimaires.html">👷 Guide Intérimaires (mode Externe)</a></li>
-            <li><a href="/help/dashboards/cout-reel-interim.html">🧾 Aide Tableau N°11 - Coût Réel Intérim</a></li>
+            <li><strong>Référence</strong> : code unique (ex. <code>CAND-2026-0001</code>), facilite recherche et export</li>
+            <li><strong>Identité</strong> : Nom (MAJUSCULES auto), Prénom, Sexe, Date de naissance</li>
+            <li><strong>Contact</strong> : Email (contrôle regex), Téléphone, Adresse</li>
+            <li><strong>Profil</strong> : Expérience (années), Compétences clés (jusqu'à 1000 car.)</li>
+            <li><strong>Source initiale</strong> : canal d'entrée du candidat en base (référentiel 2.2)</li>
+            <li><strong>Date d'inscription</strong> : remplie automatiquement</li>
         </ul>
-    </main>
+    </div>
+
+    <h2 id="etape-4">5. Créer une candidature et la faire avancer</h2>
+
+    <div class="step">
+        <h3><span class="num">5.1</span>Créer la candidature</h3>
+        <p>Deux façons de procéder :</p>
+        <ol>
+            <li>Depuis la fiche Candidat, onglet <strong>Candidatures &rsaquo; + New</strong></li>
+            <li>Directement : menu <strong>GRH - Recrutement &rsaquo; Candidature &rsaquo; + New</strong></li>
+        </ol>
+        <p>Champs essentiels :</p>
+        <ul>
+            <li><strong>Candidat</strong> (FK) + <strong>Poste visé</strong> (FK)</li>
+            <li><strong>Source pour ce poste</strong> : peut différer de la source initiale du candidat (ex. candidat connu via LinkedIn mais re-sourcé via Recommandation pour ce poste précis)</li>
+            <li><strong>Date de soumission</strong> (auto = aujourd'hui)</li>
+            <li>Statut initial : <code>Reçue</code></li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.2</span>Faire avancer la candidature dans le pipeline</h3>
+        <p>Modifier le champ <code>Statut</code> au fil du processus. Faire passer la candidature par chacune des étapes au fur et à mesure :</p>
+        <ol>
+            <li><strong>Reçue</strong> : CV réceptionné</li>
+            <li><strong>Pré-sélection</strong> : CV qualifié</li>
+            <li><strong>Entretien planifié</strong> : RDV pris (créer l'Entretien, section 6)</li>
+            <li><strong>Entretien fait</strong> : après le RDV (saisir <code>NoteFinale</code> 1 à 5)</li>
+            <li><strong>Offre proposée</strong> : OffreEmploi créée (section 7)</li>
+            <li><strong>Offre acceptée</strong> : contrat signé, embauche imminente</li>
+            <li><strong>Embauché</strong> : fiche Salarié créée (section 8), champ <code>Salarié créé</code> renseigné</li>
+        </ol>
+        <p>Etats terminaux négatifs :</p>
+        <ul>
+            <li><strong>Refusé</strong> (ELTON refuse) : saisir <code>MotifRefusCandidat</code> + <code>DateDecision</code></li>
+            <li><strong>Désistement candidat</strong> : le candidat se retire</li>
+            <li><strong>Annulé</strong> : poste annulé</li>
+        </ul>
+        <div class="alerte">
+            Ne pas sauter d'étape dans le pipeline (ex. passer de Reçue directement à Embauché). Le funnel du dashboard mesure les taux de conversion étape par étape : sauter des étapes casse la traçabilité et biaise les KPIs.
+        </div>
+    </div>
+
+    <h2 id="etape-5">6. Planifier et noter les entretiens</h2>
+
+    <div class="step">
+        <h3><span class="num">6.1</span>Créer l'Entretien</h3>
+        <p>Menu : <strong>GRH - Recrutement &rsaquo; Entretien &rsaquo; + New</strong></p>
+        <ul>
+            <li><strong>Candidature</strong> (FK obligatoire)</li>
+            <li><strong>Date entretien</strong> + <strong>Type</strong> (Téléphonique, RH, Technique, Manager, Final, Test pratique)</li>
+            <li><strong>Intervieweur</strong> : salarié ELTON qui mène l'entretien (FK Salarié)</li>
+            <li><strong>Lieu / Plateforme</strong> : Salle siège, Visio Teams, Téléphone, etc.</li>
+        </ul>
+        <p>Une candidature peut avoir plusieurs entretiens (ex. RH, puis Manager, puis Final). Chacun doit être créé séparément.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">6.2</span>Noter l'entretien après le RDV</h3>
+        <p>Après l'entretien, retourner sur la fiche et compléter :</p>
+        <ul>
+            <li><strong>Note (1-5)</strong> : note globale</li>
+            <li><strong>Avis</strong> : Très favorable, Favorable, Mitigé, Défavorable</li>
+            <li><strong>Points forts</strong> et <strong>Points faibles / Réserves</strong> (texte libre jusqu'à 2000 car.)</li>
+            <li><strong>Commentaire</strong> général</li>
+        </ul>
+        <p>Si plusieurs entretiens existent, la <code>NoteFinale</code> de la Candidature est typiquement la moyenne des notes, à saisir manuellement sur la candidature.</p>
+    </div>
+
+    <h2 id="etape-6">7. Proposer une offre d'emploi</h2>
+
+    <div class="step">
+        <h3><span class="num">7.1</span>Créer l'Offre</h3>
+        <p>Menu : <strong>GRH - Recrutement &rsaquo; Offre d'emploi &rsaquo; + New</strong></p>
+        <ul>
+            <li><strong>Candidature</strong> (FK)</li>
+            <li><strong>Date proposition</strong> + <strong>Validité jusqu'au</strong> (date limite de réponse, typiquement +15 jours)</li>
+            <li><strong>Salaire proposé mensuel (FCFA)</strong> - doit être dans la fourchette du Poste</li>
+            <li><strong>Avantages mensuels (FCFA)</strong> : logement, transport, primes diverses</li>
+            <li><strong>Date prise de poste prévue</strong></li>
+            <li>Statut initial : <code>Préparée</code></li>
+        </ul>
+        <p>KPIs calculés automatiquement :</p>
+        <ul>
+            <li><strong>Package mensuel total</strong> = Salaire proposé + Avantages</li>
+            <li><strong>Délai réponse (jours)</strong> = DateRéponse - DateProposition</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">7.2</span>Workflow de l'offre - 6 statuts</h3>
+        <div class="workflow">
+            <div class="box">Préparée</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Envoyée</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Acceptée<br>/ Refusée candidat<br>/ Retirée entreprise<br>/ Expirée</div>
+        </div>
+        <p>Saisir <code>Date de réponse</code> dès que le candidat répond. Si l'offre est refusée côté candidat, le <code>MotifRefusOffre</code> alimente l'analyse stratégique du dashboard.</p>
+    </div>
+
+    <h2 id="etape-7">8. Embauche et période d'essai</h2>
+
+    <div class="step">
+        <h3><span class="num">8.1</span>Créer la fiche Salarié</h3>
+        <p>A faire au moment de l'embauche (Offre Acceptée + signature contrat).</p>
+        <p>Menu : <strong>GRH - Salariés &rsaquo; + New</strong></p>
+        <p>Renseigner la fiche complète (matricule, identité, salaire de base, fonction, IPRES / CSS, etc.). Voir le <a href="/help/salaries.html">Guide Salariés</a> pour le détail.</p>
+        <p>La <code>Date d'embauche</code> = date de prise de poste effective.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">8.2</span>Lier la candidature au Salarié et clôturer le poste</h3>
+        <p>Sur la <strong>Candidature</strong> :</p>
+        <ol>
+            <li>Changer le statut à <code>Embauché</code></li>
+            <li>Renseigner le champ <strong>Salarié créé (si embauché)</strong> - FK vers la nouvelle fiche Salarié</li>
+            <li>Saisir <strong>Date de décision</strong> = date d'embauche effective</li>
+            <li>Save</li>
+        </ol>
+        <p>Sur le <strong>Poste vacant</strong> :</p>
+        <ol>
+            <li>Statut &gt; <code>Pourvu</code></li>
+            <li>Date de clôture = date d'embauche</li>
+        </ol>
+        <div class="info">
+            Cette liaison alimente la traçabilité complète : on peut remonter du Salarié vers sa Candidature, puis sa Source, puis son coût d'acquisition.
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">8.3</span>Créer la PeriodeEssai</h3>
+        <p>Menu : <strong>GRH - Recrutement &rsaquo; Période d'essai &rsaquo; + New</strong></p>
+        <ul>
+            <li>Lier au <strong>Salarié</strong> nouvellement créé</li>
+            <li>Optionnel : lier à la <strong>Candidature d'origine</strong> (traçabilité)</li>
+            <li><strong>Date début</strong> = date d'embauche</li>
+            <li><strong>Durée prévue (mois)</strong> : 3 mois par défaut (CCT Sénégal pour cadres), 1 mois pour employés / ouvriers</li>
+            <li><strong>Date fin prévue</strong> = Date début + durée</li>
+            <li>Statut initial : <code>En cours</code></li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">8.4</span>Clôturer la période d'essai</h3>
+        <p>A l'échéance (ou plus tôt en cas de rupture), modifier le <code>Statut</code> :</p>
+        <table>
+            <tr><th>Statut</th><th>Signification</th></tr>
+            <tr><td>Concluante (confirmé)</td><td>Embauche définitive</td></tr>
+            <tr><td>Prolongée</td><td>Durée prolongée pour réévaluation</td></tr>
+            <tr><td>Rompue par employeur</td><td>Saisir motif rupture</td></tr>
+            <tr><td>Rompue par salarié</td><td>Démission en période d'essai</td></tr>
+            <tr><td>Rupture commune accord</td><td>Décision partagée</td></tr>
+        </table>
+        <p>Renseigner <code>Date fin réelle</code>, <code>Evaluation finale (1-5)</code>, <code>Appréciation manager</code>, et <code>Motif rupture</code> si applicable.</p>
+        <p>KPI "Taux rétention post-essai" = Concluantes / (Concluantes + Rompues) x 100. Indicateur clé de la qualité du recrutement.</p>
+    </div>
+
+    <h2 id="etape-8">9. Pilotage via le Dashboard N 12</h2>
+
+    <div class="step">
+        <h3><span class="num">9.1</span>Accéder au dashboard</h3>
+        <p>Menu : <strong>GRH - Tableaux de bord &rsaquo; Pilotage Recrutement</strong></p>
+        <p>Ou URL directe : <code>/dashboards/pilotage-recrutement</code></p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">9.2</span>Modes Interne / Externe</h3>
+        <p>Toggle en haut du dashboard :</p>
+        <ul>
+            <li><strong>Interne</strong> : recrutement de salariés (CDI, CDD, Stage) - vue complète avec funnel, sources, coûts, périodes d'essai. Filtres : Année, Type contrat, Catégories.</li>
+            <li><strong>Externe</strong> : recrutement intérimaire (société d'intérim partenaire). Vue simplifiée. Filtres : Année, Sites. Voir aussi le <a href="/help/dashboards/cout-reel-interim.html">Tableau N 11 - Coût Réel Intérim</a>.</li>
+        </ul>
+        <p>Au changement de toggle, les filtres sont remis à zéro et le cache invalidé.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">9.3</span>Les 8 KPIs hauts</h3>
+        <ol>
+            <li><strong>Postes ouverts</strong> : Validés + Publiés + En recrutement</li>
+            <li><strong>Postes pourvus YTD</strong> : Pourvus dans l'année cible</li>
+            <li><strong>Embauches YTD</strong> + Taux conversion (Embauches / Candidatures reçues)</li>
+            <li><strong>Délai moyen recrutement</strong> : DateCloture - DateOuverture sur les Pourvus</li>
+            <li><strong>Coût total recrutement YTD</strong> + Coût moyen / embauche</li>
+            <li><strong>Candidatures actives</strong> : non terminales</li>
+            <li><strong>Taux acceptation offres</strong> : Acceptées / Envoyées</li>
+            <li><strong>Périodes d'essai en cours</strong> + Taux rétention post-essai</li>
+        </ol>
+        <p>Voir le détail complet dans l'<a href="/help/dashboards/pilotage-recrutement.html">Aide Tableau N 12</a>.</p>
+    </div>
+
+    <h2 id="depannage">10. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>Les KPIs financiers du dashboard restent à 0 FCFA</h3>
+        <p>Les sources de recrutement n'ont pas de <code>Coût moyen / candidat</code> renseigné (section 2.2). Compléter chaque source utilisée.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le "Délai moyen recrutement" reste à 0 pour un poste pourvu</h3>
+        <p><code>Date de clôture</code> non saisie au passage en Pourvu. Ouvrir le PosteVacant et renseigner la date.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le funnel du dashboard a des conversions aberrantes</h3>
+        <p>Des candidatures sont passées directement de Reçue à Embauché sans transiter par les statuts intermédiaires. Repasser sur l'historique et corriger les candidatures concernées (ou l'accepter en l'état sur l'historique de bascule).</p>
+    </div>
+
+    <div class="step">
+        <h3>Impossible d'enregistrer un PosteVacant : "le salaire minimum doit être inférieur ou égal au maximum"</h3>
+        <p>Règle <code>PosteVacant_FourchetteCoherente</code>. Corriger <code>FourchetteSalaireMin</code> et <code>FourchetteSalaireMax</code> (ou laisser Max = 0 si la fourchette n'est pas fixée).</p>
+    </div>
+
+    <div class="step">
+        <h3>La même personne postule à plusieurs postes : faut-il la saisir plusieurs fois ?</h3>
+        <p>Non. Une seule fiche <strong>Candidat</strong> par personne, et autant de fiches <strong>Candidature</strong> que de postes. Toute saisie en double casse la statistique "Nombre de candidats uniques" du dashboard.</p>
+    </div>
+
+    <div class="step">
+        <h3>L'analyse des motifs de refus est vide</h3>
+        <p>Les candidatures Refusées n'ont pas de <code>MotifRefusCandidat</code>, ou les offres Refusées candidat n'ont pas de <code>MotifRefusOffre</code>. Imposer la saisie du motif à chaque passage sur un statut de refus.</p>
+    </div>
+
+    <p class="footer-help">
+        SunuPaie - Guide Recrutement - RH operationnel
+    </p>
 </body>
 </html>

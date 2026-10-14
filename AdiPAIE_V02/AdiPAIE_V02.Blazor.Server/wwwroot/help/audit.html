@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - Journal d'audit (Guide complet)</title>
+    <title>SunuPaie - Journal d'audit (Guide Admin)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Périodes</a>
         <a href="/help/salaries.html">Salariés</a>
         <a href="/help/offboarding.html">Offboarding</a>
         <a href="/help/disciplinaire.html">Disciplinaire</a>
@@ -18,172 +19,247 @@
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>🔍 Journal d'audit - Guide complet</h1>
-    <p>Le journal d'audit trace automatiquement <strong>toutes les actions
-    significatives</strong> dans SunuPaie. Chaque entrée enregistre :
-    qui a fait quoi, quand, sur quel objet, et avec quels détails.
-    Les entrées sont en <strong>lecture seule</strong> et ne peuvent ni
-    être modifiées ni supprimées.</p>
+    <h1>Journal d'audit - Guide Admin</h1>
+    <p>Le journal d'audit assure la tracabilite des actions sensibles
+    effectuees dans SunuPaie : validations de bulletins, cloture de
+    periodes, workflows RH, sanctions disciplinaires, imports de donnees.
+    Chaque entree enregistre qui a fait quoi, quand, sur quel objet.
+    Les entrees sont en lecture seule : elles ne peuvent etre ni
+    modifiees ni supprimees. Ce guide s'adresse a l'administrateur
+    et au RH responsable du controle interne.</p>
 
     <div class="toc">
-        <strong>📑 Sections</strong>
+        <strong>Sommaire</strong>
         <ol>
-            <li><a href="#vue-ensemble">Vue d'ensemble du fonctionnement</a></li>
-            <li><a href="#actions-tracees">Actions tracées par module</a></li>
-            <li><a href="#champs">Informations enregistrées</a></li>
-            <li><a href="#etape1">Mode opératoire - Consultation</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#regles">Règles métier et garanties</a></li>
-            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble : ce qui est trace</a></li>
+            <li><a href="#consulter">Consulter le journal</a></li>
+            <li><a href="#filtrer">Rechercher et filtrer</a></li>
+            <li><a href="#export">Export et archivage</a></li>
+            <li><a href="#depannage">Depannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble du fonctionnement</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble : ce qui est trace</h2>
 
+    <h3>Le flux d'enregistrement</h3>
     <div class="workflow">
-        <div class="box">🎬 Action métier</div>
-        <span class="arrow">→</span>
-        <div class="box">🔄 Capture auto</div>
-        <span class="arrow">→</span>
-        <div class="box">💾 Écriture audit</div>
-        <span class="arrow">→</span>
-        <div class="box">🔒 Lecture seule</div>
-        <span class="arrow">→</span>
-        <div class="box">🔍 Consultation RH</div>
+        <div class="box">Action metier<br>(validation, cloture...)</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">AuditService.Enregistrer</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">AuditEntry persistee<br>(ObjectSpace separe)</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Consultation RH / Admin<br>(lecture seule)</div>
     </div>
 
     <div class="info">
-        💡 L'audit utilise un <strong>ObjectSpace séparé</strong> pour
-        garantir l'intégrité : si l'écriture audit échoue, l'action métier
-        s'exécute quand même (le métier prime sur l'audit).
+        L'ecriture d'audit utilise un <strong>ObjectSpace separe</strong>
+        de la transaction metier. Si l'ecriture audit echoue, l'action
+        metier aboutit quand meme : le metier prime sur la trace.
+        A l'inverse, aucune action metier n'est bloquee par le journal.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="actions-tracees">📊 Actions tracées par module</h2>
-
+    <h3>Modules et actions tracees</h3>
     <table>
-        <thead><tr><th>Module</th><th>Actions tracées</th></tr></thead>
-        <tbody>
-            <tr><td>Bulletins de paie</td><td>Valider, Clôturer, Rouvrir</td></tr>
-            <tr><td>Offboarding (STC)</td><td>Calculer le solde, Valider RH, Valider DAF, Clôturer</td></tr>
-            <tr><td>Disciplinaire</td><td>Notifier, Programmer audition, Enregistrer audition, Prononcer sanction, Clôturer</td></tr>
-            <tr><td>Périodes</td><td>Ouvrir, Clôturer, Réouverture forcée (admin)</td></tr>
-            <tr><td>Imports</td><td>Import salariés, conjoints, comptes (avec compteurs créés/ignorés/erreurs)</td></tr>
-        </tbody>
+        <tr><th>Module</th><th>Actions tracees</th></tr>
+        <tr><td>Bulletins de paie</td><td>Valider, Cloturer, Rouvrir</td></tr>
+        <tr><td>Periodes de paie</td><td>Ouvrir, Cloturer, Reouverture forcee (admin)</td></tr>
+        <tr><td>Offboarding (STC)</td><td>Calculer le solde, Valider RH, Valider DAF, Cloturer</td></tr>
+        <tr><td>Disciplinaire</td><td>Notifier, Programmer audition, Enregistrer audition, Prononcer sanction, Cloturer</td></tr>
+        <tr><td>Conges</td><td>Acquisition mensuelle, Report N vers N+1, Rattrapage historique</td></tr>
+        <tr><td>Imports</td><td>Import salaries, conjoints, comptes bancaires (compteurs crees / ignores / erreurs)</td></tr>
     </table>
-
-    <!-- =============================================================== -->
-    <h2 id="champs">🗂️ Informations enregistrées</h2>
-
-    <table>
-        <thead><tr><th>Champ</th><th>Description</th><th>Exemple</th></tr></thead>
-        <tbody>
-            <tr><td>Date</td><td>Date et heure exacte de l'action</td><td>17/04/2026 14:32</td></tr>
-            <tr><td>Utilisateur</td><td>Nom de l'utilisateur connecté</td><td>Abdoulaye DIENG</td></tr>
-            <tr><td>Entité</td><td>Type d'objet concerné</td><td>Bulletin</td></tr>
-            <tr><td>Action</td><td>Nom de l'action effectuée</td><td>Valider</td></tr>
-            <tr><td>Identifiant objet</td><td>Clé unique (Oid) de l'objet</td><td>3fa85f64-…</td></tr>
-            <tr><td>Libellé objet</td><td>Description lisible de l'objet</td><td>DIOP Moussa - 04/2026</td></tr>
-            <tr><td>Détails</td><td>Informations complémentaires</td><td>Net à payer : 385 000 FCFA</td></tr>
-            <tr><td>Ancien statut</td><td>Statut avant l'action</td><td>Brouillon</td></tr>
-            <tr><td>Nouveau statut</td><td>Statut après l'action</td><td>Validé</td></tr>
-        </tbody>
-    </table>
-
-    <!-- =============================================================== -->
-    <h2 id="etape1">🔍 Mode opératoire - Consultation</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Aller dans Administration → Journal d'audit</h3>
-        <p>La liste affiche toutes les entrées, les plus récentes en premier.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Filtrer pour affiner</h3>
-        <ul>
-            <li><strong>Par utilisateur :</strong> filtrer la colonne <em>Utilisateur</em></li>
-            <li><strong>Par entité :</strong> filtrer sur <em>Entité</em> (Bulletin, DossierOffboarding, etc.)</li>
-            <li><strong>Par date :</strong> filtrer sur la colonne <em>Date</em> (plage)</li>
-            <li><strong>Par action :</strong> filtrer sur <em>Action</em> (Valider, Clôturer, etc.)</li>
-        </ul>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">3</span>Cliquer sur une entrée</h3>
-        <p>Affiche les détails complets : ancien/nouveau statut, contexte,
-        données associées.</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
-
-    <h3>Cas 1 - Qui a validé ce bulletin ?</h3>
-    <div class="exemple">
-        Filtrer : Entité = <em>Bulletin</em>, Action = <em>Valider</em>,
-        rechercher le libellé du bulletin (<em>DIOP Moussa - 04/2026</em>).
-        L'entrée affiche l'utilisateur et la date/heure exacte.
-    </div>
-
-    <h3>Cas 2 - Historique complet d'un dossier de départ</h3>
-    <div class="exemple">
-        Filtrer : Entité = <em>DossierOffboarding</em>, recherche par
-        nom du salarié dans le libellé. Toutes les étapes du workflow
-        (calcul STC → validation RH → validation DAF → clôture) apparaissent
-        avec leurs horodatages.
-    </div>
-
-    <h3>Cas 3 - Audit des sanctions disciplinaires d'un mois</h3>
-    <div class="exemple">
-        Filtrer : Entité = <em>DossierDisciplinaire</em>, Action =
-        <em>Prononcer sanction</em>, Date entre 01/05/2026 et 31/05/2026.
-        Liste de toutes les sanctions prononcées en mai avec leurs auteurs.
-    </div>
-
-    <h3>Cas 4 - Détecter une activité anormale</h3>
-    <div class="exemple">
-        Filtrer : Utilisateur = <em>compte_X</em>, Action = <em>Réouverture forcée</em>.
-        Permet de vérifier qu'aucune action sensible n'a été effectuée hors
-        de la procédure normale.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="regles">📜 Règles métier et garanties</h2>
 
     <div class="alerte">
+        <strong>Non trace :</strong> les consultations simples (ouverture d'une
+        liste, affichage d'une fiche) ne sont pas enregistrees. Seules les
+        actions qui modifient un etat metier remontent dans le journal.
+    </div>
+
+    <h3>Champs enregistres par entree</h3>
+    <dl class="field-list">
+        <dt>DateAction</dt>
+        <dd>Date et heure exacte de l'action (ex. 14/10/2026 09:32). Indexee pour les filtrages par plage.</dd>
+
+        <dt>Utilisateur</dt>
+        <dd>Nom de l'utilisateur connecte au moment de l'action. Si l'action est declenchee par le systeme (batch planifie), la valeur est "(systeme)".</dd>
+
+        <dt>NomEntite</dt>
+        <dd>Type d'objet concerne (Bulletin, PeriodePaie, DossierOffboarding, DossierDisciplinaire, SoldeConge...).</dd>
+
+        <dt>Action</dt>
+        <dd>Libelle de l'operation effectuee (Valider, Cloturer, Prononcer sanction, Rattrapage acquisitions...).</dd>
+
+        <dt>ObjectId / ObjectLabel</dt>
+        <dd>Identifiant technique (Oid) et libelle lisible de l'objet concerne (ex. "DIOP Moussa - 04/2026").</dd>
+
+        <dt>Details</dt>
+        <dd>Texte libre apportant du contexte (montants, compteurs, parametres saisis). Champ non limite en taille.</dd>
+
+        <dt>AncienStatut / NouveauStatut</dt>
+        <dd>Pour les transitions d'etat : la valeur avant et apres l'action. Ex. "Brouillon" vers "Valide".</dd>
+
+        <dt>AdresseIP</dt>
+        <dd>Adresse IP du poste a l'origine de l'action, lorsque disponible.</dd>
+    </dl>
+
+    <h2 id="consulter">2. Consulter le journal</h2>
+
+    <div class="step">
+        <h3><span class="num">2.1</span>Ouvrir la liste</h3>
+        <p>Menu : <strong>Administration &rsaquo; Journal d'audit</strong></p>
+        <p>La liste affiche toutes les entrees, triees par defaut sur
+        <code>DateAction</code> descendant (les plus recentes en premier).
+        Les colonnes visibles sont Date, Utilisateur, Entite, Action,
+        Libelle objet.</p>
+
+        <div class="info">
+            Acces reserve aux roles <strong>Administrators</strong> et
+            <strong>RH_Manager</strong>. Les autres roles n'ont ni le menu
+            ni la permission de lecture sur <code>AuditEntry</code>.
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2.2</span>Ouvrir le detail d'une entree</h3>
+        <p>Double-clic sur une ligne. La vue detail affiche :</p>
         <ul>
-            <li>Les entrées d'audit sont <strong>en lecture seule</strong> - aucune modification ni suppression possible</li>
-            <li>L'audit ne <strong>bloque jamais le flux métier</strong> - en cas d'erreur d'écriture audit, l'action principale s'exécute quand même</li>
-            <li>Chaque entrée utilise un <strong>ObjectSpace séparé</strong> pour garantir l'intégrité (transaction indépendante)</li>
-            <li>Les entrées sont <strong>indexées</strong> par date, utilisateur et entité pour des recherches rapides</li>
-            <li>Pas de purge automatique : les entrées sont conservées indéfiniment (à archiver hors-base si volume important au bout de plusieurs années)</li>
+            <li>Les champs de la liste (Date, Utilisateur, Entite, Action, Libelle)</li>
+            <li><strong>Details modifications</strong> : contexte complet</li>
+            <li><strong>Ancien statut</strong> et <strong>Nouveau statut</strong></li>
+            <li><strong>Adresse IP</strong> du poste a l'origine de l'action</li>
+        </ul>
+        <p>Tous les champs sont en lecture seule. Aucun bouton d'edition
+        ni de suppression n'est propose.</p>
+    </div>
+
+    <h2 id="filtrer">3. Rechercher et filtrer</h2>
+
+    <div class="step">
+        <h3><span class="num">3.1</span>Filtres de colonne</h3>
+        <p>Cliquer sur l'entete d'une colonne pour appliquer un filtre :</p>
+        <ul>
+            <li><strong>Utilisateur</strong> : saisir ou choisir un nom pour voir toutes ses actions</li>
+            <li><strong>Entite</strong> : limiter a un type d'objet (Bulletin, DossierOffboarding...)</li>
+            <li><strong>Action</strong> : limiter a une operation precise (Valider, Cloturer...)</li>
+            <li><strong>Date</strong> : filtre de type plage (entre deux dates)</li>
+            <li><strong>Libelle objet</strong> : recherche partielle sur le nom (ex. "DIOP" ou "04/2026")</li>
         </ul>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+    <div class="step">
+        <h3><span class="num">3.2</span>Cas d'usage frequents</h3>
 
-    <div class="info">
-        💡 <strong>Comment exporter le journal d'audit ?</strong>
-        Depuis la liste, sélectionner les entrées (filtre + Ctrl+A) →
-        bouton standard XAF <em>Export Excel</em>.
+        <h4>Qui a valide ce bulletin ?</h4>
+        <p>Filtrer : Entite = <code>Bulletin</code>, Action = <code>Valider</code>,
+        Libelle objet contient le nom du salarie et le mois.</p>
+
+        <h4>Historique complet d'un dossier de depart</h4>
+        <p>Filtrer : Entite = <code>DossierOffboarding</code>, Libelle objet
+        contient le nom du salarie. Toutes les etapes du workflow apparaissent
+        avec leurs horodatages (calcul STC, validation RH, validation DAF, cloture).</p>
+
+        <h4>Sanctions prononcees sur une periode</h4>
+        <p>Filtrer : Entite = <code>DossierDisciplinaire</code>, Action =
+        <code>Prononcer sanction</code>, Date entre les deux bornes voulues.</p>
+
+        <h4>Verifier qu'aucune reouverture forcee n'a eu lieu</h4>
+        <p>Filtrer : Action = <code>Reouverture forcee</code>. Toute entree
+        correspondante doit etre justifiee par un ticket ou une note RH.</p>
+
+        <h4>Tracer un import de salaries</h4>
+        <p>Filtrer : Entite = <code>Import</code>, Action contient
+        <code>Import salaries</code>. Le champ Details liste les compteurs
+        (crees, ignores, erreurs) et le nom du fichier source.</p>
     </div>
 
-    <div class="info">
-        💡 <strong>Pourquoi je ne vois pas une action que j'ai faite ?</strong>
-        Vérifier que cette action est bien dans la liste des actions tracées
-        (cf. tableau ci-dessus). Toutes les actions ne sont pas tracées
-        (ex. consultation simple n'est pas tracée).
+    <div class="step">
+        <h3><span class="num">3.3</span>Vue d'ensemble d'un utilisateur</h3>
+        <p>Pour auditer l'activite d'un compte sur une periode donnee,
+        combiner Utilisateur et Date. Trier par Date croissant pour obtenir
+        la chronologie exacte des actions sensibles effectuees.</p>
     </div>
 
-    <div class="info">
-        💡 <strong>Qui peut consulter le journal d'audit ?</strong>
-        Les rôles <em>Administrators</em> et <em>RH_Manager</em>. Les autres
-        rôles n'y ont pas accès (RBAC).
+    <h2 id="export">4. Export et archivage</h2>
+
+    <div class="step">
+        <h3><span class="num">4.1</span>Export Excel</h3>
+        <p>Depuis la liste filtree, utiliser l'action standard
+        <strong>Export</strong> de la barre d'outils XAF (format XLSX, CSV
+        ou PDF). L'export respecte le filtre courant et l'ordre d'affichage.</p>
+
+        <p>Pour un controle externe (commissaire aux comptes, audit social),
+        prevoir :</p>
+        <ul>
+            <li>Un export filtre par plage de dates (exercice ou trimestre)</li>
+            <li>Un second export filtre sur les actions sensibles uniquement (Valider, Cloturer, Reouverture forcee, Prononcer sanction)</li>
+            <li>Archivage du fichier dans le dossier conformite de l'entreprise</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.2</span>Retention</h3>
+        <p>Il n'y a <strong>pas de purge automatique</strong> : les entrees
+        d'audit sont conservees indefiniment dans la base. Si le volume
+        devient important apres plusieurs exercices, prevoir avec l'equipe
+        technique une procedure d'archivage hors-base (export annuel puis
+        suppression ciblee par script SQL).</p>
+
+        <div class="alerte">
+            <strong>Imperatif :</strong> toute suppression de donnees d'audit
+            doit etre tracee elle-meme (ticket, note de l'admin DBA, export
+            prealable complet). Ne jamais purger via l'interface : la table
+            est en lecture seule pour tous les roles applicatifs.
+        </div>
+    </div>
+
+    <h2 id="depannage">5. Depannage et FAQ</h2>
+
+    <div class="step">
+        <h3>Je ne vois pas le menu "Journal d'audit"</h3>
+        <p>Le role de l'utilisateur n'a pas la permission de lecture sur
+        <code>AuditEntry</code>. Reserve a <code>Administrators</code> et
+        <code>RH_Manager</code>. Faire reinitialiser le role via
+        <strong>Parametres de paie &rsaquo; Init. roles GRH</strong> puis
+        deconnexion/reconnexion.</p>
+    </div>
+
+    <div class="step">
+        <h3>Je ne retrouve pas une action que j'ai faite</h3>
+        <p>Verifier d'abord qu'il s'agit bien d'une action tracee (cf.
+        section 1, tableau des modules). Les consultations simples et les
+        modifications de champs non sensibles ne remontent pas dans le
+        journal. Verifier aussi le filtre courant : un filtre residuel sur
+        Utilisateur ou Date peut masquer la ligne.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le champ Utilisateur affiche "(systeme)"</h3>
+        <p>L'action a ete declenchee par un batch ou un traitement
+        automatique en dehors d'une session utilisateur (ex. job planifie).
+        Comportement normal. Le champ Details precise le contexte.</p>
+    </div>
+
+    <div class="step">
+        <h3>Deux entrees identiques a la meme seconde</h3>
+        <p>Cas possible si une action metier a declenche deux evenements
+        audit (ex. validation en cascade). Comparer les champs
+        <code>Details</code> et <code>ObjectId</code> pour identifier les
+        objets concernes : il s'agit en general de deux objets distincts
+        traites dans la meme transaction.</p>
+    </div>
+
+    <div class="step">
+        <h3>Peut-on modifier une entree erronee ?</h3>
+        <p>Non. Les entrees sont strictement en lecture seule. Si une action
+        metier erronee a ete tracee, elle reste dans le journal. L'approche
+        correcte consiste a effectuer l'action corrective en metier (qui
+        generera a son tour une entree d'audit) et a documenter la
+        correction dans un ticket ou une note RH.</p>
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 - Module Journal d'audit - Mise à jour mai 2026
+        SunuPaie - Guide Journal d'audit - Administration et controle interne
     </p>
 </body>
 </html>

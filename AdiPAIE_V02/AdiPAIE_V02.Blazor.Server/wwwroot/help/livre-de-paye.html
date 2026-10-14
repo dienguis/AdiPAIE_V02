@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - Livre de Paie (Guide complet)</title>
+    <title>SunuPaie - Livre de Paie (Guide RH)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
@@ -18,251 +18,256 @@
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>📚 Livre de Paie (Journal de Paie) - Guide complet</h1>
-    <p>Le <strong>Livre de Paie</strong> est un document obligatoire
-    (Code du Travail sénégalais, art. L.120). Il récapitule l'ensemble des
-    rémunérations et retenues de tous les salariés pour un mois donné.
-    SunuPaie le génère automatiquement au format Excel à partir des bulletins
-    validés.</p>
+    <h1>Livre de Paie - Guide RH</h1>
+    <p>Le Livre de Paie (ou journal de paie) est le registre légal mensuel
+    obligatoire au Sénégal (Code du Travail, article L.120). Il récapitule
+    pour un mois donné les rémunérations, cotisations et retenues de tous
+    les salariés dont le bulletin a été validé. SunuPaie le produit au
+    format Excel à partir des bulletins figés de la période, via le bouton
+    unifié <strong>États / Exports</strong> sur la liste des périodes de
+    paie. Ce guide s'adresse au RH opérationnel qui doit le produire chaque
+    mois, le vérifier, le signer et l'archiver.</p>
 
     <div class="toc">
-        <strong>📑 Étapes du processus</strong>
+        <strong>Sommaire</strong>
         <ol>
-            <li><a href="#vue-ensemble">Vue d'ensemble du processus</a></li>
-            <li><a href="#etape1">Étape 1 - Vérifier la validation des bulletins</a></li>
-            <li><a href="#etape2">Étape 2 - Sélectionner la période</a></li>
-            <li><a href="#etape3">Étape 3 - Générer et télécharger</a></li>
-            <li><a href="#contenu">Contenu détaillé du fichier Excel</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#regles">Règles métier et aspects légaux</a></li>
-            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
-            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble et cadre réglementaire</a></li>
+            <li><a href="#generer">Générer le Livre de Paie mensuel</a></li>
+            <li><a href="#contenu">Contenu obligatoire du fichier</a></li>
+            <li><a href="#verification">Vérification avant signature</a></li>
+            <li><a href="#archivage">Conservation et archivage</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble du processus</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble et cadre réglementaire</h2>
 
+    <h3>Les 4 moments du mois</h3>
     <div class="workflow">
-        <div class="box">✅ Bulletins validés</div>
-        <span class="arrow">→</span>
-        <div class="box">📅 Choix période</div>
-        <span class="arrow">→</span>
-        <div class="box">📊 Génération Excel</div>
-        <span class="arrow">→</span>
-        <div class="box">📥 Téléchargement</div>
-        <span class="arrow">→</span>
-        <div class="box">📁 Archivage 5 ans</div>
+        <div class="box">Bulletins<br>validés</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Génération<br>Excel</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Vérification<br>et signature</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Archivage<br>5 ans minimum</div>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape1">✅ Étape 1 - Vérifier la validation des bulletins</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>S'assurer que tous les bulletins du mois sont validés</h3>
-        <p>Seuls les bulletins aux statuts suivants sont inclus :
-        <em>Validé, Exporté, Envoyé, Clôturé, Comptabilisé</em>. Les
-        brouillons sont automatiquement exclus.</p>
-    </div>
-
-    <div class="alerte">
-        ⚠️ Si un bulletin est encore en Brouillon, le salarié n'apparaîtra
-        pas dans le Livre de Paie. Vérifier la liste avant génération.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape2">📅 Étape 2 - Sélectionner la période</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Aller dans Paie → Périodes de paie</h3>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Cliquer sur la période concernée</h3>
-        <p>Cliquer sur le bouton <strong>📚 Livre de Paie</strong> dans
-        la barre d'actions.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">3</span>Confirmer Année / Mois dans le popup</h3>
-        <p>Le popup pré-remplit avec la période sélectionnée. Modifiable si nécessaire.</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape3">📥 Étape 3 - Générer et télécharger</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Cliquer sur Générer</h3>
-        <p>Le système consolide tous les bulletins validés du mois et
-        produit un fichier Excel téléchargé automatiquement.</p>
-    </div>
-
-    <div class="ok">
-        ✅ Le fichier <code>LivreDePaie_AAAA_MM.xlsx</code> est prêt à être
-        archivé et envoyé sur demande à l'inspection du travail ou aux
-        commissaires aux comptes.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="contenu">📊 Contenu détaillé du fichier Excel</h2>
-
-    <p>Le livre de paie contient <strong>19 colonnes</strong> réparties
-    en 5 sections.</p>
-
-    <h3>1) Identification (5 colonnes)</h3>
+    <h3>Qui fait quoi</h3>
     <table>
-        <thead><tr><th>Colonne</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td>Matricule</td><td>Identifiant unique du salarié</td></tr>
-            <tr><td>Nom &amp; Prénom</td><td>Nom complet en majuscules</td></tr>
-            <tr><td>Département</td><td>Service / département du salarié</td></tr>
-            <tr><td>Catégorie</td><td>Catégorie professionnelle (convention collective)</td></tr>
-            <tr><td>Jours</td><td>Jours travaillés dans le mois (défaut 30)</td></tr>
-        </tbody>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>RH</td><td>Valide les bulletins du mois, génère le Livre de Paie, contrôle les totaux, signe et archive</td></tr>
+        <tr><td>Direction / DAF</td><td>Signe le livre de paie et le présente en cas de contrôle (inspection du travail, CAC, URSSAF locale)</td></tr>
+        <tr><td>Comptabilité</td><td>Rapproche la masse salariale du livre avec les écritures comptables du mois</td></tr>
     </table>
 
-    <h3>2) Rémunération (5 colonnes)</h3>
-    <table>
-        <thead><tr><th>Colonne</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td>Sal. Base</td><td>Salaire de base mensuel</td></tr>
-            <tr><td>Indem. Logt</td><td>Indemnité de logement</td></tr>
-            <tr><td>Sursalaire</td><td>Sursalaire éventuel</td></tr>
-            <tr><td>Prime Transp.</td><td>Prime de transport</td></tr>
-            <tr><td>Av. Véhicule</td><td>Avantage véhicule en nature</td></tr>
-        </tbody>
-    </table>
+    <h3>Cadre légal (Sénégal)</h3>
+    <dl class="field-list">
+        <dt>Article L.120 du Code du Travail</dt>
+        <dd>L'employeur est tenu de tenir un livre de paie (ou tout document équivalent) récapitulant mensuellement les éléments de rémunération et de retenues de chaque salarié. Le livre peut être tenu sous forme électronique.</dd>
 
-    <h3>3) Bruts (2 colonnes)</h3>
-    <table>
-        <thead><tr><th>Colonne</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td>Brut Fiscal</td><td>Base de calcul des impôts (TRIMF, IR)</td></tr>
-            <tr><td>Brut Social</td><td>Base de calcul des cotisations sociales (IPRES, CSS)</td></tr>
-        </tbody>
-    </table>
+        <dt>Durée de conservation</dt>
+        <dd>Minimum 5 ans à compter de la clôture de l'exercice. En pratique, conservation souvent prolongée à 10 ans pour couvrir les prescriptions sociales et fiscales.</dd>
 
-    <h3>4) Cotisations &amp; Retenues (6 colonnes)</h3>
-    <table>
-        <thead><tr><th>Colonne</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td>IPRES RG</td><td>Cotisation IPRES Régime Général (part salariale)</td></tr>
-            <tr><td>IPRES RC</td><td>Cotisation IPRES Régime Cadre (part salariale)</td></tr>
-            <tr><td>TRIMF</td><td>Taxe Représentant Impôt Minimum Fiscal</td></tr>
-            <tr><td>IR</td><td>Impôt sur le Revenu</td></tr>
-            <tr><td>Tot. Cotis.</td><td>Total des cotisations sociales</td></tr>
-            <tr><td>Tot. Retenues</td><td>Total des retenues fiscales</td></tr>
-        </tbody>
-    </table>
-
-    <h3>5) Net (1 colonne)</h3>
-    <table>
-        <thead><tr><th>Colonne</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td>Net à Payer</td><td>Montant versé au salarié</td></tr>
-        </tbody>
-    </table>
-
-    <h3>Bloc récapitulatif (en bas de page)</h3>
-    <table>
-        <thead><tr><th>Indicateur</th><th>Signification</th></tr></thead>
-        <tbody>
-            <tr><td>Masse salariale brute</td><td>Somme de tous les bruts fiscaux</td></tr>
-            <tr><td>Total cotisations sociales</td><td>IPRES RG + RC + CSS (parts salariales)</td></tr>
-            <tr><td>Total retenues fiscales</td><td>TRIMF + IR</td></tr>
-            <tr><td>Total net à payer</td><td>Somme de tous les nets à payer</td></tr>
-        </tbody>
-    </table>
-
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
-
-    <h3>Cas 1 - Génération mensuelle après clôture paie</h3>
-    <div class="exemple">
-        Le 28/05/2026, après le virement bancaire et l'envoi des bulletins
-        PDF, le RH génère le Livre de Paie de Mai. Le fichier est archivé
-        dans le dossier réseau <code>\\Comptabilité\Paie\2026\05_Mai</code>
-        avec les bordereaux IPRES/CSS/VRS.
-    </div>
-
-    <h3>Cas 2 - Demande inspection du travail</h3>
-    <div class="exemple">
-        L'inspection du travail demande le Livre de Paie de mars 2025
-        lors d'un contrôle. Le RH se rend dans <em>Périodes de paie</em>,
-        sélectionne mars 2025 (période clôturée), et régénère le fichier
-        à la demande. Le contenu est identique à celui de l'époque
-        (les bulletins sont figés).
-    </div>
-
-    <h3>Cas 3 - Audit des commissaires aux comptes</h3>
-    <div class="exemple">
-        Pour la clôture annuelle, les CAC demandent les 12 livres de paie
-        de l'exercice. Le RH génère un par un les 12 fichiers et les
-        compresse en un ZIP <code>LivreDePaie_2025.zip</code>.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="regles">📜 Règles métier et aspects légaux</h2>
-
-    <div class="alerte">
-        <strong>Bulletins validés requis :</strong> seuls les bulletins
-        au statut <em>Validé, Exporté, Envoyé, Clôturé ou Comptabilisé</em>
-        sont inclus. Les brouillons sont exclus.
-    </div>
-
-    <div class="alerte">
-        <strong>Échelons et catégories :</strong> pour que la colonne
-        « Catégorie » soit remplie, chaque salarié doit avoir un échelon
-        affecté dans sa fiche.
-    </div>
+        <dt>Opposabilité</dt>
+        <dd>Le livre de paie est opposable à l'inspection du travail, aux organismes sociaux (IPRES, CSS), à la DGID et aux commissaires aux comptes. Il doit être présentable immédiatement sur demande.</dd>
+    </dl>
 
     <div class="info">
-        <strong>📜 Article L.120 du Code du Travail sénégalais :</strong>
-        L'employeur est tenu de remettre au travailleur, au moment du
-        paiement, un bulletin individuel de paie et de conserver un
-        double (livre de paie) pendant au moins <strong>5 ans</strong>.
-        Le livre de paie peut être présenté en format électronique.
+        Le Livre de Paie SunuPaie est reproductible à l'identique tant que les bulletins du mois restent figés (statut Validé ou supérieur). Régénérer le fichier plusieurs mois après la clôture donne exactement le même contenu.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+    <h2 id="generer">2. Générer le Livre de Paie mensuel</h2>
 
-    <div class="erreur">
-        <strong>"Aucun bulletin valide trouvé"</strong><br>
-        → Pas de bulletins validés pour la période. Validez les bulletins
-        du mois ou vérifiez l'année/mois sélectionné.
+    <p>Opération à effectuer une fois par mois, après clôture de la paie et avant archivage.</p>
+
+    <div class="step">
+        <h3><span class="num">2.1</span>Pré-requis : bulletins du mois validés</h3>
+        <p>Seuls les bulletins dont le statut est <strong>Validé</strong>, <strong>Exporté</strong>, <strong>Envoyé</strong>, <strong>Clôturé</strong> ou <strong>Comptabilisé</strong> sont inclus dans le livre. Les bulletins en <em>Brouillon</em> sont automatiquement exclus.</p>
+        <p>Avant génération, ouvrir <strong>Paie &rsaquo; Bulletins</strong>, filtrer sur le mois concerné et vérifier qu'il ne reste aucun brouillon pour un salarié actif. Si un bulletin manque, le salarié n'apparaîtra pas dans le livre.</p>
     </div>
 
-    <div class="erreur">
-        <strong>"Mois invalide"</strong><br>
-        → Le mois doit être entre 1 et 12. Saisir un mois valide.
+    <div class="step">
+        <h3><span class="num">2.2</span>Ouvrir la liste des périodes de paie</h3>
+        <p>Menu : <strong>Paie &rsaquo; Périodes de paie</strong>.</p>
+        <p>Sélectionner la ligne de la période à exporter (ex. 10/2026). La période peut être ouverte, clôturée ou archivée - le livre reste reproductible dans tous les cas.</p>
     </div>
 
-    <div class="erreur">
-        <strong>"Période invalide"</strong><br>
-        → L'année ou le mois est hors limites raisonnables (avant 2000
-        ou après l'année courante + 1).
+    <div class="step">
+        <h3><span class="num">2.3</span>Lancer "États / Exports"</h3>
+        <p>Dans la barre d'actions de la liste, cliquer sur <strong>États / Exports</strong>. Le popup <em>Générer un état</em> s'ouvre, pré-rempli avec l'année et le mois de la période sélectionnée.</p>
+        <p>Dans la popup, renseigner :</p>
+        <ul>
+            <li><strong>Type d'état</strong> : choisir <code>Livre de Paie</code> (valeur par défaut)</li>
+            <li><strong>Année</strong> : année du mois à exporter</li>
+            <li><strong>Mois (1-12)</strong> : mois à exporter</li>
+        </ul>
+        <p>Cliquer sur <strong>Générer</strong>. Le système consolide les bulletins validés du mois, produit l'Excel et le télécharge dans le navigateur sous le nom <code>Livre_de_Paie_AAAA_MM.xlsx</code>.</p>
+
+        <div class="ok">
+            Un message de confirmation affiche <em>"Livre de Paie généré - MM/AAAA (N Ko)"</em>. Une entrée est enregistrée dans l'audit (<strong>PeriodePaie / Livre de Paie</strong>) avec l'auteur, la date et la taille du fichier.
+        </div>
     </div>
+
+    <h2 id="contenu">3. Contenu obligatoire du fichier</h2>
+
+    <p>Le fichier Excel contient une feuille unique <em>Livre de Paie [Mois] [Année]</em> avec un en-tête entreprise, un tableau de <strong>19 colonnes</strong> organisées en 5 groupes, une ligne de totaux et un bloc récapitulatif.</p>
+
+    <h3>En-tête entreprise</h3>
+    <ul>
+        <li>Titre : LIVRE DE PAIE - [MOIS] [ANNÉE]</li>
+        <li>Raison sociale (depuis la fiche Société)</li>
+        <li>NINEA (depuis la fiche Société)</li>
+        <li>Période traitée</li>
+        <li>Effectif du mois (nombre de bulletins inclus)</li>
+    </ul>
+
+    <h3>Groupe 1 - Identification (5 colonnes)</h3>
+    <table>
+        <tr><th>Colonne</th><th>Source</th></tr>
+        <tr><td>Matricule</td><td>Salarie.Matricule</td></tr>
+        <tr><td>Nom &amp; Prénom</td><td>Salarie.FullName (en majuscules)</td></tr>
+        <tr><td>Département</td><td>Salarie.Departement.Nom</td></tr>
+        <tr><td>Catégorie</td><td>Salarie.Categories.Intitule</td></tr>
+        <tr><td>Jours</td><td>Bulletin.JoursTravailles</td></tr>
+    </table>
+
+    <h3>Groupe 2 - Rémunération (5 colonnes)</h3>
+    <table>
+        <tr><th>Colonne</th><th>Source</th></tr>
+        <tr><td>Sal. Base</td><td>Salarie.SalaireBase</td></tr>
+        <tr><td>Indem. Logt</td><td>Salarie.IndemniteLogement</td></tr>
+        <tr><td>Sursalaire</td><td>Salarie.Sursalaire</td></tr>
+        <tr><td>Prime Transp.</td><td>Salarie.PrimeTransport</td></tr>
+        <tr><td>Av. Véhicule</td><td>Salarie.AvantageVehicule</td></tr>
+    </table>
+
+    <h3>Groupe 3 - Bruts (2 colonnes)</h3>
+    <table>
+        <tr><th>Colonne</th><th>Source</th></tr>
+        <tr><td>Brut Fiscal</td><td>Bulletin.BrutFiscal (base IR / TRIMF)</td></tr>
+        <tr><td>Brut Social</td><td>Bulletin.BrutSocial (base IPRES / CSS)</td></tr>
+    </table>
+
+    <h3>Groupe 4 - Cotisations et retenues (6 colonnes)</h3>
+    <table>
+        <tr><th>Colonne</th><th>Source</th></tr>
+        <tr><td>IPRES RG</td><td>Bulletin.IPRES_RG_Mois (part salariale)</td></tr>
+        <tr><td>IPRES RC</td><td>Bulletin.IPRES_RC_Mois (part salariale)</td></tr>
+        <tr><td>TRIMF</td><td>Bulletin.TRIMF_Mois</td></tr>
+        <tr><td>IR</td><td>Bulletin.IR_Mois</td></tr>
+        <tr><td>Tot. Cotis.</td><td>Bulletin.TotalCotisationsSociales</td></tr>
+        <tr><td>Tot. Retenues</td><td>Bulletin.TotalRetenuesFiscales</td></tr>
+    </table>
+
+    <h3>Groupe 5 - Net (1 colonne)</h3>
+    <table>
+        <tr><th>Colonne</th><th>Source</th></tr>
+        <tr><td>Net à Payer</td><td>Bulletin.NetAPayer</td></tr>
+    </table>
+
+    <h3>Ligne de totaux et récapitulatif</h3>
+    <p>En bas du tableau, une ligne <strong>TOTAUX</strong> somme toutes les colonnes numériques (jours cumulés et montants). Un bloc récapitulatif reprend ensuite les 4 indicateurs clés :</p>
+    <ul>
+        <li><strong>Masse salariale brute</strong> : somme des Brut Fiscal</li>
+        <li><strong>Total cotisations sociales</strong> : somme des Tot. Cotis.</li>
+        <li><strong>Total retenues fiscales</strong> : somme des Tot. Retenues</li>
+        <li><strong>Total net à payer</strong> : somme des Net à Payer</li>
+    </ul>
 
     <div class="info">
-        💡 <strong>Comment retrouver un livre de paie de 2024 ?</strong>
-        Aller sur la période concernée (même clôturée) et cliquer
-        <em>Livre de Paie</em>. Les bulletins étant figés, le contenu
-        est exactement reproductible.
+        Les lignes sont triées par <strong>Nom &amp; Prénom</strong>. La mise en page est au format A3 paysage, avec les en-têtes figés en haut (lignes 5 et 6) et la colonne Nom figée à gauche pour faciliter la lecture.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+    <h2 id="verification">4. Vérification avant signature</h2>
 
-    <div class="bouton">
-        <strong>📚 Livre de Paie :</strong> ouvre le popup Année/Mois.
+    <p>Le livre généré sert de pièce légale. Il doit être contrôlé avant archivage et signature par la direction.</p>
+
+    <div class="step">
+        <h3><span class="num">4.1</span>Contrôler l'effectif</h3>
+        <p>L'effectif indiqué en en-tête doit correspondre au nombre de salariés présents sur le mois (y compris entrées et sorties partielles). Un écart avec la paie précédente doit se justifier par un mouvement de personnel documenté.</p>
     </div>
-    <div class="bouton">
-        <strong>📥 Générer :</strong> produit l'Excel et le télécharge.
+
+    <div class="step">
+        <h3><span class="num">4.2</span>Rapprocher avec le virement bancaire</h3>
+        <p>Le <strong>Total net à payer</strong> du récapitulatif doit être strictement égal au montant total du fichier de virement bancaire du mois. Un écart signale un bulletin oublié, un virement hors fichier ou une erreur de statut.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.3</span>Rapprocher avec les bordereaux sociaux</h3>
+        <p>Les totaux IPRES RG + IPRES RC du livre doivent correspondre aux parts salariales reportées sur le Bordereau IPRES du mois (même bouton États / Exports, type <em>Bordereau IPRES</em>). Même contrôle pour les cotisations CSS avec le Bordereau CSS.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.4</span>Contrôler les colonnes Catégorie et Département</h3>
+        <p>Pour que la colonne <strong>Catégorie</strong> soit remplie, chaque salarié doit avoir un échelon affecté dans sa fiche (<code>Salarie.Categories</code>). Pour la colonne <strong>Département</strong>, le champ <code>Salarie.Departement</code> doit être renseigné. Les cases vides signalent une fiche salarié incomplète à corriger.</p>
+    </div>
+
+    <h2 id="archivage">5. Conservation et archivage</h2>
+
+    <div class="step">
+        <h3><span class="num">5.1</span>Stocker le fichier Excel</h3>
+        <p>Déposer le fichier <code>Livre_de_Paie_AAAA_MM.xlsx</code> dans le dossier d'archivage paie de l'entreprise, avec les bordereaux IPRES, CSS et VRS du même mois. Une arborescence par année puis par mois facilite la recherche en cas de contrôle.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.2</span>Durée de conservation</h3>
+        <p>Minimum <strong>5 ans</strong> au titre du Code du Travail. Conservation étendue recommandée à <strong>10 ans</strong> pour couvrir les prescriptions fiscales et les contrôles IPRES / CSS a posteriori.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.3</span>Reproductibilité</h3>
+        <p>Tant que les bulletins du mois restent figés dans SunuPaie (statut Validé ou supérieur), le Livre de Paie reste régénérable à l'identique via <strong>Paie &rsaquo; Périodes de paie &rsaquo; États / Exports</strong>, même plusieurs années après la clôture. Il n'est donc pas obligatoire de garder le fichier Excel si la base est elle-même sauvegardée et accessible.</p>
+
+        <div class="alerte">
+            Une modification manuelle d'un bulletin déjà validé (ré-ouverture du statut, correction tardive) change le contenu du livre régénéré. Toute correction post-clôture doit être tracée et le livre régénéré.
+        </div>
+    </div>
+
+    <h2 id="depannage">6. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>Message : "Aucun bulletin validé trouvé pour MM/AAAA"</h3>
+        <p>Aucun bulletin au statut Validé, Exporté, Envoyé, Clôturé ou Comptabilisé n'existe pour la période demandée. Causes possibles :</p>
+        <ul>
+            <li>Les bulletins sont encore en Brouillon : les valider depuis la liste des bulletins</li>
+            <li>Mauvais mois ou année saisi dans la popup : corriger les valeurs</li>
+            <li>La période a été générée mais aucun calcul lancé : ouvrir la période et lancer le calcul des bulletins</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3>Message : "Mois invalide : N"</h3>
+        <p>Le champ Mois doit être un entier entre 1 et 12. Saisir une valeur valide.</p>
+    </div>
+
+    <div class="step">
+        <h3>Message : "Année invalide : N"</h3>
+        <p>L'année doit être comprise entre 2000 et l'année courante + 1. Saisir une année dans cette plage.</p>
+    </div>
+
+    <div class="step">
+        <h3>Un salarié présent dans le mois n'apparaît pas dans le livre</h3>
+        <p>Son bulletin est encore en Brouillon ou n'a jamais été créé. Ouvrir <strong>Paie &rsaquo; Bulletins</strong>, filtrer sur le mois, retrouver le salarié et valider son bulletin, puis régénérer le livre.</p>
+    </div>
+
+    <div class="step">
+        <h3>La colonne Catégorie est vide pour certains salariés</h3>
+        <p>Ces salariés n'ont pas d'échelon affecté dans leur fiche. Ouvrir <strong>Gestion du personnel &rsaquo; Salariés</strong>, affecter la catégorie professionnelle sur chaque fiche concernée, puis régénérer le livre.</p>
+    </div>
+
+    <div class="step">
+        <h3>Retrouver un livre de paie d'une année antérieure</h3>
+        <p>Ouvrir <strong>Paie &rsaquo; Périodes de paie</strong>, sélectionner la période ancienne (même clôturée), lancer <strong>États / Exports</strong> en choisissant <em>Livre de Paie</em>. Le fichier régénéré est identique à celui de l'époque tant que les bulletins restent figés.</p>
+    </div>
+
+    <div class="step">
+        <h3>L'inspection du travail demande le livre papier signé</h3>
+        <p>Imprimer le fichier Excel en A3 paysage (mise en page déjà configurée), faire signer par la direction, et conserver le papier avec le fichier électronique. Le format électronique seul est légalement recevable mais le papier signé reste la pratique habituelle en cas de contrôle sur site.</p>
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 - Module Livre de Paie - Mise à jour mai 2026
+        SunuPaie - Guide Livre de Paie - RH opérationnel
     </p>
 </body>
 </html>

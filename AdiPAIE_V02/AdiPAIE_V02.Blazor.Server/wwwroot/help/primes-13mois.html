@@ -3,17 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - 13ième mois & Gratifications (Guide complet)</title>
+    <title>SunuPaie - 13ieme mois et gratifications (Guide RH)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
     <style>
         td.num { text-align: right; font-family: monospace; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; }
-        .b-gris { background: #DCDCDC; color: #696969; }
-        .b-jaune { background: #FFFACD; color: #B8860B; }
-        .b-bleu { background: #87CEFA; color: #00008B; }
-        .b-vert { background: #98FB98; color: #006400; }
-        .b-vert-fonce { background: #3CB371; color: white; }
-        .b-rouge { background: #F08080; color: #8B0000; }
     </style>
 </head>
 <body>
@@ -21,51 +14,69 @@
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
         <a href="/help/periodes.html">Périodes</a>
+        <a href="/help/prets.html">Prêts</a>
         <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/interimaires.html">Intérimaires</a>
         <a href="/help/conges.html">Congés</a>
-        <a href="/help/primes-13mois.html" class="active">13ième & Gratifications</a>
+        <a href="/help/missions.html">Missions</a>
+        <a href="/help/primes-13mois.html" class="active">13ieme et gratifications</a>
         <span class="sep">|</span>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>🎁 13ième mois & Gratifications - Guide complet</h1>
-    <p>Ce module gère les <strong>deux types de bonus</strong> versés aux salariés :</p>
-    <ul>
-        <li>Le <strong>13ième mois</strong> - droit conventionnel automatique, versé en
-            décembre (ou sur STC si départ en cours d'année), prorata sur les mois
-            de présence.</li>
-        <li>La <strong>Gratification</strong> - prime exceptionnelle ad hoc, décidée par
-            la DG, validée par RH + DAF, montant libre (multiple Net/Brut ou forfait).</li>
-    </ul>
+    <h1>13ieme mois et gratifications - Guide RH</h1>
+    <p>Ce guide decrit la gestion des deux bonus versés aux salariés dans SunuPaie :
+    le 13ieme mois (droit conventionnel annuel calculé au prorata des mois de
+    présence) et les gratifications (primes ponctuelles ad hoc décidées par la DG,
+    validées par la DAF). Il s'adresse au RH operationnel et à la DAF. Le workflow
+    est strictement : RH saisit, DAF valide, RH intègre au bulletin.</p>
 
     <div class="toc">
-        <strong>📑 Plan du guide</strong>
+        <strong>Sommaire</strong>
         <ol>
-            <li><a href="#brut-recurrent">Notion clé : le « Brut récurrent »</a></li>
-            <li><a href="#m13-regles">13ième mois - Règles métier ELTON</a></li>
-            <li><a href="#m13-workflow">13ième mois - Mode opératoire DAF</a></li>
-            <li><a href="#m13-provision">13ième mois - Provision mensuelle</a></li>
-            <li><a href="#m13-stc">13ième mois - Départ en cours d'année (STC)</a></li>
-            <li><a href="#gratif-regles">Gratification - Règles & workflow</a></li>
-            <li><a href="#gratif-saisie">Gratification - Étape par étape</a></li>
-            <li><a href="#gratif-stc">Gratification - Départ en cours d'année (STC)</a></li>
-            <li><a href="#cas">Cas pratiques chiffrés (validés RH)</a></li>
-            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble des deux dispositifs</a></li>
+            <li><a href="#brut-recurrent">La notion de brut récurrent</a></li>
+            <li><a href="#m13-salarie">Créer un 13ieme mois pour un salarié</a></li>
+            <li><a href="#m13-stc">13ieme mois sur STC (départ en cours d'année)</a></li>
+            <li><a href="#gratif-saisie">Créer une gratification</a></li>
+            <li><a href="#gratif-workflow">Workflow de validation RH / DAF</a></li>
+            <li><a href="#impact-paie">Impact sur la paie (rubriques, imposition)</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="brut-recurrent">🧮 Notion clé : le « Brut récurrent »</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble des deux dispositifs</h2>
 
-    <p>Le <strong>brut récurrent</strong> (BR) est la base de calcul commune au 13ième mois et
-    aux gratifications. Il représente la rémunération brute mensuelle <em>normale</em>
-    d'un salarié, <strong>hors éléments variables ou exceptionnels</strong>.</p>
-
+    <h3>Deux entités distinctes</h3>
     <table>
-        <tr>
-            <th style="width: 50%;">✅ INCLUS dans le brut récurrent</th>
-            <th>❌ EXCLUS du brut récurrent</th>
-        </tr>
+        <tr><th>Caractéristique</th><th>13ieme mois (TreiziemeMois)</th><th>Gratification</th></tr>
+        <tr><td>Nature</td><td>Droit conventionnel automatique</td><td>Prime discrétionnaire DG</td></tr>
+        <tr><td>Bénéficiaires</td><td>Tous les salariés actifs</td><td>Désignés manuellement par le RH</td></tr>
+        <tr><td>Base</td><td>Brut récurrent du dernier bulletin</td><td>Brut récurrent, Net ou Forfait</td></tr>
+        <tr><td>Multiplicateur</td><td>Fixe (1 mois)</td><td>Libre</td></tr>
+        <tr><td>Formule</td><td>BR x MoisPresence / 12</td><td>Base x Multiplicateur (ou Forfait)</td></tr>
+        <tr><td>Versement</td><td>Bulletin de décembre ou STC</td><td>Mois de paiement choisi ou STC</td></tr>
+        <tr><td>Unicité</td><td>Un seul par salarié par année</td><td>Plusieurs possibles dans l'année</td></tr>
+        <tr><td>Workflow</td><td>Calculé &gt; Intégré au bulletin</td><td>Brouillon RH &gt; En attente DAF &gt; Validée DAF &gt; Intégrée &gt; Payée</td></tr>
+    </table>
+
+    <h3>Qui fait quoi</h3>
+    <table>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>RH</td><td>Calcule et crée les 13iemes, saisit les gratifications, intègre au bulletin après validation DAF</td></tr>
+        <tr><td>DAF</td><td>Valide ou rejette chaque gratification saisie par RH, pilote la provision mensuelle 13ieme</td></tr>
+        <tr><td>Système</td><td>Calcule le brut récurrent et le prorata, pose les lignes 13EME et GRATIF sur le bulletin</td></tr>
+    </table>
+
+    <h2 id="brut-recurrent">2. La notion de brut récurrent</h2>
+
+    <p>Le <strong>brut récurrent (BR)</strong> est la base commune au 13ieme et aux
+    gratifications sur base BrutRecurrent. Il représente la rémunération brute
+    mensuelle normale, hors éléments variables et exceptionnels.</p>
+
+    <h3>Éléments inclus et exclus</h3>
+    <table>
+        <tr><th>Inclus dans le BR</th><th>Exclus du BR</th></tr>
         <tr>
             <td>
                 <ul>
@@ -75,16 +86,16 @@
                     <li>Indemnité de logement</li>
                     <li>Prime de transport</li>
                     <li>Avantage en nature véhicule</li>
-                    <li>Toute indemnité fixe mensuelle paramétrée</li>
+                    <li>Indemnités fixes mensuelles paramétrées</li>
                 </ul>
             </td>
             <td>
                 <ul>
                     <li>Heures supplémentaires</li>
-                    <li>Indemnités de congés payés (CP du mois)</li>
+                    <li>Indemnités de congés payés</li>
                     <li>Allocation congés (départ)</li>
                     <li>Gratifications antérieures</li>
-                    <li>13ième mois antérieur</li>
+                    <li>13ieme mois antérieur</li>
                     <li>Rappels de salaire</li>
                     <li>Primes ponctuelles exceptionnelles</li>
                 </ul>
@@ -92,337 +103,258 @@
         </tr>
     </table>
 
-    <p>Le BR est calculé à partir du <strong>dernier bulletin validé</strong> avant le mois
-    de calcul. C'est volontaire : on prend la photo la plus récente du salaire
-    « normal » du salarié.</p>
-
-    <!-- =============================================================== -->
-    <h2 id="m13-regles">🎄 13ième mois - Règles métier ELTON</h2>
-
-    <table>
-        <tr><th>Règle</th><th>Valeur</th></tr>
-        <tr><td>Droit</td><td>Conventionnel - <strong>tous les salariés</strong>, dès embauche</td></tr>
-        <tr><td>Multiplicateur</td><td>1 mois (100 %)</td></tr>
-        <tr><td>Formule</td><td><code>Brut récurrent × Mois de présence ÷ 12</code></td></tr>
-        <tr><td>Versement normal</td><td>Bulletin de <strong>décembre</strong></td></tr>
-        <tr><td>Versement départ</td><td><strong>STC</strong> (solde de tout compte) à la date de sortie</td></tr>
-        <tr><td>Fiscalité</td><td>IR + CSS + IPRES + IPM - tout soumis, <strong>sans lissage</strong></td></tr>
-        <tr><td>Provision comptable</td><td>Mensuelle, 1/12 chaque mois sur le BR du mois</td></tr>
-    </table>
-
-    <!-- =============================================================== -->
-    <h2 id="m13-workflow">🛠️ 13ième mois - Mode opératoire DAF</h2>
-
-    <div class="workflow">
-        <div class="box">📊 Calculer<br>année N</div>
-        <span class="arrow">→</span>
-        <div class="box">👀 Vérifier<br>la liste</div>
-        <span class="arrow">→</span>
-        <div class="box">📝 Intégrer<br>aux bulletins<br>décembre</div>
-        <span class="arrow">→</span>
-        <div class="box">✅ Bulletins<br>validés &amp;<br>publiés</div>
+    <div class="info">
+        Le BR est calculé à partir du <strong>dernier bulletin validé</strong> avant
+        le mois de calcul. C'est volontaire : on prend la photo la plus récente du
+        salaire normal du salarié, qui reflète les revalorisations éventuelles.
     </div>
 
-    <h3>Étape 1 - Calculer</h3>
-    <p>Menu <strong>Paie → 13ièmes mois</strong>. Cliquer sur le bouton
-    <strong>« Calculer 13ième mois »</strong> et choisir l'année (N, N-1 ou N-2).</p>
-    <p>Le service génère une ligne par salarié actif au 31/12 avec :</p>
-    <ul>
-        <li><code>BrutRecurrentReference</code> = BR du dernier bulletin avant décembre</li>
-        <li><code>MoisPresence</code> = nombre de bulletins du salarié dans l'année</li>
-        <li><code>MontantBrut</code> = BR × MoisPresence ÷ 12</li>
-        <li><code>Statut = <span class="badge b-jaune">Calculé</span></code></li>
-    </ul>
-    <p><strong>Idempotent</strong> : si on relance, les calculs existants non encore intégrés
-    sont mis à jour, pas dupliqués.</p>
+    <h2 id="m13-salarie">3. Créer un 13ieme mois pour un salarié</h2>
 
-    <h3>Étape 2 - Vérifier</h3>
-    <p>Parcourir la liste, cliquer sur les salariés pour drill-down si besoin.
-    Si une ligne a une anomalie (BR incohérent, MoisPresence faux), elle peut
-    être <strong>annulée</strong> ou <strong>corrigée manuellement</strong> avant intégration.</p>
+    <div class="step">
+        <h3><span class="num">3.1</span>Pré-requis stricts</h3>
+        <ul>
+            <li>La <strong>période de paie de décembre</strong> de l'année visée doit exister et être au statut <code>Ouverte</code>.</li>
+            <li>Le salarié doit avoir au moins <strong>un bulletin</strong> dans l'année (sinon prorata = 0, action bloquée).</li>
+            <li>Un seul <code>TreiziemeMois</code> par (Salarié x Année) : contrainte d'unicité en base.</li>
+        </ul>
+    </div>
 
-    <h3>Étape 3 - Intégrer aux bulletins</h3>
-    <p>Cliquer sur <strong>« Intégrer aux bulletins de décembre »</strong>, choisir l'année.</p>
-    <p>Le service crée une <code>BulletinLigne</code> de rubrique <code>13EME</code>
-    sur chaque bulletin de décembre concerné. Statut passe à
-    <span class="badge b-vert">IntégréeBulletin</span>.</p>
+    <div class="step">
+        <h3><span class="num">3.2</span>Création individuelle depuis la fiche salarié</h3>
+        <p>Menu : <strong>Gestion du personnel &rsaquo; Salariés</strong>, sélectionner un salarié dans la liste.</p>
+        <p>Dans la toolbar, cliquer <strong>"Nouveau 13ieme mois"</strong>.</p>
+        <p>Le système vérifie les pré-requis, puis calcule automatiquement :</p>
+        <ul>
+            <li><code>BrutRecurrentReference</code> = BR du dernier bulletin avant décembre</li>
+            <li><code>MoisPresence</code> = nombre de bulletins du salarié dans l'année</li>
+            <li><code>MontantBrut</code> = BR x MoisPresence / 12 (arrondi au FCFA)</li>
+            <li><code>Statut</code> = <code>Calcule</code></li>
+        </ul>
+        <p>Le DetailView du <code>TreiziemeMois</code> s'ouvre. Les champs sont modifiables tant que le statut reste <code>Calcule</code>. L'intégration au bulletin fige l'enregistrement en lecture seule.</p>
+    </div>
 
-    <p><strong>Prérequis</strong> : le bulletin de décembre doit exister
-    (statut quelconque, y compris Brouillon). Sinon le service le signale dans
-    son rapport de retour.</p>
+    <div class="step">
+        <h3><span class="num">3.3</span>Calcul en masse (tous les salariés)</h3>
+        <p>Menu : <strong>Paie &rsaquo; 13iemes mois</strong>. Cliquer sur <strong>"Calculer 13ieme mois"</strong> et choisir l'année.</p>
+        <p>Le service <code>TreiziemeMoisService.CalculerPourAnnee</code> génère une ligne par salarié actif au 31/12. L'action est <strong>idempotente</strong> : les 13iemes déjà au statut <code>Calcule</code> sont recalculés et mis à jour ; ceux déjà en <code>IntegreeBulletin</code> ne sont pas touchés.</p>
+        <p>Les salariés sortants (IsActif = false) sont automatiquement exclus du batch : leur 13ieme est traité sur le STC (voir section 4), donc pas de doublon possible.</p>
+    </div>
 
-    <!-- =============================================================== -->
-    <h2 id="m13-provision">💼 13ième mois - Provision mensuelle (DAF)</h2>
+    <div class="step">
+        <h3><span class="num">3.4</span>Vérifier puis intégrer au bulletin de décembre</h3>
+        <p>Parcourir la liste et, pour chaque ligne, vérifier BR, MoisPresence et MontantBrut. En cas d'anomalie, la ligne peut être annulée (statut <code>Annule</code>) ou corrigée manuellement avant intégration.</p>
+        <p>Cliquer sur <strong>"Intégrer aux bulletins de décembre"</strong>. Le service crée une ligne de bulletin de rubrique <code>13EME</code> sur le bulletin de décembre de chaque salarié concerné. Le statut passe à <code>IntegreeBulletin</code> et l'enregistrement devient en lecture seule.</p>
+    </div>
 
-    <p>Menu <strong>Paie → Provision 13ième mois</strong>. Vue COMPTABLE non-persistante
-    qui affiche, pour chaque (Salarié × Mois) de l'année :</p>
+    <h2 id="m13-stc">4. 13ieme mois sur STC (départ en cours d'année)</h2>
 
+    <p>Si un salarié quitte l'entreprise en cours d'année (démission, licenciement, retraite, décès), son 13ieme prorata est calculé à la <strong>date de sortie</strong> et versé sur le <strong>Solde de Tout Compte</strong>, pas en décembre.</p>
+
+    <div class="workflow">
+        <div class="box">Créer<br>dossier offboarding</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Renseigner<br>DateSortie</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Calculer 13ieme<br>prorata STC</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Indemnité incluse<br>dans total STC</div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.1</span>Procédure</h3>
+        <ol>
+            <li>Menu <strong>Gestion du personnel &rsaquo; Dossiers de départ</strong>, créer le dossier offboarding du salarié sortant.</li>
+            <li>Renseigner <strong>DateDebut</strong> (notification) et <strong>DateSortie</strong> (date effective).</li>
+            <li>Dans la toolbar du dossier, cliquer <strong>"Calculer 13ieme prorata STC"</strong>.</li>
+            <li>Le service calcule :
+                <ul>
+                    <li><code>BrutRecurrent</code> = BR du dernier bulletin avant DateSortie</li>
+                    <li><code>MoisPresence</code> = nombre de bulletins de l'année écoulés avant la sortie</li>
+                    <li><code>Montant prorata</code> = BR x MoisPresence / 12</li>
+                </ul>
+            </li>
+            <li>Le champ <strong>Indemnité 13ieme mois prorata</strong> du dossier est renseigné. Un <code>TreiziemeMois</code> est créé avec <code>EstSurSTC = true</code> pour traçabilité.</li>
+            <li>Le total STC du dossier inclut maintenant le 13ieme.</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.2</span>Garde-fous</h3>
+        <ul>
+            <li>Si aucun bulletin dans l'année : action bloquée, message explicite.</li>
+            <li>Si le dossier est déjà <code>Cloture</code> : recalcul refusé.</li>
+            <li>Action idempotente : recliquer met à jour sans dupliquer.</li>
+            <li>Le batch de décembre exclut les sortants (<code>IsActif = false</code>) : pas de doublon.</li>
+        </ul>
+    </div>
+
+    <div class="ok">
+        <strong>Exemple chiffré.</strong> Moussa NDIAYE démissionne le 30/06/2026.
+        BR mai 2026 = 550 000 FCFA, 6 bulletins (janvier à juin).
+        Prorata 13ieme = 550 000 x 6 / 12 = <strong>275 000 FCFA</strong>, versé sur le STC de juillet.
+    </div>
+
+    <h2 id="gratif-saisie">5. Créer une gratification</h2>
+
+    <div class="step">
+        <h3><span class="num">5.1</span>Création depuis la fiche salarié</h3>
+        <p>Menu : <strong>Gestion du personnel &rsaquo; Salariés</strong>, sélectionner un salarié.</p>
+        <p>Dans la toolbar, cliquer <strong>"Nouvelle gratification"</strong>. Le système vérifie qu'une période de paie est <code>Ouverte</code>, puis ouvre un DetailView pré-rempli :</p>
+        <ul>
+            <li><code>Salarie</code> = celui sélectionné</li>
+            <li><code>Annee</code> et <code>MoisPaiement</code> = période ouverte courante</li>
+            <li><code>Statut</code> = <code>BrouillonRH</code></li>
+            <li><code>BaseCalcul</code> = <code>BrutRecurrent</code>, <code>Multiplicateur</code> = 1</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.2</span>Renseigner les paramètres</h3>
+        <p>Trois modes de calcul (champ <code>BaseCalcul</code>) :</p>
+        <dl class="field-list">
+            <dt>BrutRecurrent</dt>
+            <dd>Montant = BR x Multiplicateur. Base la plus courante pour une prime bilan ou fin d'année.</dd>
+
+            <dt>NetRecurrent</dt>
+            <dd>Montant = Net mensuel normal x Multiplicateur. Utile quand la DG raisonne en net.</dd>
+
+            <dt>Forfait</dt>
+            <dd>Montant = <code>MontantForfait</code> (en FCFA). Le Multiplicateur est ignoré. Utile pour une prime symbolique ou négociée en montant précis.</dd>
+        </dl>
+        <p>Renseigner le <strong>Motif / commentaire</strong> (justification visible par la DAF au moment de la validation).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.3</span>Soumettre à la DAF</h3>
+        <p>Cliquer sur <strong>"Soumettre au DAF"</strong>. Le statut passe à <code>EnAttenteValidationDAF</code>. Le <code>BaseReference</code> et le <code>MontantCalcule</code> sont figés (snapshot). À partir de ce point, Salarie, BaseCalcul, Multiplicateur et MontantForfait deviennent en lecture seule.</p>
+    </div>
+
+    <h2 id="gratif-workflow">6. Workflow de validation RH / DAF</h2>
+
+    <div class="workflow">
+        <div class="box">Brouillon RH</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">En attente DAF</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Validée DAF</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Intégrée bulletin</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Payée</div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">6.1</span>Validation DAF</h3>
+        <p>Menu : <strong>Paie &rsaquo; Gratifications en attente</strong>. La DAF consulte chaque demande et dispose de trois actions :</p>
+        <ul>
+            <li><strong>Valider</strong> : passage à <code>ValideeDAF</code>. La gratification est prête à être intégrée au bulletin par le RH.</li>
+            <li><strong>Rejeter</strong> : repassage à <code>BrouillonRH</code> avec motif obligatoire visible dans le commentaire. Le RH corrige et resoumet.</li>
+            <li><strong>Annuler</strong> : passage à <code>Annule</code>, irréversible. Utile pour clôturer sans paiement.</li>
+        </ul>
+        <p>La DAF ne peut pas modifier les montants. Pour un autre montant, elle rejette avec motif.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">6.2</span>Intégration au bulletin (RH)</h3>
+        <p>Une fois en statut <code>ValideeDAF</code>, le RH ouvre la gratification et clique sur <strong>"Intégrer au bulletin"</strong>. Le service <code>GratificationService.IntegrerAuBulletin</code> :</p>
+        <ol>
+            <li>Résout le bulletin ouvert du mois de paiement</li>
+            <li>Crée une ligne de rubrique <code>GRATIF</code> avec <code>Base</code> = BaseReference, <code>Taux</code> = Multiplicateur, <code>Montant</code> = MontantCalcule</li>
+            <li>Renseigne <code>BulletinLie</code> et passe le statut à <code>IntegreeBulletin</code></li>
+            <li>Fige l'ensemble des champs en lecture seule</li>
+        </ol>
+        <p>Le passage final en <code>Payee</code> s'effectue à la validation définitive du bulletin.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">6.3</span>Gratification sur STC (départ avant paiement)</h3>
+        <p>Si le salarié part avant que sa gratification <code>ValideeDAF</code> soit intégrée, elle doit être versée au prorata sur le STC (cohérence avec la règle du 13ieme).</p>
+        <p>Sur le dossier d'offboarding, cliquer sur <strong>"Calculer gratifications prorata STC"</strong>. Le service :</p>
+        <ul>
+            <li>Liste toutes les gratifications <code>ValideeDAF</code> du salarié pour l'année</li>
+            <li>Applique à chacune : <code>MontantCalcule x MoisPresence / 12</code></li>
+            <li>Somme totale inscrite dans <strong>Indemnité gratifications prorata</strong> du dossier</li>
+            <li>Marque les gratifications concernées <code>IntegreeBulletin</code> pour éviter tout doublon avec le batch mensuel</li>
+        </ul>
+    </div>
+
+    <h2 id="impact-paie">7. Impact sur la paie</h2>
+
+    <h3>Rubriques générées</h3>
     <table>
-        <tr>
-            <th>Mois</th><th>Brut récurrent</th><th>Provision du mois</th>
-            <th>Cumul année</th><th>13ième effectif</th><th>Écart</th>
-        </tr>
+        <tr><th>Entité</th><th>Rubrique bulletin</th><th>Base</th><th>Taux</th><th>Montant</th></tr>
+        <tr><td>TreiziemeMois</td><td><code>13EME</code></td><td>BrutRecurrentReference</td><td>MoisPresence / 12</td><td>MontantBrut</td></tr>
+        <tr><td>Gratification</td><td><code>GRATIF</code></td><td>BaseReference</td><td>Multiplicateur</td><td>MontantCalcule</td></tr>
+    </table>
+
+    <h3>Imposition</h3>
+    <p>13ieme mois et gratifications sont soumis <strong>intégralement</strong> aux mêmes charges que le salaire :</p>
+    <ul>
+        <li>IR (impôt sur le revenu)</li>
+        <li>CSS (Caisse de Sécurité Sociale)</li>
+        <li>IPRES (retraite)</li>
+        <li>IPM (institution de prévoyance maladie)</li>
+    </ul>
+    <p><strong>Pas de lissage fiscal</strong> : le montant brut s'ajoute au cumul imposable du mois de versement, et l'IR du mois est recalculé sur ce cumul augmenté. En décembre, l'intégration du 13ieme peut donc faire monter sensiblement l'IR du bulletin.</p>
+
+    <h3>Provision mensuelle 13ieme (DAF)</h3>
+    <p>Menu : <strong>Paie &rsaquo; Provision 13ieme mois</strong>. Vue COMPTABLE non-persistante qui affiche, pour chaque (Salarié x Mois) de l'année :</p>
+    <table>
+        <tr><th>Mois</th><th>Brut récurrent</th><th>Provision du mois</th><th>Cumul année</th><th>13ieme effectif</th><th>Écart</th></tr>
         <tr><td>Janvier</td><td class="num">500 000</td><td class="num">41 667</td><td class="num">41 667</td><td>-</td><td>-</td></tr>
-        <tr><td>Février</td><td class="num">500 000</td><td class="num">41 667</td><td class="num">83 333</td><td>-</td><td>-</td></tr>
-        <tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
         <tr><td>Novembre</td><td class="num">520 000</td><td class="num">43 333</td><td class="num">463 333</td><td>-</td><td>-</td></tr>
-        <tr style="background: #C6EFCE; font-weight: bold;">
-            <td>Décembre</td><td class="num">520 000</td><td class="num">43 333</td>
-            <td class="num">506 667</td><td class="num">520 000</td><td class="num">+13 333</td>
-        </tr>
+        <tr><td>Décembre</td><td class="num">520 000</td><td class="num">43 333</td><td class="num">506 667</td><td class="num">520 000</td><td class="num">+13 333</td></tr>
     </table>
+    <p>L'écart en décembre matérialise la différence entre la provision cumulée et le montant réellement intégré. Les variations de salaire en cours d'année expliquent cet écart.</p>
 
-    <p>L'<strong>écart</strong> en décembre permet d'ajuster comptablement : c'est la
-    différence entre la provision cumulée et le montant réellement intégré au
-    bulletin (variations de salaire en cours d'année expliquent l'écart).</p>
+    <h2 id="depannage">8. Dépannage et FAQ</h2>
 
-    <!-- =============================================================== -->
-    <h2 id="m13-stc">🚪 13ième mois - Départ en cours d'année (STC)</h2>
-
-    <p>Si un salarié quitte l'entreprise en cours d'année (démission, licenciement,
-    retraite, décès), son 13ième prorata est calculé <strong>à la date de sortie</strong> et
-    versé sur le <strong>Solde de Tout Compte</strong>, <strong>pas en décembre</strong>.</p>
-
-    <h3>Workflow concret</h3>
-    <div class="workflow">
-        <div class="box">📂 Créer<br>DossierOffboarding</div>
-        <span class="arrow">→</span>
-        <div class="box">📅 Renseigner<br>DateSortie</div>
-        <span class="arrow">→</span>
-        <div class="box">💰 Calculer 13ième<br>prorata STC</div>
-        <span class="arrow">→</span>
-        <div class="box">✅ Indemnité<br>incluse dans<br>Total STC</div>
+    <div class="step">
+        <h3>"Nouveau 13ieme mois" dit "Aucune période de paie n'est OUVERTE"</h3>
+        <p>Aucune <code>PeriodePaie</code> n'est au statut <code>Ouverte</code>, ou la période de décembre de l'année visée n'existe pas. Menu <strong>Paie &rsaquo; Périodes de paie</strong>, créer et ouvrir la période de décembre avant de relancer.</p>
     </div>
 
-    <h3>Étape par étape</h3>
-    <ol>
-        <li>Aller dans <strong>Gestion du personnel → Dossiers de départ</strong></li>
-        <li>Créer un nouveau dossier offboarding pour le salarié sortant</li>
-        <li>Renseigner :
-            <ul>
-                <li><strong>Salarié</strong> = X</li>
-                <li><strong>DateDebut</strong> = date de notification (démission/licenciement)</li>
-                <li><strong>DateSortie</strong> = date effective de sortie (ex 30/06/2026)</li>
-            </ul>
-        </li>
-        <li>Cliquer le bouton 💰 <strong>« Calculer 13ième prorata STC »</strong> dans la toolbar du dossier</li>
-        <li>Le service calcule automatiquement :
-            <ul>
-                <li><code>BrutRecurrent</code> = BR du dernier bulletin avant DateSortie (mai)</li>
-                <li><code>MoisPresence</code> = nombre de bulletins de l'année (6 si janv→juin)</li>
-                <li><code>Montant prorata</code> = BR × 6 ÷ 12</li>
-            </ul>
-        </li>
-        <li>Le champ <strong>Indemnité 13ième mois prorata</strong> du dossier est renseigné</li>
-        <li>Un <code>TreiziemeMois</code> est créé avec <code>EstSurSTC = true</code> pour traçabilité</li>
-        <li>Le <strong>TOTAL SOLDE DE TOUT COMPTE</strong> inclut maintenant le 13ième</li>
-        <li>Suivre le workflow normal du dossier : SoldeCalculé → ValidéRH → ValidéDAF → Clôturé</li>
-    </ol>
-
-    <h3>Garde-fous</h3>
-    <ul>
-        <li>Si <strong>aucun bulletin</strong> dans l'année → action bloquée, message clair</li>
-        <li>Si dossier déjà <strong>Clôturé</strong> → recalcul refusé</li>
-        <li><strong>Idempotent</strong> : recliquer l'action met à jour la valeur sans dupliquer</li>
-        <li>Le batch de décembre <strong>exclut automatiquement les sortants</strong> (IsActif = false), donc pas de doublon possible</li>
-    </ul>
-
-    <h3>Exemple chiffré</h3>
-    <p>Moussa NDIAYE démissionne le 30/06/2026.</p>
-    <ul>
-        <li>Brut récurrent mai 2026 : <strong>550 000 FCFA</strong></li>
-        <li>Bulletins janvier à juin : <strong>6 mois</strong></li>
-        <li>Prorata 13ième : <code>550 000 × 6 / 12 = <strong>275 000 FCFA</strong></code></li>
-    </ul>
-    <p>Le STC contiendra : indemnité congés + indemnité préavis + salaire prorata juin +
-    <strong>275 000 FCFA</strong> (13ième prorata) + éventuellement gratifications prorata
-    (voir section suivante).</p>
-
-    <!-- =============================================================== -->
-    <h2 id="gratif-regles">🎉 Gratification - Règles & workflow</h2>
-
-    <table>
-        <tr><th>Règle</th><th>Valeur</th></tr>
-        <tr><td>Déclenchement</td><td>Décision discrétionnaire DG</td></tr>
-        <tr><td>Bénéficiaires</td><td>Saisis manuellement par RH</td></tr>
-        <tr><td>Base de calcul</td><td><strong>Net OU Brut au choix</strong> de la saisie, ou Forfait fixe</td></tr>
-        <tr><td>Multiplicateur</td><td>Libre (variable selon la situation)</td></tr>
-        <tr><td>Fréquence</td><td>Ad hoc, sans calendrier</td></tr>
-        <tr><td>Fiscalité</td><td>Identique au 13ième (IR + CSS + IPRES + IPM, sans lissage)</td></tr>
-        <tr><td>Workflow</td><td>RH saisit → DAF valide → <strong>RH intègre</strong> au bulletin</td></tr>
-    </table>
-
-    <h3>Workflow visuel</h3>
-    <div class="workflow">
-        <div class="box"><span class="badge b-gris">Brouillon RH</span></div>
-        <span class="arrow">→</span>
-        <div class="box"><span class="badge b-jaune">En attente DAF</span></div>
-        <span class="arrow">→</span>
-        <div class="box"><span class="badge b-bleu">Validée DAF</span></div>
-        <span class="arrow">→</span>
-        <div class="box"><span class="badge b-vert">Intégrée</span></div>
-        <span class="arrow">→</span>
-        <div class="box"><span class="badge b-vert-fonce">Payée</span></div>
+    <div class="step">
+        <h3>"Un 13ieme mois existe déjà pour ce salarié"</h3>
+        <p>Un <code>TreiziemeMois</code> est déjà présent pour cette (Salarié x Année). Le consulter dans la ListView <strong>13iemes mois</strong>, puis le recalculer, l'annuler ou l'intégrer selon le besoin.</p>
     </div>
 
-    <p>Le DAF peut <strong>rejeter</strong> (badge rouge → repassage en Brouillon avec motif)
-    ou <strong>annuler</strong> à tout moment avant l'intégration.</p>
-
-    <!-- =============================================================== -->
-    <h2 id="gratif-saisie">📝 Gratification - Étape par étape (RH)</h2>
-
-    <h3>Étape 1 - Création (RH)</h3>
-    <p>Menu <strong>Paie → Gratifications → Nouveau</strong>.</p>
-    <ol>
-        <li>Sélectionner le <strong>Salarié</strong></li>
-        <li>Saisir l'<strong>Année</strong> et le <strong>Mois de paiement</strong></li>
-        <li>Choisir la <strong>Base de calcul</strong> :
-            <ul>
-                <li><code>BrutRecurrent</code> - multiple du brut hors congés</li>
-                <li><code>NetRecurrent</code> - multiple du net mensuel normal</li>
-                <li><code>Forfait</code> - montant fixe en FCFA (Multiplicateur ignoré)</li>
-            </ul>
-        </li>
-        <li>Saisir le <strong>Multiplicateur</strong> (ex 2,5) ou le <strong>Montant forfait</strong></li>
-        <li>Renseigner le <strong>Motif / commentaire</strong> (justification)</li>
-        <li>Cliquer <strong>« Calculer (preview) »</strong> pour voir le montant brut résultant</li>
-        <li>Ajuster si nécessaire, puis <strong>« Soumettre au DAF »</strong></li>
-    </ol>
-
-    <h3>Étape 2 - Validation DAF</h3>
-    <p>Le DAF reçoit la liste des gratifications en attente. Pour chacune :</p>
-    <ul>
-        <li><strong>« Valider »</strong> → la gratification passe en
-            <span class="badge b-bleu">Validée DAF</span></li>
-        <li><strong>« Rejeter »</strong> → repassage en Brouillon avec motif visible en commentaire</li>
-        <li><strong>« Annuler »</strong> → statut <span class="badge b-rouge">Annulé</span> (irréversible)</li>
-    </ul>
-
-    <h3>Étape 3 - Intégration au bulletin (RH)</h3>
-    <p>Une fois validée par le DAF, RH clique <strong>« Intégrer au bulletin »</strong> :</p>
-    <ul>
-        <li>Une ligne <code>GRATIF</code> est créée sur le bulletin du mois de paiement</li>
-        <li><code>Base</code> = BaseReference, <code>Taux</code> = Multiplicateur,
-            <code>Montant</code> = MontantCalcule</li>
-        <li>La gratification passe en <span class="badge b-vert">IntégréeBulletin</span></li>
-        <li>Tous les champs deviennent en lecture seule (sauf le passage final en Payée)</li>
-    </ul>
-
-    <!-- =============================================================== -->
-    <h2 id="gratif-stc">🚪 Gratification - Départ en cours d'année (STC)</h2>
-
-    <p>Cas typique : le DG a décidé d'une gratification (résultats N-1, fin
-    d'année, bonus performance) pour un salarié. RH a saisi la gratification,
-    le DAF l'a validée, mais le bulletin du mois cible n'est pas encore créé
-    (ex : gratif fin d'année prévue pour décembre, le salarié part en juin).</p>
-
-    <p>Dans ce cas, la gratification doit être <strong>versée au prorata</strong> sur le
-    Solde de Tout Compte (cohérence avec la règle du 13ième mois).</p>
-
-    <h3>Workflow concret</h3>
-    <div class="workflow">
-        <div class="box">📂 DossierOffboarding<br>du salarié</div>
-        <span class="arrow">→</span>
-        <div class="box">💰 Calculer gratifications<br>prorata STC</div>
-        <span class="arrow">→</span>
-        <div class="box">✅ Gratifications<br>marquées IntegreeBulletin<br>+ inscrites au STC</div>
+    <div class="step">
+        <h3>Le montant brut 13ieme me paraît faux</h3>
+        <p>Vérifier les deux composantes :</p>
+        <ul>
+            <li><strong>BrutRecurrentReference</strong> : correspond-il bien au BR du dernier bulletin validé avant décembre ? Si une variable fixe (sursalaire, indemnité) a été ajoutée tard, elle peut ne pas être prise si le bulletin de référence est antérieur. Recalculer après validation du dernier bulletin.</li>
+            <li><strong>MoisPresence</strong> : nombre de bulletins effectivement en base pour ce salarié dans l'année. Si des bulletins manquent (bascule), compléter puis recalculer.</li>
+        </ul>
     </div>
 
-    <h3>Étape par étape</h3>
-    <ol>
-        <li>Pré-requis : les gratifications du salarié doivent être en statut
-            <span class="badge b-bleu">Validée DAF</span> (validées mais non encore intégrées)</li>
-        <li>Sur le dossier d'offboarding du salarié, cliquer le bouton
-            💰 <strong>« Calculer gratifications prorata STC »</strong></li>
-        <li>Le service :
-            <ul>
-                <li>Liste toutes les gratifications <code>ValideeDAF</code> du salarié pour l'année</li>
-                <li>Pour chacune : applique le prorata <code>MontantCalcule × MoisPresence ÷ 12</code></li>
-                <li>Somme totale → inscrite dans <strong>Indemnité gratifications prorata</strong> du dossier</li>
-                <li>Marque les gratifications concernées comme <span class="badge b-vert">IntégréeBulletin</span></li>
-                <li>Ajoute un commentaire détaillant le calcul prorata</li>
-            </ul>
-        </li>
-        <li>Le <strong>TOTAL SOLDE DE TOUT COMPTE</strong> inclut désormais les gratifications</li>
-    </ol>
+    <div class="step">
+        <h3>Le DAF ne voit pas les gratifications en attente</h3>
+        <p>La gratification est encore en <code>BrouillonRH</code> : le RH ne l'a pas soumise. Ouvrir la gratification côté RH et cliquer sur "Soumettre au DAF" pour la faire passer en <code>EnAttenteValidationDAF</code>.</p>
+    </div>
 
-    <h3>Garde-fous</h3>
-    <ul>
-        <li>Si <strong>aucune gratification ValideeDAF</strong> → indemnité = 0, message info</li>
-        <li>Si dossier déjà <strong>Clôturé</strong> → action refusée</li>
-        <li>Les gratifications déjà <code>IntegreeBulletin</code> ne sont pas reproratisées (idempotent)</li>
-        <li>Si le batch d'intégration mensuelle tourne après le STC : la gratification est déjà
-            <code>IntegreeBulletin</code> → pas de doublon, pas d'intégration au bulletin standard</li>
-    </ul>
+    <div class="step">
+        <h3>Impossible d'intégrer une gratification au bulletin</h3>
+        <p>Deux causes typiques :</p>
+        <ul>
+            <li>Le statut n'est pas <code>ValideeDAF</code> : la DAF doit valider d'abord.</li>
+            <li>Le bulletin du mois de paiement n'existe pas ou la période n'est pas ouverte. Générer le bulletin ou ouvrir la période, puis réintégrer.</li>
+        </ul>
+    </div>
 
-    <h3>Exemple chiffré</h3>
-    <p>Fatou SOW démissionne le 30/06/2026.</p>
-    <ul>
-        <li>Le DG avait décidé une gratification de fin d'année : 1,5 × BR (= 420 000 × 1,5 = 630 000 FCFA)</li>
-        <li>RH avait saisi, DAF avait validé → statut <code>ValideeDAF</code></li>
-        <li>Bulletins janvier à juin : <strong>6 mois</strong></li>
-        <li>Prorata gratification : <code>630 000 × 6 / 12 = <strong>315 000 FCFA</strong></code></li>
-    </ul>
-    <p>Le STC contiendra ainsi 315 000 FCFA de gratification prorata, en plus du 13ième
-    prorata et des autres indemnités classiques.</p>
+    <div class="step">
+        <h3>Plusieurs gratifications dans le même mois : est-ce possible ?</h3>
+        <p>Oui, chaque gratification est une entité indépendante avec son propre workflow. L'intégration crée une ligne <code>GRATIF</code> distincte par gratification sur le bulletin.</p>
+    </div>
 
-    <h3>Cas avec plusieurs gratifications</h3>
-    <p>Si le salarié a plusieurs gratifications ValideeDAF dans l'année (ex : prime
-    bilan trimestriel + prime fin d'année), elles sont <strong>toutes</strong> proratisées
-    et leur somme est inscrite dans l'indemnité STC. Le rapport affiché à l'écran
-    détaille chacune (multiplicateur, mois cible, prorata calculé).</p>
+    <div class="step">
+        <h3>Recalculer le 13ieme écrase-t-il un montant déjà intégré ?</h3>
+        <p>Non. Le service <code>CalculerPourAnnee</code> est idempotent : seules les lignes au statut <code>Calcule</code> sont recalculées. Celles en <code>IntegreeBulletin</code> ou <code>Annule</code> sont ignorées.</p>
+    </div>
 
-    <!-- =============================================================== -->
-    <h2 id="cas">🧮 Cas pratiques chiffrés (validés RH)</h2>
-
-    <h3>Cas 1 - Salarié plein-temps présent toute l'année 2026</h3>
-    <p>Jean DIOP (matricule 12345), embauché le 01/01/2024, brut récurrent
-    novembre 2026 = <strong>500 000 FCFA</strong>, 12 bulletins sur 2026.</p>
-    <p><code>13ième brut = 500 000 × 12 / 12 = <strong>500 000 FCFA</strong></code> sur bulletin décembre.</p>
-
-    <h3>Cas 2 - Embauche en cours d'année</h3>
-    <p>Aminata BA, embauchée le 01/04/2026, brut récurrent novembre 2026 =
-    <strong>400 000 FCFA</strong>, 9 bulletins (avril à décembre).</p>
-    <p><code>13ième brut = 400 000 × 9 / 12 = <strong>300 000 FCFA</strong></code> sur bulletin décembre.</p>
-
-    <h3>Cas 3 - Démission au 30/06/2026 (STC)</h3>
-    <p>Moussa NDIAYE, brut récurrent mai 2026 = <strong>550 000 FCFA</strong>, 6 bulletins
-    (janvier à juin).</p>
-    <p><code>13ième prorata = 550 000 × 6 / 12 = <strong>275 000 FCFA</strong></code> sur bulletin de
-    juillet 2026 (STC). Non versé en décembre.</p>
-
-    <h3>Cas 4 - Gratification 2,5 mois sur base brute en juin</h3>
-    <p>Fatou SOW, brut récurrent mai 2026 = <strong>420 000 FCFA</strong>.</p>
-    <p>RH saisit Gratification : BaseCalcul = <code>BrutRecurrent</code>, Multiplicateur = 2,5.</p>
-    <p><code>Montant calculé = 420 000 × 2,5 = <strong>1 050 000 FCFA</strong></code> sur bulletin juin
-    après workflow RH→DAF→RH.</p>
-
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ</h2>
-
-    <h3>Le calcul du 13ième est-il automatique chaque année ?</h3>
-    <p>Non, c'est un déclenchement manuel par le DAF via le bouton « Calculer 13ième mois ».
-    Cela permet d'attendre que tous les bulletins de novembre soient validés et de
-    vérifier la liste avant intégration.</p>
-
-    <h3>Que se passe-t-il si je relance le calcul deux fois ?</h3>
-    <p>Le service est idempotent : les calculs existants encore en statut
-    <span class="badge b-jaune">Calculé</span> sont recalculés et mis à jour. Ceux déjà
-    <span class="badge b-vert">IntégréeBulletin</span> ne sont pas touchés.</p>
-
-    <h3>Peut-on avoir plusieurs gratifications dans le même mois pour un salarié ?</h3>
-    <p>Oui, chaque gratification est une entité indépendante avec son propre workflow.
-    Lors de l'intégration, chacune crée sa propre ligne GRATIF sur le bulletin.</p>
-
-    <h3>Comment voir la consommation budgétaire des gratifications sur l'année ?</h3>
-    <p>Menu <strong>Paie → Rapport Gratifications</strong>. Vue agrégée par
-    Salarié × Année avec montant total, nombre de gratifications, multiplicateur
-    moyen, et poids relatif sur le brut récurrent annuel.</p>
-
-    <h3>Le DAF peut-il modifier le montant d'une gratification soumise par RH ?</h3>
-    <p>Non, dans le workflow actuel le DAF valide ou rejette mais ne peut pas
-    modifier les montants. S'il veut un autre montant, il rejette avec motif et
-    RH corrige et resoumet.</p>
-
+    <p class="footer-help">
+        SunuPaie - Guide 13ieme mois et gratifications - RH operationnel
+    </p>
 </body>
 </html>

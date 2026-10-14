@@ -1,76 +1,143 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analyse de l'Effectif - Aide Tableau N°2</title>
-    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SunuPaie - Analyse de l'effectif (Guide dashboard)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
-        <a href="/help/index.html">← Aide générale SunuPaie</a>
-        <span class="sep">|</span>
+        <a href="/help/index.html">Accueil</a>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
         <span class="sep">|</span>
-        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
-        <a href="/help/dashboards/analyse-effectif.html" class="active">N°2 Analyse</a>
-        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
-        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
-        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
-        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
+        <a href="/help/dashboards/effectif-detaille.html">N1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html" class="active">N2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N6 Bilan Social</a>
     </nav>
-    <main>
-        <div class="num">Tableau N°2</div>
-        <h1>Analyse de l'Effectif (Global / Moyen)</h1>
-        <p class="lead">Vue analytique avec toggle Interne/Externe + Global/Moyen, courbe sur 8 ans
-        et 5 bar charts (tranche d'âge, ancienneté, segment, catégorie Top 5, type contrat).</p>
 
-        <h2>Toggle Personnel</h2>
-        <ul>
-            <li><strong>Interne</strong> = Salariés CDI/CDD/Stage (entité <code>Salarie</code>)</li>
-            <li><strong>Externe</strong> = Intérimaires (entité <code>Interimaire</code> + <code>ContratInterim</code>)</li>
-        </ul>
-        <p>Quand on bascule entre les deux, certains filtres changent : Site devient
-        Station service, Département devient Société Intérim, Catégorie devient Poste.</p>
+    <h1>Analyse d'effectif - Guide RH</h1>
+    <p>Vue analytique de l'effectif avec deux bascules (Interne/Externe, Global/Moyen),
+    courbe d'évolution sur 8 années glissantes et 5 répartitions par bar chart.
+    Destiné au DRH et au contrôle de gestion social pour lire la structure et la
+    dynamique de l'effectif.</p>
 
-        <h2>Toggle Mode</h2>
-        <ul>
-            <li><strong>Global</strong> = effectif au 31/12 (photo instantanée)</li>
-            <li><strong>Moyen</strong> = (effectif au 1/1 + effectif au 31/12) / 2 (vue ETP annuel)</li>
-        </ul>
-
-        <h2>Lecture des 7 KPI</h2>
-        <table>
-            <thead><tr><th>KPI</th><th>Calcul</th></tr></thead>
-            <tbody>
-                <tr><td>Effectif</td><td>Selon mode actif (Global ou Moyen)</td></tr>
-                <tr><td>% Départs</td><td>Sorties année / effectif</td></tr>
-                <tr><td>% Rotation (turnover)</td><td>(Embauches + Sorties) / 2 / effectif moyen</td></tr>
-                <tr><td>Ancienneté Moy.</td><td>Moyenne arrondie en années</td></tr>
-                <tr><td>% Femmes / % Hommes</td><td>Sur effectif total (INTERNE seulement, Interimaire n'a pas de Sexe)</td></tr>
-                <tr><td>Âge Moyen</td><td>Moyenne arrondie en années</td></tr>
-            </tbody>
-        </table>
-
-        <h2>Évolution sur 8 années glissantes</h2>
-        <p>Sparkline SVG avec aire orange : valeur année par année + variation % vs N-1
-        (▲ vert = croissance, ▼ rouge = décroissance).</p>
-
-        <h2>5 bar charts</h2>
+    <div class="toc">
+        <strong>Sommaire</strong>
         <ol>
-            <li><strong>Tranche d'âge</strong> (vertical) - 4 tranches + vide</li>
-            <li><strong>Ancienneté</strong> (vertical) - 5 tranches + vide</li>
-            <li><strong>Segment</strong> (horizontal) - Département (INTERNE) ou BU (EXTERNE)</li>
-            <li><strong>Catégorie Top 5</strong> (horizontal)</li>
-            <li><strong>Type de contrat</strong> (horizontal)</li>
+            <li><a href="#vue-ensemble">Vue d'ensemble</a></li>
+            <li><a href="#bascules">Les deux bascules</a></li>
+            <li><a href="#kpi">Lecture des 7 KPI</a></li>
+            <li><a href="#evolution">Évolution sur 8 ans et répartitions</a></li>
+            <li><a href="#filtres">Filtres disponibles</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
+    </div>
 
-        <div class="alerte">
-            <strong>EXTERNE - limitations connues :</strong> les KPI %Femmes/%Hommes restent à 0
-            car l'entité <code>Interimaire</code> n'a pas de champ Sexe. Le filtre Genre est
-            également inactif pour les intérimaires.
-        </div>
+    <h2 id="vue-ensemble">1. Vue d'ensemble</h2>
+    <p>Le dashboard répond à trois questions :</p>
+    <ul>
+        <li>Combien de personnes travaillent chez ELTON aujourd'hui, et combien en moyenne sur l'année ?</li>
+        <li>Comment l'effectif évolue-t-il sur 8 ans ?</li>
+        <li>Comment se répartit-il par âge, ancienneté, segment, catégorie et type de contrat ?</li>
+    </ul>
 
-        <div class="footer">ELTON Oil · Tableau N°2 · Étape 4.2</div>
-    </main>
+    <h2 id="bascules">2. Les deux bascules</h2>
+
+    <div class="step">
+        <h3><span class="num">2.1</span>Personnel : Interne ou Externe</h3>
+        <ul>
+            <li><strong>Interne</strong> : salariés permanents (entité <code>Salarie</code> avec <code>ContratSalarie</code> : CDI, CDD, Stage).</li>
+            <li><strong>Externe</strong> : intérimaires (entités <code>Interimaire</code> et <code>ContratInterim</code>).</li>
+        </ul>
+        <p>Lorsqu'on bascule vers Externe, certains filtres changent de nature :
+        Site devient Station service, Département devient Société d'intérim,
+        Catégorie devient Poste intérimaire.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2.2</span>Mode : Global ou Moyen</h3>
+        <ul>
+            <li><strong>Global</strong> : photo instantanée au 31/12 de l'année sélectionnée.</li>
+            <li><strong>Moyen</strong> : (effectif au 1/1 + effectif au 31/12) / 2, arrondi. Vue ETP annuel.</li>
+        </ul>
+    </div>
+
+    <h2 id="kpi">3. Lecture des 7 KPI</h2>
+    <table>
+        <tr><th>KPI</th><th>Calcul</th></tr>
+        <tr><td>Effectif</td><td>Selon le mode actif : Global = count des salariés actifs ; Moyen = Round((debut+fin)/2)</td></tr>
+        <tr><td>% Départs</td><td>Sorties de l'année / effectif actif. En externe : intérimaires distincts ayant quitté / actifs</td></tr>
+        <tr><td>% Rotation (turnover)</td><td>Sorties x 100 / effectif moyen</td></tr>
+        <tr><td>Ancienneté moyenne</td><td>Moyenne en années arrondie</td></tr>
+        <tr><td>% Femmes / % Hommes</td><td>Sur l'effectif total. Interne uniquement : <code>Interimaire</code> n'a pas de champ Sexe</td></tr>
+        <tr><td>Âge moyen</td><td>Moyenne en années arrondie</td></tr>
+    </table>
+
+    <div class="alerte">
+        <strong>Limite Externe :</strong> les KPI % Femmes / % Hommes restent à 0 côté intérimaires car l'entité ne porte pas de genre. Le filtre Genre est inactif dans ce mode.
+    </div>
+
+    <h2 id="evolution">4. Évolution sur 8 ans et répartitions</h2>
+
+    <h3>Courbe 8 années glissantes</h3>
+    <p>Sparkline SVG avec aire orange : valeur année par année sur les 8 derniers exercices,
+    assortie de la variation en % par rapport à N-1.</p>
+
+    <h3>5 répartitions</h3>
+    <ol>
+        <li><strong>Tranche d'âge</strong> (bar vertical) : 4 tranches plus une case "non renseigné".</li>
+        <li><strong>Ancienneté</strong> (bar vertical) : 5 tranches plus une case "non renseigné".</li>
+        <li><strong>Segment</strong> (bar horizontal) : Département en interne, BU/Société d'intérim en externe.</li>
+        <li><strong>Catégorie Top 5</strong> (bar horizontal) : les 5 catégories (ou postes en externe) les plus représentées.</li>
+        <li><strong>Type de contrat</strong> (bar horizontal) : CDI, CDD, Stage en interne ; types de contrat intérim en externe.</li>
+    </ol>
+
+    <h2 id="filtres">5. Filtres disponibles</h2>
+    <ul>
+        <li><strong>Année</strong> : exercice de référence pour la photo au 31/12.</li>
+        <li><strong>Site</strong> (interne) ou <strong>Station service</strong> (externe).</li>
+        <li><strong>Genre</strong> : interne uniquement.</li>
+        <li><strong>Segment</strong> : Département en interne.</li>
+        <li><strong>Catégorie</strong> (interne) ou <strong>Poste intérimaire</strong> (externe).</li>
+        <li><strong>Ancienneté</strong> : tranche d'ancienneté.</li>
+        <li><strong>Société d'intérim</strong> : externe uniquement.</li>
+    </ul>
+
+    <div class="info">
+        Résultats mis en cache 5 minutes. Les filtres s'appliquent à l'ensemble des KPI et des graphiques simultanément.
+    </div>
+
+    <h2 id="export">6. Export</h2>
+    <p>Le dashboard est exposé dans les services d'export Excel et PDF (voir les boutons Export en haut du dashboard).</p>
+
+    <h2 id="depannage">7. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>Les % Femmes/Hommes sont à 0 en Externe</h3>
+        <p>Comportement attendu. L'entité <code>Interimaire</code> ne porte pas de champ Sexe. Rester en mode Interne pour cette lecture.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le turnover semble incohérent</h3>
+        <p>Vérifier que les sorties sont correctement datées sur la fiche salarié (champ Date de sortie, pas la sentinelle 01/01/1900).</p>
+    </div>
+
+    <div class="step">
+        <h3>Une tranche d'âge ou d'ancienneté affiche "non renseigné"</h3>
+        <p>Un ou plusieurs salariés n'ont pas de date de naissance ou pas de date d'embauche. Compléter la fiche salarié pour les faire basculer dans la bonne tranche.</p>
+    </div>
+
+    <div class="step">
+        <h3>L'effectif Moyen diffère beaucoup du Global</h3>
+        <p>Normal si l'année a connu de nombreuses entrées/sorties. Le Moyen lisse les variations ; le Global ne reflète que la photo au 31/12.</p>
+    </div>
+
+    <p class="footer-help">
+        SunuPaie - Guide Analyse d'effectif - RH operationnel
+    </p>
 </body>
 </html>

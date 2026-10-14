@@ -3,362 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - Offboarding & Solde de tout compte (Guide complet)</title>
+    <title>SunuPaie - Offboarding et STC (Guide complet)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Périodes</a>
         <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/conges.html">Congés</a>
         <a href="/help/offboarding.html" class="active">Offboarding</a>
-        <a href="/help/disciplinaire.html">Disciplinaire</a>
-        <a href="/help/audit.html">Audit</a>
         <span class="sep">|</span>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>👋 Offboarding & Solde de tout compte - Guide complet</h1>
-    <p>Ce module pilote la sortie d'un salarié : ouverture du dossier de
-    départ, calcul automatique du solde de tout compte (STC) selon le droit
-    sénégalais (congés non pris, préavis, indemnité de licenciement,
-    prorata du mois), validation RH puis DAF, clôture et désactivation
-    du salarié.</p>
-
-    <!-- =============================================================== -->
-    <div style="background:#fff8e1;border:2px solid #ffa726;border-radius:8px;padding:1em 1.5em;margin:1.5em 0;">
-        <h2 style="margin-top:0;color:#e65100;">🆕 V1.8 (juin 2026) - Correction calcul ICCP</h2>
-
-        <p>L'<strong>Indemnité Compensatrice de Congés Payés</strong> (article 58
-        CCT Sénégal) versée au moment du départ a été corrigée pour s'aligner
-        sur la formule officielle d'allocation de congé :</p>
-
-        <table>
-            <tr><th></th><th>Avant V1.8 (sous-évalué)</th><th>Après V1.8 (corrigé)</th></tr>
-            <tr>
-                <td>Base</td>
-                <td>SalaireBase uniquement</td>
-                <td><strong>Brut imposable moyen 12 mois</strong> (inclut
-                    sursalaire, indemnités, avantages nature, etc.)</td>
-            </tr>
-            <tr>
-                <td>Diviseur</td>
-                <td>26</td>
-                <td><strong>24</strong> (= 2 j/mois × 12 = jours de congés
-                    annuels CCT)</td>
-            </tr>
-            <tr>
-                <td>Formule</td>
-                <td><code>SalaireBase × Solde / 26</code></td>
-                <td><code>(Σ brut 12 mois / 12) × Solde / 24</code></td>
-            </tr>
-        </table>
-
-        <h3 style="color:#e65100;">📊 Impact pour les forts cumuls</h3>
-        <p>Pour un salarié type DAF avec 220 jours de cumul et brut moyen
-        mensuel de 5 427 562 FCFA :</p>
-        <ul>
-            <li><strong>Avant V1.8</strong> (sur SalaireBase seul, ex: 432 000 FCFA) :
-                432 000 × 220 / 26 ≈ <strong>3,65 M FCFA</strong> (très sous-évalué)</li>
-            <li><strong>Après V1.8</strong> : 5 427 562 × 220 / 24 ≈
-                <strong>49,75 M FCFA</strong> (conforme CCT Art. 58)</li>
-        </ul>
-
-        <p>⚠️ <strong>Important</strong> : pour les dossiers d'offboarding déjà
-        clôturés avant V1.8, le calcul reste à l'ancienne valeur (pas de
-        recalcul rétroactif). Si nécessaire, rouvrir le dossier et relancer
-        "Calculer Solde Tout Compte".</p>
-
-        <h3 style="color:#e65100;">📋 Cas DAF / forts cumuls</h3>
-        <p>Pratique ELTON validée : les salariés à forts cumuls (DAF, top
-        management) ne touchent pas leur cumul en cours de carrière. Ils le
-        conservent et le perçoivent en bloc <strong>au moment du départ
-        retraite</strong> via l'ICCP calculée dans le STC.</p>
-    </div>
-    <!-- =============================================================== -->
+    <h1>Offboarding et STC - Guide RH</h1>
+    <p>Ce guide decrit le processus de départ d'un salarié dans SunuPaie :
+    ouverture du dossier d'offboarding, chargement des données salarié,
+    calcul automatisé du solde de tout compte (STC) selon le droit sénégalais,
+    double validation RH puis DAF, clôture et désactivation du salarié.
+    Il s'adresse au RH operationnel qui pilote la sortie, de la saisie
+    de la date de départ jusqu'à l'archivage du dossier.</p>
 
     <div class="toc">
-        <strong>📑 Étapes du processus</strong>
+        <strong>Sommaire</strong>
         <ol>
-            <li><a href="#vue-ensemble">Vue d'ensemble du workflow</a></li>
-            <li><a href="#etape1">Étape 1 - RH : créer le dossier de départ</a></li>
-            <li><a href="#etape2">Étape 2 - Charger les données salarié (snapshot)</a></li>
-            <li><a href="#etape3">Étape 3 - Calculer le solde</a></li>
-            <li><a href="#etape4">Étape 4 - Validation RH puis DAF</a></li>
-            <li><a href="#etape5">Étape 5 - Clôturer le dossier</a></li>
-            <li><a href="#calculs">Calculs détaillés du STC</a></li>
-            <li><a href="#motifs">Motifs de départ et règles</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
-            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du processus</a></li>
+            <li><a href="#dossier">Créer le dossier de départ</a></li>
+            <li><a href="#snapshot">Charger les données salarié (snapshot)</a></li>
+            <li><a href="#calcul">Calculer le solde de tout compte</a></li>
+            <li><a href="#validation">Validation RH puis DAF</a></li>
+            <li><a href="#cloture">Clôturer et archiver</a></li>
+            <li><a href="#formules">Formules de calcul du STC</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble du workflow</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble du processus</h2>
 
+    <h3>Workflow en 5 statuts</h3>
     <div class="workflow">
-        <div class="box">📝 Brouillon</div>
-        <span class="arrow">→</span>
-        <div class="box">📊 Solde calculé</div>
-        <span class="arrow">→</span>
-        <div class="box">✅ Validé RH</div>
-        <span class="arrow">→</span>
-        <div class="box">✅ Validé DAF</div>
-        <span class="arrow">→</span>
-        <div class="box">🔒 Clôturé</div>
-        <span class="arrow">→</span>
-        <div class="box">🚪 Salarié désactivé</div>
+        <div class="box">Initié</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Solde calculé</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Validé RH</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Validé DAF</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Clôturé</div>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape1">📝 Étape 1 - RH : créer le dossier de départ</h2>
+    <ul>
+        <li><strong>Initié</strong> : le dossier est créé avec le salarié, le motif et la date de sortie. Les données de rémunération peuvent être chargées.</li>
+        <li><strong>Solde calculé</strong> : le système a appliqué les formules légales et chiffré chaque composante du STC.</li>
+        <li><strong>Validé RH</strong> : le responsable RH approuve le montant calculé. Un email part automatiquement vers le DAF.</li>
+        <li><strong>Validé DAF</strong> : le DAF valide financièrement le solde. Le dossier devient clôturable.</li>
+        <li><strong>Clôturé</strong> : la fiche salarié est désactivée (<code>IsActif = false</code>), la <code>DateSortie</code> est posée, le dossier est verrouillé. Un email part vers le comptable pour règlement.</li>
+    </ul>
+
+    <h3>Qui fait quoi</h3>
+    <table>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>RH</td><td>Ouvre le dossier, charge les données salarié, lance le calcul, valide la première fois, clôture</td></tr>
+        <tr><td>DAF</td><td>Valide financièrement le montant calculé (deuxième validation)</td></tr>
+        <tr><td>Comptable</td><td>Reçoit par email le dossier clôturé pour règlement du STC</td></tr>
+        <tr><td>Salarié</td><td>Reçoit par email la notification de clôture de son dossier de sortie</td></tr>
+    </table>
+
+    <h3>Entité principale</h3>
+    <dl class="field-list">
+        <dt>DossierOffboarding</dt>
+        <dd>Un enregistrement par départ. Porte la référence (<code>OFF-AAAAMMJJ-XXXX</code>), le salarié, le motif, les dates, le snapshot de rémunération et les six composantes du STC (congés, préavis, licenciement, prorata, 13ième prorata, gratifications prorata, autres).</dd>
+
+        <dt>Snapshot salarié</dt>
+        <dd>Au chargement, SalaireBase, IndemniteLogement, AncienneteAnnees et CongesDisponibles sont copiés dans le dossier. Toute modification ultérieure de la fiche salarié reste sans effet sur le calcul tant que le snapshot n'est pas rechargé.</dd>
+
+        <dt>Statut</dt>
+        <dd>Enum OffboardingStatut qui pilote l'activation des boutons : Initié, EnCours, SoldeCalcule, ValideRH, ValidéDAF, Cloture.</dd>
+    </dl>
+
+    <h2 id="dossier">2. Créer le dossier de départ</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>Aller dans RH → Dossiers de départ → + Nouveau</h3>
+        <h3><span class="num">2.1</span>Ouvrir un nouveau dossier</h3>
+        <p>Menu : <strong>Ressources humaines &rsaquo; Dossiers de départ</strong>, cliquer sur <strong>Nouveau</strong>.</p>
+        <p>La référence <code>OFF-AAAAMMJJ-XXXX</code> est générée automatiquement et le statut est positionné à <strong>Initié</strong>.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Renseigner l'en-tête du dossier</h3>
+        <h3><span class="num">2.2</span>Renseigner l'en-tête</h3>
         <dl class="field-list">
             <dt>Salarié</dt>
-            <dd>Recherche par matricule ou nom.</dd>
+            <dd>Recherche par matricule ou nom. Seuls les salariés actifs apparaissent dans la liste (filtre <code>IsActif = true</code>).</dd>
+
             <dt>Motif de départ</dt>
-            <dd>Démission / Licenciement / Rupture conventionnelle / Retraite /
-                Fin de CDD / Décès.</dd>
-            <dt>Date de sortie</dt>
-            <dd>Dernier jour effectif de présence du salarié.</dd>
-            <dt>Durée de préavis</dt>
-            <dd>En jours (selon convention/contrat). Cf. table des motifs.</dd>
+            <dd>Démission, Licenciement, Retraite, Fin de CDD, Rupture conventionnelle, Décès, Autre.</dd>
+
+            <dt>Précision motif</dt>
+            <dd>Texte libre (500 caractères) pour détailler le contexte (fin de période d'essai, réorganisation, etc.).</dd>
+
+            <dt>Date de sortie effective</dt>
+            <dd>Dernier jour de présence. Doit être postérieure ou égale à la date d'initiation (règle de validation Offboarding_DateSortie_Valide).</dd>
+
+            <dt>Durée préavis (jours)</dt>
+            <dd>Nombre de jours de préavis à indemniser. Zéro si pas de préavis dû ou préavis effectué.</dd>
         </dl>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape2">📥 Étape 2 - Charger les données salarié (snapshot)</h2>
+    <h2 id="snapshot">3. Charger les données salarié (snapshot)</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>Cliquer sur Charger données salarié</h3>
-        <p>Le système photographie depuis la fiche : salaire de base,
-        indemnité de logement, ancienneté (en années), solde de congés
-        disponible.</p>
+        <h3><span class="num">3.1</span>Bouton "Charger salarié"</h3>
+        <p>Cliquer sur <strong>Charger salarié</strong> dans la barre d'actions. Le système copie dans le dossier :</p>
+        <ul>
+            <li><code>SalaireBase</code> depuis la fiche salarié</li>
+            <li><code>IndemniteLogement</code> depuis la fiche salarié</li>
+            <li><code>AncienneteAnnees</code> (en années pleines)</li>
+            <li><code>CongesDisponibles</code> : somme des <code>SoldeDisponible</code> des SoldeConge actifs de l'année en cours pour ce salarié</li>
+        </ul>
+        <p>Si le salarié n'est pas sélectionné, un message bloque l'action.</p>
     </div>
 
     <div class="info">
-        💡 Ce <strong>snapshot</strong> protège le calcul de toute
-        modification ultérieure de la fiche. Si le RH change le salaire
-        après ouverture du dossier, le STC reste calculé sur les
-        anciennes valeurs (sauf rechargement explicite).
+        Le snapshot protège le calcul contre toute modification ultérieure de la fiche. Si le RH change le salaire après ouverture du dossier, le STC reste chiffré sur les valeurs photographiées. Pour rafraîchir, cliquer à nouveau sur <strong>Charger salarié</strong>.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape3">🧮 Étape 3 - Calculer le solde</h2>
+    <h2 id="calcul">4. Calculer le solde de tout compte</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>Cliquer sur Calculer le solde</h3>
-        <p>Le système applique automatiquement les 4 formules légales
-        (cf. section <a href="#calculs">Calculs détaillés</a>) :</p>
+        <h3><span class="num">4.1</span>Bouton "Calculer solde"</h3>
+        <p>Pré-requis : salarié renseigné, motif renseigné, snapshot chargé (<code>SalaireBase &gt; 0</code>). Sinon un message d'erreur bloque l'action.</p>
+        <p>Cliquer sur <strong>Calculer solde</strong>. Le système applique les quatre formules légales (section 7) et renseigne :</p>
         <ul>
-            <li>Indemnité de congés non pris</li>
-            <li>Indemnité de préavis (si applicable selon motif)</li>
-            <li>Indemnité de licenciement (si applicable et ancienneté ≥ 1 an)</li>
-            <li>Prorata salarial du mois</li>
+            <li><code>IndemniteCongés</code> : indemnité compensatrice de congés payés (ICCP)</li>
+            <li><code>IndemnitePreavis</code> : indemnité de préavis (si Licenciement ou Rupture conventionnelle)</li>
+            <li><code>IndemniteLicenciement</code> : indemnité de licenciement (si motif applicable et ancienneté &gt;= 1 an)</li>
+            <li><code>SalaireProrata</code> : salaire du mois au prorata du jour de sortie</li>
         </ul>
-        <p>Le statut passe à <strong>Solde calculé</strong>.</p>
+        <p>Le statut passe à <strong>Solde calculé</strong>. Un email part aux RH avec le détail. Une entrée AuditService est créée.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Saisir Autres éléments (manuel)</h3>
-        <p>Champ libre pour primes ponctuelles : prime de bilan, gratification,
-        bonus pro rata temporis, etc.</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape4">✅ Étape 4 - Validation RH puis DAF</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Valider (RH)</h3>
-        <p>Le RH approuve le calcul. Son nom et la date sont enregistrés.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Valider (DAF)</h3>
-        <p>Le DAF valide le montant à payer. Son nom et la date sont
-        enregistrés. Le dossier est prêt pour clôture.</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape5">🔒 Étape 5 - Clôturer le dossier</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Cliquer sur Clôturer le dossier</h3>
-        <p>Action <strong>irréversible</strong> qui :</p>
+        <h3><span class="num">4.2</span>Composantes complémentaires</h3>
+        <p>Deux boutons dédiés chiffrent les éléments liés à l'exercice en cours :</p>
         <ul>
-            <li>Désactive le salarié (<code>IsActif = false</code>)</li>
-            <li>Enregistre la <code>DateSortie</code> sur sa fiche</li>
-            <li>Génère le PDF officiel du STC (avec signatures RH + DAF)</li>
-            <li>Bloque toute modification ultérieure du dossier</li>
+            <li><strong>Calculer 13ième prorata STC</strong> : <code>Indemnite13iemeMois</code> = Brut récurrent x Mois de présence dans l'année / 12. Pour les salariés qui partent avant le versement du 13ième.</li>
+            <li><strong>Calculer gratifications prorata STC</strong> : <code>IndemniteGratifications</code> = Somme des gratifications validées DAF non encore intégrées au bulletin, proratisées sur les mois de présence.</li>
         </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.3</span>Saisie "Autres éléments"</h3>
+        <p>Champ <code>AutresElements</code> saisi manuellement par le RH pour les primes ponctuelles non capturées par les formules automatiques (prime de bilan, gratification exceptionnelle, régularisation).</p>
+    </div>
+
+    <div class="flux">
+        TOTAL STC = IndemniteCongés + IndemnitePreavis + IndemniteLicenciement + SalaireProrata + Indemnite13iemeMois + IndemniteGratifications + AutresElements
+    </div>
+
+    <h2 id="validation">5. Validation RH puis DAF</h2>
+
+    <div class="step">
+        <h3><span class="num">5.1</span>Valider (RH)</h3>
+        <p>Statut requis : <strong>Solde calculé</strong>. Cliquer sur <strong>Valider (RH)</strong>, confirmer.</p>
+        <p>Le système enregistre <code>ValideRHPar</code> (nom de l'utilisateur connecté) et <code>DateValidationRH</code>. Le statut passe à <strong>Validé RH</strong>. Un email part vers les DAF pour demande de validation financière.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.2</span>Valider (DAF)</h3>
+        <p>Statut requis : <strong>Validé RH</strong>. Cliquer sur <strong>Valider (DAF)</strong>, confirmer.</p>
+        <p>Le système enregistre <code>ValideDAFPar</code> et <code>DateValidationDAF</code>. Le statut passe à <strong>Validé DAF</strong>. Un email part vers les RH pour signaler que le dossier est clôturable.</p>
+    </div>
+
+    <div class="info">
+        Le workflow est strictement séquentiel. Chaque bouton est grisé tant que le statut précédent n'est pas atteint. Impossible de clôturer sans la double validation RH + DAF.
+    </div>
+
+    <h2 id="cloture">6. Clôturer et archiver</h2>
+
+    <div class="step">
+        <h3><span class="num">6.1</span>Bouton "Clôturer"</h3>
+        <p>Statut requis : <strong>Validé DAF</strong>. Cliquer sur <strong>Clôturer</strong>, confirmer.</p>
+        <p>Le système effectue dans la foulée :</p>
+        <ol>
+            <li>Positionne <code>Salarie.IsActif = false</code> (le salarié sort des listes actives)</li>
+            <li>Pose <code>Salarie.DateSortie</code> à la date de sortie du dossier</li>
+            <li>Passe le statut du dossier à <strong>Clôturé</strong></li>
+            <li>Enregistre une entrée AuditService "Clôturer"</li>
+            <li>Envoie un email au salarié (si Email renseigné) pour notification de clôture</li>
+            <li>Envoie un email aux comptables avec le total STC à régler</li>
+        </ol>
     </div>
 
     <div class="alerte">
-        ⚠️ Une fois clôturé, le salarié n'apparaît plus dans les bulletins
-        des mois suivants et ses accès Espace Salarié sont désactivés.
+        <strong>Action irréversible.</strong> Une fois clôturé, le salarié ne figure plus dans les traitements de paie des mois suivants, ses accès Mon espace sont désactivés et le dossier d'offboarding est verrouillé en lecture seule.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="calculs">🧮 Calculs détaillés du STC</h2>
+    <h3>Document PDF du STC</h3>
+    <p>Le champ <code>DocumentSolde</code> (type FileData) permet d'attacher au dossier le PDF signé du solde de tout compte à archiver pour l'audit.</p>
+
+    <h2 id="formules">7. Formules de calcul du STC</h2>
+
+    <h3>1) Indemnité compensatrice de congés payés (ICCP)</h3>
+    <div class="formule">
+ICCP = (Somme Brut imposable 12 derniers mois / 12) x CongesDisponibles / 24
+    </div>
+    <p>Conforme CCT Sénégal Article 58. Le diviseur 24 correspond aux jours de congés annuels standards (2 jours x 12 mois) et aligne le calcul sur l'allocation de congé en cours de carrière. La période de référence est les 12 mois rolling précédant la date de sortie. Le cumul agrège les montants des lignes de bulletin dont la rubrique porte <code>BrutFiscal = true</code> et <code>TypeCalcul = Gain</code>.</p>
 
     <div class="info">
-        Les formules respectent le <strong>Code du Travail sénégalais</strong>.
+        Si le salarié a moins de 12 mois d'historique, la division par 12 est maintenue (règle RH ELTON validée) : les droits acquis étant eux-mêmes proportionnels à la durée travaillée, l'indemnité l'est aussi.
     </div>
-
-    <h3>1) Indemnité de congés non pris</h3>
-    <div class="formule">
-        Indemnité congés = Jours disponibles × (Salaire base / 26)
-    </div>
-    <p>Base : 26 jours ouvrables par mois (convention sénégalaise).</p>
 
     <h3>2) Indemnité de préavis</h3>
     <div class="formule">
-        Indemnité préavis = (Salaire base + Indemnité logement) / 30 × Durée préavis (jours)
+IndemnitePreavis = (SalaireBase + IndemniteLogement) / 30 x DureePreavis
     </div>
-    <div class="alerte">
-        Applicable uniquement en cas de <strong>licenciement</strong> ou
-        <strong>rupture conventionnelle</strong>. Démissions et fins
-        de CDD ne donnent pas lieu à préavis indemnisé.
-    </div>
+    <p>Applicable uniquement si le motif est <strong>Licenciement</strong> ou <strong>Rupture conventionnelle</strong>. Zéro dans tous les autres cas (démission, retraite, fin de CDD, décès).</p>
 
     <h3>3) Indemnité de licenciement</h3>
     <div class="formule">
-        Pour chaque année d'ancienneté :<br>
-        • Années 1 à 5 : 25 % × (Salaire base + Logement)<br>
-        • Années 6 à 10 : 30 % × (Salaire base + Logement)<br>
-        • Au-delà de 10 ans : 40 % × (Salaire base + Logement)
+Pour chaque année d'ancienneté, cumuler :
+- Années 1 à 5    : 25 % x (SalaireBase + IndemniteLogement)
+- Années 6 à 10   : 30 % x (SalaireBase + IndemniteLogement)
+- Au-delà de 10   : 40 % x (SalaireBase + IndemniteLogement)
     </div>
-    <div class="alerte">
-        Applicable uniquement en cas de licenciement ou rupture
-        conventionnelle, et <strong>si l'ancienneté est ≥ 1 an</strong>.
-    </div>
+    <p>Applicable si motif = Licenciement ou Rupture conventionnelle <strong>et</strong> ancienneté &gt;= 1 an. Zéro sinon.</p>
 
     <h3>4) Prorata salarial du mois</h3>
     <div class="formule">
-        Salaire prorata = (Salaire base + Logement) / 30 × Jour de sortie
+SalaireProrata = (SalaireBase + IndemniteLogement) / 30 x Jour de sortie
     </div>
+    <p>Le jour de sortie est le quantième du mois dans <code>DateSortie</code> (ex. 15 pour un départ le 15/05).</p>
 
-    <h3>Total</h3>
-    <div class="formule">
-        TOTAL STC = Congés + Préavis + Licenciement + Prorata + Autres
-    </div>
-
-    <h3>Exemple complet de calcul</h3>
-    <div class="exemple">
-        <strong>Moussa DIOP</strong> - SB = 400 000, Logt = 60 000,
-        Ancienneté = 7 ans, Licenciement, sortie le 15/05.
-        <table>
-            <thead><tr><th>Élément</th><th>Calcul</th><th>Montant (FCFA)</th></tr></thead>
-            <tbody>
-                <tr><td>Congés non pris (12 j)</td><td>12 × (400 000 / 26)</td><td>184 615</td></tr>
-                <tr><td>Préavis (30 j)</td><td>(400 000 + 60 000) / 30 × 30</td><td>460 000</td></tr>
-                <tr><td>Licenciement (7 ans)</td><td>5 × 460 000 × 25 % + 2 × 460 000 × 30 %</td><td>851 000</td></tr>
-                <tr><td>Prorata (15 j)</td><td>460 000 / 30 × 15</td><td>230 000</td></tr>
-                <tr style="font-weight:bold;background:#fff2cc"><td colspan="2">TOTAL STC</td><td>1 725 615</td></tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="motifs">📋 Motifs de départ et règles</h2>
-
+    <h3>Table des motifs</h3>
     <table>
-        <thead><tr><th>Motif</th><th>Préavis</th><th>Licenciement</th><th>Congés</th><th>Prorata</th></tr></thead>
-        <tbody>
-            <tr><td>Démission</td><td>Non</td><td>Non</td><td>Oui</td><td>Oui</td></tr>
-            <tr><td>Licenciement</td><td>Oui</td><td>Oui (≥ 1 an)</td><td>Oui</td><td>Oui</td></tr>
-            <tr><td>Rupture conventionnelle</td><td>Oui</td><td>Oui (≥ 1 an)</td><td>Oui</td><td>Oui</td></tr>
-            <tr><td>Retraite</td><td>Non</td><td>Non</td><td>Oui</td><td>Oui</td></tr>
-            <tr><td>Fin de CDD</td><td>Non</td><td>Non</td><td>Oui</td><td>Oui</td></tr>
-            <tr><td>Décès</td><td>Non</td><td>Non</td><td>Oui (ayants droit)</td><td>Oui</td></tr>
-        </tbody>
+        <tr><th>Motif</th><th>Préavis</th><th>Licenciement</th><th>Congés (ICCP)</th><th>Prorata</th></tr>
+        <tr><td>Démission</td><td>Non</td><td>Non</td><td>Oui</td><td>Oui</td></tr>
+        <tr><td>Licenciement</td><td>Oui</td><td>Oui (si &gt;= 1 an)</td><td>Oui</td><td>Oui</td></tr>
+        <tr><td>Rupture conventionnelle</td><td>Oui</td><td>Oui (si &gt;= 1 an)</td><td>Oui</td><td>Oui</td></tr>
+        <tr><td>Retraite</td><td>Non</td><td>Non</td><td>Oui</td><td>Oui</td></tr>
+        <tr><td>Fin de CDD</td><td>Non</td><td>Non</td><td>Oui</td><td>Oui</td></tr>
+        <tr><td>Décès</td><td>Non</td><td>Non</td><td>Oui (ayants droit)</td><td>Oui</td></tr>
     </table>
 
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
+    <h3>Cas des forts cumuls (DAF, top management)</h3>
+    <p>Pratique ELTON validée : les salariés à forts cumuls ne prennent pas leurs congés en cours de carrière. Le cumul se conserve et est versé en bloc au moment du départ via l'ICCP calculée dans le STC. La formule à 24 produit un montant conforme à la CCT, significativement supérieur à l'ancienne formule qui divisait par 26 sur le seul SalaireBase.</p>
 
-    <h3>Cas 1 - Démission classique</h3>
-    <div class="exemple">
-        Aïssa démissionne avec préavis effectué (1 mois). STC = uniquement
-        congés non pris (15 j) + prorata du mois courant. Pas d'indemnité
-        de licenciement.
-    </div>
+    <h2 id="depannage">8. Dépannage et FAQ</h2>
 
-    <h3>Cas 2 - Licenciement après 12 ans</h3>
-    <div class="exemple">
-        Modou est licencié pour réorganisation après 12 ans. Indemnité
-        de licenciement = 5 ans à 25 % + 5 ans à 30 % + 2 ans à 40 %
-        (palier 10+ ans).
+    <div class="step">
+        <h3>"Sélectionnez d'abord un salarié"</h3>
+        <p>Le bouton Charger salarié ou Calculer solde a été cliqué avec le champ Salarié vide. Choisir d'abord le salarié dans la liste déroulante.</p>
     </div>
 
-    <h3>Cas 3 - Décès en service (ayants droit)</h3>
-    <div class="exemple">
-        Au décès de Coumba, le STC est calculé normalement (congés non pris
-        + prorata du mois) puis versé aux ayants droit (champ
-        <em>Bénéficiaire</em> à renseigner sur le dossier).
+    <div class="step">
+        <h3>"Chargez d'abord les données salarié (salaire = 0)"</h3>
+        <p>Le calcul du solde a été lancé avant le snapshot. Cliquer sur <strong>Charger salarié</strong> pour renseigner SalaireBase, IndemniteLogement, ancienneté et congés disponibles avant de relancer le calcul.</p>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
-
-    <div class="erreur">
-        <strong>"Salarié non renseigné"</strong> → sélectionner un salarié
-        avant calcul.
+    <div class="step">
+        <h3>Congés disponibles à zéro alors que le salarié a des droits</h3>
+        <p>Le snapshot lit les SoldeConge actifs de l'année en cours. Vérifier dans <strong>Congés et absences &rsaquo; Soldes de congés</strong> que le salarié a bien un solde actif pour l'année courante. Si l'acquisition mensuelle n'a pas été lancée, le solde reste à zéro ; voir le guide Congés section 4.1.</p>
     </div>
 
-    <div class="erreur">
-        <strong>"Salaire = 0"</strong> → cliquer <em>Charger données salarié</em>
-        pour mettre à jour le snapshot.
+    <div class="step">
+        <h3>Indemnité de licenciement à zéro malgré un licenciement</h3>
+        <p>Deux causes :</p>
+        <ul>
+            <li>Le motif est Démission, Retraite, Fin de CDD ou Décès : l'indemnité ne s'applique qu'à Licenciement et Rupture conventionnelle.</li>
+            <li>L'ancienneté est inférieure à 1 an.</li>
+        </ul>
     </div>
 
-    <div class="erreur">
-        <strong>Congés disponibles = 0</strong> → vérifier le solde de congés
-        du salarié pour l'année en cours dans <em>Congés → Soldes</em>.
+    <div class="step">
+        <h3>Boutons grisés</h3>
+        <p>Le workflow est séquentiel : <em>Charger salarié</em> et <em>Calculer solde</em> ne sont actifs qu'en statut Initié ou En cours ; <em>Valider (RH)</em> uniquement en Solde calculé ; <em>Valider (DAF)</em> uniquement en Validé RH ; <em>Clôturer</em> uniquement en Validé DAF. Vérifier le statut courant du dossier.</p>
     </div>
 
-    <div class="erreur">
-        <strong>Indemnité licenciement = 0</strong> → vérifier que le motif
-        est <em>Licenciement</em> ou <em>Rupture conventionnelle</em> ET
-        que l'ancienneté est ≥ 1 an.
+    <div class="step">
+        <h3>ICCP semble trop faible</h3>
+        <p>Le calcul lit uniquement les lignes de bulletin dont la rubrique est marquée <code>BrutFiscal = true</code> et <code>TypeCalcul = Gain</code>. Si des rubriques devraient entrer dans le brut imposable mais ne sont pas flaguées, les corriger dans le référentiel des rubriques, puis relancer <strong>Calculer solde</strong> sur le dossier.</p>
     </div>
 
-    <div class="erreur">
-        <strong>Boutons grisés</strong> → le workflow est séquentiel.
-        Chaque étape doit être validée dans l'ordre.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
-
-    <div class="bouton">
-        <strong>📥 Charger données salarié :</strong> snapshot SB / Logt /
-        ancienneté / congés disponibles depuis la fiche.
-    </div>
-    <div class="bouton">
-        <strong>🧮 Calculer le solde :</strong> applique automatiquement les
-        4 formules légales (statut → Solde calculé).
-    </div>
-    <div class="bouton">
-        <strong>✅ Valider (RH) :</strong> approbation RH avec date + nom.
-    </div>
-    <div class="bouton">
-        <strong>✅ Valider (DAF) :</strong> validation financière, prêt à clôturer.
-    </div>
-    <div class="bouton">
-        <strong>🔒 Clôturer le dossier :</strong> désactive le salarié,
-        enregistre <code>DateSortie</code>, génère PDF officiel.
-        <strong>Irréversible.</strong>
+    <div class="step">
+        <h3>Le salarié n'a pas été désactivé après clôture</h3>
+        <p>La clôture positionne <code>Salarie.IsActif = false</code> et <code>Salarie.DateSortie</code> dans la même transaction. Si ce n'est pas le cas, consulter la table AuditEntry pour l'entrée "Clôturer" du dossier. Un échec de commit à ce moment-là serait tracé.</p>
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 - Module Offboarding & STC - Mise à jour mai 2026
+        SunuPaie - Guide Offboarding et STC - RH operationnel
     </p>
 </body>
 </html>

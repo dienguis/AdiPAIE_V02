@@ -3,290 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - Import en masse des salariés (Guide complet)</title>
+    <title>SunuPaie - Import Salariés (Excel) - Guide RH</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
+        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/periodes.html">Périodes</a>
+        <a href="/help/prets.html">Prêts</a>
         <a href="/help/salaries.html">Salariés</a>
         <a href="/help/import-salaries.html" class="active">Import Salariés</a>
-        <a href="/help/import-conjoints.html">Import Conjoints</a>
-        <a href="/help/import-comptes-bancaires.html">Import Comptes</a>
-        <a href="/help/bulletins.html">Bulletins</a>
+        <a href="/help/conges.html">Congés</a>
         <span class="sep">|</span>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>📥 Import en masse des salariés - Guide complet</h1>
-    <p>Cette fonctionnalité permet d'importer plusieurs salariés en une
-    seule opération à partir d'un fichier Excel (.xlsx). Idéal pour la
-    <strong>migration initiale</strong> depuis un ancien SIRH ou
-    l'intégration en lot de nouveaux effectifs. Le processus est
-    <strong>idempotent</strong> : les matricules existants sont ignorés.</p>
+    <h1>Import Salariés (Excel) - Guide RH</h1>
+    <p>Ce guide décrit la procédure d'import en masse des salariés dans SunuPaie
+    à partir d'un fichier Excel pré-formaté. Il s'adresse au RH opérationnel qui
+    doit charger un lot de salariés en une seule opération : migration initiale
+    depuis un ancien SIRH, intégration d'une promotion saisonnière, reprise d'un
+    site racheté. L'opération est idempotente : les matricules déjà présents en
+    base sont ignorés sans mise à jour, donc sans danger de la relancer.</p>
 
     <div class="toc">
-        <strong>📑 Étapes du processus</strong>
+        <strong>Sommaire</strong>
         <ol>
             <li><a href="#vue-ensemble">Vue d'ensemble</a></li>
-            <li><a href="#etape1">Étape 1 - Télécharger le modèle</a></li>
-            <li><a href="#etape2">Étape 2 - Préparer le fichier Excel</a></li>
-            <li><a href="#etape3">Étape 3 - Importer dans SunuPaie</a></li>
-            <li><a href="#etape4">Étape 4 - Vérifier le rapport et compléter</a></li>
-            <li><a href="#colonnes">Colonnes attendues (référence)</a></li>
-            <li><a href="#regles">Règles de traitement</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
-            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
+            <li><a href="#preparer">Préparer le fichier Excel</a></li>
+            <li><a href="#colonnes">Colonnes attendues</a></li>
+            <li><a href="#lancer">Lancer l'import</a></li>
+            <li><a href="#idempotence">Idempotence et doublons</a></li>
+            <li><a href="#verification">Vérification après import</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble</h2>
 
     <div class="workflow">
-        <div class="box">📥 Télécharger modèle</div>
-        <span class="arrow">→</span>
-        <div class="box">✏️ Remplir Excel</div>
-        <span class="arrow">→</span>
-        <div class="box">📤 Importer</div>
-        <span class="arrow">→</span>
-        <div class="box">📊 Rapport résultat</div>
-        <span class="arrow">→</span>
-        <div class="box">✅ Compléter fiches</div>
+        <div class="box">Télécharger<br>le modèle</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Remplir<br>le fichier</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Importer<br>le .xlsx</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Lire le<br>rapport</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Compléter<br>les fiches</div>
     </div>
 
-    <div class="flux" style="display:flex; align-items:center; gap:15px;">
-        <div style="flex:1;">
-            <strong>Télécharger le fichier modèle :</strong><br>
-            Ce fichier Excel contient les en-têtes attendus et une ligne
-            d'exemple. Remplissez-le avec vos données puis importez-le.
-        </div>
-        <a href="/help/Modele_Import_Salaries.xlsx" download
-           style="background:#0F6E56; color:white; padding:12px 24px; border-radius:6px;
-                  text-decoration:none; font-weight:bold; white-space:nowrap; font-size:15px;">
-            📥 Modèle (.xlsx)
-        </a>
+    <h3>Point d'entrée dans l'application</h3>
+    <p>Les deux actions se trouvent côte à côte dans le Centre d'imports (et non
+    dans la liste Salariés) :</p>
+    <p>Menu : <strong>Imports &rsaquo; Centre d'imports</strong></p>
+    <ul>
+        <li><strong>Modèle Salariés</strong> : télécharge le fichier Excel modèle.</li>
+        <li><strong>Importer Salariés</strong> : ouvre le popup qui accepte le fichier .xlsx rempli.</li>
+    </ul>
+
+    <h3>Pré-requis en base avant import</h3>
+    <div class="info">
+        Les référentiels pointés par le fichier doivent exister avant l'import.
+        Un libellé inconnu est ignoré silencieusement (champ laissé vide), pas
+        bloquant.
+        <ul>
+            <li><strong>Echelons</strong> (par Code) - si renseigné, aligne automatiquement SalaireBase, IndemniteLogement, Catégorie et Convention.</li>
+            <li><strong>Départements</strong> (par Nom) et <strong>Fonctions</strong> (par Intitulé) - lookup insensible à la casse.</li>
+            <li><strong>Sites</strong> (par Code ou par Nom).</li>
+        </ul>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape1">📥 Étape 1 - Télécharger le modèle</h2>
+    <h2 id="preparer">2. Préparer le fichier Excel</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>Aller dans la liste Salariés</h3>
-        <p>Cliquer sur <strong>📥 Télécharger modèle import</strong> dans la
-        barre d'actions.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Sauvegarder le fichier</h3>
-        <p>Le fichier <code>Modele_Import_Salaries.xlsx</code> est téléchargé
-        avec les en-têtes pré-formatés et une ligne d'exemple en italique gris.</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape2">✏️ Étape 2 - Préparer le fichier Excel</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Ouvrir avec Excel ou LibreOffice</h3>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Supprimer la ligne d'exemple (ligne 2)</h3>
+        <h3><span class="num">2.1</span>Télécharger le modèle</h3>
+        <p>Deux sources équivalentes :</p>
+        <ul>
+            <li>Dans l'application : <strong>Imports &rsaquo; Centre d'imports</strong>, bouton <strong>"Modèle Salariés"</strong>. Le fichier <code>Modele_Import_Salaries.xlsx</code> est téléchargé.</li>
+            <li>Depuis la page d'accueil de l'aide (<a href="/help/index.html">index.html</a>), le lien direct vers <code>Modele_Import_Salaries.xlsx</code>.</li>
+        </ul>
+        <p>Le modèle contient la ligne 1 d'en-têtes (fond vert, texte blanc, gras,
+        figée) et une ligne 2 d'exemple en italique gris à supprimer avant l'import.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">3</span>Remplir vos données</h3>
-        <p>Une ligne = un salarié. Renseigner au minimum les colonnes
-        obligatoires : <code>Matricule</code>, <code>Nom</code>, <code>Prénom</code>.</p>
+        <h3><span class="num">2.2</span>Supprimer la ligne d'exemple</h3>
+        <p>Ouvrir le fichier dans Excel ou LibreOffice Calc. Supprimer entièrement
+        la ligne 2 (ligne d'exemple en italique gris). Sinon le salarié "SAL001 /
+        DIOP / Moussa" sera créé lors du premier import.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">4</span>Enregistrer au format .xlsx</h3>
-        <p>Les formats <em>.xls</em>, <em>.csv</em>, <em>.ods</em>
-        ne sont pas supportés.</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape3">📤 Étape 3 - Importer dans SunuPaie</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Cliquer sur Importer depuis Excel</h3>
-        <p>Bouton dans la barre d'actions de la liste Salariés.</p>
+        <h3><span class="num">2.3</span>Saisir les données (une ligne = un salarié)</h3>
+        <p>Renseigner au minimum les trois colonnes obligatoires :
+        <code>Matricule</code>, <code>Nom</code>, <code>Prenom</code>. Les autres
+        colonnes sont facultatives : une colonne vide ou absente n'est pas une erreur.</p>
+        <p>L'ordre des colonnes n'a pas d'importance : le service lit les en-têtes
+        de la ligne 1 et retrouve les colonnes par nom (insensible à la casse).</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Sélectionner votre fichier</h3>
-        <p>Cliquer sur le champ fichier dans le popup.</p>
+        <h3><span class="num">2.4</span>Enregistrer en .xlsx</h3>
+        <p>Seul le format <code>.xlsx</code> est accepté. Les formats
+        <code>.xls</code>, <code>.csv</code>, <code>.ods</code> ne sont pas lus.
+        Enregistrer sous "Classeur Excel (*.xlsx)".</p>
     </div>
 
-    <div class="step">
-        <h3><span class="num">3</span>Cliquer sur Importer</h3>
-        <p>Le traitement démarre (typiquement quelques secondes pour
-        100 lignes).</p>
-    </div>
+    <h2 id="colonnes">3. Colonnes attendues</h2>
 
-    <!-- =============================================================== -->
-    <h2 id="etape4">📊 Étape 4 - Vérifier le rapport et compléter</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Lire le rapport de fin</h3>
-        <p>Format : <em>"X créé(s), Y ignoré(s), Z erreur(s)"</em>.
-        La liste est rafraîchie automatiquement.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Compléter les fiches créées</h3>
-        <p>Ajouter les éléments non couverts par l'import :
-        conjoints, comptes bancaires, pièces d'identité, photo,
-        affectations multiples si applicable.</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="colonnes">📋 Colonnes attendues (référence)</h2>
-
-    <p>L'ordre des colonnes n'a pas d'importance. La première ligne doit
-    contenir les en-têtes.</p>
+    <p>En-têtes exacts à conserver en ligne 1 (sans accent sur "Prenom" ni
+    "Telephone"). Toute colonne non listée est ignorée.</p>
 
     <h3>Identification (obligatoires)</h3>
     <table>
-        <thead><tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td><code>Matricule</code></td><td>Texte</td><td>SAL001</td><td>Identifiant unique. Si déjà en base, la ligne est ignorée.</td></tr>
-            <tr><td><code>Nom</code></td><td>Texte</td><td>DIOP</td><td>Nom de famille</td></tr>
-            <tr><td><code>Prénom</code></td><td>Texte</td><td>Moussa</td><td>Prénom</td></tr>
-        </tbody>
+        <tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Règle</th></tr>
+        <tr><td><code>Matricule</code></td><td>Texte</td><td>SAL001</td><td>Identifiant unique. Si déjà en base, ligne ignorée.</td></tr>
+        <tr><td><code>Nom</code></td><td>Texte</td><td>DIOP</td><td>Si vide, ligne en erreur.</td></tr>
+        <tr><td><code>Prenom</code></td><td>Texte</td><td>Moussa</td><td>Si vide, ligne en erreur. En-tête sans accent.</td></tr>
     </table>
 
-    <h3>État civil et situation</h3>
+    <h3>Etat civil et situation</h3>
     <table>
-        <thead><tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td><code>Sexe</code></td><td>Texte</td><td>M</td><td>M ou F. Synchronise auto la civilité.</td></tr>
-            <tr><td><code>SituationMaritale</code></td><td>Texte</td><td>Marié</td><td>Célibataire, Marié, Divorcé, Veuf. Impact parts fiscales.</td></tr>
-            <tr><td><code>NombreEnfants</code></td><td>Nombre</td><td>2</td><td>Nb enfants à charge (+0,5 part par enfant).</td></tr>
-            <tr><td><code>DateNaissance</code></td><td>Date</td><td>15/03/1990</td><td>Format JJ/MM/AAAA.</td></tr>
-            <tr><td><code>DateEmbauche</code></td><td>Date</td><td>01/01/2024</td><td>Si vide, date du jour. Détermine l'ancienneté.</td></tr>
-        </tbody>
+        <tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Règle</th></tr>
+        <tr><td><code>Sexe</code></td><td>Texte</td><td>M</td><td>M / Masculin / Homme ou F / Feminin / Féminin / Femme.</td></tr>
+        <tr><td><code>SituationMaritale</code></td><td>Texte</td><td>Marie</td><td>Celibataire / Marie / Divorce / Veuf (accents et initiales acceptés : C, M, D, V).</td></tr>
+        <tr><td><code>NombreEnfants</code></td><td>Nombre entier</td><td>2</td><td>Nombre d'enfants à charge.</td></tr>
+        <tr><td><code>DateNaissance</code></td><td>Date</td><td>15/03/1990</td><td>Format JJ/MM/AAAA.</td></tr>
+        <tr><td><code>DateEmbauche</code></td><td>Date</td><td>01/01/2024</td><td>Format JJ/MM/AAAA. Si vide, date du jour appliquée.</td></tr>
     </table>
 
     <h3>Classification et rémunération</h3>
     <table>
-        <thead><tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td><code>Echelon</code></td><td>Texte</td><td>E1-A</td><td>Code de l'échelon. Si renseigné, SB / Logt / Catégorie / Convention sont alignés auto.</td></tr>
-            <tr><td><code>SalaireBase</code></td><td>Nombre</td><td>300000</td><td>FCFA. Ignoré si Échelon renseigné.</td></tr>
-            <tr><td><code>IndemniteLogement</code></td><td>Nombre</td><td>60000</td><td>FCFA. Ignoré si Échelon renseigné.</td></tr>
-            <tr><td><code>Sursalaire</code></td><td>Nombre</td><td>25000</td><td>Sursalaire mensuel.</td></tr>
-            <tr><td><code>PrimeTransport</code></td><td>Nombre</td><td>26000</td><td>Interdite si véhicule attribué.</td></tr>
-            <tr><td><code>PossedeVehicule</code></td><td>Texte</td><td>Non</td><td>Oui/Non. Si Oui → PrimeTransport mise à 0.</td></tr>
-            <tr><td><code>AvantageVehicule</code></td><td>Nombre</td><td>0</td><td>Avantage en nature mensuel.</td></tr>
-        </tbody>
+        <tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Règle</th></tr>
+        <tr><td><code>Echelon</code></td><td>Texte</td><td>E1-A</td><td>Code de l'échelon. Si trouvé, aligne SalaireBase / IndemniteLogement / Catégorie / Convention.</td></tr>
+        <tr><td><code>SalaireBase</code></td><td>Nombre</td><td>300000</td><td>FCFA. <strong>Ignoré si Echelon renseigné.</strong></td></tr>
+        <tr><td><code>IndemniteLogement</code></td><td>Nombre</td><td>60000</td><td>FCFA. <strong>Ignoré si Echelon renseigné.</strong></td></tr>
+        <tr><td><code>Sursalaire</code></td><td>Nombre</td><td>25000</td><td>Sursalaire mensuel.</td></tr>
+        <tr><td><code>PrimeTransport</code></td><td>Nombre</td><td>26000</td><td>Prime de transport mensuelle.</td></tr>
+        <tr><td><code>PossedeVehicule</code></td><td>Texte</td><td>Non</td><td>Oui / O / True / 1 ou vide / Non.</td></tr>
+        <tr><td><code>AvantageVehicule</code></td><td>Nombre</td><td>0</td><td>Avantage en nature mensuel (seulement si &gt; 0).</td></tr>
     </table>
 
     <h3>Affectation et contact</h3>
     <table>
-        <thead><tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td><code>Departement</code></td><td>Texte</td><td>Comptabilité</td><td>Doit exister en base (casse ignorée).</td></tr>
-            <tr><td><code>Fonction</code></td><td>Texte</td><td>Comptable</td><td>Doit exister en base (casse ignorée).</td></tr>
-            <tr><td><code>Email</code></td><td>Texte</td><td>moussa.diop@x.sn</td><td>Email pro.</td></tr>
-            <tr><td><code>Telephone</code></td><td>Texte</td><td>771234567</td><td>Numéro tel.</td></tr>
-        </tbody>
+        <tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Règle</th></tr>
+        <tr><td><code>Departement</code></td><td>Texte</td><td>Comptabilité</td><td>Lookup par Nom (casse ignorée). Inconnu : champ vide.</td></tr>
+        <tr><td><code>Fonction</code></td><td>Texte</td><td>Comptable</td><td>Lookup par Intitulé (casse ignorée). Inconnu : champ vide.</td></tr>
+        <tr><td><code>Site</code></td><td>Texte</td><td>Siège</td><td>Lookup par Code puis par Nom (casse ignorée).</td></tr>
+        <tr><td><code>Email</code></td><td>Texte</td><td>moussa.diop@exemple.sn</td><td>Email professionnel.</td></tr>
+        <tr><td><code>Telephone</code></td><td>Texte</td><td>771234567</td><td>Ajouté comme PhoneNumber au salarié. En-tête sans accent.</td></tr>
     </table>
 
-    <!-- =============================================================== -->
-    <h2 id="regles">📜 Règles de traitement</h2>
+    <h2 id="lancer">4. Lancer l'import</h2>
 
-    <div class="alerte">
+    <div class="step">
+        <h3><span class="num">4.1</span>Ouvrir le Centre d'imports</h3>
+        <p>Menu : <strong>Imports &rsaquo; Centre d'imports</strong>. Les actions
+        d'import sont regroupées ici (salariés, conjoints, comptes bancaires)
+        pour éviter d'encombrer la liste Salariés.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.2</span>Lancer l'action "Importer Salariés"</h3>
+        <p>Cliquer sur <strong>"Importer Salariés"</strong>. Un popup s'ouvre
+        avec un seul champ : <code>Fichier Excel (.xlsx)</code>. Cliquer sur le
+        champ, sélectionner le fichier préparé, puis cliquer sur
+        <strong>"Importer"</strong>.</p>
+
+        <div class="flux">
+            Le service lit les en-têtes, vérifie que Matricule / Nom / Prenom
+            sont présents, puis boucle sur chaque ligne de données. Pour un
+            fichier de 100 lignes, le traitement prend quelques secondes.
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.3</span>Pour chaque ligne, le service effectue</h3>
+        <ol>
+            <li>Lit le matricule : si vide, ligne ignorée ; si déjà en base, ligne ignorée.</li>
+            <li>Lit Nom et Prenom : si l'un des deux est vide, ligne en erreur.</li>
+            <li>Crée l'objet <code>Salarie</code> et renseigne les champs présents.</li>
+            <li>Si Echelon trouvé, applique l'alignement (SalaireBase / IndemniteLogement / Catégorie / Convention).</li>
+            <li>Si <code>PossedeVehicule</code> coché, la prime de transport reste à la valeur saisie (la règle métier de non-cumul s'applique ensuite via la validation Salarié standard).</li>
+            <li>Résout Département, Fonction et Site par lookup.</li>
+        </ol>
+        <p>En fin de boucle, si au moins une création a réussi, un seul
+        <code>CommitChanges()</code> est effectué sur l'ObjectSpace.</p>
+    </div>
+
+    <h2 id="idempotence">5. Idempotence et doublons</h2>
+
+    <p>L'import est strictement <strong>idempotent</strong> : relancer le même
+    fichier ne crée aucun doublon et ne modifie aucun salarié existant.</p>
+
+    <table>
+        <tr><th>Situation</th><th>Comportement</th></tr>
+        <tr><td>Matricule inconnu, Nom et Prenom présents</td><td>Création. Compteur <code>Crees</code> +1.</td></tr>
+        <tr><td>Matricule déjà en base</td><td>Ligne ignorée. Compteur <code>Ignores</code> +1. Détail : "Ligne X : SAL001 existe déjà - ignoré."</td></tr>
+        <tr><td>Matricule vide</td><td>Ligne ignorée. Compteur <code>Ignores</code> +1.</td></tr>
+        <tr><td>Nom ou Prenom vide (matricule présent)</td><td>Ligne en erreur. Compteur <code>Erreurs</code> +1.</td></tr>
+        <tr><td>Exception imprévue sur une ligne</td><td>Ligne en erreur, message capturé. Les autres lignes continuent.</td></tr>
+    </table>
+
+    <div class="info">
+        Conséquence pratique : pour <strong>mettre à jour</strong> un salarié
+        existant, l'import est inopérant. Modifier la fiche directement, ou
+        supprimer le salarié avant de ré-importer (uniquement si aucune donnée
+        de paie n'est encore rattachée).
+    </div>
+
+    <h2 id="verification">6. Vérification après import</h2>
+
+    <div class="step">
+        <h3><span class="num">6.1</span>Lire le message de résultat</h3>
+        <p>En fin d'import, un bandeau affiche : <em>"X créé(s), Y ignoré(s), Z erreur(s)."</em>
+        Couleur verte si Z = 0, orange sinon. La liste Salariés est rafraîchie
+        automatiquement si X &gt; 0.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">6.2</span>Consulter le détail dans le journal d'audit</h3>
+        <p>Chaque import est tracé dans <strong>Audit &rsaquo; Journal d'audit</strong>
+        avec le résumé et la liste ligne par ligne des ignorés et des erreurs.
+        Entité : <code>Salarie</code>, Action : <code>Import en masse</code>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">6.3</span>Compléter les fiches créées</h3>
+        <p>L'import ne couvre que les champs listés en section 3. Les éléments
+        suivants doivent être ajoutés après l'import :</p>
         <ul>
-            <li><strong>Matricule unique :</strong> si déjà en base, ligne ignorée (pas de doublons, pas de mise à jour).</li>
-            <li><strong>Nom + Prénom obligatoires :</strong> sinon ligne en erreur.</li>
-            <li><strong>Échelon prioritaire :</strong> si Échelon renseigné et valide, SB/Logt/Catégorie/Convention auto-alignés. Les colonnes SalaireBase/Logement sont ignorées.</li>
-            <li><strong>Sexe ↔ Civilité :</strong> M → Monsieur, F → Madame.</li>
-            <li><strong>Véhicule :</strong> si PossedeVehicule = Oui, PrimeTransport mise à 0.</li>
-            <li><strong>Departement / Fonction :</strong> doivent exister exactement (casse ignorée). Sinon champ laissé vide.</li>
-            <li><strong>DateEmbauche par défaut :</strong> date du jour si vide.</li>
-            <li><strong>Traçabilité :</strong> chaque import est tracé dans le journal d'audit (compteurs créés/ignorés/erreurs).</li>
+            <li>Conjoints (via Import Conjoints ou saisie manuelle).</li>
+            <li>Comptes bancaires (via Import Comptes bancaires ou saisie manuelle).</li>
+            <li>Pièces d'identité, photo.</li>
+            <li>Affectations multiples si applicable.</li>
+            <li>Reports de congés N-1 si la bascule arrive en cours d'année.</li>
         </ul>
     </div>
 
-    <h3>Pré-requis avant import</h3>
-    <div class="info">
-        Avant d'importer, créer si nécessaire :
-        <ul>
-            <li>Les <strong>échelons</strong>, <strong>catégories</strong>, <strong>conventions</strong> (si classification conventionnelle utilisée)</li>
-            <li>Les <strong>départements</strong> et <strong>fonctions</strong> (sinon les champs seront vides)</li>
-        </ul>
+    <h2 id="depannage">7. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>"Colonne 'Matricule' introuvable" (ou 'Nom', 'Prenom')</h3>
+        <p>L'en-tête obligatoire est manquant ou mal orthographié en ligne 1.
+        Rouvrir le fichier modèle et vérifier que la ligne 1 porte exactement
+        <code>Matricule</code>, <code>Nom</code>, <code>Prenom</code> (sans
+        accent sur Prenom).</p>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
-
-    <h3>Cas 1 - Migration initiale (200 salariés)</h3>
-    <div class="exemple">
-        Lors du démarrage SunuPaie, le RH prépare un fichier de 200 lignes
-        depuis l'export du SIRH précédent. Import en une opération :
-        <em>198 créés, 2 erreurs (matricule vide)</em>. Correction
-        manuelle des 2 lignes restantes.
+    <div class="step">
+        <h3>"Fichier Excel vide ou introuvable"</h3>
+        <p>Le fichier uploadé fait 0 octet ou n'a pas été joint. Vérifier dans
+        le popup que le nom du fichier apparaît bien à côté du champ avant de
+        cliquer sur Importer.</p>
     </div>
 
-    <h3>Cas 2 - Import partiel par échelon</h3>
-    <div class="exemple">
-        Le RH importe 15 nouveaux chefs de station avec uniquement
-        Matricule, Nom, Prénom, DateEmbauche, Echelon = E2-A. Le système
-        complète automatiquement SB, Logt, Catégorie depuis l'échelon.
+    <div class="step">
+        <h3>"Ligne X : matricule vide - ignoré"</h3>
+        <p>Comportement normal pour une ligne sans matricule. Souvent une ligne
+        de total ou une ligne blanche en bas du fichier. Supprimer ces lignes.</p>
     </div>
 
-    <h3>Cas 3 - Import idempotent (réessais)</h3>
-    <div class="exemple">
-        Le RH lance l'import deux fois par erreur. Résultat de la 2e :
-        <em>0 créés, 200 ignorés, 0 erreurs</em>. Aucun doublon créé,
-        aucun risque de corruption.
+    <div class="step">
+        <h3>"Ligne X : SAL001 existe déjà - ignoré"</h3>
+        <p>Comportement normal : idempotence (voir section 5). Si une mise à
+        jour est attendue, elle doit se faire manuellement sur la fiche.</p>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
-
-    <div class="erreur">
-        <strong>"Colonne 'Matricule' introuvable"</strong> → Vérifier
-        l'orthographe exacte de l'en-tête en ligne 1 : <code>Matricule</code>.
+    <div class="step">
+        <h3>Un salarié est créé mais son département ou sa fonction est vide</h3>
+        <p>Le libellé saisi dans l'Excel n'a pas été trouvé en base (lookup
+        insensible à la casse mais pas aux fautes de frappe). Créer le
+        référentiel manquant puis affecter manuellement sur la fiche, ou
+        supprimer le salarié et ré-importer après avoir créé le référentiel.</p>
     </div>
 
-    <div class="erreur">
-        <strong>"Fichier Excel vide ou introuvable"</strong> → Le fichier
-        uploadé est vide ou corrompu. Ré-enregistrer puis réessayer.
+    <div class="step">
+        <h3>Un salarié a reçu Echelon mais le SalaireBase du fichier a été ignoré</h3>
+        <p>Comportement attendu : si Echelon est renseigné et valide, les
+        colonnes SalaireBase et IndemniteLogement du fichier sont volontairement
+        ignorées. L'échelon fait foi. Pour saisir un salaire hors grille,
+        laisser Echelon vide dans la ligne.</p>
     </div>
 
-    <div class="erreur">
-        <strong>"Ligne X : matricule vide - ignoré"</strong> → Renseigner
-        un matricule unique pour chaque salarié.
-    </div>
-
-    <div class="erreur">
-        <strong>"Ligne X : SAL001 existe déjà - ignoré"</strong> → Normal,
-        le système évite les doublons (idempotent).
-    </div>
-
-    <div class="info">
-        💡 <strong>Exemple complet :</strong> 4 lignes (SAL001, SAL002,
-        SAL003, SAL001 doublon) → résultat <em>3 créés, 1 ignoré, 0 erreur</em>.
-        SAL001 et SAL003 ont un échelon (alignement auto), SAL002 a un SB
-        manuel.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
-
-    <div class="bouton">
-        <strong>📥 Télécharger modèle import :</strong> Excel vide avec en-têtes + 1 ligne d'exemple.
-    </div>
-    <div class="bouton">
-        <strong>📤 Importer depuis Excel :</strong> popup de sélection fichier + bouton Importer.
+    <div class="step">
+        <h3>Rien ne se passe au clic sur "Modèle Salariés"</h3>
+        <p>Le téléchargement passe par un JSInterop (<code>AdiPAIE.downloadFile</code>).
+        Vérifier que le navigateur n'a pas bloqué le téléchargement (icône dans
+        la barre d'adresse). A défaut, utiliser le lien direct depuis la page
+        <a href="/help/index.html">index.html</a> de l'aide.</p>
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 - Module Import Salariés - Mise à jour mai 2026
+        SunuPaie - Guide Import Salariés - RH opérationnel
     </p>
 </body>
 </html>

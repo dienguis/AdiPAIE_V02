@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - Gestion disciplinaire (Guide complet)</title>
+    <title>SunuPaie - Gestion disciplinaire (Guide RH)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
@@ -18,277 +18,277 @@
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>⚖️ Gestion disciplinaire - Guide complet</h1>
-    <p>Ce module gère la procédure disciplinaire conforme au droit
-    sénégalais : ouverture du dossier, notification au salarié, audition
-    contradictoire (obligatoire), prononcé de la sanction et clôture.
-    Toutes les étapes sont tracées dans le journal d'audit.</p>
+    <h1>Gestion disciplinaire - Guide RH</h1>
+    <p>Ce guide décrit le cycle complet d'une procédure disciplinaire dans
+    SunuPaie, conforme au Code du Travail sénégalais : ouverture du dossier,
+    notification au salarié, audition contradictoire obligatoire, prononcé
+    de la sanction et clôture. Il s'adresse au RH opérationnel. Chaque
+    étape du workflow est séquentielle : les boutons des étapes suivantes
+    restent inactifs tant que l'étape en cours n'est pas validée. Toutes
+    les actions sont tracées dans le journal d'audit.</p>
 
     <div class="toc">
-        <strong>📑 Étapes du processus</strong>
+        <strong>Sommaire</strong>
         <ol>
-            <li><a href="#vue-ensemble">Vue d'ensemble du workflow</a></li>
-            <li><a href="#cadre">Cadre légal (droit sénégalais)</a></li>
-            <li><a href="#etape1">Étape 1 - Ouvrir le dossier</a></li>
-            <li><a href="#etape2">Étape 2 - Notifier le salarié</a></li>
-            <li><a href="#etape3">Étape 3 - Programmer l'audition</a></li>
-            <li><a href="#etape4">Étape 4 - Enregistrer le PV d'audition</a></li>
-            <li><a href="#etape5">Étape 5 - Prononcer la sanction</a></li>
-            <li><a href="#etape6">Étape 6 - Clôturer le dossier</a></li>
-            <li><a href="#sanctions">Échelle des sanctions</a></li>
-            <li><a href="#impact-paie">Impact sur le bulletin de paie</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
-            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du cycle disciplinaire</a></li>
+            <li><a href="#notifier">Ouvrir et notifier un dossier</a></li>
+            <li><a href="#audition">Convoquer et réaliser l'audition</a></li>
+            <li><a href="#sanction">Décider et notifier la sanction</a></li>
+            <li><a href="#cloture">Clôture et suivi</a></li>
+            <li><a href="#impact-paie">Impact sur la paie</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble du workflow</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble du cycle disciplinaire</h2>
 
+    <h3>Les 5 étapes du workflow</h3>
     <div class="workflow">
-        <div class="box">📂 Ouverture</div>
-        <span class="arrow">→</span>
-        <div class="box">📨 Notification</div>
-        <span class="arrow">→</span>
-        <div class="box">📅 Audition planifiée</div>
-        <span class="arrow">→</span>
-        <div class="box">📝 PV audition</div>
-        <span class="arrow">→</span>
-        <div class="box">⚖️ Sanction</div>
-        <span class="arrow">→</span>
-        <div class="box">🔒 Clôture</div>
+        <div class="box">Initié</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Notifié</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Audition<br>programmée</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Audition<br>réalisée</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Sanction<br>prononcée</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Clôturé</div>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="cadre">📜 Cadre légal (droit sénégalais)</h2>
+    <ul>
+        <li><strong>Initié</strong> : le dossier est ouvert, les faits et la catégorie de faute sont saisis. Statut par défaut à la création.</li>
+        <li><strong>Notifié</strong> : la procédure a été portée à la connaissance du salarié (date de notification enregistrée, email envoyé si l'adresse est renseignée).</li>
+        <li><strong>Audition programmée</strong> : la date de l'audition est fixée et communiquée au salarié.</li>
+        <li><strong>Audition réalisée</strong> : l'entretien a eu lieu et le PV est consigné dans le dossier.</li>
+        <li><strong>Sanction prononcée</strong> : le type de sanction, sa motivation et éventuellement sa durée sont enregistrés. La date de sanction est fixée automatiquement au jour du prononcé.</li>
+        <li><strong>Clôturé</strong> : le dossier est archivé en lecture seule (grisé italique dans la liste).</li>
+    </ul>
 
+    <h3>Cadre légal (droit sénégalais)</h3>
     <div class="info">
-        Le Code du Travail sénégalais distingue trois niveaux de faute :
+        Le Code du Travail distingue trois catégories de faute :
         <ul>
-            <li><strong>Faute simple :</strong> manquement mineur → avertissement ou blâme</li>
-            <li><strong>Faute grave :</strong> manquement sérieux → mise à pied disciplinaire (max <strong>8 jours</strong>)</li>
-            <li><strong>Faute lourde :</strong> manquement rendant impossible le maintien → licenciement immédiat</li>
+            <li><strong>Faute simple</strong> : manquement mineur, sanctionnable par un avertissement ou un blâme.</li>
+            <li><strong>Faute grave</strong> : manquement sérieux, sanctionnable par une mise à pied disciplinaire (plafond de 8 jours), une rétrogradation ou un licenciement pour faute.</li>
+            <li><strong>Faute lourde</strong> : manquement rendant impossible le maintien du contrat, licenciement sans préavis ni indemnité.</li>
         </ul>
-        <strong>L'audition du salarié est obligatoire</strong> avant toute sanction disciplinaire.
+        L'audition contradictoire est obligatoire avant toute sanction. Le dossier ne peut passer à l'étape sanction qu'après l'enregistrement du PV d'audition.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape1">📂 Étape 1 - Ouvrir le dossier</h2>
+    <h3>Qui fait quoi</h3>
+    <table>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>RH</td><td>Ouvre le dossier, saisit les faits, déclenche la notification, programme l'audition, consigne le PV, prononce la sanction, clôture.</td></tr>
+        <tr><td>Manager / témoins</td><td>Peut remonter les faits, assister à l'audition. Leurs noms sont consignés dans le champ Témoins / Représentants.</td></tr>
+        <tr><td>Salarié</td><td>Reçoit la notification par email (si adresse renseignée). Est entendu lors de l'audition. Ses observations sont transcrites dans le PV.</td></tr>
+    </table>
+
+    <h3>Entité principale</h3>
+    <dl class="field-list">
+        <dt>DossierDisciplinaire</dt>
+        <dd>Objet métier qui porte toute la procédure : référence auto-générée (<code>DISC-AAAAMMJJ-XXXX</code>), salarié, dates (faits, notification, audition, sanction), catégorie de faute, description, PV, témoins, observations du salarié, type et motivation de sanction, durée de mise à pied, document joint, statut et traçabilité (ouvert par / sanction prononcée par).</dd>
+    </dl>
+
+    <h2 id="notifier">2. Ouvrir et notifier un dossier</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>Aller dans RH → Dossiers disciplinaires → + Nouveau</h3>
-    </div>
+        <h3><span class="num">2.1</span>Créer le dossier</h3>
+        <p>Menu : <strong>Ressources humaines &rsaquo; Dossier disciplinaire</strong>, bouton <strong>Nouveau</strong>.</p>
+        <p>La référence du dossier est générée automatiquement au format <code>DISC-AAAAMMJJ-XXXX</code>. La date d'ouverture est fixée au jour. Le champ <code>Ouvert par</code> reçoit l'utilisateur connecté. Statut initial : <strong>Initié</strong>.</p>
 
-    <div class="step">
-        <h3><span class="num">2</span>Renseigner les éléments du dossier</h3>
+        <p>Renseigner :</p>
         <dl class="field-list">
             <dt>Salarié</dt>
-            <dd>Le salarié concerné.</dd>
+            <dd>Obligatoire. Le salarié concerné par la procédure.</dd>
+
             <dt>Date des faits</dt>
-            <dd>Date à laquelle le manquement a été constaté.</dd>
+            <dd>Obligatoire. Date à laquelle le manquement a été constaté.</dd>
+
             <dt>Catégorie de faute</dt>
-            <dd>Simple / Grave / Lourde.</dd>
+            <dd>Obligatoire. <code>Simple</code>, <code>Grave</code> ou <code>Lourde</code>. Détermine l'éventail des sanctions proportionnées.</dd>
+
             <dt>Description des faits</dt>
-            <dd>Texte circonstancié, factuel, sans jugement de valeur.</dd>
-            <dt>Articles enfreints (optionnel)</dt>
-            <dd>Référence aux articles du règlement intérieur.</dd>
+            <dd>Obligatoire. Texte circonstancié et factuel (500 caractères maximum), sans jugement de valeur.</dd>
+
+            <dt>Articles du règlement intérieur</dt>
+            <dd>Optionnel. Référence aux articles enfreints.</dd>
         </dl>
-    </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape2">📨 Étape 2 - Notifier le salarié</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Cliquer sur Notifier le salarié</h3>
-        <p>La date de notification est enregistrée automatiquement à
-        aujourd'hui. Le salarié est informé de l'ouverture de la procédure.</p>
-    </div>
-
-    <div class="info">
-        💡 En parallèle, <strong>remettre la convocation écrite</strong>
-        (lettre recommandée avec accusé de réception ou remise en main
-        propre contre décharge).
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape3">📅 Étape 3 - Programmer l'audition</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Renseigner la date d'audition</h3>
-        <p>Délai légal mini : <strong>48 heures</strong> entre la notification
-        et l'audition (pour permettre au salarié de préparer sa défense).</p>
+        <p>Enregistrer. Le dossier est à présent en statut <strong>Initié</strong> et l'action <strong>Notifier</strong> devient active.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Cliquer sur Programmer audition</h3>
-        <p>Pré-requis : la date d'audition doit être renseignée.</p>
+        <h3><span class="num">2.2</span>Notifier le salarié</h3>
+        <p>Cliquer sur <strong>Notifier</strong> depuis le dossier ouvert. Confirmer dans la boîte de dialogue.</p>
+
+        <div class="flux">
+            La date de notification est fixée au jour. Le statut passe à <strong>Notifié</strong>. Si le champ <code>Email</code> du salarié est renseigné, un email est envoyé automatiquement avec un tableau récapitulatif (référence, date des faits, catégorie, description, date de notification). Si l'adresse email est vide, la notification est enregistrée mais aucun email n'est émis - un message le signale.
+        </div>
+
+        <p>L'action est tracée dans le journal d'audit (opération <code>Notifier</code>, nouveau statut <em>Notifié</em>).</p>
+
+        <div class="info">
+            En parallèle de l'email, remettre la convocation écrite au salarié (lettre recommandée avec accusé de réception ou remise en main propre contre décharge). L'email ne remplace pas la formalité légale écrite.
+        </div>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape4">📝 Étape 4 - Enregistrer le PV d'audition</h2>
+    <h2 id="audition">3. Convoquer et réaliser l'audition</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>Le jour de l'audition : remplir le PV</h3>
+        <h3><span class="num">3.1</span>Programmer l'audition</h3>
+        <p>Renseigner d'abord le champ <strong>Date de l'audition</strong> dans le dossier. Prévoir un délai raisonnable entre la notification et l'audition pour permettre au salarié de préparer sa défense (usage : au moins 48 heures).</p>
+
+        <p>Cliquer sur <strong>Programmer</strong>. Le statut passe à <strong>Audition programmée</strong>. Si la date d'audition est vide, l'action est refusée avec le message : "Renseignez la date d'audition avant de continuer."</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3.2</span>Tenir l'audition et consigner le PV</h3>
+        <p>Le jour de l'audition, remplir dans le dossier :</p>
         <dl class="field-list">
-            <dt>Procès-verbal</dt>
-            <dd>Compte-rendu détaillé de l'entretien, propos tenus.</dd>
-            <dt>Témoins / représentants du personnel</dt>
-            <dd>Nom et fonction des personnes présentes (le salarié
-                peut être assisté).</dd>
+            <dt>Procès-verbal d'audition</dt>
+            <dd>Obligatoire pour valider l'étape. Compte-rendu détaillé de l'entretien et des propos tenus. Taille libre.</dd>
+
+            <dt>Témoins / Représentants</dt>
+            <dd>Nom et fonction des personnes présentes. Le salarié peut se faire assister par un représentant du personnel.</dd>
+
             <dt>Observations du salarié</dt>
-            <dd>Texte libre transcrivant la défense du salarié.</dd>
+            <dd>Transcription libre de la défense du salarié.</dd>
+        </dl>
+
+        <p>Cliquer sur <strong>Audition</strong>. Si le PV est vide, l'action est refusée : "Remplissez le procès-verbal d'audition avant de valider." Sinon le statut passe à <strong>Audition réalisée</strong> et l'étape sanction s'ouvre.</p>
+    </div>
+
+    <h2 id="sanction">4. Décider et notifier la sanction</h2>
+
+    <div class="step">
+        <h3><span class="num">4.1</span>Choisir une sanction proportionnée</h3>
+        <p>Le type de sanction doit être cohérent avec la catégorie de faute saisie à l'étape 2.1.</p>
+
+        <table>
+            <tr><th>Sanction</th><th>Catégorie typique</th><th>Impact</th></tr>
+            <tr><td>Avertissement</td><td>Faute simple</td><td>Pas d'impact financier</td></tr>
+            <tr><td>Blâme</td><td>Faute simple</td><td>Pas d'impact financier</td></tr>
+            <tr><td>Mise à pied disciplinaire</td><td>Faute grave</td><td>Suspension de la rémunération sur la durée, plafond 8 jours</td></tr>
+            <tr><td>Rétrogradation</td><td>Faute grave</td><td>Baisse de catégorie ou de salaire (à traiter sur la fiche salarié)</td></tr>
+            <tr><td>Licenciement pour faute</td><td>Faute grave</td><td>Rupture avec droit au préavis et aux congés</td></tr>
+            <tr><td>Licenciement pour faute lourde</td><td>Faute lourde</td><td>Rupture immédiate sans préavis ni indemnité</td></tr>
+        </table>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.2</span>Renseigner la sanction</h3>
+        <p>Dans le dossier, saisir :</p>
+        <dl class="field-list">
+            <dt>Type de sanction</dt>
+            <dd>Obligatoire. Un des 6 types ci-dessus.</dd>
+
+            <dt>Durée mise à pied (jours)</dt>
+            <dd>A renseigner si le type de sanction est <strong>Mise à pied disciplinaire</strong>. Plafond : 8 jours. Toute valeur supérieure est refusée au prononcé avec le message : "La mise à pied disciplinaire ne peut excéder 8 jours (Code du Travail sénégalais)."</dd>
+
+            <dt>Motivation de la sanction</dt>
+            <dd>Obligatoire. Justification écrite et circonstanciée (texte libre, taille non limitée). Son absence refuse le prononcé.</dd>
+
+            <dt>Lettre de sanction (.pdf)</dt>
+            <dd>Optionnel. Pièce jointe à conserver dans le dossier.</dd>
         </dl>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Cliquer sur Enregistrer audition</h3>
-        <p>Pré-requis : le PV d'audition doit être rempli.</p>
+        <h3><span class="num">4.3</span>Prononcer la sanction</h3>
+        <p>Cliquer sur <strong>Sanction</strong>. Confirmer dans la boîte de dialogue. Le système :</p>
+        <ol>
+            <li>Vérifie que le type de sanction est renseigné.</li>
+            <li>Vérifie que la motivation est renseignée.</li>
+            <li>Vérifie le plafond de 8 jours en cas de mise à pied.</li>
+            <li>Fixe la date de sanction au jour.</li>
+            <li>Renseigne le champ <code>Sanction prononcée par</code> avec l'utilisateur connecté.</li>
+            <li>Passe le statut à <strong>Sanction prononcée</strong>.</li>
+            <li>Enregistre l'opération dans le journal d'audit.</li>
+        </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape5">⚖️ Étape 5 - Prononcer la sanction</h2>
+    <h2 id="cloture">5. Clôture et suivi</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>Sélectionner le type de sanction</h3>
-        <p>Voir la <a href="#sanctions">section Échelle des sanctions</a>
-        pour le détail. La sanction doit être <strong>proportionnée</strong>
-        à la faute constatée.</p>
-    </div>
+        <h3><span class="num">5.1</span>Clôturer le dossier</h3>
+        <p>Une fois la sanction prononcée et exécutée (émission de la lettre, application sur la paie, mise en oeuvre de la mise à pied, etc.), cliquer sur <strong>Clôturer</strong>. Confirmer.</p>
 
-    <div class="step">
-        <h3><span class="num">2</span>Si mise à pied : renseigner la durée</h3>
-        <p><strong>Maximum 8 jours</strong> selon Code du Travail sénégalais.
-        Au-delà, la sanction est automatiquement requalifiée et bloquée.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">3</span>Remplir la motivation (obligatoire)</h3>
-        <p>Justification écrite et circonstanciée de la sanction.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">4</span>Cliquer sur Prononcer la sanction</h3>
-        <p>Optionnel : joindre la lettre de sanction (PDF).</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape6">🔒 Étape 6 - Clôturer le dossier</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Cliquer sur Clôturer le dossier</h3>
-        <p>Le dossier passe en lecture seule (grisé en italique dans la liste).</p>
+        <p>Le statut passe à <strong>Clôturé</strong>. Toute la fiche bascule en lecture seule et apparaît en gris italique dans la liste des dossiers (règle d'apparence <code>Discip_Cloture</code>).</p>
     </div>
 
     <div class="alerte">
-        ⚠️ En cas de <strong>licenciement pour faute</strong>, créer en
-        parallèle un <strong>Dossier de départ</strong> (offboarding) pour
-        gérer le solde de tout compte. Voir
-        <a href="/help/offboarding.html">guide Offboarding</a>.
+        En cas de <strong>licenciement pour faute</strong> ou de <strong>licenciement pour faute lourde</strong>, créer en parallèle un <strong>Dossier de départ</strong> pour piloter le solde de tout compte, le préavis et la restitution de matériel. Voir le <a href="/help/offboarding.html">guide Offboarding</a>. Pour la faute lourde, décocher les droits à préavis et indemnités dans le dossier de départ.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="sanctions">⚖️ Échelle des sanctions</h2>
+    <div class="step">
+        <h3><span class="num">5.2</span>Historique et traçabilité</h3>
+        <p>Chaque action du workflow (Notifier, Programmer audition, Enregistrer audition, Prononcer sanction, Clôturer) est inscrite dans le <a href="/help/audit.html">journal d'audit</a> avec :</p>
+        <ul>
+            <li>L'objet concerné (<code>DossierDisciplinaire</code>) et son identifiant.</li>
+            <li>L'opération exécutée.</li>
+            <li>Le libellé du dossier (<code>Salarié - Catégorie (date d'ouverture)</code>).</li>
+            <li>Le détail (date de notification, date d'audition, type et durée de sanction).</li>
+            <li>Le nouveau statut.</li>
+            <li>L'auteur et l'horodatage.</li>
+        </ul>
+        <p>Les champs <code>Ouvert par</code> et <code>Sanction prononcée par</code> sur le dossier conservent les identifiants des RH concernés.</p>
+    </div>
 
-    <table>
-        <thead><tr><th>Sanction</th><th>Catégorie</th><th>Durée / Impact</th></tr></thead>
-        <tbody>
-            <tr><td>Avertissement</td><td>Faute simple</td><td>Aucun impact financier</td></tr>
-            <tr><td>Blâme</td><td>Faute simple</td><td>Aucun impact financier</td></tr>
-            <tr><td>Mise à pied disciplinaire</td><td>Faute grave</td><td>Max 8 jours, sans salaire</td></tr>
-            <tr><td>Rétrogradation</td><td>Faute grave</td><td>Baisse de catégorie / salaire</td></tr>
-            <tr><td>Licenciement pour faute</td><td>Faute grave</td><td>Droit au préavis et congés</td></tr>
-            <tr><td>Licenciement pour faute lourde</td><td>Faute lourde</td><td>Immédiat, sans préavis ni indemnité</td></tr>
-        </tbody>
-    </table>
-
-    <!-- =============================================================== -->
-    <h2 id="impact-paie">💰 Impact sur le bulletin de paie</h2>
+    <h2 id="impact-paie">6. Impact sur la paie</h2>
 
     <div class="info">
-        En cas de <strong>mise à pied</strong>, le RH doit ajuster manuellement
-        le champ <strong>Jours travaillés</strong> sur le bulletin du mois.
-        Exemple : mise à pied de 5 jours → mettre Jours travaillés = 25
-        (au lieu de 30). Voir <a href="/help/bulletins.html">guide Bulletins</a>
-        section Prorata.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
-
-    <h3>Cas 1 - Avertissement simple</h3>
-    <div class="exemple">
-        Aïssa arrive en retard 5 fois dans le mois. Le RH ouvre un dossier
-        Faute simple, notifie, fait l'audition (1 h), prononce un
-        <em>Avertissement</em> écrit. Pas d'impact paie.
-    </div>
-
-    <h3>Cas 2 - Mise à pied 3 jours</h3>
-    <div class="exemple">
-        Modou refuse une mission de service. Faute grave. Mise à pied 3 j
-        prononcée. Sur son bulletin du mois : Jours travaillés = 27 au lieu
-        de 30, ce qui réduit son salaire de base et le prorata
-        d'indemnités au prorata.
-    </div>
-
-    <h3>Cas 3 - Licenciement pour faute lourde</h3>
-    <div class="exemple">
-        Coumba commet un vol caractérisé. Faute lourde, dossier ouvert,
-        audition tenue, licenciement immédiat prononcé. Le RH crée
-        en parallèle un dossier d'offboarding avec motif <em>Licenciement</em>
-        (sans préavis ni indemnité car faute lourde - case à décocher).
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
-
-    <div class="erreur">
-        <strong>"Renseignez la date d'audition"</strong> → remplir le champ
-        Date audition avant de cliquer <em>Programmer audition</em>.
-    </div>
-
-    <div class="erreur">
-        <strong>"Remplissez le PV d'audition"</strong> → l'audition doit être
-        documentée par écrit avant de prononcer la sanction.
-    </div>
-
-    <div class="erreur">
-        <strong>"Mise à pied ne peut excéder 8 jours"</strong> → la durée
-        saisie dépasse le maximum légal sénégalais. Corriger.
-    </div>
-
-    <div class="erreur">
-        <strong>Boutons grisés</strong> → le workflow est séquentiel.
-        Chaque étape doit être validée dans l'ordre.
+        En cas de <strong>Mise à pied disciplinaire</strong>, le RH doit répercuter manuellement les jours non payés sur le bulletin du mois concerné : ajuster le champ <strong>Jours travaillés</strong> du bulletin (exemple : mise à pied de 5 jours sur un mois de 30 jours ouvrables -&gt; Jours travaillés = 25). Voir le <a href="/help/bulletins.html">guide Bulletins</a>, section Prorata.
     </div>
 
     <div class="info">
-        💡 <strong>Traçabilité :</strong> chaque action (notification,
-        audition, sanction, clôture) est tracée dans le
-        <a href="/help/audit.html">Journal d'audit</a>.
+        En cas de <strong>Rétrogradation</strong>, mettre à jour la catégorie et le salaire de base sur la fiche du salarié (menu <strong>Gestion du personnel &rsaquo; Salariés</strong>) à la date d'effet convenue.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+    <div class="info">
+        En cas de <strong>Licenciement</strong> (pour faute ou faute lourde), ouvrir un dossier de départ dans le module Offboarding pour piloter le solde de tout compte. La faute lourde exclut le préavis et l'indemnité de licenciement.
+    </div>
 
-    <div class="bouton">
-        <strong>📨 Notifier le salarié :</strong> enregistre la date de notification (auto = aujourd'hui).
+    <h2 id="depannage">7. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>Le bouton Notifier est inactif</h3>
+        <p>Le dossier n'est pas en statut <strong>Initié</strong>, ou le salarié n'est pas renseigné. Enregistrer d'abord le dossier avec un salarié valide. Le workflow est strictement séquentiel : chaque bouton n'est actif que sur le statut qui le précède.</p>
     </div>
-    <div class="bouton">
-        <strong>📅 Programmer audition :</strong> planifie la date d'audition (date requise).
+
+    <div class="step">
+        <h3>"Renseignez la date d'audition avant de continuer"</h3>
+        <p>Remplir le champ <strong>Date de l'audition</strong> avant de cliquer sur <strong>Programmer</strong>.</p>
     </div>
-    <div class="bouton">
-        <strong>📝 Enregistrer audition :</strong> confirme que l'audition a eu lieu (PV requis).
+
+    <div class="step">
+        <h3>"Remplissez le procès-verbal d'audition avant de valider"</h3>
+        <p>Le champ <strong>PV d'audition</strong> est obligatoire pour passer en <em>Audition réalisée</em>. Consigner par écrit le compte-rendu de l'entretien avant de cliquer sur <strong>Audition</strong>.</p>
     </div>
-    <div class="bouton">
-        <strong>⚖️ Prononcer la sanction :</strong> enregistre officiellement la sanction (motivation obligatoire).
+
+    <div class="step">
+        <h3>"La mise à pied disciplinaire ne peut excéder 8 jours"</h3>
+        <p>Le plafond légal sénégalais est de 8 jours. Réduire la durée ou choisir une autre sanction proportionnée (rétrogradation, licenciement pour faute selon le cas).</p>
     </div>
-    <div class="bouton">
-        <strong>🔒 Clôturer le dossier :</strong> archive définitivement (lecture seule).
+
+    <div class="step">
+        <h3>"La motivation de la sanction est obligatoire"</h3>
+        <p>Le champ <strong>Motivation de la sanction</strong> doit être rempli avant le prononcé. Rédiger la justification circonstanciée puis relancer <strong>Sanction</strong>.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le salarié n'a pas reçu l'email de notification</h3>
+        <p>Vérifier le champ <code>Email</code> sur sa fiche salarié. Si l'adresse est vide, la notification en base est bien enregistrée mais aucun email n'est émis (message : "pas d'adresse email - notification par email non envoyée"). Dans tous les cas, la remise écrite reste la formalité légale de référence.</p>
+    </div>
+
+    <div class="step">
+        <h3>Un dossier clôturé s'affiche en gris italique</h3>
+        <p>Comportement normal : la règle d'apparence <code>Discip_Cloture</code> grise tout dossier au statut <strong>Clôturé</strong> pour signaler qu'il est en lecture seule. Les actions du workflow ne sont plus actives sur un dossier clôturé.</p>
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 - Module Disciplinaire - Mise à jour mai 2026
+        SunuPaie - Guide Disciplinaire - RH opérationnel
     </p>
 </body>
 </html>

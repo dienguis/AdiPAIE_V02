@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rémunération - Aide Tableau N°4</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rémunération - Guide RH</title>
     <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
 </head>
 <body>
     <nav>
-        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <a href="/help/index.html">Accueil</a>
         <span class="sep">|</span>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
         <span class="sep">|</span>
@@ -19,66 +20,118 @@
         <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
     </nav>
     <main>
-        <div class="num">Tableau N°4</div>
-        <h1>Rémunération - Égalité des salaires</h1>
-        <p class="lead">Vue annuelle de la masse salariale, du coût employeur et de l'égalité H/F
-        par segment et par catégorie. Toggle Interne / Externe + Coût Employeur / Rémunération Nette.</p>
+        <h1>Rémunération - Guide RH</h1>
+        <p class="lead">Vue annuelle de la masse salariale et de l'égalité des salaires par segment et catégorie. Toggle Interne (bulletins Salarié) / Externe (contrats Intérimaires) et toggle Coût Employeur / Rémunération Nette.</p>
 
-        <h2>Sources de données</h2>
+        <div class="toc">
+            <strong>Sommaire</strong>
+            <ol>
+                <li><a href="#vue-ensemble">Vue d'ensemble - KPIs clés</a></li>
+                <li><a href="#sources">Sources de données</a></li>
+                <li><a href="#lecture">Comment lire le tableau</a></li>
+                <li><a href="#filtres">Filtres</a></li>
+                <li><a href="#depannage">Dépannage et FAQ</a></li>
+            </ol>
+        </div>
+
+        <h2 id="vue-ensemble">1. Vue d'ensemble - KPIs clés</h2>
+        <table>
+            <thead><tr><th>KPI</th><th>Sens</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Total</strong></td><td>Masse selon le mode choisi (Coût Employeur ou Net).</td></tr>
+                <tr><td><strong>Salaire Min / Max</strong></td><td>Extrema des bulletins (Interne) ou des coûts contrats (Externe).</td></tr>
+                <tr><td><strong>Salaire Moyen</strong></td><td>Moyenne arithmétique des bulletins.</td></tr>
+                <tr><td><strong>Coût Moyen Salarié</strong></td><td>Total / nombre de salariés distincts sur l'année.</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="sources">2. Sources de données</h2>
         <table>
             <thead><tr><th>Mode</th><th>INTERNE</th><th>EXTERNE</th></tr></thead>
             <tbody>
                 <tr>
                     <td><strong>Coût Employeur</strong></td>
                     <td><code>SUM(Bulletin.BrutFiscal) + SUM(BulletinLigne.MontantEmployeur)</code></td>
-                    <td><code>TauxJournalier × 22 jours × NbMois</code></td>
+                    <td><code>TauxJournalier x 22 x NbMois</code> par contrat</td>
                 </tr>
                 <tr>
                     <td><strong>Rémunération Nette</strong></td>
                     <td><code>SUM(Bulletin.NetAPayer)</code></td>
-                    <td><em>(non disponible - toggle désactivé)</em></td>
+                    <td><em>non disponible (toggle désactivé)</em></td>
                 </tr>
             </tbody>
         </table>
+        <p>Les bulletins et contrats soft-deletés (<code>GCRecord IS NOT NULL</code>) sont automatiquement exclus. Format FCFA : séparateur d'espace pour les milliers, sans décimales.</p>
 
-        <h2>Lecture des 5 KPI</h2>
-        <ul>
-            <li><strong>Total</strong> - masse selon mode (Coût Employeur ou Net)</li>
-            <li><strong>Salaire Min</strong> / <strong>Max</strong> - extrema des bulletins</li>
-            <li><strong>Salaire Moyen</strong> - moyenne arithmétique des bulletins</li>
-            <li><strong>Coût Moy. Salarié</strong> - Total / nb salariés distincts (annuel)</li>
-        </ul>
+        <h2 id="lecture">3. Comment lire le tableau</h2>
 
-        <h2>Tableaux Égalité des Salaires</h2>
-        <p>2 tableaux structurellement identiques :</p>
-        <ul>
-            <li>Par <strong>Segment</strong> (Département INTERNE ou Station EXTERNE)</li>
-            <li>Par <strong>Catégorie professionnelle</strong> (Cadre / Non Cadre / etc., ou Poste pour EXTERNE)</li>
-        </ul>
-        <p>Colonnes : Total · Coût Moyen · Min · Max · Moyenne · <strong>Moy. ♀</strong> ·
-        <strong>Moy. ♂</strong>. La barre orange dans la colonne « Rémun. totale » montre le
-        poids relatif du segment/catégorie sur le total.</p>
-
-        <h2>Évolution mensuelle 12 mois</h2>
-        <p>Bar chart vertical avec valeurs en milliers/millions (k/M). Visualise la saisonnalité
-        de la masse (pics en juin pour la prime de fin d'exercice, en décembre pour le 13e mois).</p>
-
-        <h2>Décomposition par famille de rubrique (INTERNE)</h2>
-        <p>Tableau qui ventile la masse en 7 familles macro (alignées au formulaire DTSS) :
-        Salaire de base &amp; primes · Indemnités imposables · Indemnités non imposables ·
-        Avantages en nature · Cotisations sociales · Cotisations fiscales · Retenues diverses.</p>
-
-        <div class="info">
-            <strong>Format FCFA :</strong> séparateur d'espace pour les milliers (ex. <code>1 059 808</code>),
-            sans décimales. Source <code>Bulletin.GCRecord IS NULL</code> (filtre soft-delete XPO).
+        <div class="step">
+            <h3><span class="num">3.1</span>Égalité des salaires - par Segment et par Catégorie</h3>
+            <p>Deux tableaux de structure identique :</p>
+            <ul>
+                <li><strong>Par segment</strong> : Département (Interne) ou Unité organisationnelle (Externe).</li>
+                <li><strong>Par catégorie professionnelle</strong> (Interne) ou par Poste (Externe).</li>
+            </ul>
+            <p>Colonnes : Total, Coût Moyen, Min, Max, Moyenne, <strong>Moy. Femme</strong>, <strong>Moy. Homme</strong>. La barre orange visualise le poids relatif du segment ou de la catégorie dans la masse totale.</p>
         </div>
 
-        <div class="alerte">
-            <strong>EXTERNE - colonnes Moy. ♀ / ♂ vides :</strong> l'entité <code>Interimaire</code>
-            n'a pas de champ Sexe. Les colonnes affichent « - » côté EXTERNE.
+        <div class="step">
+            <h3><span class="num">3.2</span>Égalité par Échelon (Interne)</h3>
+            <p>Même structure, groupée par <code>Salarie.Echelon</code>. Permet de contrôler la cohérence de la grille interne.</p>
         </div>
 
-        <div class="footer">ELTON Oil · Tableau N°4 · Étape 4.4</div>
+        <div class="step">
+            <h3><span class="num">3.3</span>Évolution mensuelle 12 mois</h3>
+            <p>Bar chart vertical avec valeurs en milliers (k) ou millions (M). Visualise la saisonnalité : pics en juin (prime de fin d'exercice) et décembre (13e mois).</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="num">3.4</span>Décomposition par famille de rubrique (Interne)</h3>
+            <p>Ventile la masse en 7 familles macro alignées sur le formulaire DTSS :</p>
+            <ol>
+                <li>Salaire de base et primes</li>
+                <li>Indemnités imposables</li>
+                <li>Indemnités non imposables</li>
+                <li>Avantages en nature</li>
+                <li>Cotisations sociales</li>
+                <li>Cotisations fiscales</li>
+                <li>Retenues diverses</li>
+            </ol>
+            <p>Mapping fait sur <code>BulletinLigne.Rubrique.TypeRef.Code</code>.</p>
+        </div>
+
+        <h2 id="filtres">4. Filtres</h2>
+        <ul>
+            <li><strong>Mode Personnel</strong> : Interne (bulletins Salarié) ou Externe (contrats Intérimaires).</li>
+            <li><strong>Mode</strong> : Coût Employeur ou Rémunération Nette (Nette non disponible en Externe).</li>
+            <li><strong>Année</strong> : par défaut l'année en cours.</li>
+            <li><strong>Site / Département / Catégorie</strong> (Interne) ou <strong>Site / Unité</strong> (Externe) : filtres de regroupement.</li>
+        </ul>
+        <p>Le cache a un TTL de 5 minutes. Le bouton <strong>Actualiser</strong> force un recalcul.</p>
+
+        <h2 id="depannage">5. Dépannage et FAQ</h2>
+
+        <div class="step">
+            <h3>Colonnes Moy. Femme / Moy. Homme vides en Externe</h3>
+            <p>L'entité <code>Interimaire</code> n'a pas de champ <code>Sexe</code>. Les colonnes affichent "-" côté Externe. Comportement attendu.</p>
+        </div>
+
+        <div class="step">
+            <h3>Des contrats intérimaires n'apparaissent pas</h3>
+            <p>Un contrat sans Site renseigné est exclu du dashboard. Ouvrir le contrat et renseigner le champ Site.</p>
+        </div>
+
+        <div class="step">
+            <h3>Le total ne correspond pas au DTSS annuel</h3>
+            <p>Vérifier que le mode est bien <strong>Coût Employeur</strong> (le DTSS raisonne en brut + charges patronales) et non Rémunération Nette. Vérifier aussi qu'aucun bulletin n'est en attente de validation.</p>
+        </div>
+
+        <div class="step">
+            <h3>Famille rubrique "Non défini" dans la décomposition</h3>
+            <p>Une rubrique utilisée dans un bulletin n'a pas de <code>TypeRef</code> rattaché. Ouvrir le référentiel <strong>Rubriques</strong> et affecter chaque rubrique à son TypeRef (BRUTE, INDEM_IMPOSA, COTSOC...).</p>
+        </div>
+
+        <p class="footer-help">SunuPaie - Guide Tableau N°4 Rémunération</p>
     </main>
 </body>
 </html>

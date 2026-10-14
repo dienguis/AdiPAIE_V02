@@ -3,307 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - Heures supplémentaires (Guide complet)</title>
+    <title>SunuPaie - Heures supplémentaires (Guide RH)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
+    <style>
+        .capture {
+            display: block;
+            max-width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 12px auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .capture-legende {
+            text-align: center;
+            font-size: 0.85em;
+            color: #666;
+            font-style: italic;
+            margin-top: -4px;
+            margin-bottom: 16px;
+        }
+    </style>
 </head>
 <body>
     <nav>
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
-        <a href="/help/heures-supplementaires.html" class="active">Heures Sup.</a>
-        <a href="/help/parametrage.html">Paramétrage</a>
+        <a href="/help/periodes.html">Périodes</a>
+        <a href="/help/prets.html">Prêts</a>
         <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/interimaires.html">Intérimaires</a>
+        <a href="/help/conges.html">Congés</a>
+        <a href="/help/missions.html">Missions</a>
         <span class="sep">|</span>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>⏰ Heures supplémentaires - Guide complet</h1>
-    <p>Ce module gère le calcul automatique des heures supplémentaires sur
-    les bulletins, conformément aux <strong>taux légaux sénégalais</strong>
-    (15 % jour ouvrable, 40 % nuit, 60 % dimanche/férié, 100 % nuit
-    dimanche/férié). Les majorations sont intégrées au Brut Fiscal et Brut
-    Social du bulletin.</p>
+    <h1>Heures supplémentaires - Guide RH</h1>
+    <p>Ce guide decrit la saisie et le calcul des heures supplémentaires
+    dans SunuPaie, conformément au barème de la CCT Sénégal :
+    <strong>15 %</strong> (jour ouvrable), <strong>40 %</strong> (nuit),
+    <strong>60 %</strong> (dimanche / jour férié), <strong>100 %</strong>
+    (nuit du dimanche ou du jour férié). Les montants sont intégrés comme
+    gain unique au Brut Fiscal et au Brut Social du bulletin du mois.
+    Il s'adresse au RH operationnel qui saisit les heures sur les bulletins
+    en brouillon.</p>
 
     <div class="toc">
-        <strong>📑 Étapes du processus</strong>
+        <strong>Sommaire</strong>
         <ol>
             <li><a href="#vue-ensemble">Vue d'ensemble</a></li>
-            <li><a href="#etape1">Étape 1 - Activer le module</a></li>
-            <li><a href="#etape2">Étape 2 - Créer la rubrique HS</a></li>
-            <li><a href="#etape3">Étape 3 - Ajouter des HS sur un bulletin</a></li>
-            <li><a href="#etape4">Étape 4 - Modifier ou supprimer des HS</a></li>
-            <li><a href="#taux">Taux de majoration légaux</a></li>
-            <li><a href="#calculs">Méthode de calcul détaillée</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#regles">Règles métier</a></li>
-            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
-            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
+            <li><a href="#saisie">Saisir des heures supplémentaires</a></li>
+            <li><a href="#calcul">Calcul automatique (formules)</a></li>
+            <li><a href="#bulletin">Rubrique dans le bulletin</a></li>
+            <li><a href="#verification">Vérification et correction</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble</h2>
 
+    <h3>Les 3 moments clés</h3>
     <div class="workflow">
-        <div class="box">⚙️ Activation</div>
-        <span class="arrow">→</span>
-        <div class="box">📋 Rubrique HS</div>
-        <span class="arrow">→</span>
-        <div class="box">📄 Bulletin Brouillon</div>
-        <span class="arrow">→</span>
-        <div class="box">➕ Ajouter HS</div>
-        <span class="arrow">→</span>
-        <div class="box">🔄 Recalcul auto</div>
-        <span class="arrow">→</span>
-        <div class="box">✅ Validation</div>
+        <div class="box">Activation<br>du module</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Saisie HS<br>sur bulletin</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Recalcul<br>du bulletin</div>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape1">⚙️ Étape 1 - Activer le module</h2>
-
-    <div class="info">
-        Le module est <strong>désactivé par défaut</strong>. Pour l'activer :
-    </div>
-
-    <div class="step">
-        <h3><span class="num">1</span>Aller dans Paramétrage → Paramètres de paie</h3>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Onglet Heures supplémentaires</h3>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">3</span>Cocher Activer les heures supplémentaires</h3>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">4</span>Vérifier les taux de majoration</h3>
-        <p>Pré-remplis avec les taux légaux sénégalais (modifiables si
-        une convention collective prévoit mieux).</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">5</span>Enregistrer</h3>
-    </div>
-
-    <div class="alerte">
-        ⚠️ Tant que le module est désactivé, le bouton <em>Ajouter HS</em>
-        n'apparaît pas sur les bulletins et la collection HS est masquée.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape2">📋 Étape 2 - Créer la rubrique HS</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Paramétrage → Rubriques → + Nouveau</h3>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Renseigner</h3>
-        <dl class="field-list">
-            <dt>Canonique</dt>
-            <dd><code>HeuresSupplementaires</code> (obligatoire pour reconnaissance auto)</dd>
-            <dt>Type calcul</dt>
-            <dd>Gain</dd>
-            <dt>Brut Fiscal</dt>
-            <dd>Oui</dd>
-            <dt>Brut Social</dt>
-            <dd>Oui</dd>
-            <dt>Code (suggéré)</dt>
-            <dd><code>HS</code></dd>
-            <dt>Libellé</dt>
-            <dd>Heures supplémentaires</dd>
-        </dl>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape3">➕ Étape 3 - Ajouter des HS sur un bulletin</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Ouvrir le bulletin du salarié (statut Brouillon)</h3>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Cliquer sur ➕ Ajouter HS</h3>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">3</span>Renseigner le popup</h3>
-        <ul>
-            <li>Choisir le <strong>Type</strong> d'heure supplémentaire (jour, nuit, dimanche, nuit dimanche)</li>
-            <li>Saisir le <strong>Nombre d'heures</strong></li>
-            <li>Le taux de majoration s'affiche automatiquement</li>
-        </ul>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">4</span>Cliquer OK</h3>
-        <p>La ligne HS est créée et le bulletin est recalculé automatiquement.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">5</span>Répéter pour d'autres types d'heures</h3>
-        <p>Plusieurs lignes possibles (1 par type), elles sont cumulées dans la rubrique HS.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">6</span>Valider le bulletin</h3>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape4">✏️ Étape 4 - Modifier ou supprimer des HS</h2>
-
-    <div class="info">
-        <ul>
-            <li>Les lignes HS sont visibles dans la collection
-                <strong>Heures supplémentaires</strong> du bulletin.</li>
-            <li>Modifier le nombre d'heures ou le type directement dans la collection.</li>
-            <li>Pour supprimer : sélectionner la ligne HS et la supprimer.</li>
-            <li>Après toute modification, cliquer <strong>Recalculer</strong>
-                pour mettre à jour le bulletin.</li>
-        </ul>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="taux">📊 Taux de majoration légaux (Sénégal)</h2>
-
-    <p>Le Code du Travail sénégalais prévoit quatre niveaux :</p>
+    <h3>Barème CCT Sénégal</h3>
     <table>
-        <thead><tr><th>Type</th><th>Taux</th><th>Quand</th></tr></thead>
-        <tbody>
-            <tr><td>Jour ouvrable</td><td><strong>15 %</strong></td><td>HS en journée, lundi-samedi</td></tr>
-            <tr><td>Nuit</td><td><strong>40 %</strong></td><td>HS de nuit (21h-5h), jours ouvrables</td></tr>
-            <tr><td>Dimanche / Jour férié</td><td><strong>60 %</strong></td><td>HS dimanche/férié en journée</td></tr>
-            <tr><td>Nuit dimanche / Férié</td><td><strong>100 %</strong></td><td>HS la nuit du dimanche/férié</td></tr>
-        </tbody>
+        <tr><th>Type d'heure</th><th>Taux majoration</th><th>Quand</th></tr>
+        <tr><td>Jour ouvrable</td><td><strong>15 %</strong></td><td>HS en journée, lundi au samedi</td></tr>
+        <tr><td>Nuit</td><td><strong>40 %</strong></td><td>HS de nuit, jours ouvrables</td></tr>
+        <tr><td>Dimanche / Férié</td><td><strong>60 %</strong></td><td>HS dimanche ou jour férié, en journée</td></tr>
+        <tr><td>Nuit dimanche / Férié</td><td><strong>100 %</strong></td><td>HS la nuit du dimanche ou du jour férié</td></tr>
     </table>
 
-    <div class="info">
-        💡 Modifiables dans <em>Paramètres de paie → Heures supplémentaires</em>.
-        Si un taux est mis à 0, le système utilise automatiquement le taux
-        légal par défaut.
+    <p>Ces taux sont les valeurs par défaut lues depuis <code>HeureSupplementaire.GetTauxLegalDefaut</code>.
+    Ils sont modifiables dans <strong>Paramètres de paie</strong> (champs <code>TauxHS_JourOuvrable</code>,
+    <code>TauxHS_Nuit</code>, <code>TauxHS_DimancheFerie</code>, <code>TauxHS_NuitDimancheFerie</code>)
+    si une convention plus favorable s'applique.</p>
+
+    <h3>Qui fait quoi</h3>
+    <table>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>RH</td><td>Active le module, saisit les lignes HS sur le bulletin en brouillon, contrôle le total, valide le bulletin</td></tr>
+        <tr><td>Manager N+1</td><td>Transmet au RH les heures effectuées hors horaire pour chaque salarié</td></tr>
+        <tr><td>Salarié</td><td>Consulte le détail des HS sur son bulletin dans Mon espace</td></tr>
+    </table>
+
+    <h3>Les 2 entités principales</h3>
+    <dl class="field-list">
+        <dt>HeureSupplementaire</dt>
+        <dd>Une ligne par (bulletin x type HS). Porte : <code>TypeHS</code>, <code>NombreHeures</code>,
+        <code>TauxMajoration</code>, <code>TauxHoraireBase</code>, <code>MontantBase</code>,
+        <code>MontantMajoration</code>, <code>MontantTotal</code>, <code>Commentaire</code>.
+        Rattachée au bulletin par l'association <code>Bulletin-HeuresSupplementaires</code>.</dd>
+
+        <dt>ParametresPaie</dt>
+        <dd>Porte l'interrupteur <code>ActiverHeuresSupplementaires</code> et les 4 taux
+        <code>TauxHS_*</code>. Si le module est désactivé, le bouton de saisie est masqué
+        et la ligne HS du bulletin est supprimée au recalcul.</dd>
+    </dl>
+
+    <h2 id="saisie">2. Saisir des heures supplémentaires</h2>
+
+    <div class="alerte">
+        <strong>Pré-requis :</strong> le bulletin doit être au statut <strong>Brouillon</strong>.
+        Un bulletin validé n'accepte pas de saisie HS. Le module doit être activé dans
+        <strong>Paramètres de paie</strong>.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="calculs">🧮 Méthode de calcul détaillée</h2>
+    <div class="step">
+        <h3><span class="num">2.1</span>Activer le module (une fois)</h3>
+        <p>Menu : <strong>Paramétrage &rsaquo; Paramètres de paie</strong>.</p>
+        <ul>
+            <li>Cocher <code>ActiverHeuresSupplementaires</code></li>
+            <li>Vérifier les 4 taux (<code>TauxHS_JourOuvrable</code> = 15, <code>TauxHS_Nuit</code> = 40,
+            <code>TauxHS_DimancheFerie</code> = 60, <code>TauxHS_NuitDimancheFerie</code> = 100)</li>
+            <li>Enregistrer</li>
+        </ul>
+        <p>Tant que <code>ActiverHeuresSupplementaires</code> est faux, le bouton
+        <strong>"Ajouter HS"</strong> est masqué sur les bulletins (contrôlé par
+        <code>BulletinHeuresSupController</code>).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2.2</span>Ouvrir le bulletin cible</h3>
+        <p>Menu : <strong>Bulletins</strong>, ouvrir le bulletin du mois pour le salarié concerné.</p>
+        <p>Vérifier :</p>
+        <ul>
+            <li>Statut = <strong>Brouillon</strong></li>
+            <li>Le salarié a un <code>SalaireBase</code> &gt; 0 (indispensable pour le taux horaire)</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2.3</span>Cliquer sur "Ajouter HS"</h3>
+        <p>Dans la popup <code>HeureSupplementaireParam</code>, renseigner :</p>
+        <ul>
+            <li><strong>Type</strong> : JourOuvrable, Nuit, DimancheFerie ou NuitDimancheFerie.
+            Le taux de majoration se met à jour automatiquement à la sélection.</li>
+            <li><strong>Nombre d'heures</strong> : entre 0,25 et 744 (règle <code>RuleRange</code>).</li>
+            <li><strong>Taux majoration</strong> : affiché en lecture seule, repris depuis
+            <code>ParametresPaie.GetTauxHS(TypeHS)</code>.</li>
+        </ul>
+        <p>Valider la popup. Le système :</p>
+        <ol>
+            <li>Crée l'objet <code>HeureSupplementaire</code> rattaché au bulletin</li>
+            <li>Calcule le taux horaire via <code>CalculerTauxHoraireBase</code></li>
+            <li>Calcule base, majoration et total via <code>RecalculerMontants</code></li>
+            <li>Enregistre, puis appelle <code>Bulletin.RecalculerSurGrilleExistante()</code></li>
+            <li>Affiche un message de confirmation : "N,NNh (Type) ajoutées - X FCFA"</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">2.4</span>Répéter pour chaque type d'heure</h3>
+        <p>Plusieurs lignes HS peuvent coexister sur un même bulletin (une par type, voire plusieurs
+        du même type si on sépare par motif via le champ <code>Commentaire</code>). Toutes sont
+        agrégées dans une seule ligne de gain du bulletin.</p>
+    </div>
+
+    <h2 id="calcul">3. Calcul automatique (formules)</h2>
 
     <h3>Taux horaire de base</h3>
     <div class="formule">
-        Taux horaire = Salaire de base mensuel / 173,33 heures
+Taux horaire = SalaireBase mensuel / 173,33
     </div>
-    <p>Les 173,33 heures correspondent à la durée légale mensuelle :
-    40 heures × 52 semaines / 12 mois.</p>
+    <p>La constante <code>HEURES_MENSUELLES_LEGALES = 173,33</code> correspond à la durée légale
+    sénégalaise : 40 heures hebdomadaires x 52 semaines / 12 mois. Si <code>SalaireBase</code>
+    est à 0 ou introuvable, le taux horaire reste à 0 et la ligne HS vaudra 0.</p>
 
-    <h3>Calcul par ligne HS</h3>
+    <h3>Montants d'une ligne HS</h3>
     <div class="formule">
-        Montant base = Nombre d'heures × Taux horaire<br>
-        Montant majoration = Montant base × Taux majoration / 100<br>
-        Montant total = Montant base + Montant majoration
+MontantBase       = NombreHeures x TauxHoraireBase          (arrondi au FCFA)
+MontantMajoration = MontantBase x TauxMajoration / 100      (arrondi au FCFA)
+MontantTotal      = MontantBase + MontantMajoration
     </div>
-
-    <h3>Intégration au bulletin</h3>
-    <p>Le total de toutes les lignes HS est regroupé dans une
-    <strong>ligne de gain unique</strong> avec la rubrique canonique
-    <code>HeuresSupplementaires</code>. Ce montant entre dans le
-    <strong>Brut Fiscal</strong> et le <strong>Brut Social</strong>.</p>
+    <p>Arrondis : <code>Math.Round(..., 0, MidpointRounding.AwayFromZero)</code>. Le taux horaire
+    est arrondi à 2 décimales par la même méthode.</p>
 
     <h3>Exemple chiffré</h3>
-    <div class="exemple">
-        <strong>Moussa DIOP - SB = 300 000 FCFA</strong><br>
-        Taux horaire = 300 000 / 173,33 = <strong>1 731 FCFA/h</strong>
+    <div class="info">
+        <strong>Salarié : SalaireBase = 300 000 FCFA</strong><br>
+        Taux horaire = 300 000 / 173,33 = 1 730,61 FCFA/h
         <table>
-            <thead><tr><th>Type</th><th>Heures</th><th>Taux</th><th>Base</th><th>Majoration</th><th>Total</th></tr></thead>
-            <tbody>
-                <tr><td>Jour ouvrable</td><td>8 h</td><td>15 %</td><td>13 848</td><td>2 077</td><td><strong>15 925</strong></td></tr>
-                <tr><td>Nuit</td><td>4 h</td><td>40 %</td><td>6 924</td><td>2 770</td><td><strong>9 694</strong></td></tr>
-                <tr><td>Dimanche</td><td>6 h</td><td>60 %</td><td>10 386</td><td>6 232</td><td><strong>16 618</strong></td></tr>
-                <tr style="background:#e8f5e9;font-weight:bold"><td colspan="5">Total HS</td><td>42 237 FCFA</td></tr>
-            </tbody>
+            <tr><th>Type</th><th>Heures</th><th>Taux maj.</th><th>Base</th><th>Majoration</th><th>Total</th></tr>
+            <tr><td>Jour ouvrable</td><td>8</td><td>15 %</td><td>13 845</td><td>2 077</td><td>15 922</td></tr>
+            <tr><td>Nuit</td><td>4</td><td>40 %</td><td>6 922</td><td>2 769</td><td>9 691</td></tr>
+            <tr><td>Dimanche</td><td>6</td><td>60 %</td><td>10 384</td><td>6 230</td><td>16 614</td></tr>
+            <tr><td colspan="5"><strong>Total HS</strong></td><td><strong>42 227</strong></td></tr>
         </table>
-        Cette somme apparaît comme une ligne de gain
-        <em>"Heures supplémentaires"</em> dans le bulletin.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
+    <h2 id="bulletin">4. Rubrique dans le bulletin</h2>
 
-    <h3>Cas 1 - Audit nocturne en station-service</h3>
-    <div class="exemple">
-        Modou (Auditeur) effectue 4 h d'audit de nuit à la station BANDIA
-        un samedi soir. Saisie : Type = <em>Nuit</em>, Heures = 4.
-        Majoration 40 %. Sur son bulletin du mois : ligne HS automatique.
+    <p>Le recalcul du bulletin (méthode <code>CalculerHeuresSupplementaires</code>, appelée
+    automatiquement par <code>RecalculerSurGrilleExistante</code>) fonctionne ainsi :</p>
+
+    <div class="flux">
+        <ol>
+            <li>Lecture de <code>ParametresPaie.ActiverHeuresSupplementaires</code>.</li>
+            <li>Si désactivé OU si aucune ligne HS n'existe : la ligne de bulletin portant la
+            rubrique canonique <code>HeuresSupplementaires</code> est supprimée.</li>
+            <li>Si activé et au moins une ligne HS : somme des <code>MontantTotal</code> et
+            écriture dans une ligne de gain unique sous la rubrique canonique
+            <code>HeuresSupplementaires</code>.</li>
+        </ol>
     </div>
 
-    <h3>Cas 2 - Inventaire de fin d'année (dimanche)</h3>
-    <div class="exemple">
-        Coumba (Caissière) participe à l'inventaire annuel un dimanche,
-        6 h. Type = <em>Dimanche</em>, majoration 60 %. La rubrique HS
-        s'ajoute à son brut.
+    <h3>Rubrique canonique</h3>
+    <p>Une rubrique de type <strong>Gain</strong> portant le canonique
+    <code>RubriqueCanonique.HeuresSupplementaires</code> doit exister et être active dans
+    <strong>Paramétrage &rsaquo; Rubriques</strong>. Sans elle, la ligne de bulletin ne peut pas
+    être créée. La propriété <code>EnsureLine(RubriqueCanonique.HeuresSupplementaires, createIfMissing: true)</code>
+    gère la création/mise à jour.</p>
+
+    <h3>Impact bruts et cotisations</h3>
+    <ul>
+        <li>Le total HS entre dans le <strong>Brut Fiscal</strong> et le <strong>Brut Social</strong>
+        du bulletin (via la configuration de la rubrique).</li>
+        <li>Les cotisations (IPRES, CSS, IR, TRIMF, CFCE) sont recalculées sur ces nouveaux bruts
+        à chaque <code>RecalculerSurGrilleExistante</code>.</li>
+    </ul>
+
+    <h2 id="verification">5. Vérification et correction</h2>
+
+    <div class="step">
+        <h3><span class="num">5.1</span>Consulter la collection HS du bulletin</h3>
+        <p>Dans la vue détaillée du bulletin, l'onglet <strong>Heures supplémentaires</strong>
+        liste les lignes <code>HeureSupplementaire</code> rattachées. Chaque ligne affiche
+        type, heures, taux horaire, taux majoration, base, majoration et total.</p>
     </div>
 
-    <h3>Cas 3 - Garde de fin d'année (nuit du 31/12)</h3>
-    <div class="exemple">
-        Mamadou (Sécurité) assure la garde dans la nuit du 31/12 (jour férié).
-        4 h en mode <em>Nuit dimanche/férié</em>, majoration 100 %.
+    <div class="step">
+        <h3><span class="num">5.2</span>Corriger une ligne</h3>
+        <p>Modifier <code>TypeHS</code>, <code>NombreHeures</code> ou <code>TauxMajoration</code>
+        déclenche <code>RecalculerMontants</code> automatiquement sur la ligne. Après édition,
+        enregistrer puis relancer le recalcul du bulletin pour mettre à jour la ligne de gain
+        et les cotisations.</p>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="regles">📜 Règles métier</h2>
+    <div class="step">
+        <h3><span class="num">5.3</span>Supprimer une ligne</h3>
+        <p>Sélectionner la ligne HS dans la collection et la supprimer. Relancer le recalcul
+        du bulletin pour que la ligne de gain soit mise à jour (ou retirée si plus aucune HS).</p>
+    </div>
 
-    <div class="alerte">
+    <div class="step">
+        <h3><span class="num">5.4</span>Contrôle final avant validation</h3>
         <ul>
-            <li>Les HS ne peuvent être ajoutées que sur un bulletin en <strong>Brouillon</strong>.</li>
-            <li>Le taux horaire est calculé automatiquement depuis le <strong>Salaire de base</strong>.</li>
-            <li>Les taux de majoration sont lus depuis <strong>Paramètres de paie</strong>.</li>
-            <li>Le total des HS est intégré comme un <strong>gain</strong> (rubrique canonique <code>HeuresSupplementaires</code>).</li>
-            <li>Les HS entrent dans le <strong>Brut Fiscal</strong> et le <strong>Brut Social</strong>.</li>
-            <li>Toutes les cotisations (IPRES, CSS, IR, TRIMF) sont recalculées en tenant compte des HS.</li>
-            <li>Si le module est désactivé, les lignes HS existantes sont ignorées au recalcul.</li>
+            <li>Chaque ligne HS a un <code>MontantTotal</code> cohérent avec heures x taux x majoration</li>
+            <li>La ligne de gain <code>HeuresSupplementaires</code> du bulletin reflète bien la somme des lignes</li>
+            <li>Le Brut Fiscal et le Brut Social incluent ce montant</li>
+            <li>Les cotisations ont été recalculées</li>
         </ul>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+    <h2 id="depannage">6. Dépannage et FAQ</h2>
 
-    <div class="erreur">
-        <strong>Bouton "Ajouter HS" invisible</strong> → le module est
-        désactivé. Aller dans <em>Paramètres de paie → Heures
-        supplémentaires</em> et cocher <em>Activer</em>.
+    <div class="step">
+        <h3>Le bouton "Ajouter HS" n'apparaît pas</h3>
+        <p>Le module est désactivé. Aller dans <strong>Paramétrage &rsaquo; Paramètres de paie</strong>
+        et cocher <code>ActiverHeuresSupplementaires</code>. Rafraîchir la vue du bulletin.</p>
     </div>
 
-    <div class="erreur">
-        <strong>Ligne HS à 0 dans le bulletin</strong> → vérifier qu'une
-        rubrique avec le canonique <code>HeuresSupplementaires</code> existe
-        et est active. Voir <a href="#etape2">étape 2</a>.
+    <div class="step">
+        <h3>Message "Le bulletin doit être en Brouillon"</h3>
+        <p>La saisie HS n'est acceptée que sur un bulletin brouillon
+        (<code>BulletinStatut.Brouillon</code>). Pour un bulletin déjà validé, le repasser en
+        brouillon si la procédure l'autorise, saisir les HS, puis revalider.</p>
     </div>
 
-    <div class="erreur">
-        <strong>Taux horaire à 0</strong> → le Salaire de base du salarié
-        est à 0. Vérifier la fiche.
+    <div class="step">
+        <h3>MontantTotal à 0 alors que les heures sont saisies</h3>
+        <p>Le <code>TauxHoraireBase</code> est à 0 : vérifier que le salarié rattaché au bulletin
+        a bien un <code>SalaireBase</code> &gt; 0 sur sa fiche. Corriger la fiche salarié puis
+        rééditer la ligne HS pour forcer le recalcul.</p>
     </div>
 
-    <div class="erreur">
-        <strong>"Le bulletin doit être en Brouillon"</strong> → les HS ne
-        peuvent être ajoutées que sur un bulletin non validé. Rouvrir le
-        bulletin si nécessaire.
+    <div class="step">
+        <h3>La ligne de gain "HeuresSupplementaires" n'apparaît pas dans le bulletin</h3>
+        <p>Deux causes possibles :</p>
+        <ul>
+            <li>Aucune rubrique active portant le canonique <code>HeuresSupplementaires</code>
+            dans <strong>Paramétrage &rsaquo; Rubriques</strong>. La créer en type Gain.</li>
+            <li>Le module est désactivé : <code>CalculerHeuresSupplementaires</code> supprime
+            la ligne au recalcul. Réactiver le module.</li>
+        </ul>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+    <div class="step">
+        <h3>Je modifie une ligne HS mais le bulletin ne change pas</h3>
+        <p>La modification d'une ligne HS recalcule la ligne elle-même, mais pas automatiquement
+        le bulletin complet. Lancer <strong>Recalculer</strong> sur le bulletin pour mettre à jour
+        la ligne de gain agrégée et les cotisations.</p>
+    </div>
 
-    <div class="bouton">
-        <strong>➕ Ajouter HS :</strong> popup type + nombre d'heures, calcul auto.
-    </div>
-    <div class="bouton">
-        <strong>🔄 Recalculer :</strong> recalcule cotisations IPRES/CSS/IR/TRIMF avec les HS.
-    </div>
-    <div class="bouton">
-        <strong>🗑️ Supprimer ligne HS :</strong> dans la collection Heures supplémentaires.
+    <div class="step">
+        <h3>Erreur "Le nombre d'heures doit être entre 0,25 et 744"</h3>
+        <p>La règle <code>RuleRange(0.25, 744)</code> protège contre les saisies aberrantes
+        (744 h = 31 jours x 24 h, plafond mensuel théorique). Saisir une valeur dans cette plage.</p>
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 - Module Heures supplémentaires - Mise à jour mai 2026
+        SunuPaie - Guide Heures supplémentaires - RH operationnel
     </p>
 </body>
 </html>

@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi des Absences - Aide Tableau N°5</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi des Absences - Guide RH</title>
     <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
 </head>
 <body>
     <nav>
-        <a href="/help/index.html">← Aide générale SunuPaie</a>
+        <a href="/help/index.html">Accueil</a>
         <span class="sep">|</span>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
         <span class="sep">|</span>
@@ -19,65 +20,108 @@
         <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
     </nav>
     <main>
-        <div class="num">Tableau N°5</div>
-        <h1>Suivi des Absences - Congés &amp; arrêts</h1>
-        <p class="lead">Vue annuelle des congés et arrêts (INTERNE uniquement). Source :
-        <code>CongeDemande</code> filtrée par défaut sur Statut <strong>Accordée</strong>.</p>
+        <h1>Suivi des Absences - Guide RH</h1>
+        <p class="lead">Vue annuelle des congés et arrêts (Interne). Source : <code>CongeDemande</code> filtrée par défaut sur Statut Accordée. Décompose l'absentéisme (maladie, accident) des absences programmées (congés payés, maternité).</p>
 
-        <h2>Toggle Statut</h2>
-        <ul>
-            <li><strong>Accordées</strong> (recommandé) - uniquement les demandes validées par RH (Statut=20)</li>
-            <li><strong>+ En attente</strong> - vue large incluant aussi En attente N+1, En attente N+2 et Soumise</li>
-        </ul>
+        <div class="toc">
+            <strong>Sommaire</strong>
+            <ol>
+                <li><a href="#vue-ensemble">Vue d'ensemble - KPIs clés</a></li>
+                <li><a href="#motifs">Motifs et mapping</a></li>
+                <li><a href="#lecture">Comment lire le tableau</a></li>
+                <li><a href="#filtres">Filtres</a></li>
+                <li><a href="#depannage">Dépannage et FAQ</a></li>
+            </ol>
+        </div>
 
-        <h2>Lecture des 8 KPI</h2>
+        <h2 id="vue-ensemble">1. Vue d'ensemble - KPIs clés</h2>
         <table>
-            <thead><tr><th>KPI</th><th>Calcul / Sens</th></tr></thead>
+            <thead><tr><th>KPI</th><th>Calcul</th></tr></thead>
             <tbody>
-                <tr><td>Nb absences</td><td>Nombre de demandes accordées dans l'année</td></tr>
-                <tr><td>Total jours</td><td>Somme des <code>DureeJours</code> (jours ouvrables)</td></tr>
-                <tr><td>% Absentéisme</td><td>Σ jours / (Effectif × 264 jours ouvrables) × 100</td></tr>
-                <tr><td>Durée Moy.</td><td>Total jours / Nb absences (en jours)</td></tr>
-                <tr><td>% Justifiées</td><td>Demandes avec <code>JustificatifFourni = true</code></td></tr>
-                <tr><td>Top Absent</td><td>Salarié ayant le plus de jours d'absence sur l'année</td></tr>
-                <tr><td>Mois pic</td><td>Mois ayant cumulé le plus de jours d'absence</td></tr>
-                <tr><td>Coût impayé</td><td>Familles « Sans solde » : <code>Σ DureeJours × salaire jour</code></td></tr>
+                <tr><td><strong>Effectif moyen</strong></td><td>Nombre de salariés actifs sur la période filtrée.</td></tr>
+                <tr><td><strong>Nb salariés absents</strong></td><td>Salariés distincts avec au moins une demande sur la période.</td></tr>
+                <tr><td><strong>Total jours</strong></td><td>Somme des <code>DureeJours</code> (jours ouvrables).</td></tr>
+                <tr><td><strong>Jours ouvrés perdus</strong></td><td>Somme des <code>DureeJours</code> sur les motifs d'absentéisme (maladie, accident, injustifiée).</td></tr>
+                <tr><td><strong>Taux absentéisme</strong></td><td>JO perdus / (Effectif x 22 x nb mois filtre) x 100.</td></tr>
+                <tr><td><strong>Respect temps travail</strong></td><td>100 - Taux absentéisme.</td></tr>
+                <tr><td><strong>Durée moyenne</strong></td><td>Total jours / Nb absences.</td></tr>
+                <tr><td><strong>Top absent / Mois pic</strong></td><td>Salarié le plus absent et mois cumulant le plus de JO perdus (basé sur le milieu de chaque période).</td></tr>
             </tbody>
         </table>
 
-        <h2>Familles de congé (CongeType.Famille)</h2>
+        <h2 id="motifs">2. Motifs et mapping</h2>
+        <p>Chaque <code>CongeDemande</code> est rattachée à un motif via son <code>CongeType</code> :</p>
+        <ol>
+            <li>Match prioritaire sur <code>CongeType.Code</code> (ex. MAL, AT, CPAYE).</li>
+            <li>Sinon fallback sur <code>CongeType.Famille</code> (Annuel &rsaquo; CPAYE, Maladie &rsaquo; MAL...).</li>
+            <li>Pour la famille Maternité : MAT si Sexe = Féminin, sinon PAT.</li>
+        </ol>
+        <p>Les motifs sont regroupés en deux catégories :</p>
         <ul>
-            <li>Congé annuel (le plus fréquent)</li>
-            <li>Maladie</li>
-            <li>Maternité / Paternité</li>
-            <li>Événement familial</li>
-            <li>Sans solde (génère du coût impayé)</li>
-            <li>Récupération</li>
+            <li><strong>Absentéisme</strong> (compte dans le taux) : maladie, accident de travail, maladie professionnelle, absence injustifiée.</li>
+            <li><strong>Programmées</strong> (hors taux d'absentéisme) : congé annuel, maternité, paternité, événement familial, récupération, sans solde.</li>
         </ul>
 
-        <h2>Filtres disponibles</h2>
-        <p>Année · Site · Genre · Segment (Département) · Catégorie pro ·
-        <strong>Famille</strong> (filtre spécifique tableau 5).</p>
+        <h2 id="lecture">3. Comment lire le tableau</h2>
 
-        <h2>Charts</h2>
-        <ol>
-            <li><strong>Évolution mensuelle</strong> - bar vertical 12 mois (jours d'absence par mois)</li>
-            <li><strong>Par famille de congé</strong> - bar horizontal</li>
-            <li><strong>Par catégorie professionnelle</strong> - bar horizontal Top 10</li>
-            <li><strong>Par département</strong> - bar horizontal</li>
-        </ol>
-
-        <h2>Top 10 absents</h2>
-        <p>Tableau ranké par total jours d'absence : Salarié · Catégorie · Segment · Famille
-        principale · NbAbsences · TotalJours.</p>
-
-        <div class="info">
-            <strong>Note méthodologique :</strong> base 264 jours ouvrables/an = 22 j × 12 mois,
-            constante métier. Le mois pic est calculé en prenant le mois du <em>milieu</em> de
-            chaque période de congé (gère le cas des congés à cheval sur 2 mois).
+        <div class="step">
+            <h3><span class="num">3.1</span>Évolution mensuelle</h3>
+            <p>Bar vertical 12 mois avec deux séries : absentéisme et absences programmées. Le mois pic du KPI utilise le milieu de chaque période (gère les congés à cheval sur deux mois).</p>
         </div>
 
-        <div class="footer">ELTON Oil · Tableau N°5 · Étape 4.5</div>
+        <div class="step">
+            <h3><span class="num">3.2</span>Par motif</h3>
+            <p>Pour chaque motif : nb jours, nb absences, pourcentage du total. Les motifs d'absentéisme sont visuellement distingués des programmées.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="num">3.3</span>Par ancienneté</h3>
+            <p>Tranches 0 an, 1-4 ans, 5-9 ans, 10-14 ans, 15+ ans. Pour chaque tranche : effectif, JO perdus, taux d'absentéisme. Détecte les écarts de comportement par ancienneté.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="num">3.4</span>Par catégorie et par département</h3>
+            <p>Deux tables : ventilation par catégorie professionnelle et par département. Identifie les segments avec le taux d'absentéisme le plus fort.</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="num">3.5</span>Liste détaillée des employés absents</h3>
+            <p>Pour chaque salarié ayant eu au moins une absence : décomposition par motif, nb de jours et nb d'absences. Permet d'enquêter sur les top absents.</p>
+        </div>
+
+        <h2 id="filtres">4. Filtres</h2>
+        <ul>
+            <li><strong>Statut</strong> : Accordées (recommandé, Statut = 20) ou + En attente (élargit à Soumise, En attente N+1, En attente N+2).</li>
+            <li><strong>Année</strong> : par défaut l'année en cours.</li>
+            <li><strong>Mois</strong> : multi-sélection, vide = toute l'année.</li>
+            <li><strong>Site, Département, Catégorie</strong> : regroupements classiques.</li>
+            <li><strong>Motifs</strong> : multi-sélection pour cibler certaines familles.</li>
+        </ul>
+        <p>Base de 22 jours ouvrés par mois x 12 mois = 264 jours par an. Cache TTL 5 minutes, bouton <strong>Actualiser</strong> pour forcer.</p>
+
+        <h2 id="depannage">5. Dépannage et FAQ</h2>
+
+        <div class="step">
+            <h3>Le taux d'absentéisme me paraît trop faible</h3>
+            <p>Vérifier le filtre Statut : seules les demandes Accordées sont comptées par défaut. Si des arrêts maladie récents sont encore à l'état Soumise, ils ne comptent pas. Basculer en "+ En attente" pour une vue élargie.</p>
+        </div>
+
+        <div class="step">
+            <h3>Un arrêt maladie apparaît en "programmé"</h3>
+            <p>Le <code>CongeType</code> utilisé n'a pas le bon <code>Code</code> ni la bonne <code>Famille</code>. Ouvrir <strong>Congés et absences &rsaquo; Types de congé</strong> et corriger : Code MAL ou Famille Maladie.</p>
+        </div>
+
+        <div class="step">
+            <h3>Un salarié masculin apparaît en MAT au lieu de PAT</h3>
+            <p>Le champ <code>Sexe</code> de la fiche Salarié est mal renseigné (ou vide, par défaut Masculin). Corriger la fiche.</p>
+        </div>
+
+        <div class="step">
+            <h3>Le total jours semble doublé</h3>
+            <p>Vérifier qu'il n'existe pas deux CongeDemande qui se chevauchent sur la même période pour le même salarié. Le dashboard ne dédoublonne pas les chevauchements.</p>
+        </div>
+
+        <p class="footer-help">SunuPaie - Guide Tableau N°5 Suivi des Absences</p>
     </main>
 </body>
 </html>

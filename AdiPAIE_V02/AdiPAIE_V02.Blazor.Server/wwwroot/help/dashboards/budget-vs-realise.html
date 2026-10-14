@@ -3,136 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budget vs Réalisé - Aide Tableau N°7</title>
-    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+    <title>SunuPaie - Budget vs Réalisé (Guide dashboard)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
-        <a href="/help/index.html">SunuPaie - Guide utilisateur</a>
-        <span class="sep">|</span>
+        <a href="/help/index.html">Accueil</a>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
         <span class="sep">|</span>
-        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
-        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
-        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
-        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
-        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
-        <a href="/help/dashboards/bilan-social.html">N°6 Bilan Social</a>
-        <a href="/help/dashboards/budget-vs-realise.html" class="active">N°7 Budget</a>
-        <a href="/help/dashboards/provisions-sociales.html">N°8 Provisions</a>
-        <a href="/help/dashboards/cout-complet.html">N°9 Coût Complet</a>
-        <a href="/help/dashboards/conformite-senegal.html">N°10 Conformité</a>
+        <a href="/help/dashboards/effectif-detaille.html">N1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html">N6 Bilan Social</a>
+        <a href="/help/dashboards/budget-vs-realise.html" class="active">N7 Budget</a>
+        <a href="/help/dashboards/provisions-sociales.html">N8 Provisions</a>
+        <a href="/help/dashboards/cout-complet.html">N9 Coût Complet</a>
+        <a href="/help/dashboards/conformite-senegal.html">N10 Conformité</a>
     </nav>
-    <main>
-        <div class="num">Tableau N°7 · V1.2.1 · Vue annuelle</div>
-        <h1>Budget vs Réalisé Masse Salariale</h1>
-        <p class="lead">Pilotage annuel de l'écart entre le budget brut validé en CODIR et le réalisé effectif (somme du brut fiscal des bulletins). Vue simplifiée à grains larges, alignée sur la pratique du DAF.</p>
 
-        <h2>À quoi sert ce tableau</h2>
-        <p>Permet au DAF de répondre instantanément à 3 questions critiques :</p>
-        <ul>
-            <li><strong>Suis-je dans le budget cette année ?</strong> (écart valeur + %)</li>
-            <li><strong>Comment l'écart évolue-t-il sur les 5 dernières années ?</strong> (tendance)</li>
-            <li><strong>Quel site est en dépassement ?</strong> (ventilation par station / siège / dépôt)</li>
-        </ul>
+    <h1>Budget vs Réalisé masse salariale - Guide RH</h1>
+    <p>Pilotage annuel de l'écart entre le budget brut validé en CODIR et le réalisé
+    effectif (somme du brut fiscal des bulletins). Vue à grains larges destinée au
+    DAF, au contrôle de gestion et au DRH pour l'arbitrage des dépassements.</p>
 
-        <h2>Pour qui</h2>
-        <ul>
-            <li><strong>DAF + Contrôle de gestion</strong> : revue annuelle ou trimestrielle (avec écart YTD pré-calculé).</li>
-            <li><strong>DG / DAF</strong> : arbitrage des dépassements (recrutements à différer, gel de primes).</li>
-            <li><strong>RH Manager</strong> : visibilité sur l'enveloppe RH disponible.</li>
-        </ul>
+    <div class="toc">
+        <strong>Sommaire</strong>
+        <ol>
+            <li><a href="#prerequis">Prérequis : saisir le budget annuel</a></li>
+            <li><a href="#kpi">Lecture des 4 KPI</a></li>
+            <li><a href="#sections">Évolution 5 ans et ventilation par site</a></li>
+            <li><a href="#filtres">Filtres disponibles</a></li>
+            <li><a href="#usage">Cas d'usage typiques</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
+        </ol>
+    </div>
 
-        <h2 id="prerequis">Prérequis : saisir le budget annuel</h2>
-        <p>Ce dashboard nécessite que le budget ait été saisi dans <em>Paramétrage → Budget Masse Salariale</em>. La saisie est <strong>simple et annuelle</strong> :</p>
+    <h2 id="prerequis">1. Prérequis : saisir le budget annuel</h2>
+    <p>Le dashboard nécessite que le budget ait été saisi dans
+    <strong>Paramétrage &rsaquo; Budget masse salariale</strong>. La saisie est simple et annuelle :</p>
 
-        <table>
-            <thead>
-                <tr><th>Champ</th><th>Description</th></tr>
-            </thead>
-            <tbody>
-                <tr><td><strong>Année</strong></td><td>Année du budget (ex : 2026).</td></tr>
-                <tr><td><strong>Site</strong></td><td>Optionnel. Laisser vide pour un budget global non ventilé. Sinon, saisir 1 ligne par site.</td></tr>
-                <tr><td><strong>Montant brut annuel (FCFA)</strong></td><td>Enveloppe brute validée en CODIR (avant charges patronales).</td></tr>
-                <tr><td><strong>Source</strong></td><td>Saisie manuelle, Import Excel, Recopie N-1, Données de démo.</td></tr>
-                <tr><td><strong>Commentaire</strong></td><td>Libre, optionnel.</td></tr>
-            </tbody>
-        </table>
+    <table>
+        <tr><th>Champ</th><th>Description</th></tr>
+        <tr><td>Année</td><td>Année du budget</td></tr>
+        <tr><td>Site</td><td>Optionnel. Laisser vide pour un budget global non ventilé, sinon une ligne par site</td></tr>
+        <tr><td>Montant brut annuel (FCFA)</td><td>Enveloppe brute validée en CODIR, avant charges patronales</td></tr>
+        <tr><td>Source</td><td>Saisie manuelle, Import Excel, Recopie N-1, Données de démo</td></tr>
+        <tr><td>Commentaire</td><td>Libre, optionnel</td></tr>
+    </table>
 
-        <div class="info" style="background:#E8F1FB;border-left:4px solid #1A73B5;padding:0.7rem 1rem;border-radius:4px;">
-            <strong>💡 Bonne pratique :</strong> Saisir 1 ligne globale (Site=vide) pour le total CODIR, puis éventuellement des lignes par site pour la ventilation analytique. L'index unique <code>(Année, Site)</code> empêche les doublons.
-        </div>
+    <div class="info">
+        <strong>Bonne pratique :</strong> saisir une ligne globale (Site vide) pour le total CODIR,
+        puis éventuellement des lignes par site pour la ventilation analytique.
+        L'index unique <code>(Annee, Site)</code> empêche les doublons.
+    </div>
 
-        <h2 id="kpis">Lecture des 4 KPI (cartes du haut)</h2>
-        <table>
-            <thead><tr><th>KPI</th><th>Calcul</th></tr></thead>
-            <tbody>
-                <tr><td><strong>Budget brut annuel</strong></td><td><code>Σ MontantBrutAnnuel</code> de l'entité Budget pour l'année sélectionnée (toutes lignes confondues, site et global).</td></tr>
-                <tr><td><strong>Réalisé brut annuel</strong></td><td><code>Σ Bulletin.BrutFiscal</code> sur tous les bulletins de l'année sélectionnée.</td></tr>
-                <tr><td><strong>Écart annuel</strong></td><td>Réalisé − Budget. Affiché en valeur et % avec code couleur (rouge = dépassement, vert = sous-consommation).</td></tr>
-                <tr><td><strong>Sites en dépassement</strong></td><td>Nombre de sites dont l'écart dépasse 5 % du budget.</td></tr>
-            </tbody>
-        </table>
+    <h2 id="kpi">2. Lecture des 4 KPI</h2>
+    <table>
+        <tr><th>KPI</th><th>Calcul</th></tr>
+        <tr><td>Budget brut annuel</td><td>SUM(<code>BudgetMasseSalariale.MontantBrutAnnuel</code>) pour l'année sélectionnée (toutes lignes, globales et par site)</td></tr>
+        <tr><td>Réalisé brut annuel</td><td>SUM(<code>Bulletin.BrutFiscal</code>) sur tous les bulletins de l'année</td></tr>
+        <tr><td>Écart annuel</td><td>Réalisé - Budget. Affiché en valeur et en % : rouge = dépassement, vert = sous-consommation</td></tr>
+        <tr><td>Sites en dépassement</td><td>Nombre de sites dont l'écart dépasse 5 % du budget</td></tr>
+    </table>
 
-        <h2>Sections du tableau</h2>
+    <div class="alerte">
+        <strong>Attention au double comptage :</strong> le KPI "Budget brut annuel" additionne toutes les lignes.
+        Choisir un seul mode (soit global, soit ventilé par site) pour éviter de cumuler deux fois le même montant.
+    </div>
 
-        <h3>Évolution sur 5 années glissantes</h3>
-        <p>Tableau de 5 lignes (année N-4 → N) avec :</p>
-        <ul>
-            <li>Budget brut annuel</li>
-            <li>Réalisé brut annuel</li>
-            <li>Écart valeur + %</li>
-            <li>Mini-barres comparatives Budget (bleu) vs Réalisé (orange)</li>
-        </ul>
-        <p>L'année sélectionnée dans le filtre apparaît en surbrillance (gras + bord orange à gauche).</p>
+    <h2 id="sections">3. Évolution 5 ans et ventilation par site</h2>
 
-        <h3>Ventilation par site - Année cible</h3>
-        <p>Pour chaque site ayant un budget saisi sur l'année cible :</p>
-        <ul>
-            <li>Budget brut</li>
-            <li>Réalisé brut (somme du brut des salariés affectés à ce site)</li>
-            <li>Écart valeur + %</li>
-        </ul>
-        <p>Si des budgets globaux (Site=NULL) existent, ils apparaissent dans une ligne <em>Global (non ventilé)</em>.</p>
+    <h3>Évolution sur 5 années glissantes</h3>
+    <p>Tableau de 5 lignes (N-4 vers N) avec :</p>
+    <ul>
+        <li>Budget brut annuel</li>
+        <li>Réalisé brut annuel</li>
+        <li>Écart en valeur et en %</li>
+        <li>Mini-barres comparatives Budget (bleu) vs Réalisé (orange)</li>
+    </ul>
+    <p>L'année sélectionnée dans le filtre apparaît en surbrillance (gras, bord orange à gauche).</p>
 
-        <h2>Filtres disponibles</h2>
-        <ul>
-            <li><strong>Année</strong> : sélection de l'année (par défaut année courante).</li>
-            <li><strong>Site</strong> : focus sur un site précis (le filtre conserve aussi les budgets globaux pour cohérence).</li>
-        </ul>
+    <h3>Ventilation par site - année cible</h3>
+    <p>Pour chaque site ayant un budget saisi sur l'année cible :</p>
+    <ul>
+        <li>Budget brut</li>
+        <li>Réalisé brut (somme du brut des salariés affectés à ce site)</li>
+        <li>Écart en valeur et en %</li>
+    </ul>
+    <p>Si des budgets globaux (Site vide) existent, ils apparaissent dans une ligne <em>Global (non ventilé)</em>.
+    Les sites sont triés par budget décroissant.</p>
 
-        <h2>Cas d'usage typiques</h2>
-        <table>
-            <thead><tr><th>Quand</th><th>Action attendue</th></tr></thead>
-            <tbody>
-                <tr><td><strong>Revue annuelle DAF</strong> (janvier N+1)</td><td>Sélectionner l'année N, comparer avec N-1, identifier les sites en dépassement.</td></tr>
-                <tr><td><strong>Avant un recrutement</strong></td><td>Vérifier que le réalisé YTD reste sous le budget annuel.</td></tr>
-                <tr><td><strong>Préparation budget N+1</strong></td><td>Lire la tendance 5 ans + ajustement inflation pour calibrer N+1.</td></tr>
-                <tr><td><strong>Reporting CODIR trimestriel</strong></td><td>Présenter l'évolution + ventilation site avec commentaires d'écart.</td></tr>
-            </tbody>
-        </table>
+    <h2 id="filtres">4. Filtres disponibles</h2>
+    <ul>
+        <li><strong>Année</strong> : sélection de l'année (par défaut année courante).</li>
+        <li><strong>Site</strong> : focus sur un site précis. Le filtre conserve les budgets globaux pour cohérence.</li>
+    </ul>
 
-        <h2>Limites connues V1.2.1</h2>
-        <ul>
-            <li>Pas encore d'export Excel (à venir en V1.2.2).</li>
-            <li>Pas de granularité trimestrielle ni mensuelle (par choix : la consultation est annuelle).</li>
-            <li>Pas de granularité par rubrique (Salaires base / Primes / Charges patronales). On suit le brut consolidé.</li>
-            <li>Le réalisé inclut tous les bulletins (CDI + CDD + Stage). Pas de filtre par type de contrat pour le moment.</li>
-        </ul>
+    <div class="info">
+        Résultats mis en cache 5 minutes. Les lignes supprimées logiquement (GCRecord non nul) sont exclues.
+    </div>
 
-        <h2>Questions fréquentes</h2>
-        <table>
-            <thead><tr><th>Question</th><th>Réponse</th></tr></thead>
-            <tbody>
-                <tr><td>Mon écart est de +100 % partout, pourquoi ?</td><td>Aucun budget saisi pour l'année. Aller dans <em>Paramétrage → Budget Masse Salariale</em>.</td></tr>
-                <tr><td>Le budget global et les budgets par site se cumulent ?</td><td>Oui - le KPI "Budget brut annuel" est la somme de toutes les lignes (globales + par site). Idéalement, choisis un seul mode (global OU ventilé) pour éviter le double comptage.</td></tr>
-                <tr><td>Comment recopier le budget N vers N+1 ?</td><td>En V1.2.1 : duplication manuelle ligne par ligne (clic droit "Cloner" sur la ligne). En V1.2.2, un bouton "Recopier N-1 + inflation %" sera ajouté.</td></tr>
-                <tr><td>Pourquoi l'évolution montre 5 ans alors que je n'ai que 3 ans de seed ?</td><td>Les années sans budget ni bulletin apparaissent à 0. C'est normal.</td></tr>
-                <tr><td>Le budget peut-il être négatif ?</td><td>Non - la règle de validation refuse les montants négatifs au save.</td></tr>
-            </tbody>
-        </table>
+    <h2 id="usage">5. Cas d'usage typiques</h2>
+    <table>
+        <tr><th>Quand</th><th>Action attendue</th></tr>
+        <tr><td>Revue annuelle DAF (janvier N+1)</td><td>Sélectionner l'année N, comparer à N-1, identifier les sites en dépassement</td></tr>
+        <tr><td>Avant un recrutement</td><td>Vérifier que le réalisé reste sous le budget annuel</td></tr>
+        <tr><td>Préparation budget N+1</td><td>Lire la tendance 5 ans puis ajuster l'enveloppe pour N+1</td></tr>
+        <tr><td>Reporting CODIR trimestriel</td><td>Présenter l'évolution et la ventilation site avec commentaires d'écart</td></tr>
+    </table>
 
-        <p class="footer-help">SunuPaie - V1.2.1 (mai 2026) - Tableau N°7 Budget vs Réalisé · Vue annuelle</p>
-    </main>
+    <h2 id="depannage">6. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>Mon écart est de +100 % partout</h3>
+        <p>Aucun budget saisi pour l'année. Aller dans <strong>Paramétrage &rsaquo; Budget masse salariale</strong> et créer les lignes.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le budget global et les budgets par site se cumulent ?</h3>
+        <p>Oui. Le KPI "Budget brut annuel" additionne toutes les lignes. Choisir un seul mode (global ou ventilé) pour éviter le double comptage.</p>
+    </div>
+
+    <div class="step">
+        <h3>L'évolution montre 5 ans mais je n'ai que 3 ans de données</h3>
+        <p>Comportement normal. Les années sans budget et sans bulletin apparaissent à 0.</p>
+    </div>
+
+    <div class="step">
+        <h3>Peut-on saisir un budget négatif ?</h3>
+        <p>Non. La règle de validation refuse les montants négatifs à l'enregistrement.</p>
+    </div>
+
+    <div class="step">
+        <h3>Recopier le budget d'une année sur l'année suivante</h3>
+        <p>Utiliser la source "Recopie N-1" à la création d'une nouvelle ligne, ou dupliquer manuellement ligne par ligne via "Cloner".</p>
+    </div>
+
+    <p class="footer-help">
+        SunuPaie - Guide Budget vs Réalisé - Contrôle de gestion
+    </p>
 </body>
 </html>

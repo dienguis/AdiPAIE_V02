@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - Import comptes bancaires (Guide complet)</title>
+    <title>SunuPaie - Import comptes bancaires (RIB) - Guide RH</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
@@ -17,207 +17,255 @@
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>🏦 Import en masse des comptes bancaires - Guide complet</h1>
-    <p>Cette fonctionnalité permet d'importer en masse les comptes bancaires
-    de domiciliation des salariés (RIB) à partir d'un Excel. Idéal pour la
-    migration initiale ou la mise à jour des coordonnées bancaires. Supporte
-    les modes <em>Reliquat</em>, <em>MontantFixe</em> et <em>Pourcentage</em>
-    pour la répartition multi-comptes.</p>
+    <h1>Import comptes bancaires (RIB) - Guide RH</h1>
+    <p>Ce guide decrit l'import en masse des comptes bancaires de domiciliation
+    des salariés (RIB) depuis un fichier Excel. Un salarié peut porter plusieurs
+    comptes, chacun affecté d'un <strong>mode de répartition</strong> parmi
+    <em>Reliquat</em>, <em>MontantFixe</em> ou <em>Pourcentage</em>. L'import
+    est idempotent et refusera un numéro de compte déjà présent pour le même
+    salarié. Il s'adresse au RH operationnel chargé de la migration initiale
+    ou de la mise à jour en masse des coordonnées bancaires.</p>
 
     <div class="toc">
-        <strong>📑 Étapes du processus</strong>
+        <strong>Sommaire</strong>
         <ol>
-            <li><a href="#vue-ensemble">Vue d'ensemble</a></li>
-            <li><a href="#etape1">Étape 1 - Télécharger le modèle</a></li>
-            <li><a href="#etape2">Étape 2 - Préparer le fichier</a></li>
-            <li><a href="#etape3">Étape 3 - Importer</a></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble et modes de répartition</a></li>
+            <li><a href="#preparer">Préparer le fichier Excel</a></li>
             <li><a href="#colonnes">Colonnes attendues</a></li>
-            <li><a href="#modes">Modes de répartition</a></li>
-            <li><a href="#regles">Règles de traitement</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
+            <li><a href="#lancer">Lancer l'import</a></li>
+            <li><a href="#verification">Vérification après import</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble et modes de répartition</h2>
 
+    <h3>Les 4 moments clés</h3>
     <div class="workflow">
-        <div class="box">📥 Modèle</div>
-        <span class="arrow">→</span>
-        <div class="box">✏️ Remplir RIB</div>
-        <span class="arrow">→</span>
-        <div class="box">📤 Importer</div>
-        <span class="arrow">→</span>
-        <div class="box">📊 Rapport</div>
-        <span class="arrow">→</span>
-        <div class="box">💳 Comptes liés aux salariés</div>
+        <div class="box">Télécharger<br>le modèle</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Remplir<br>les RIB</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Importer<br>le .xlsx</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Lire le rapport<br>et vérifier</div>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape1">📥 Étape 1 - Télécharger le modèle</h2>
+    <h3>Multi-comptes par salarié</h3>
+    <p>Un même salarié peut porter plusieurs comptes bancaires. Chaque ligne du fichier Excel correspond à <strong>un compte</strong>. Pour en déclarer plusieurs sur un salarié, il suffit de répéter son matricule sur plusieurs lignes consécutives.</p>
 
-    <div class="step">
-        <h3><span class="num">1</span>Liste des Salariés → Modèle Comptes</h3>
-        <p>Télécharge <code>Modele_Import_ComptesBancaires.xlsx</code>
-        avec les en-têtes attendus et 2 lignes d'exemple.</p>
+    <h3>Les 3 modes de répartition du net</h3>
+    <dl class="field-list">
+        <dt>Reliquat</dt>
+        <dd>Le compte reçoit le net <strong>restant</strong> une fois les autres comptes servis. Mode par défaut si la colonne est vide. Le champ <code>Valeur</code> est ignoré. Un seul compte Reliquat autorisé par salarié - c'est le compte "par défaut".</dd>
+
+        <dt>MontantFixe</dt>
+        <dd>Un montant FCFA fixe est viré sur ce compte chaque mois. La colonne <code>Valeur</code> porte le montant (ex. 50000 pour 50 000 FCFA d'épargne mensuelle).</dd>
+
+        <dt>Pourcentage</dt>
+        <dd>Un pourcentage du net est viré sur ce compte. La colonne <code>Valeur</code> porte le pourcentage entre 0 et 100 (ex. 30 pour 30 %). Un contrôle de validation refuse une valeur supérieure à 100.</dd>
+    </dl>
+
+    <div class="info">
+        <strong>Combinaison typique :</strong> un compte en <em>MontantFixe</em> ou <em>Pourcentage</em> pour une épargne ou un compte joint, et un compte en <em>Reliquat</em> qui absorbe le solde. Le compte Reliquat est obligatoire si le salarié a au moins un autre compte avec un montant fixe ou un pourcentage.
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape2">✏️ Étape 2 - Préparer le fichier</h2>
+    <h2 id="preparer">2. Préparer le fichier Excel</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>Une ligne = un compte bancaire</h3>
-        <p>Un même salarié peut avoir plusieurs lignes (multi-comptes).</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Renseigner au minimum les obligatoires</h3>
-        <p><code>MatriculeSalarié</code>, <code>Banque</code>, <code>NumeroCompte</code>.</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape3">📤 Étape 3 - Importer</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Cliquer sur Importer Comptes</h3>
-        <p>Sélectionner le fichier .xlsx → Importer.</p>
+        <h3><span class="num">2.1</span>Télécharger le modèle vierge</h3>
+        <p>Menu : <strong>Paramétrage &gt; Centre d'imports</strong>, ouvrir le centre d'imports puis cliquer sur <strong>"Modèle Comptes"</strong>.</p>
+        <p>Le système télécharge <code>Modele_Import_ComptesBancaires.xlsx</code> avec les en-têtes attendus en ligne 1 et deux lignes d'exemple grisées (une en Reliquat, une en Pourcentage) à remplacer par les données réelles.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Lire le rapport</h3>
-        <p>Format : <em>X créés, Y ignorés, Z erreurs</em>.</p>
+        <h3><span class="num">2.2</span>Une ligne = un compte bancaire</h3>
+        <p>Garder la ligne 1 intacte (en-têtes). A partir de la ligne 2, saisir un compte par ligne. Pour un salarié multi-comptes, répéter son matricule sur plusieurs lignes.</p>
+        <p>Les trois colonnes obligatoires sont <code>MatriculeSalarie</code>, <code>Banque</code> et <code>NumeroCompte</code>. Les autres colonnes sont optionnelles mais recommandées pour un RIB complet (CodeBanque, CodeGuichet, CleRib, BIC).</p>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="colonnes">📋 Colonnes attendues</h2>
+    <div class="step">
+        <h3><span class="num">2.3</span>Préserver les zéros de tête des numéros</h3>
+        <p>Les numéros de compte, codes guichet et clés RIB commencent souvent par un ou plusieurs zéros. Formater les cellules en <strong>Texte</strong> avant de coller les valeurs pour éviter qu'Excel ne supprime les zéros initiaux (par exemple <code>004002089747</code> transformé en <code>4002089747</code>).</p>
+    </div>
+
+    <h2 id="colonnes">3. Colonnes attendues</h2>
 
     <h3>Obligatoires</h3>
     <table>
-        <thead><tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td><code>MatriculeSalarie</code></td><td>Texte</td><td>SAL001</td><td>Matricule du titulaire</td></tr>
-            <tr><td><code>Banque</code></td><td>Texte</td><td>SGBS ROUME PART</td><td>Nom banque (et agence si besoin)</td></tr>
-            <tr><td><code>NumeroCompte</code></td><td>Texte</td><td>004002089747</td><td>Numéro de compte (laisser les zéros initiaux)</td></tr>
-        </tbody>
+        <tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr>
+        <tr><td><code>MatriculeSalarie</code></td><td>Texte</td><td>SAL001</td><td>Matricule du salarié titulaire du compte. Doit exister dans SunuPaie.</td></tr>
+        <tr><td><code>Banque</code></td><td>Texte</td><td>SGBS ROUME PART</td><td>Nom de la banque et de l'agence le cas échéant. 100 caractères max.</td></tr>
+        <tr><td><code>NumeroCompte</code></td><td>Texte</td><td>004002089747</td><td>Numéro de compte, zéros de tête conservés.</td></tr>
     </table>
 
     <h3>Optionnelles</h3>
     <table>
-        <thead><tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td><code>CodeBanque</code></td><td>Texte</td><td>SN011</td><td>Code banque (5 lettres)</td></tr>
-            <tr><td><code>CodeGuichet</code></td><td>Texte</td><td>1029</td><td>Code guichet</td></tr>
-            <tr><td><code>CleRib</code></td><td>Texte</td><td>81</td><td>Clé RIB (2 chiffres)</td></tr>
-            <tr><td><code>BIC</code></td><td>Texte</td><td>SGSNSNDA</td><td>Code BIC/SWIFT (8 ou 11)</td></tr>
-            <tr><td><code>NomTitulaire</code></td><td>Texte</td><td>(vide)</td><td>Auto-rempli depuis nom complet du salarié</td></tr>
-            <tr><td><code>Mode</code></td><td>Texte</td><td>Reliquat</td><td>MontantFixe / Pourcentage / Reliquat (défaut Reliquat)</td></tr>
-            <tr><td><code>Valeur</code></td><td>Nombre</td><td>0</td><td>FCFA si MontantFixe, % si Pourcentage. Ignoré si Reliquat.</td></tr>
-            <tr><td><code>Actif</code></td><td>Texte</td><td>Oui</td><td>Oui/Non (défaut Oui)</td></tr>
-            <tr><td><code>Observations</code></td><td>Texte</td><td>Compte principal</td><td>Note libre 200 c. max</td></tr>
-        </tbody>
+        <tr><th>Colonne</th><th>Type</th><th>Exemple</th><th>Description</th></tr>
+        <tr><td><code>CodeBanque</code></td><td>Texte</td><td>SN011</td><td>Code banque (5 caractères typiquement).</td></tr>
+        <tr><td><code>CodeGuichet</code></td><td>Texte</td><td>1029</td><td>Code guichet de l'agence.</td></tr>
+        <tr><td><code>CleRib</code></td><td>Texte</td><td>81</td><td>Clé RIB (2 chiffres).</td></tr>
+        <tr><td><code>BIC</code></td><td>Texte</td><td>SGSNSNDA</td><td>Code BIC/SWIFT (8 ou 11 caractères).</td></tr>
+        <tr><td><code>NomTitulaire</code></td><td>Texte</td><td>(vide)</td><td>Si vide, auto-rempli depuis le nom complet du salarié.</td></tr>
+        <tr><td><code>Mode</code></td><td>Texte</td><td>Reliquat</td><td>Reliquat, MontantFixe ou Pourcentage. Défaut : Reliquat.</td></tr>
+        <tr><td><code>Valeur</code></td><td>Nombre</td><td>50000</td><td>Montant FCFA si MontantFixe, % si Pourcentage. Ignoré si Reliquat.</td></tr>
+        <tr><td><code>Actif</code></td><td>Texte</td><td>Oui</td><td>Oui/Non. Défaut : Oui.</td></tr>
+        <tr><td><code>Observations</code></td><td>Texte</td><td>Compte principal</td><td>Note libre.</td></tr>
     </table>
 
-    <!-- =============================================================== -->
-    <h2 id="modes">🔀 Modes de répartition</h2>
-
-    <div class="info">
-        <strong>Reliquat (le plus courant) :</strong> le salarié reçoit
-        l'intégralité de son net sur ce compte unique. À utiliser quand
-        un seul compte par salarié.
-    </div>
-
-    <div class="info">
-        <strong>MontantFixe :</strong> un montant FCFA déterminé est viré
-        sur ce compte. Utile pour épargne mensuelle (ex. 50 000 FCFA fixe).
-    </div>
-
-    <div class="info">
-        <strong>Pourcentage :</strong> un % du net est viré sur ce compte.
-        Utile pour répartir le salaire (ex. 30 % compte joint, 70 % compte personnel).
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="regles">📜 Règles de traitement</h2>
-
-    <div class="alerte">
-        <ul>
-            <li><strong>Matricule + Banque + NumeroCompte obligatoires</strong></li>
-            <li><strong>Idempotent :</strong> si un compte avec le même <code>NumeroCompte</code> existe déjà pour ce salarié → ligne ignorée.</li>
-            <li><strong>Plusieurs comptes :</strong> autorisé. Au moins un doit être en mode <em>Reliquat</em> (compte par défaut).</li>
-            <li><strong>Total Pourcentages ≤ 100 % :</strong> contrôlé à la sauvegarde.</li>
-            <li><strong>Un seul Reliquat par salarié :</strong> contrôlé à la sauvegarde.</li>
-            <li><strong>NomTitulaire vide :</strong> auto-rempli avec le nom complet du salarié.</li>
-        </ul>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
-
-    <h3>Cas 1 - Multi-comptes (épargne + courant)</h3>
-    <div class="exemple">
-        SAL001 a 2 comptes : <strong>SGBS</strong> en <em>Reliquat</em>
-        (le solde y atterrit) et <strong>BHS Épargne</strong> en
-        <em>MontantFixe</em> = 50 000 FCFA. Chaque mois, 50 000 partent
-        sur l'épargne et le reste sur SGBS.
-    </div>
-
-    <h3>Cas 2 - Compte joint et compte perso</h3>
-    <div class="exemple">
-        SAL002 demande à recevoir <strong>70 % sur compte personnel</strong>
-        et <strong>30 % sur compte joint</strong>. Deux lignes en mode
-        <em>Pourcentage</em> avec valeurs 70 et 30. Total = 100 % ✓.
-    </div>
-
-    <h3>Cas 3 - Migration en masse 100 RIB</h3>
-    <div class="exemple">
-        Préparation Excel de 100 lignes Reliquat → import : <em>100 créés,
-        0 ignoré, 0 erreur</em>. Tous les salariés ont leur RIB principal
-        configuré en une opération.
-    </div>
+    <h3>Valeurs acceptées pour les colonnes Mode et Actif</h3>
+    <table>
+        <tr><th>Colonne</th><th>Valeurs reconnues</th></tr>
+        <tr><td><code>Mode</code></td><td>Reliquat, REL, R - MontantFixe, Montant Fixe, MF, FIXE - Pourcentage, PCT, % (insensible à la casse)</td></tr>
+        <tr><td><code>Actif</code></td><td>Oui, O, Vrai, True, 1, Yes, Y - tout le reste vaut Non (insensible à la casse)</td></tr>
+    </table>
 
     <h3>Exemple complet - 3 lignes</h3>
     <table style="font-size:0.85em;">
-        <thead><tr>
+        <tr>
             <th>Mat.</th><th>Banque</th><th>NumeroCompte</th>
-            <th>CodeBq</th><th>Guichet</th><th>RIB</th>
+            <th>CodeBq</th><th>Guichet</th><th>Clé</th>
             <th>Mode</th><th>Valeur</th>
-        </tr></thead>
-        <tbody>
-            <tr><td>SAL001</td><td>SGBS ROUME</td><td>004002089747</td>
-                <td>SN011</td><td>1029</td><td>81</td><td>Reliquat</td><td>0</td></tr>
-            <tr><td>SAL001</td><td>BHS Épargne</td><td>061186702701</td>
-                <td>SN039</td><td>1001</td><td>29</td><td>MontantFixe</td><td>50000</td></tr>
-            <tr><td>SAL002</td><td>CBAO</td><td>035157380901</td>
-                <td>SN012</td><td>1284</td><td>52</td><td>Reliquat</td><td>0</td></tr>
-        </tbody>
+        </tr>
+        <tr><td>SAL001</td><td>SGBS ROUME</td><td>004002089747</td>
+            <td>SN011</td><td>1029</td><td>81</td><td>Reliquat</td><td>0</td></tr>
+        <tr><td>SAL001</td><td>BHS Epargne</td><td>061186702701</td>
+            <td>SN039</td><td>1001</td><td>29</td><td>MontantFixe</td><td>50000</td></tr>
+        <tr><td>SAL002</td><td>CBAO</td><td>035157380901</td>
+            <td>SN012</td><td>1284</td><td>52</td><td>Reliquat</td><td>0</td></tr>
     </table>
-    <p>Résultat : <strong>3 créés, 0 ignorés, 0 erreurs</strong>. SAL001 a
-    deux comptes (50 000 FCFA fixe vers BHS, le reste sur SGBS).</p>
+    <p>Attendu après import : <strong>3 créé(s), 0 ignoré(s), 0 erreur(s)</strong>. SAL001 a deux comptes (50 000 FCFA fixes virés sur BHS Epargne, le reste sur SGBS). SAL002 a un seul compte en Reliquat.</p>
 
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+    <h2 id="lancer">4. Lancer l'import</h2>
 
-    <div class="erreur">
-        <strong>"Total des pourcentages > 100 %"</strong> → réajuster
-        les valeurs Pourcentage (somme exacte = 100 %, sauf un compte
-        Reliquat qui prend le solde).
+    <div class="step">
+        <h3><span class="num">4.1</span>Ouvrir le Centre d'imports</h3>
+        <p>Menu : <strong>Paramétrage &gt; Centre d'imports</strong>.</p>
+        <p>Le Centre d'imports regroupe les actions d'import en masse (Salariés, Conjoints, Comptes bancaires). Les deux boutons dédiés aux comptes sont :</p>
+        <ul>
+            <li><strong>Modèle Comptes</strong> - télécharge un Excel vierge avec en-têtes</li>
+            <li><strong>Importer Comptes</strong> - ouvre la popup d'import</li>
+        </ul>
     </div>
 
-    <div class="erreur">
-        <strong>"Plusieurs comptes Reliquat pour SAL001"</strong> → un seul
-        compte Reliquat par salarié. Convertir les autres en Pourcentage
-        ou MontantFixe.
+    <div class="step">
+        <h3><span class="num">4.2</span>Lancer l'import</h3>
+        <p>Cliquer sur <strong>"Importer Comptes"</strong>. Dans la popup :</p>
+        <ol>
+            <li>Dans le champ <strong>Fichier Excel (.xlsx)</strong>, cliquer pour sélectionner le fichier préparé</li>
+            <li>Cliquer sur <strong>"Importer"</strong></li>
+        </ol>
+        <p>Le service parcourt chaque ligne, crée les CompteBancaireSalarie correspondants, et valide la transaction en bloc si au moins une ligne a été créée.</p>
     </div>
 
-    <div class="info">
-        💡 <strong>Comment changer le RIB principal ?</strong>
-        Marquer l'ancien <em>Actif = Non</em>, ajouter un nouveau en
-        <em>Reliquat</em> avec <em>Actif = Oui</em>.
+    <div class="step">
+        <h3><span class="num">4.3</span>Lire le rapport</h3>
+        <p>A la fin de l'import, un message de synthèse s'affiche :</p>
+        <div class="flux">
+            <code>X créé(s), Y ignoré(s), Z erreur(s).</code>
+        </div>
+        <ul>
+            <li><strong>Créé(s)</strong> : nombre de comptes effectivement ajoutés</li>
+            <li><strong>Ignoré(s)</strong> : lignes sans matricule, ou compte identique déjà présent pour ce salarié (idempotence)</li>
+            <li><strong>Erreur(s)</strong> : matricule introuvable, Banque ou NumeroCompte vide, ou autre exception</li>
+        </ul>
+        <p>Le détail ligne par ligne est écrit dans la table d'audit (Audit &gt; CompteBancaireSalarie / Import en masse).</p>
+    </div>
+
+    <h2 id="verification">5. Vérification après import</h2>
+
+    <div class="step">
+        <h3><span class="num">5.1</span>Contrôler sur quelques fiches</h3>
+        <p>Menu : <strong>Gestion du personnel &gt; Salariés</strong>, ouvrir un salarié qui devait recevoir plusieurs comptes.</p>
+        <p>Dans l'onglet <strong>Comptes bancaires</strong>, vérifier :</p>
+        <ul>
+            <li>Le nombre de comptes correspond au fichier Excel</li>
+            <li>Le mode (Reliquat / MontantFixe / Pourcentage) est correct</li>
+            <li>La valeur en FCFA ou en % est correcte</li>
+            <li>Le <code>NomTitulaire</code> est bien le nom complet du salarié si laissé vide dans l'Excel</li>
+            <li>Le champ <code>Actif</code> est à Oui pour les comptes à utiliser</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.2</span>Contrôler la cohérence multi-comptes</h3>
+        <p>Pour tout salarié avec plusieurs comptes :</p>
+        <ul>
+            <li><strong>Un seul compte Reliquat</strong> par salarié</li>
+            <li>Si Pourcentage, la somme des pourcentages des comptes actifs doit rester cohérente (le compte Reliquat absorbe le solde)</li>
+            <li>Aucune valeur de pourcentage supérieure à 100</li>
+        </ul>
+        <p>Ces règles sont contrôlées à la sauvegarde individuelle de chaque compte. Un compte qui enfreint la règle bloque son propre enregistrement, pas les autres.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.3</span>Relancer l'import en cas de correction</h3>
+        <p>L'import est <strong>idempotent sur (Salarié, NumeroCompte)</strong>. Après correction du fichier Excel (ajout de lignes manquantes, correction d'un numéro de compte sur une nouvelle ligne), relancer "Importer Comptes" sur le même fichier :</p>
+        <ul>
+            <li>Les comptes déjà créés sont ignorés</li>
+            <li>Les lignes nouvelles ou corrigées sont créées</li>
+        </ul>
+        <p>Attention : corriger la Banque ou la Valeur d'un compte déjà présent n'est <strong>pas</strong> couvert par l'import. Il faut l'éditer manuellement sur la fiche du salarié, ou supprimer l'ancien compte puis relancer l'import.</p>
+    </div>
+
+    <h2 id="depannage">6. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>"Colonne 'MatriculeSalarie' introuvable"</h3>
+        <p>Le fichier a été enregistré sans la ligne d'en-têtes, ou le libellé a été modifié (accent, espace, casse). Repartir du modèle téléchargé via "Modèle Comptes" et conserver la ligne 1 intacte. Les en-têtes attendus sont : MatriculeSalarie, Banque, NumeroCompte, CodeBanque, CodeGuichet, CleRib, BIC, NomTitulaire, Mode, Valeur, Actif, Observations.</p>
+    </div>
+
+    <div class="step">
+        <h3>"Matricule 'XXX' introuvable"</h3>
+        <p>Le matricule du fichier Excel ne correspond à aucun salarié de SunuPaie. Causes typiques :</p>
+        <ul>
+            <li>Le salarié n'a pas encore été créé - lancer d'abord l'import des salariés</li>
+            <li>Faute de frappe sur le matricule (espace, zéro vs lettre O)</li>
+            <li>Matricule présent dans l'ancien système mais pas repris dans la table Salarié</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3>Les zéros de tête du numéro de compte ont disparu</h3>
+        <p>Excel a interprété la cellule comme un nombre. Formater la colonne <code>NumeroCompte</code> en <strong>Texte</strong> avant de coller les valeurs, ou préfixer les cellules par une apostrophe (<code>'004002089747</code>).</p>
+    </div>
+
+    <div class="step">
+        <h3>"Le pourcentage ne peut pas dépasser 100%"</h3>
+        <p>Une ligne en mode Pourcentage porte une valeur supérieure à 100 dans la colonne <code>Valeur</code>. Corriger le fichier Excel et relancer l'import (la ligne fautive sera recréée, les autres ignorées car déjà présentes).</p>
+    </div>
+
+    <div class="step">
+        <h3>Un compte revient en "ignoré" alors que je veux le modifier</h3>
+        <p>L'idempotence porte sur le couple (Salarié, NumeroCompte). Si le numéro existe déjà, la ligne est ignorée sans écraser l'existant. Pour appliquer la modification :</p>
+        <ul>
+            <li>Soit éditer manuellement le compte sur la fiche du salarié</li>
+            <li>Soit supprimer le compte existant puis relancer l'import</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3>Comment changer le RIB principal d'un salarié</h3>
+        <p>Sur la fiche du salarié, onglet Comptes bancaires :</p>
+        <ol>
+            <li>Marquer l'ancien compte Reliquat avec <code>Actif = Non</code></li>
+            <li>Ajouter un nouveau compte en mode Reliquat avec <code>Actif = Oui</code></li>
+        </ol>
+        <p>Il ne peut rester qu'un seul compte Reliquat actif à la fois.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le bouton "Importer Comptes" n'apparaît pas</h3>
+        <p>L'utilisateur n'a pas la permission sur le Centre d'imports. Faire :</p>
+        <ol>
+            <li>Login Admin</li>
+            <li>Menu <strong>Paramètres de paie &rsaquo; Init. rôles GRH</strong>, cliquer</li>
+            <li>Déconnexion/reconnexion de l'utilisateur concerné</li>
+        </ol>
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 - Module Import Comptes Bancaires - Mise à jour mai 2026
+        SunuPaie - Guide Import comptes bancaires - RH operationnel
     </p>
 </body>
 </html>

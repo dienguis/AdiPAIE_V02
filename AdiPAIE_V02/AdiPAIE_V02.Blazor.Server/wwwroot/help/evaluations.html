@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - Entretiens annuels (Guide complet)</title>
+    <title>SunuPaie - Evaluations annuelles (Guide complet)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
@@ -21,361 +21,319 @@
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>📝 Entretiens annuels - Guide complet</h1>
-    <p>Ce module pilote la <strong>campagne d'entretiens annuels</strong> :
-    création, génération automatique des entretiens individuels,
-    auto-évaluation du salarié, évaluation du N+1, validation N+2, clôture
-    RH, avec un score global pondéré sur les critères paramétrés.</p>
+    <h1>Evaluations annuelles - Guide RH</h1>
+    <p>Ce guide décrit le cycle complet des entretiens annuels dans SunuPaie :
+    comment lancer la campagne annuelle, comment chaque salarié est évalué par
+    son N+1, comment le salarié ajoute ses observations, et comment la hiérarchie
+    N+2 puis le RH valident et clôturent. Il s'adresse au RH opérationnel ;
+    les actions côté manager et côté salarié sont décrites en sections 4 et 5.</p>
 
     <div class="toc">
-        <strong>📑 Étapes du processus</strong>
+        <strong>Sommaire</strong>
         <ol>
             <li><a href="#vue-ensemble">Vue d'ensemble du cycle annuel</a></li>
-            <li><a href="#etape1">Étape 1 - RH : créer la campagne d'évaluation</a></li>
-            <li><a href="#etape2">Étape 2 - RH : générer les entretiens</a></li>
-            <li><a href="#etape3">Étape 3 - N+1 : compléter l'évaluation</a></li>
-            <li><a href="#etape4">Étape 4 - Salarié : auto-évaluation et observations</a></li>
-            <li><a href="#etape5">Étape 5 - Validation N+2</a></li>
-            <li><a href="#etape6">Étape 6 - Clôture RH</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#regles">Règles métier</a></li>
-            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
-            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
+            <li><a href="#campagne">Créer et ouvrir la campagne</a></li>
+            <li><a href="#generer">Générer et planifier les entretiens</a></li>
+            <li><a href="#manager">Saisie manager (N+1)</a></li>
+            <li><a href="#salarie">Observations salarié et validation N+1</a></li>
+            <li><a href="#n2">Validation N+2</a></li>
+            <li><a href="#cloture">Clôture RH et score global</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble du cycle annuel</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble du cycle annuel</h2>
 
+    <h3>Les 4 moments clés</h3>
     <div class="workflow">
-        <div class="box">📅 Campagne</div>
-        <span class="arrow">→</span>
-        <div class="box">📋 Entretiens générés</div>
-        <span class="arrow">→</span>
-        <div class="box">📝 N+1 évalue</div>
-        <span class="arrow">→</span>
-        <div class="box">🤝 Auto-éval salarié</div>
-        <span class="arrow">→</span>
-        <div class="box">✅ N+2 valide</div>
-        <span class="arrow">→</span>
-        <div class="box">🔒 RH clôture</div>
+        <div class="box">Campagne<br>ouverte par RH</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Entretiens générés<br>un par salarié actif</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Saisie N+1<br>+ observations salarié</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Validation N+2<br>puis clôture RH</div>
     </div>
 
-    <h3>Statuts d'un entretien</h3>
+    <h3>Qui fait quoi</h3>
     <table>
-        <thead><tr><th>Statut</th><th>Qui agit</th><th>Action possible</th></tr></thead>
-        <tbody>
-            <tr><td>À planifier</td><td><span class="badge badge-rh">N+1</span></td><td>Convoquer le salarié + démarrer l'évaluation</td></tr>
-            <tr><td>En cours</td><td><span class="badge badge-rh">N+1</span></td><td>Saisir les notes par critère</td></tr>
-            <tr><td>Soumis salarié</td><td><span class="badge badge-rh">Salarié</span></td><td>Auto-évaluation + observations + signature</td></tr>
-            <tr><td>En attente N+2</td><td><span class="badge badge-rh">N+2</span></td><td>Valider ou retourner pour rectification</td></tr>
-            <tr><td>Clôturé</td><td><span class="badge badge-rh">RH</span></td><td>Lecture seule, archivage légal</td></tr>
-        </tbody>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>RH</td><td>Crée la campagne, l'ouvre, génère les entretiens, clôture après validation N+2</td></tr>
+        <tr><td>Manager N+1</td><td>Planifie l'entretien, saisit les notes par mission et par aptitude, soumet au salarié, valide les observations</td></tr>
+        <tr><td>Salarié</td><td>Reçoit l'évaluation du N+1, saisit ses auto-évaluations et observations, les soumet</td></tr>
+        <tr><td>Hiérarchie N+2</td><td>Valide ou rejette l'entretien avant clôture RH</td></tr>
     </table>
 
-    <!-- =============================================================== -->
-    <h2 id="etape1">📅 Étape 1 - RH : créer la campagne d'évaluation</h2>
+    <h3>Les entités principales</h3>
+    <dl class="field-list">
+        <dt>CampagneEvaluation</dt>
+        <dd>Une campagne annuelle par entreprise et par année (unicité contrôlée). Statuts : Brouillon &gt; Ouverte &gt; EnCours &gt; Clôturée. Porte la date d'ouverture, la date de clôture prévue et les instructions aux managers.</dd>
+
+        <dt>EntretienAnnuel</dt>
+        <dd>Un entretien par (campagne x salarié). Statuts : Brouillon &gt; PlanifieRH &gt; SaisieManager &gt; SaisieSalarie &gt; ValidationN1 &gt; EnAttenteN2 (optionnel) &gt; SoumiseRH &gt; Clôturé. Porte la date planifiée, la date de réalisation, le score global pondéré et le snapshot hiérarchique Evaluateur (N+1) / ValideurN2.</dd>
+
+        <dt>EntretienMission (Partie I-A)</dt>
+        <dd>Missions et responsabilités principales de l'année écoulée. Chaque mission a un intitulé, une NoteManager et une NoteAutoEval (auto-évaluation du salarié), plus commentaires manager et collaborateur.</dd>
+
+        <dt>EntretienLigne (Grille d'évaluation)</dt>
+        <dd>Un critère pondéré de la grille. Note du manager et note d'auto-évaluation du salarié. Le poids est copié depuis le référentiel CritereEvaluationRef lors de la sélection.</dd>
+
+        <dt>EntretienManagement (Partie III)</dt>
+        <dd>7 aptitudes au management standard (déléguer, mobiliser, organiser, développer, gérer les conflits, décider, fixer des objectifs). Visible uniquement si <code>EstEnSituationEncadrement</code> est coché. Initialisation idempotente.</dd>
+    </dl>
+
+    <h3>Statuts de l'entretien</h3>
+    <table>
+        <tr><th>Statut</th><th>Qui agit</th><th>Action attendue</th></tr>
+        <tr><td>Brouillon</td><td>RH</td><td>Planifier (fixer la date)</td></tr>
+        <tr><td>PlanifieRH</td><td>RH</td><td>Lancer l'évaluation (passe au N+1)</td></tr>
+        <tr><td>SaisieManager</td><td>N+1</td><td>Saisir notes et commentaires puis Soumettre au salarié</td></tr>
+        <tr><td>SaisieSalarie</td><td>Salarié</td><td>Saisir auto-évaluations et observations puis les soumettre</td></tr>
+        <tr><td>ValidationN1</td><td>N+1</td><td>Valider les observations du salarié</td></tr>
+        <tr><td>EnAttenteN2</td><td>N+2</td><td>Valider ou rejeter avec motif</td></tr>
+        <tr><td>SoumiseRH</td><td>RH</td><td>Clôturer définitivement</td></tr>
+        <tr><td>Clôturé</td><td>-</td><td>Lecture seule, verrouillage total (Appearance Entretien_Lock_Cloture)</td></tr>
+    </table>
+
+    <h2 id="campagne">2. Créer et ouvrir la campagne</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>Aller dans Évaluations → Campagnes → Nouvelle</h3>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Renseigner la campagne</h3>
-        <dl class="field-list">
-            <dt>Année</dt>
-            <dd>Exercice évalué (ex. 2026).</dd>
-            <dt>Date d'ouverture</dt>
-            <dd>Début de la campagne (typiquement décembre N pour évaluer
-                l'année écoulée).</dd>
-            <dt>Date limite N+1</dt>
-            <dd>Date à laquelle tous les N+1 doivent avoir saisi leur évaluation.</dd>
-            <dt>Date limite salarié</dt>
-            <dd>Date limite pour l'auto-évaluation et la signature du salarié.</dd>
-            <dt>Date limite N+2 / Clôture RH</dt>
-            <dd>Bornes finales du cycle.</dd>
-            <dt>Grille de critères</dt>
-            <dd>Sélectionner la grille (ex. <em>Grille Cadres</em>,
-                <em>Grille Non-Cadres</em>, <em>Grille Direction</em>).</dd>
-            <dt>Périmètre</dt>
-            <dd>Tous / par site / par catégorie / par contrat (CDI seulement, etc.).</dd>
-        </dl>
-    </div>
-
-    <div class="exemple">
-        <strong>Exemple - Campagne ELTON 2026 :</strong> ouverture 01/12/2026,
-        N+1 jusqu'au 15/01/2027, auto-éval jusqu'au 25/01, N+2 jusqu'au 05/02,
-        clôture RH le 15/02. Grille : <em>Cadres</em>. Périmètre :
-        tous les CDI hors période d'essai.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape2">📋 Étape 2 - RH : générer les entretiens</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Cliquer sur Générer les entretiens</h3>
-        <p>Depuis la fiche campagne, le RH clique sur
-        <strong>📋 Générer les entretiens</strong>. Le système crée
-        automatiquement <strong>un entretien par salarié éligible</strong>
-        au statut <em>À planifier</em>.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Notifications automatiques</h3>
-        <p>Chaque N+1 reçoit un email listant les évaluations à mener avec
-        un lien direct. Chaque salarié reçoit un email d'information sur
-        l'ouverture de la campagne.</p>
-    </div>
-
-    <div class="info">
-        💡 La génération est <strong>idempotente</strong> : si un nouveau
-        salarié arrive pendant la campagne, le RH peut relancer la génération
-        et seul son entretien sera créé (pas de doublon).
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape3">📝 Étape 3 - N+1 : compléter l'évaluation</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Ouvrir l'entretien depuis Mon équipe</h3>
-        <p>Menu : <strong>Mon espace → Mon équipe → Entretiens à mener</strong>.
-        Cliquer sur le salarié.</p>
+        <h3><span class="num">2.1</span>Créer la campagne</h3>
+        <p>Menu : <strong>GRH - Evaluation &rsaquo; Campagnes d'évaluation &rsaquo; Nouveau</strong></p>
+        <p>Renseigner :</p>
+        <ul>
+            <li><code>Entreprise</code> : pré-remplie si une seule Company existe</li>
+            <li><code>Année</code> : exercice évalué (ex. 2026). Rule 2000-2100</li>
+            <li><code>Titre de la campagne</code> : libre, 150 caractères max</li>
+            <li><code>Date d'ouverture</code> : par défaut 1er janvier de l'année</li>
+            <li><code>Date de clôture prévue</code> : par défaut 31 décembre</li>
+            <li><code>Instructions / message aux managers</code> : texte libre 2048 caractères affiché aux N+1</li>
+        </ul>
+        <div class="info">
+            Unicité contrôlée : une seule campagne par couple (Entreprise, Année). Les champs Entreprise et Année ne sont modifiables qu'en statut Brouillon (Appearance Lock_Keys_Campagne).
+        </div>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Convoquer le salarié</h3>
-        <p>Bouton <strong>📅 Programmer l'entretien</strong> : choisir la date
-        et l'heure → email automatique au salarié + invitation calendrier (.ics).</p>
+        <h3><span class="num">2.2</span>Ouvrir la campagne</h3>
+        <p>Sur la campagne en Brouillon, cliquer sur l'action <strong>"Ouvrir"</strong>. Statut : Brouillon &rsaquo; Ouverte.</p>
+        <p>Un email est envoyé automatiquement aux RH (extraction via WorkflowEmailHelper.ExtraireEmailsRH) pour signaler l'ouverture.</p>
+    </div>
+
+    <h2 id="generer">3. Générer et planifier les entretiens</h2>
+
+    <div class="step">
+        <h3><span class="num">3.1</span>Générer les entretiens</h3>
+        <p>Sur la campagne Ouverte, cliquer sur <strong>"Générer entretiens"</strong>, confirmer.</p>
+        <p>Le système crée <strong>un EntretienAnnuel par salarié actif</strong> (<code>Salarie.IsActif = true</code>) de l'entreprise, au statut Brouillon. Action idempotente : les salariés qui ont déjà un entretien sur la campagne sont ignorés. Un email est envoyé à chaque salarié disposant d'une adresse valide pour l'informer qu'un entretien est planifié.</p>
+        <p>La campagne passe automatiquement en statut <strong>EnCours</strong>. Un message indique le nombre d'entretiens créés.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">3</span>Saisir les notes par critère</h3>
-        <p>Pour chaque critère de la grille, le N+1 attribue une note
-        (typiquement 1 à 5) et un commentaire qualitatif.</p>
-        <table>
-            <thead><tr><th>Critère</th><th>Pondération</th><th>Note (1-5)</th><th>Commentaire</th></tr></thead>
-            <tbody>
-                <tr><td>Maîtrise technique</td><td>25 %</td><td>4</td><td>Excellente expertise SAP</td></tr>
-                <tr><td>Esprit d'équipe</td><td>20 %</td><td>5</td><td>Mentor naturel</td></tr>
-                <tr><td>Atteinte objectifs</td><td>30 %</td><td>4</td><td>2/3 objectifs atteints</td></tr>
-                <tr><td>Initiative</td><td>15 %</td><td>3</td><td>À encourager davantage</td></tr>
-                <tr><td>Respect procédures</td><td>10 %</td><td>5</td><td>Sans faille</td></tr>
-            </tbody>
-        </table>
+        <h3><span class="num">3.2</span>Planifier chaque entretien (RH ou N+1)</h3>
+        <p>Ouvrir l'entretien en Brouillon et cliquer sur <strong>"Planifier"</strong>. Fixer la <code>Date planifiée</code>. Statut : Brouillon &rsaquo; PlanifieRH.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">4</span>Définir les objectifs N+1 pour l'année suivante</h3>
-        <p>Saisir 3 à 5 objectifs SMART (Spécifique, Mesurable, Atteignable,
-        Réaliste, Temporel) pour l'année à venir. Ces objectifs servent de
-        base à l'évaluation suivante.</p>
+        <h3><span class="num">3.3</span>Lancer l'évaluation</h3>
+        <p>Sur l'entretien PlanifieRH, cliquer sur <strong>"Evaluer"</strong>. Le système :</p>
+        <ol>
+            <li>Résout la chaîne hiérarchique via <code>Salarie.GetManagerChain(2)</code> et prend un snapshot : <code>Evaluateur</code> (N+1) et <code>ValideurN2</code> (N+2). Ce snapshot ne sera plus modifié.</li>
+            <li>Passe l'entretien en statut <strong>SaisieManager</strong>.</li>
+            <li>Notifie le N+1 par email avec lien direct.</li>
+        </ol>
+        <div class="info">
+            Si le salarié n'a pas de N+2 dans sa chaîne, <code>ValideurN2</code> reste null : l'étape 6 (validation N+2) sera automatiquement sautée en fin de cycle.
+        </div>
+    </div>
+
+    <h2 id="manager">4. Saisie manager (N+1)</h2>
+
+    <div class="step">
+        <h3><span class="num">4.1</span>Ouvrir l'entretien dans Mon équipe</h3>
+        <p>Menu N+1 : <strong>Mon espace &rsaquo; Mon équipe &rsaquo; Entretiens à mener</strong>. Ouvrir l'entretien au statut SaisieManager.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">5</span>Soumettre au salarié</h3>
-        <p>Bouton <strong>📨 Soumettre au salarié</strong>. L'entretien passe
-        à <em>Soumis salarié</em>.</p>
+        <h3><span class="num">4.2</span>Partie I-A : Missions et responsabilités</h3>
+        <p>Dans la collection <strong>Missions et responsabilités (Partie I-A)</strong>, ajouter les missions principales de l'année écoulée (5 maximum conseillé). Pour chacune :</p>
+        <ul>
+            <li><code>N°</code> et <code>Intitulé de la mission</code> (obligatoire)</li>
+            <li><code>Note manager</code> : enum NoteMission (Superieur, Conforme, Insuffisant, SO par défaut)</li>
+            <li><code>Commentaires manager</code> : jusqu'à 2048 caractères</li>
+        </ul>
     </div>
 
+    <div class="step">
+        <h3><span class="num">4.3</span>Grille d'évaluation (critères pondérés)</h3>
+        <p>Dans la collection <strong>Grille d'évaluation</strong>, créer une ligne par critère. Sélectionner le <code>Critère</code> dans le référentiel <code>CritereEvaluationRef</code> : la pondération, le libellé et le type sont copiés automatiquement (dénormalisation : la ligne n'est pas affectée par une modification ultérieure du référentiel).</p>
+        <p>Saisir la <code>Note (manager)</code> : enum NoteEvaluation (TresBien, Bien, Satisfaisant, Insuffisant, NonEvalue par défaut).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.4</span>Partie III : Aptitudes au management (si encadrement)</h3>
+        <p>Cocher <strong>En situation d'encadrement</strong>. La collection <strong>Aptitudes au management</strong> devient visible (Appearance Aptitudes_Visible) et est initialisée avec les 7 aptitudes standard par le controller d'entretien :</p>
+        <ol>
+            <li>Capacité à déléguer</li>
+            <li>Capacité à mobiliser et valoriser les compétences</li>
+            <li>Capacité d'organisation et de pilotage</li>
+            <li>Attention portée au développement professionnel des collaborateurs</li>
+            <li>Aptitude à prévenir, arbitrer et gérer les conflits</li>
+            <li>Aptitude à la prise de décision</li>
+            <li>Capacité à fixer des objectifs cohérents</li>
+        </ol>
+        <p>Pour chaque aptitude, saisir le <code>Niveau</code> (enum NiveauMaitrise : AAccquerir, ADevelopper, Maitrise, ExcellenteMaitrise) et une <code>Appréciation</code> libre (500 caractères).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.5</span>Synthèse manager</h3>
+        <p>Renseigner :</p>
+        <ul>
+            <li><code>Note globale manager</code> : enum NoteGlobale (A+ à F)</li>
+            <li><code>Commentaire du manager</code> : rich text 4096 caractères</li>
+            <li><code>Conclusion générale</code> : 2048 caractères</li>
+            <li>Décisions RH proposées : <code>Promotion proposée</code>, <code>Augmentation proposée</code>, <code>Formation identifiée</code></li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.6</span>Soumettre au salarié</h3>
+        <p>Cliquer sur <strong>"Soumettre"</strong>. Statut : SaisieManager &rsaquo; SaisieSalarie. Le salarié reçoit un email avec lien.</p>
+    </div>
+
+    <h2 id="salarie">5. Observations salarié et validation N+1</h2>
+
+    <div class="step">
+        <h3><span class="num">5.1</span>Auto-évaluation du salarié</h3>
+        <p>Le salarié ouvre l'entretien via Mon espace. Il saisit :</p>
+        <ul>
+            <li>Sur chaque mission : <code>Note auto-évaluation</code> (NoteMission) et <code>Commentaires collaborateur</code></li>
+            <li>Sur chaque ligne de grille : <code>Auto-évaluation (salarié)</code> (NoteEvaluation) et <code>Commentaire salarié</code></li>
+            <li><code>Auto-évaluation (commentaire salarié)</code> : synthèse globale (rich text 4096)</li>
+            <li><code>Commentaires du collaborateur</code> : remarques générales sur l'entretien</li>
+            <li><code>Évolution souhaitée par le collaborateur</code> (Partie II - projet professionnel)</li>
+        </ul>
+        <div class="alerte">
+            <strong>Important :</strong> le salarié ne peut PAS modifier les notes du manager (champ <code>Note (manager)</code>) ni les commentaires manager. Il écrit uniquement dans ses propres colonnes (NoteAutoEval, CommentaireSalarie, CommentairesCollaborateur).
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.2</span>Soumettre les observations</h3>
+        <p>Le salarié clique sur <strong>"Observations"</strong>. Statut : SaisieSalarie &rsaquo; ValidationN1. Le N+1 est notifié par email.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.3</span>Validation N+1 des observations</h3>
+        <p>Le N+1 ouvre l'entretien en ValidationN1 et clique sur <strong>"Valider obs."</strong>. Le système :</p>
+        <ol>
+            <li>Horodate <code>DateValidationN1</code></li>
+            <li>Bascule le statut en <strong>EnAttenteN2</strong> si <code>ValideurN2</code> existe, sinon directement en <strong>SoumiseRH</strong></li>
+        </ol>
+    </div>
+
+    <h2 id="n2">6. Validation N+2</h2>
+
+    <div class="step">
+        <h3><span class="num">6.1</span>Examiner l'entretien</h3>
+        <p>Le N+2 reçoit un email avec lien. Il visualise les notes manager, les auto-évaluations salarié et les commentaires côte-à-côte.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">6.2</span>Valider</h3>
+        <p>Cliquer sur <strong>"Valider (N+2)"</strong>. Le système horodate <code>DateValidationN2</code>. Statut : EnAttenteN2 &rsaquo; SoumiseRH.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">6.3</span>Rejeter avec motif</h3>
+        <p>Si un écart ou une incohérence impose une correction, cliquer sur <strong>"Rejeter (N+2)"</strong> et saisir le <code>Motif de rejet N+2</code>. Le système :</p>
+        <ol>
+            <li>Enregistre le motif et <code>RejeteParNom</code> (utilisateur courant)</li>
+            <li>Réinitialise <code>DateValidationN1</code> à null</li>
+            <li>Repasse le statut en <strong>SaisieManager</strong> pour nouvelle saisie N+1</li>
+        </ol>
+    </div>
+
+    <h2 id="cloture">7. Clôture RH et score global</h2>
+
+    <div class="step">
+        <h3><span class="num">7.1</span>Clôturer l'entretien</h3>
+        <p>Le RH ouvre l'entretien en SoumiseRH et clique sur <strong>"Clôturer"</strong>. Le système :</p>
+        <ol>
+            <li>Recalcule le score global pondéré (voir 7.2)</li>
+            <li>Horodate <code>DateCloture</code> et renseigne <code>CloturePar</code></li>
+            <li>Passe l'entretien en statut <strong>Clôturé</strong> : lecture seule totale (Appearance Entretien_Lock_Cloture, TargetItems="*", Enabled=false)</li>
+        </ol>
+    </div>
+
+    <h3>7.2 Calcul du score global</h3>
     <div class="formule">
-        <strong>Calcul du score global :</strong><br>
-        Score = Σ (Note critère × Pondération) / 100<br>
-        <em>Exemple ci-dessus : (4×25 + 5×20 + 4×30 + 3×15 + 5×10) / 100 = 4,15 / 5</em>
-    </div>
+Score = Somme (Note x Poids) / Somme (Poids)
 
-    <!-- =============================================================== -->
-    <h2 id="etape4">🤝 Étape 4 - Salarié : auto-évaluation et observations</h2>
+Note : valeur numérique de l'enum NoteEvaluation (lignes avec Note = NonEvalue ignorées)
+Poids : pondération de la ligne (copiée depuis CritereEvaluationRef)
+    </div>
+    <p>Le score peut être recalculé manuellement avant clôture via l'action <strong>"Recalc. score"</strong>. Il est systématiquement recalculé par <code>Cloturer()</code>.</p>
+    <p>Si aucune ligne n'est notée ou si le total des poids est nul, le score est forcé à 0.</p>
 
     <div class="step">
-        <h3><span class="num">1</span>Notification au salarié</h3>
-        <p>Email automatique avec lien vers la fiche entretien.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Compléter l'auto-évaluation</h3>
-        <p>Le salarié saisit sa propre note pour chaque critère ainsi que
-        ses commentaires. Il peut aussi proposer des objectifs personnels.</p>
+        <h3><span class="num">7.3</span>Générer la fiche d'entretien</h3>
+        <p>Action <strong>"Générer la fiche"</strong> : produit un document Word/PDF depuis le template, à archiver dans la fiche du salarié.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">3</span>Observations qualitatives</h3>
-        <p>Champ texte libre pour les remarques générales : <em>"Je souhaite
-        évoluer vers un poste à responsabilité…"</em>, <em>"Je demande une
-        formation X…"</em>, etc.</p>
+        <h3><span class="num">7.4</span>Clôturer la campagne</h3>
+        <p>Une fois tous les entretiens clôturés (ou l'échéance atteinte), ouvrir la campagne et cliquer sur <strong>"Clôturer"</strong>. Confirmation obligatoire : action irréversible. Un email est envoyé aux RH avec le nombre total d'entretiens.</p>
+    </div>
+
+    <h2 id="depannage">8. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>L'action "Générer entretiens" n'est pas visible</h3>
+        <p>La campagne n'est pas au statut Ouverte. L'action a pour TargetObjectsCriteria <code>Statut = Ouverte</code>. Lancer d'abord l'action "Ouvrir".</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">4</span>Signer électroniquement</h3>
-        <p>Bouton <strong>✍️ Signer et soumettre au N+2</strong>. La signature
-        électronique horodatée est enregistrée. L'entretien passe à
-        <em>En attente N+2</em>.</p>
-    </div>
-
-    <div class="alerte">
-        ⚠️ Le salarié <strong>ne peut pas modifier</strong> les notes du N+1.
-        Il peut seulement saisir <strong>ses propres notes</strong> et
-        observations dans une colonne séparée.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape5">✅ Étape 5 - Validation N+2</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Le N+2 reçoit une notification</h3>
-        <p>Email avec récapitulatif des entretiens à valider pour son périmètre.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Examen et arbitrage</h3>
-        <p>Le N+2 visualise les notes N+1 ET salarié côte-à-côte. Il peut :</p>
+        <h3>Un salarié n'a pas été inclus dans la génération</h3>
+        <p>Deux causes :</p>
         <ul>
-            <li><strong>✅ Valider</strong> : entretien clôturé pour le N+2</li>
-            <li><strong>↩️ Renvoyer au N+1</strong> avec commentaire (rectification)</li>
-            <li><strong>📝 Ajouter une note synthèse</strong> du N+2</li>
+            <li><code>Salarie.IsActif</code> est à false. Réactiver le salarié et relancer "Générer entretiens" (idempotent, les existants ne sont pas recréés).</li>
+            <li>Il appartient à une autre Company que celle de la campagne.</li>
         </ul>
     </div>
 
-    <div class="exemple">
-        <strong>Exemple :</strong> Le DAF (N+2) constate un écart important
-        entre N+1 (4,5/5) et auto-évaluation salarié (2,8/5) → renvoie au N+1
-        pour qu'il échange avec le salarié sur cet écart de perception.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape6">🔒 Étape 6 - Clôture RH</h2>
-
     <div class="step">
-        <h3><span class="num">1</span>RH valide en masse</h3>
-        <p>Une fois la date limite atteinte, le RH ouvre la campagne et
-        clique sur <strong>🔒 Clôturer la campagne</strong>. Tous les
-        entretiens validés N+2 passent en <em>Clôturé</em>.</p>
+        <h3>L'action "Evaluer" refuse de s'exécuter</h3>
+        <p>L'entretien n'est pas au statut PlanifieRH. Il faut d'abord cliquer sur "Planifier" et saisir la date. Si le <code>Salarie</code> n'est pas renseigné, l'action lève une erreur.</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>Génération du PDF officiel</h3>
-        <p>Pour chaque entretien clôturé, un PDF est généré avec :</p>
-        <ul>
-            <li>Notes N+1 et auto-évaluation côte-à-côte</li>
-            <li>Score global pondéré</li>
-            <li>Objectifs année N+1</li>
-            <li>Observations salarié + N+2</li>
-            <li>Signatures électroniques (N+1, salarié, N+2, RH)</li>
-        </ul>
+        <h3>Pas d'étape N+2 pour certains entretiens</h3>
+        <p>Comportement normal quand la chaîne hiérarchique du salarié ne contient qu'un seul niveau. <code>GetManagerChain(2)</code> n'a trouvé qu'un manager ; <code>ValideurN2</code> reste null et la validation N+1 bascule directement en SoumiseRH.</p>
     </div>
 
-    <div class="ok">
-        ✅ Le PDF est attaché à la fiche du salarié et conservé
-        <strong>pendant toute la durée du contrat + 5 ans</strong>
-        (obligation légale).
+    <div class="step">
+        <h3>Le score global reste à 0 après clôture</h3>
+        <p>Toutes les lignes de la grille sont au statut <code>NonEvalue</code>, ou la somme des pondérations est nulle. Avant clôture, vérifier que chaque ligne a une Note manager et un Poids &gt; 0.</p>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
-
-    <h3>Cas 1 - Entretien standard (cadre confirmé)</h3>
-    <div class="exemple">
-        <strong>Modou (Chef de projet DSI)</strong>. Le N+1 (DSI) saisit
-        des notes globalement bonnes (4/5 moyenne). Modou s'auto-évalue
-        de manière similaire (3,9/5). Le DAF valide sans modification.
-        Score final = 4,02/5.
+    <div class="step">
+        <h3>La Partie III (aptitudes) n'apparaît pas</h3>
+        <p>La case <code>En situation d'encadrement</code> n'est pas cochée. L'Appearance Aptitudes_Hidden masque la collection tant que cette case est à false.</p>
     </div>
 
-    <h3>Cas 2 - Entretien avec écart fort</h3>
-    <div class="exemple">
-        <strong>Coumba (Caissière)</strong> : son N+1 lui met une note de
-        2,5/5 (problèmes répétés de pointage). Coumba s'auto-évalue à 4/5.
-        Le N+2 renvoie l'entretien pour qu'un échange ait lieu et que
-        les écarts soient documentés.
+    <div class="step">
+        <h3>Impossible de modifier un entretien clôturé</h3>
+        <p>Comportement attendu. L'Appearance <code>Entretien_Lock_Cloture</code> verrouille tous les champs (TargetItems="*", Enabled=false) dès que le statut passe à Clôturé. Un rejet N+2 avant clôture est la seule voie de retour en saisie.</p>
     </div>
 
-    <h3>Cas 3 - Entretien d'un salarié en période d'essai</h3>
-    <div class="exemple">
-        Le RH a configuré le périmètre de la campagne pour <strong>exclure
-        les salariés en période d'essai</strong>. Ils ne sont donc pas
-        générés dans la campagne et auront un <em>entretien d'essai</em>
-        séparé géré dans le module dédié.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="regles">📜 Règles métier</h2>
-
-    <table>
-        <thead><tr><th>Règle</th><th>Description</th></tr></thead>
-        <tbody>
-            <tr><td>Un seul entretien par salarié/campagne</td><td>Pas de doublon possible.</td></tr>
-            <tr><td>Lecture seule après clôture</td><td>Aucune modification possible une fois clôturé par le RH.</td></tr>
-            <tr><td>Score = pondération critères</td><td>Calculé automatiquement à partir des notes et coefficients.</td></tr>
-            <tr><td>Signature obligatoire</td><td>L'entretien ne peut être soumis au N+2 sans signature électronique du salarié.</td></tr>
-            <tr><td>Délais</td><td>Si une date limite est dépassée, l'entretien apparaît en <em>retard</em> dans le tableau de bord RH.</td></tr>
-            <tr><td>Confidentialité</td><td>Les entretiens d'autres équipes ne sont pas visibles par les N+1 hors périmètre.</td></tr>
-            <tr><td>Conservation</td><td>Durée du contrat + 5 ans (obligation légale Sénégal).</td></tr>
-        </tbody>
-    </table>
-
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
-
-    <div class="erreur">
-        <strong>"Aucune grille de critères disponible"</strong><br>
-        → Le RH doit en créer une dans <em>Paramétrage → Grilles d'évaluation</em>
-        avec les critères et leurs pondérations (somme = 100 %).
-    </div>
-
-    <div class="erreur">
-        <strong>"Score affiché en N/A"</strong><br>
-        → Vérifier que toutes les notes critères ont été saisies (aucune
-        case vide). Le score n'est calculé que si toute la grille est complète.
-    </div>
-
-    <div class="erreur">
-        <strong>"Le salarié ne peut pas signer"</strong><br>
-        → Vérifier que son compte utilisateur est bien actif et associé à
-        sa fiche salarié (champ <em>Compte utilisateur</em>).
-    </div>
-
-    <div class="info">
-        💡 <strong>Comment relancer un N+1 retardataire ?</strong>
-        Menu <em>Évaluations → Campagne → Tableau de bord</em> →
-        bouton <strong>📧 Relancer les retardataires</strong>. Email
-        de rappel automatique avec liste des entretiens en attente.
-    </div>
-
-    <div class="info">
-        💡 <strong>Anonymisation des résultats ?</strong> Pour les exports
-        statistiques (rapport Direction), une option <em>Anonymiser</em>
-        masque les noms et ne conserve que matricule + score + service.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
-
-    <div class="bouton">
-        <strong>📅 Nouvelle campagne :</strong> ouvre une campagne annuelle.
-    </div>
-    <div class="bouton">
-        <strong>📋 Générer les entretiens :</strong> crée un entretien par salarié éligible (RH).
-    </div>
-    <div class="bouton">
-        <strong>📝 Saisir l'évaluation :</strong> formulaire de notation par critère (N+1).
-    </div>
-    <div class="bouton">
-        <strong>📨 Soumettre au salarié :</strong> envoie au salarié pour auto-évaluation.
-    </div>
-    <div class="bouton">
-        <strong>✍️ Signer et soumettre au N+2 :</strong> signature électronique du salarié + transition.
-    </div>
-    <div class="bouton">
-        <strong>↩️ Renvoyer au N+1 :</strong> action N+2 quand rectification nécessaire.
-    </div>
-    <div class="bouton">
-        <strong>🔒 Clôturer la campagne :</strong> action RH finale, lecture seule + génération PDF.
-    </div>
-    <div class="bouton">
-        <strong>📧 Relancer retardataires :</strong> emails automatiques aux N+1/salariés en retard.
+    <div class="step">
+        <h3>Le N+2 ne reçoit pas d'email</h3>
+        <p>Vérifier que le <code>ValideurN2</code> a bien un champ <code>Email</code> renseigné dans sa fiche Salarie, et que le serveur SMTP est configuré côté paramètres de paie. Les emails sont envoyés via WorkflowEmailHelper.EnvoyerEmailsAsync.</p>
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 - Module Évaluations annuelles - Mise à jour mai 2026
+        SunuPaie - Guide Evaluations annuelles - RH opérationnel
     </p>
 </body>
 </html>

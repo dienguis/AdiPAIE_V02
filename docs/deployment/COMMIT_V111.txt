@@ -96,6 +96,79 @@ Phase C (harmonisation des autres pages).
   05-resultat-rattrapage.jpg       - message succes + nouveau solde -6
 
 ================================================================================
+5. PHASE B - Refonte help modules prioritaires (Vague 1)
+================================================================================
+
+Refonte complete de 5 pages help selon un pattern unifie et professionnel :
+
+  conges.html         399 lignes  - 8 sections + 5 captures integrees
+  bulletins.html      335 lignes  - 8 sections
+  salaries.html       376 lignes  - 8 sections
+  prets.html          397 lignes  - 9 sections (dont Solder anticipe + REGUL_PRET)
+  interimaires.html   388 lignes  - 8 sections (etait 423 avec changelogs V1.x)
+
+Total : 1 895 lignes de help refondues et verifiees.
+
+Vague 2 (cycle paie etendu) :
+  periodes.html               287 lignes  - 8 sections
+  primes-13mois.html          360 lignes  - 8 sections
+  heures-supplementaires.html 315 lignes  - 6 sections
+  livre-de-paye.html          273 lignes  - 6 sections
+
+Sous-total Vague 2 : 1 235 lignes.
+
+Vague 3 (RH developpement) :
+  formations.html             393 lignes
+  evaluations.html            339 lignes
+  recrutement.html            438 lignes
+  mouvements-interim.html     310 lignes
+
+Vague 4 (vie contrat + imports) :
+  disciplinaire.html          294 lignes
+  offboarding.html            299 lignes
+  missions.html               358 lignes
+  avancements.html            248 lignes
+  import-salaries.html        303 lignes
+  import-conjoints.html       219 lignes
+  import-comptes-bancaires.html 271 lignes
+  import-livre-paie-interim.html 403 lignes
+
+Vague 5 (dashboards) : 12 pages, 1 764 lignes
+  analyse-effectif, bilan-social, budget-vs-realise, conformite-senegal,
+  cout-complet, cout-reel-interim, effectif-detaille, mouvements,
+  pilotage-recrutement, provisions-sociales, remuneration, suivi-absences
+
+Vague 6 (admin + index) :
+  parametrage.html            424 lignes
+  audit.html                  265 lignes
+  index.html                  280 lignes (nettoyage V1.x et date)
+  dashboards/index.html       145 lignes (nettoyage V1.x sur les tags)
+
+CUMUL TOTAL : 36 pages refondues, 9 883 lignes de help professionnel.
+Zero caractere non ASCII typique de l'IA. Contenu audite contre le code source.
+
+Pattern applique :
+  - Nav header unifie, h1 avec sous-titre "Guide RH"
+  - Intro de 2-3 lignes
+  - Sommaire (.toc) numerote avec ancres
+  - Sections numerotees h2 avec id
+  - .step boxes numerotees (1.1, 1.2, ...) avec .num
+  - Callouts .flux, .alerte, .info, .ok pour les points cles
+  - Section finale "Depannage et FAQ" systematique
+  - Footer-help
+
+Ton redactionnel :
+  - Imperatif present ("Cliquer sur", "Verifier que", "Saisir le")
+  - Pas de langage de changelog ("desormais", "nouveauté", "V1.x")
+  - Pas de date dans le texte (sauf exemples concrets)
+
+Contenu audite contre le code (pas d'invention) :
+  - bulletins.html   : Bulletin.cs + 10+ controllers + PdfService + PublicationService
+  - salaries.html    : Salarie.cs + Appearances + OffboardingController + EspaceSalarieHelper
+  - prets.html       : Pret.cs + EcheancePret + SolderAnticipeController + PretClotureService
+  - interimaires.html: 7 entites RH + 9 enums + InterimaireImportService + SortirController
+
+================================================================================
 DEPLOIEMENT PROD
 ================================================================================
 

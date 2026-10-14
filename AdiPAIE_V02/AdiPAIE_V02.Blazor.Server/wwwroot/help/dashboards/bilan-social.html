@@ -1,83 +1,131 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bilan Social Mensuel - Aide Tableau N°6</title>
-    <link rel="stylesheet" href="/help/dashboards/dashboards-help.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SunuPaie - Bilan social mensuel (Guide dashboard)</title>
+    <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
     <nav>
-        <a href="/help/index.html">← Aide générale SunuPaie</a>
-        <span class="sep">|</span>
+        <a href="/help/index.html">Accueil</a>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
         <span class="sep">|</span>
-        <a href="/help/dashboards/effectif-detaille.html">N°1 Effectif</a>
-        <a href="/help/dashboards/analyse-effectif.html">N°2 Analyse</a>
-        <a href="/help/dashboards/mouvements.html">N°3 Mouvements</a>
-        <a href="/help/dashboards/remuneration.html">N°4 Rémunération</a>
-        <a href="/help/dashboards/suivi-absences.html">N°5 Absences</a>
-        <a href="/help/dashboards/bilan-social.html" class="active">N°6 Bilan Social</a>
+        <a href="/help/dashboards/effectif-detaille.html">N1 Effectif</a>
+        <a href="/help/dashboards/analyse-effectif.html">N2 Analyse</a>
+        <a href="/help/dashboards/mouvements.html">N3 Mouvements</a>
+        <a href="/help/dashboards/remuneration.html">N4 Rémunération</a>
+        <a href="/help/dashboards/suivi-absences.html">N5 Absences</a>
+        <a href="/help/dashboards/bilan-social.html" class="active">N6 Bilan Social</a>
     </nav>
-    <main>
-        <div class="num">Tableau N°6</div>
-        <h1>Bilan Social Mensuel</h1>
-        <p class="lead">Synthèse 12 mois × indicateurs clés, formatée pour préparer le formulaire
-        DTSS (Direction du Travail et de la Sécurité Sociale du Sénégal).</p>
 
-        <h2>Périmètre</h2>
-        <p><strong>INTERNE uniquement</strong> par défaut (formulaire DTSS officiel concerne les
-        salariés permanents). Une ligne complémentaire « dont Intérimaires » sera affichée en
-        bas du tableau pour information managériale, sans contaminer le calcul DTSS officiel.</p>
+    <h1>Bilan social mensuel - Guide RH</h1>
+    <p>Synthèse 12 mois des indicateurs sociaux clés formatée pour alimenter le
+    formulaire DTSS (Direction du Travail et de la Sécurité Sociale du Sénégal).
+    Destiné au DRH, au DAF et au contrôle de gestion pour la clôture annuelle
+    et le reporting réglementaire.</p>
 
-        <h2>Lecture du tableau mensuel</h2>
-        <table>
-            <thead><tr><th>Colonne</th><th>Source / Calcul</th></tr></thead>
-            <tbody>
-                <tr><td>Mois</td><td>Janv. → Déc., puis ligne <strong>TOTAL</strong> en queue (fond navy + bordure orange)</td></tr>
-                <tr><td>Effectif fin</td><td>Salariés actifs au dernier jour du mois</td></tr>
-                <tr><td>Embauches</td><td><code>Salarie.DateEmbauche</code> dans le mois (texte bleu)</td></tr>
-                <tr><td>Départs</td><td><code>Salarie.DateSortie</code> dans le mois (texte rouge)</td></tr>
-                <tr><td>Masse Salariale</td><td><code>SUM(Bulletin.BrutFiscal)</code> du mois</td></tr>
-                <tr><td>Charges Patronales</td><td><code>SUM(BulletinLigne.MontantEmployeur)</code> du mois</td></tr>
-                <tr><td>Coût Employeur</td><td>Masse + Charges (texte orange)</td></tr>
-                <tr><td>Employés Absents</td><td>Distinct des salariés ayant un congé Accordé recouvrant le mois</td></tr>
-                <tr><td>Jours Absence</td><td>Σ <code>DureeJours</code> au prorata du recouvrement avec le mois</td></tr>
-            </tbody>
-        </table>
+    <div class="toc">
+        <strong>Sommaire</strong>
+        <ol>
+            <li><a href="#perimetre">Périmètre</a></li>
+            <li><a href="#tableau">Lecture du tableau 12 mois</a></li>
+            <li><a href="#kpi">Lecture des 5 KPI annuels</a></li>
+            <li><a href="#filtres">Filtres et export</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
+        </ol>
+    </div>
 
-        <h2>Lecture des 5 KPI annuels</h2>
-        <ul>
-            <li><strong>Effectif moyen</strong> - moyenne arrondie sur les 12 mois</li>
-            <li><strong>Embauches</strong> / <strong>Départs</strong> - totaux année</li>
-            <li><strong>Coût Employeur</strong> - masse + charges patronales</li>
-            <li><strong>% Absentéisme</strong> - Σ jours absence / (Effectif × 264 j) × 100</li>
-        </ul>
+    <h2 id="perimetre">1. Périmètre</h2>
+    <p><strong>Interne uniquement</strong> : le formulaire DTSS officiel concerne les
+    salariés permanents (entité <code>Salarie</code>). Une ligne complémentaire
+    "dont Intérimaires" est affichée en bas pour information managériale, sans
+    peser sur les calculs DTSS officiels.</p>
 
-        <h2>Indicateurs DTSS non encore disponibles</h2>
-        <p>Le formulaire officiel DTSS demande aussi :</p>
-        <div class="todo">
-            <strong>À implémenter en évolution future</strong> (entités à créer dans le modèle) :
-            <ul>
-                <li>Mouvements emplois (mutations internes)</li>
-                <li>Mesures disciplinaires</li>
-                <li>Accidents du travail / Accidents de trajet / Maladies professionnelles</li>
-                <li>Budget formation, Heures formation, Employés formés</li>
-            </ul>
-            Ces colonnes affichent « - » dans le tableau actuel. La page indique la
-            <strong>complétude données</strong> en bas (% de cellules renseignées sur
-            les 5 indicateurs principaux × 12 mois).
-        </div>
+    <table>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>DRH</td><td>Consolide le bilan annuel, contrôle les indicateurs, dépose le dossier DTSS</td></tr>
+        <tr><td>DAF</td><td>Valide la masse salariale, les charges patronales et le coût employeur</td></tr>
+        <tr><td>Contrôle de gestion</td><td>Prépare l'export Excel pour recopie dans le formulaire officiel</td></tr>
+    </table>
 
-        <h2>Filtres</h2>
-        <p>Année (slicer) · Site (optionnel - filtre transversal sur Salarie+Bulletin+Conge).</p>
+    <h2 id="tableau">2. Lecture du tableau 12 mois</h2>
 
-        <div class="info">
-            <strong>Astuce export :</strong> le bouton 📊 Excel produit un fichier directement
-            collable dans le formulaire DTSS officiel. Le bouton 📄 PDF produit une version
-            imprimable (A4 paysage, en-tête ELTON).
-        </div>
+    <p>Une ligne par mois (janvier à décembre) plus une ligne <strong>TOTAL</strong> en pied de tableau (fond navy, bordure orange).</p>
 
-        <div class="footer">ELTON Oil · Tableau N°6 · Étape 4.6</div>
-    </main>
+    <table>
+        <tr><th>Colonne</th><th>Source / Calcul</th></tr>
+        <tr><td>Effectif fin</td><td>Salariés actifs au dernier jour du mois</td></tr>
+        <tr><td>Embauches</td><td><code>Salarie.DateEmbauche</code> dans le mois</td></tr>
+        <tr><td>Départs</td><td><code>Salarie.DateSortie</code> dans le mois (hors sentinelle 01/01/1900)</td></tr>
+        <tr><td>Masse salariale</td><td>SUM(<code>Bulletin.BrutFiscal</code>) du mois</td></tr>
+        <tr><td>Charges patronales</td><td>SUM(<code>BulletinLigne.MontantEmployeur</code>) du mois</td></tr>
+        <tr><td>Coût employeur</td><td>Masse salariale + Charges patronales</td></tr>
+        <tr><td>Employés absents</td><td>Nombre distinct de salariés avec un <code>CongeDemande</code> Accordé couvrant le mois</td></tr>
+        <tr><td>Jours absence</td><td>Somme de <code>DureeJours</code> au prorata du recouvrement avec le mois</td></tr>
+    </table>
+
+    <div class="info">
+        Les colonnes mouvements d'emplois, mesures disciplinaires, accidents du travail / trajet,
+        maladies professionnelles, budget formation, heures de formation, employés formés
+        affichent "-" tant que les entités correspondantes ne sont pas disponibles dans le modèle.
+        La <strong>complétude des données</strong> en bas de tableau indique le pourcentage de
+        cellules renseignées (sur 12 mois x 5 indicateurs principaux).
+    </div>
+
+    <h2 id="kpi">3. Lecture des 5 KPI annuels</h2>
+    <table>
+        <tr><th>KPI</th><th>Calcul</th></tr>
+        <tr><td>Effectif moyen</td><td>Moyenne arrondie des 12 effectifs fin de mois</td></tr>
+        <tr><td>Embauches / Départs</td><td>Totaux année (somme des 12 mois)</td></tr>
+        <tr><td>Masse salariale annuelle</td><td>SUM(<code>Bulletin.BrutFiscal</code>) sur l'année</td></tr>
+        <tr><td>Coût employeur annuel</td><td>Masse salariale + charges patronales</td></tr>
+        <tr><td>% Absentéisme</td><td>Jours absence x 100 / (Effectif moyen x 264)</td></tr>
+    </table>
+
+    <div class="info">
+        264 jours ouvrés par an (22 jours x 12 mois). Constante utilisée pour le taux d'absentéisme.
+    </div>
+
+    <h3>Ligne "dont Intérimaires"</h3>
+    <p>Information managériale complémentaire, hors DTSS officiel : effectif moyen,
+    nombre de contrats, coût total (<code>TauxJournalier x 22 x nbMois</code>),
+    arrivées, départs sur <code>ContratInterim</code>.</p>
+
+    <h2 id="filtres">4. Filtres et export</h2>
+    <ul>
+        <li><strong>Année</strong> : exercice visé.</li>
+        <li><strong>Site</strong> : filtre transversal appliqué simultanément sur <code>Salarie</code>, <code>Bulletin</code> et <code>CongeDemande</code>.</li>
+    </ul>
+
+    <p>Le dashboard est exposé dans les services d'export Excel et PDF. L'export
+    Excel produit un fichier directement collable dans le formulaire DTSS officiel ;
+    l'export PDF produit une version imprimable A4 paysage avec en-tête ELTON.</p>
+
+    <h2 id="depannage">5. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>La masse salariale d'un mois est à 0</h3>
+        <p>Les bulletins du mois n'ont pas été générés ou validés. Lancer d'abord la génération des bulletins avant de consulter le bilan.</p>
+    </div>
+
+    <div class="step">
+        <h3>Les charges patronales sont nulles alors que la masse est renseignée</h3>
+        <p>Les bulletins existent mais les lignes <code>MontantEmployeur</code> (CSS, IPRES, IPM, etc.) ne sont pas calculées. Vérifier les rubriques côté paramétrage paie.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le % Absentéisme semble sur-évalué</h3>
+        <p>Vérifier qu'un congé long n'est pas comptabilisé en double. Les jours sont pondérés au prorata du recouvrement avec le mois ; une demande ouverte sans date de fin peut fausser le calcul.</p>
+    </div>
+
+    <div class="step">
+        <h3>La complétude affichée est basse</h3>
+        <p>Un ou plusieurs mois sont vides (masse salariale, effectif, absences). Compléter les bulletins manquants puis rafraîchir (cache 5 minutes).</p>
+    </div>
+
+    <p class="footer-help">
+        SunuPaie - Guide Bilan social - RH operationnel
+    </p>
 </body>
 </html>

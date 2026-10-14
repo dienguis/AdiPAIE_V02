@@ -11,236 +11,238 @@
         <a href="/help/index.html">Accueil</a>
         <a href="/help/bulletins.html">Bulletins</a>
         <a href="/help/salaries.html">Salariés</a>
+        <a href="/help/conges.html">Congés</a>
         <a href="/help/avancements.html" class="active">Avancements</a>
-        <a href="/help/parametrage.html">Paramétrage</a>
         <span class="sep">|</span>
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>📈 Avancements et promotions - Guide complet</h1>
-    <p>Ce module gère les changements de statut professionnel d'un salarié :
-    progression automatique d'échelon, promotion à un poste supérieur,
-    changement de catégorie (Régime Général → Régime Cadre, etc.).
-    Workflow de validation hiérarchique et historique conservé pour audit.</p>
+    <h1>Avancements - Guide RH</h1>
+    <p>Ce guide decrit le cycle complet des avancements dans SunuPaie :
+    promotions de fonction, avancements d'échelon, augmentations de salaire
+    et changements de département. Chaque demande passe par un workflow
+    de validation RH -&gt; DG -&gt; RH, et l'application met à jour la fiche
+    du salarié tout en traçant l'ancienne situation dans un historique
+    de poste. Il s'adresse au RH operationnel.</p>
 
     <div class="toc">
-        <strong>📑 Étapes du processus</strong>
+        <strong>Sommaire</strong>
         <ol>
-            <li><a href="#vue-ensemble">Vue d'ensemble du workflow</a></li>
-            <li><a href="#etape1">Étape 1 - RH : créer la demande</a></li>
-            <li><a href="#etape2">Étape 2 - Choisir le type d'avancement</a></li>
-            <li><a href="#etape3">Étape 3 - Validation N+1 → N+2 → DAF</a></li>
-            <li><a href="#etape4">Étape 4 - RH applique l'avancement</a></li>
-            <li><a href="#types">Types d'avancement</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#regles">Règles métier</a></li>
-            <li><a href="#faq">FAQ et erreurs fréquentes</a></li>
-            <li><a href="#reference-boutons">Référence rapide des boutons</a></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble du cycle avancement</a></li>
+            <li><a href="#creer">Créer une demande d'avancement</a></li>
+            <li><a href="#workflow">Workflow de validation</a></li>
+            <li><a href="#impact">Impact sur la fiche salarié</a></li>
+            <li><a href="#historique">Historique de poste</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble du workflow</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble du cycle avancement</h2>
 
+    <h3>Les 4 états d'une demande</h3>
     <div class="workflow">
-        <div class="box">📝 Brouillon</div>
-        <span class="arrow">→</span>
-        <div class="box">⏳ N+1</div>
-        <span class="arrow">→</span>
-        <div class="box">⏳ N+2</div>
-        <span class="arrow">→</span>
-        <div class="box">⏳ DAF</div>
-        <span class="arrow">→</span>
-        <div class="box">✅ Appliqué</div>
-        <span class="arrow">→</span>
-        <div class="box">📄 Bulletins suivants</div>
+        <div class="box">Brouillon<br>RH saisit</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Soumis RH<br>attente DG</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Approuvé DG<br>attente RH</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Appliqué<br>fiche à jour</div>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="etape1">📝 Étape 1 - RH : créer la demande</h2>
+    <ul>
+        <li><strong>Brouillon</strong> : le RH crée la demande, charge la situation actuelle du salarié et renseigne la nouvelle situation. Modifiable librement.</li>
+        <li><strong>Soumis RH</strong> : la demande est verrouillée et transmise à la direction. Un email est envoyé automatiquement.</li>
+        <li><strong>Approuvé DG</strong> : la DG a validé. Le RH peut maintenant appliquer. Email de notification au RH.</li>
+        <li><strong>Appliqué</strong> : la fiche salarié a été mise à jour à la date d'effet, un HistoriquePoste a été créé, le salarié est notifié.</li>
+    </ul>
+
+    <h3>Qui fait quoi</h3>
+    <table>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>RH</td><td>Crée la demande, charge la situation, soumet au DG, applique après approbation, annule si besoin</td></tr>
+        <tr><td>DG</td><td>Approuve ou rejette la demande soumise. Un motif de rejet est obligatoire</td></tr>
+        <tr><td>Salarié</td><td>Reçoit une notification in-app et un email une fois l'avancement appliqué</td></tr>
+    </table>
+
+    <h3>Les 4 types d'avancement</h3>
+    <dl class="field-list">
+        <dt>Promotion</dt>
+        <dd>Changement de fonction. Implique en général une nouvelle rémunération, parfois un nouvel échelon ou département.</dd>
+
+        <dt>Avancement d'échelon</dt>
+        <dd>Progression dans la grille des échelons. Le nouveau salaire de base et la nouvelle indemnité logement sont pré-remplis automatiquement à partir de l'échelon choisi.</dd>
+
+        <dt>Augmentation de salaire</dt>
+        <dd>Révision du salaire de base sans changement de fonction ni d'échelon. Montant saisi manuellement.</dd>
+
+        <dt>Changement de département</dt>
+        <dd>Mobilité interne sans impact salarial obligatoire. Le département de rattachement est modifié sur la fiche salarié.</dd>
+    </dl>
+
+    <h2 id="creer">2. Créer une demande d'avancement</h2>
 
     <div class="step">
-        <h3><span class="num">1</span>RH → Avancements → + Nouveau</h3>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Sélectionner le salarié</h3>
-        <p>Recherche par matricule ou nom. Les données actuelles sont
-        affichées (échelon, fonction, catégorie, salaire actuel).</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape2">🔀 Étape 2 - Choisir le type d'avancement</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Sélectionner le type</h3>
-        <p>Augmentation d'échelon / Promotion de poste / Changement
-        de catégorie. Cf. <a href="#types">section Types</a>.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Renseigner les nouvelles valeurs</h3>
-        <dl class="field-list">
-            <dt>Nouvel échelon / Nouvelle fonction / Nouvelle catégorie</dt>
-            <dd>Selon le type d'avancement.</dd>
-            <dt>Date d'effet</dt>
-            <dd>Date à partir de laquelle la nouvelle rémunération s'applique
-                sur les bulletins.</dd>
-            <dt>Nouvelle rémunération</dt>
-            <dd>Auto-calculée si avancement par échelon, sinon saisie manuelle.</dd>
-            <dt>Motif</dt>
-            <dd>Texte libre (ex. <em>"5 ans d'ancienneté + évaluation A"</em>).</dd>
-        </dl>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape3">✅ Étape 3 - Validation N+1 → N+2 → DAF</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>N+1 valide ou refuse</h3>
-        <p>Email automatique au manager direct.</p>
+        <h3><span class="num">2.1</span>Ouvrir une nouvelle demande</h3>
+        <p>Menu : <strong>Ressources humaines &rsaquo; Demandes d'avancement</strong>, cliquer sur <strong>Nouveau</strong>.</p>
+        <p>Une référence sera générée automatiquement à la soumission (format PROM-AAAA-NNNN, AVCE-AAAA-NNNN, AUG-AAAA-NNNN ou DEPT-AAAA-NNNN selon le type).</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">2</span>N+2 valide ou refuse</h3>
-        <p>Vérification de la cohérence (poste, équité interne).</p>
+        <h3><span class="num">2.2</span>Sélectionner le salarié et charger sa situation</h3>
+        <p>Choisir le salarié dans la liste. Les champs <strong>Fonction actuelle</strong>, <strong>Département actuel</strong>, <strong>Échelon actuel</strong>, <strong>Salaire actuel</strong> et <strong>Indemnité logement actuelle</strong> se remplissent automatiquement.</p>
+        <p>Si la situation a changé entre temps, cliquer sur le bouton <strong>Charger situation</strong> pour recharger le snapshot depuis la fiche salarié.</p>
+        <div class="info">
+            Le bouton <strong>Charger situation</strong> n'est disponible qu'en Brouillon. Il recharge aussi les champs <em>Nouvelle...</em> avec les valeurs actuelles, à adapter ensuite.
+        </div>
     </div>
 
     <div class="step">
-        <h3><span class="num">3</span>DAF valide ou refuse (impact budgétaire)</h3>
-        <p>Validation financière de l'augmentation et de l'enveloppe
-        masse salariale.</p>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape4">📄 Étape 4 - RH applique l'avancement</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Cliquer sur Appliquer l'avancement</h3>
-        <p>La fiche du salarié est mise à jour : nouvelle fonction, nouvel
-        échelon, nouvelle rémunération. Un historique est conservé.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Bulletins futurs</h3>
-        <p>Les bulletins générés <strong>après la date d'effet</strong>
-        appliquent automatiquement la nouvelle rémunération.</p>
-    </div>
-
-    <div class="info">
-        💡 Les bulletins déjà générés <strong>avant la date d'effet</strong>
-        ne sont pas modifiés (rétroactivité optionnelle via régularisation
-        sur le bulletin suivant).
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="types">🔀 Types d'avancement</h2>
-
-    <div class="bouton">
-        <strong>📊 Augmentation d'échelon :</strong> progression automatique
-        dans l'échelle salariale (selon ancienneté ou mérite). La nouvelle
-        rémunération est calculée automatiquement depuis la grille des échelons.
-    </div>
-    <div class="bouton">
-        <strong>🚀 Promotion de poste :</strong> changement de fonction avec
-        nouvelle rémunération (saisie manuelle). Implique souvent un
-        changement de catégorie.
-    </div>
-    <div class="bouton">
-        <strong>🔄 Changement de catégorie :</strong> passage du Régime Général
-        au Régime Cadre IPRES (ou inverse). Impact direct sur les cotisations
-        de retraite (RC vs RG).
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">🎯 Cas d'usage concrets</h2>
-
-    <h3>Cas 1 - Augmentation d'échelon (ancienneté)</h3>
-    <div class="exemple">
-        Aïssa atteint 5 ans d'ancienneté. Son échelon passe de E1-A à E1-B.
-        Salaire de base : 280 000 → 310 000 FCFA. Date d'effet : 1er du
-        mois suivant l'anniversaire d'embauche.
-    </div>
-
-    <h3>Cas 2 - Promotion (Caissière → Chef de station)</h3>
-    <div class="exemple">
-        Coumba est promue Chef de la station ELTON BANDIA. Nouvelle
-        fonction, nouveau salaire (450 000 → 750 000), changement de
-        catégorie (RG → RC). Workflow complet : N+1 (DSI BU) → N+2
-        (Directeur Réseau) → DAF.
-    </div>
-
-    <h3>Cas 3 - Changement de catégorie sans changement de poste</h3>
-    <div class="exemple">
-        Modou (Comptable Senior) franchit le seuil pour devenir Cadre
-        après 10 ans. Son régime IPRES passe de RG à RC. Sa rémunération
-        ne change pas, mais ses cotisations retraite oui.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="regles">📜 Règles métier</h2>
-
-    <div class="alerte">
+        <h3><span class="num">2.3</span>Renseigner la nouvelle situation</h3>
         <ul>
-            <li>La <strong>date d'effet</strong> doit être postérieure à la date de validation.</li>
-            <li>La rémunération peut <strong>augmenter ou diminuer</strong> selon le poste (rétrogradation possible).</li>
-            <li><strong>Historique conservé :</strong> consultable sur la fiche salarié, onglet <em>Avancements</em>.</li>
-            <li>Les bulletins générés <strong>avant la date d'effet</strong> conservent l'ancienne rémunération.</li>
-            <li>Les bulletins générés <strong>après la date d'effet</strong> appliquent la nouvelle rémunération.</li>
-            <li>Workflow strict : N+1 → N+2 → DAF, refus à n'importe quelle étape = retour Brouillon.</li>
+            <li><strong>Type d'avancement</strong> : Promotion, Avancement d'échelon, Augmentation ou Changement de département</li>
+            <li><strong>Date d'effet</strong> : date à partir de laquelle la nouvelle situation s'applique sur les bulletins</li>
+            <li><strong>Nouvelle fonction</strong>, <strong>Nouveau département</strong>, <strong>Nouvel échelon</strong> : à renseigner selon le type</li>
+            <li><strong>Nouveau salaire de base</strong> et <strong>Nouvelle indemnité logement</strong> : pré-remplis automatiquement si un échelon est choisi, sinon saisie manuelle</li>
+            <li><strong>Motif / Justification</strong> : texte libre (ex. anciennete, évaluation, mobilité interne)</li>
         </ul>
+        <p>Les champs <strong>Variation salaire</strong> (FCFA) et <strong>Variation salaire (%)</strong> se calculent automatiquement et sont visibles dans l'en-tête.</p>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="faq">❓ FAQ et erreurs fréquentes</h2>
+    <h2 id="workflow">3. Workflow de validation</h2>
 
-    <div class="erreur">
-        <strong>"Date d'effet antérieure à la date du jour"</strong>
-        → l'avancement doit être prospectif. Pour rétroactivité, appliquer
-        un complément manuel sur le bulletin suivant.
+    <div class="step">
+        <h3><span class="num">3.1</span>Soumettre (action RH)</h3>
+        <p>Bouton <strong>Soumettre</strong>, actif uniquement en Brouillon.</p>
+        <p>Pré-requis contrôlés automatiquement :</p>
+        <ul>
+            <li>Un salarié doit être sélectionné</li>
+            <li>Au moins la nouvelle fonction OU le nouveau salaire de base doit être renseigné</li>
+        </ul>
+        <p>Au passage, la référence est générée si absente, le statut devient <code>SoumisRH</code>, la date de soumission est horodatée, et un email est envoyé aux adresses RH extraites de la configuration.</p>
     </div>
 
-    <div class="erreur">
-        <strong>"Échelon supérieur introuvable"</strong> → vérifier que la
-        grille des échelons couvre bien le niveau supérieur. Sinon,
-        l'administrateur doit l'ajouter dans <em>Paramétrage → Échelons</em>.
+    <div class="step">
+        <h3><span class="num">3.2</span>Approuver (action DG)</h3>
+        <p>Bouton <strong>Approuver</strong>, actif uniquement en statut <code>SoumisRH</code>.</p>
+        <p>Le système enregistre :</p>
+        <ul>
+            <li><strong>Statut</strong> : <code>ApprouveDG</code></li>
+            <li><strong>Date décision DG</strong> : horodatage de l'action</li>
+            <li><strong>Approuvé par</strong> : salarié connecté (déduit du UserName)</li>
+        </ul>
+        <p>Un email est envoyé au RH pour l'inviter à appliquer la demande.</p>
     </div>
+
+    <div class="step">
+        <h3><span class="num">3.3</span>Rejeter (action DG)</h3>
+        <p>Bouton <strong>Rejeter</strong>, actif uniquement en statut <code>SoumisRH</code>.</p>
+        <p>Avant de cliquer, le champ <strong>Motif de rejet</strong> doit être rempli, sinon l'action est refusée. Le statut passe à <code>Rejete</code>. La demande n'est pas supprimée : elle reste consultable avec son motif.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3.4</span>Appliquer (action RH)</h3>
+        <p>Bouton <strong>Appliquer</strong>, actif uniquement en statut <code>ApprouveDG</code>.</p>
+        <p>Action finale, non reversible facilement. Le système fait en séquence :</p>
+        <ol>
+            <li>Création d'un HistoriquePoste (ferme l'historique précédent, ouvre le nouveau à la date d'effet)</li>
+            <li>Mise à jour de la fiche salarié : Fonction, Département, Échelon, SalaireBase, IndemniteLogement</li>
+            <li>Passage du statut à <code>Applique</code>, horodatage <strong>Date d'application</strong>, remplissage <strong>Appliqué par</strong></li>
+            <li>Création d'une NotificationSalarie (catégorie Avancement, priorité Important)</li>
+            <li>Envoi d'un email au salarié</li>
+        </ol>
+        <div class="info">
+            Si un échelon est renseigné, SalaireBase et IndemniteLogement du salarié prennent les valeurs de l'échelon. Sinon, le nouveau salaire et la nouvelle indemnité saisis manuellement sont appliqués.
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3.5</span>Annuler</h3>
+        <p>Bouton <strong>Annuler</strong>, disponible tant que la demande n'est pas <code>Applique</code> ou <code>Annule</code>. Statut passe à <code>Annule</code>, trace conservée.</p>
+    </div>
+
+    <h2 id="impact">4. Impact sur la fiche salarié</h2>
+
+    <p>À l'application, les champs suivants de la fiche salarié sont mis à jour :</p>
+    <table>
+        <tr><th>Champ fiche salarié</th><th>Source</th><th>Condition</th></tr>
+        <tr><td>Fonction</td><td>NouvelleFonction</td><td>Mis à jour si non null</td></tr>
+        <tr><td>Département</td><td>NouveauDepartement</td><td>Mis à jour si non null</td></tr>
+        <tr><td>Échelon</td><td>NouvelEchelon</td><td>Mis à jour si non null</td></tr>
+        <tr><td>SalaireBase</td><td>NouvelEchelon.SalaireBase ou NouveauSalaireBase</td><td>Échelon prioritaire si présent</td></tr>
+        <tr><td>IndemniteLogement</td><td>NouvelEchelon.IdemniteLogement ou NouvelleIndemnite</td><td>Échelon prioritaire si présent</td></tr>
+    </table>
+
+    <h3>Effet sur les bulletins</h3>
+    <ul>
+        <li>Les bulletins générés <strong>après la date d'effet</strong> utilisent automatiquement la nouvelle situation (nouveau salaire, nouvelle indemnité, nouvelle fonction affichée).</li>
+        <li>Les bulletins déjà générés <strong>avant la date d'effet</strong> ne sont pas modifiés : ils restent sur l'ancienne situation.</li>
+        <li>Pour une rétroactivité, saisir manuellement un complément (rubrique Rappel) sur le bulletin suivant.</li>
+    </ul>
+
+    <h2 id="historique">5. Historique de poste</h2>
+
+    <p>Chaque application d'avancement crée un enregistrement <strong>HistoriquePoste</strong>. Objectif : reconstituer le parcours complet d'un salarié (fonctions, salaires, départements successifs) sans dépendre des demandes d'avancement elles-mêmes.</p>
+
+    <h3>Contenu d'une ligne d'historique</h3>
+    <dl class="field-list">
+        <dt>Salarié, Avancement source</dt>
+        <dd>Lien vers le salarié et vers la DemandeAvancement qui a déclenché la ligne.</dd>
+
+        <dt>Date de début, Date de fin</dt>
+        <dd>Date de début = DateEffet de l'avancement appliqué. Date de fin = DateEffet - 1 jour du prochain avancement appliqué (null pour la ligne en cours).</dd>
+
+        <dt>Fonction, Département, Échelon (libellés)</dt>
+        <dd>Snapshot textuel au moment de l'application. Protégé contre les renommages ultérieurs.</dd>
+
+        <dt>Salaire de base, Indemnité logement</dt>
+        <dd>Montants effectifs appliqués. SalaireBrut (calculé) = SalaireBase + IndemniteLogement.</dd>
+
+        <dt>Type d'avancement</dt>
+        <dd>Libellé du type (Promotion, Avancement d'échelon, etc.) qui a conduit à cette situation.</dd>
+    </dl>
+
+    <h3>Consultation</h3>
+    <p>Menu : <strong>Ressources humaines &rsaquo; Historiques de poste</strong>, filtrer par salarié. La ligne sans Date de fin correspond à la situation en cours.</p>
 
     <div class="info">
-        💡 <strong>Comment voir l'historique des avancements d'un salarié ?</strong>
-        Aller sur la fiche → onglet <em>Avancements</em>. Toutes les
-        promotions, changements d'échelon et changements de catégorie sont listés
-        avec dates et auteurs des validations.
+        La fermeture de la ligne précédente (Date de fin = DateEffet - 1) et l'ouverture de la nouvelle sont automatiques. Ne pas éditer manuellement les lignes d'historique sauf correction d'anomalie.
     </div>
 
-    <div class="info">
-        💡 <strong>Faut-il refaire un contrat à chaque avancement ?</strong>
-        Pas obligatoire pour un échelon. Pour une promotion de poste,
-        un avenant au contrat est recommandé (à joindre dans la fiche).
+    <h2 id="depannage">6. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>Le bouton Soumettre refuse "Renseignez au moins la nouvelle fonction ou le nouveau salaire"</h3>
+        <p>Les deux champs clés sont vides. Soit choisir une Nouvelle fonction, soit saisir un Nouveau salaire de base. Pour un simple changement de département, saisir au moins le salaire actuel comme Nouveau salaire pour débloquer la soumission.</p>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="reference-boutons">🎛️ Référence rapide des boutons</h2>
+    <div class="step">
+        <h3>Le bouton Rejeter refuse "Saisissez un motif de rejet"</h3>
+        <p>Remplir le champ <strong>Motif de rejet</strong> dans le formulaire avant de cliquer sur Rejeter. Le motif reste visible sur la demande après rejet.</p>
+    </div>
 
-    <div class="bouton">
-        <strong>+ Nouvel avancement :</strong> ouvre la fiche en Brouillon.
+    <div class="step">
+        <h3>Le salaire ne se met pas à jour après Appliquer</h3>
+        <p>Si un échelon est renseigné dans la Nouvelle situation, c'est <code>NouvelEchelon.SalaireBase</code> qui est appliqué, pas la valeur saisie dans Nouveau salaire. Pour forcer un montant hors grille, laisser <strong>Nouvel échelon</strong> vide et remplir uniquement Nouveau salaire de base.</p>
     </div>
-    <div class="bouton">
-        <strong>📨 Soumettre :</strong> envoie au N+1 pour validation.
+
+    <div class="step">
+        <h3>Aucun email n'est reçu à la soumission ou à l'approbation</h3>
+        <p>Vérifier que des utilisateurs ont le rôle RH avec un Email renseigné, et que les paramètres SMTP sont configurés. Les envois sont asynchrones : un délai de quelques minutes est normal.</p>
     </div>
-    <div class="bouton">
-        <strong>✅ Valider :</strong> action N+1/N+2/DAF selon étape.
+
+    <div class="step">
+        <h3>Le salarié ne voit pas sa notification d'avancement</h3>
+        <p>La NotificationSalarie est créée uniquement si l'application s'est terminée sans erreur. Vérifier dans <strong>Ressources humaines &rsaquo; Notifications salariés</strong> qu'une ligne existe pour ce salarié avec la catégorie Avancement. Si oui, c'est son espace Mon espace qui n'est pas accessible (voir guide Salariés).</p>
     </div>
-    <div class="bouton">
-        <strong>❌ Refuser :</strong> rejet avec motif → retour Brouillon.
-    </div>
-    <div class="bouton">
-        <strong>🚀 Appliquer l'avancement :</strong> action RH finale,
-        met à jour la fiche du salarié à la date d'effet.
+
+    <div class="step">
+        <h3>Je veux annuler un avancement déjà appliqué</h3>
+        <p>Impossible via le bouton Annuler (verrouillé après application). Il faut créer une nouvelle demande d'avancement en sens inverse (ancienne fonction, ancien salaire) avec une date d'effet appropriée. L'historique de poste conserve la trace des deux mouvements.</p>
     </div>
 
     <p class="footer-help">
-        SunuPaie v1.1 - Module Avancements et promotions - Mise à jour mai 2026
+        SunuPaie - Guide Avancements et promotions - RH operationnel
     </p>
 </body>
 </html>

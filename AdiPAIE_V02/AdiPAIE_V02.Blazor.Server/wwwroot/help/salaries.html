@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunuPaie - Fiches Salariés (Guide complet)</title>
+    <title>SunuPaie - Salariés (Guide complet)</title>
     <link rel="stylesheet" href="/help/help-shared.css">
 </head>
 <body>
@@ -20,328 +20,357 @@
         <a href="/help/dashboards/index.html">Tableaux de bord</a>
     </nav>
 
-    <h1>👥 Fiches Salariés - Guide complet</h1>
-    <p>Ce module gère le référentiel central des salariés permanents (CDI / CDD / Stage)
-    d'ELTON Oil Company : identité, contrat, rémunération, famille, comptes bancaires,
-    informations RH.</p>
+    <h1>Salariés - Guide RH</h1>
+    <p>La fiche salarié est le référentiel central des agents permanents
+    (CDI, CDD, Stage, Convention). Elle porte l'identité, le contrat, la
+    rémunération, la famille, les comptes bancaires et les pièces d'identité.
+    Elle alimente tous les autres modules : bulletins, congés, prêts, missions,
+    tableaux de bord. Ce guide s'adresse au RH opérationnel qui crée et
+    maintient les fiches ; le workflow côté salarié (consultation via Mon
+    espace) est décrit en section 5.</p>
 
     <div class="toc">
-        <strong>📑 Étapes du processus</strong>
+        <strong>Sommaire</strong>
         <ol>
-            <li><a href="#vue-ensemble">Vue d'ensemble du cycle de vie d'un salarié</a></li>
-            <li><a href="#etape1">Étape 1 - Créer une fiche salarié</a></li>
-            <li><a href="#etape2">Étape 2 - Renseigner Identification</a></li>
-            <li><a href="#etape3">Étape 3 - Renseigner Contrat & Poste</a></li>
-            <li><a href="#etape4">Étape 4 - Renseigner Rémunération</a></li>
-            <li><a href="#etape5">Étape 5 - Renseigner Famille</a></li>
-            <li><a href="#etape6">Étape 6 - Compléter pièces, comptes, infos RH</a></li>
-            <li><a href="#etape7">Étape 7 - Activer l'Espace Salarié (compte XAF)</a></li>
-            <li><a href="#cas-usage">Cas d'usage concrets</a></li>
-            <li><a href="#regles">Règles métier et contrôles automatiques</a></li>
-            <li><a href="#faq">FAQ et notifications email</a></li>
+            <li><a href="#vue-ensemble">Vue d'ensemble de la fiche</a></li>
+            <li><a href="#creer">Créer une fiche salarié</a></li>
+            <li><a href="#modifier">Modifier une fiche existante</a></li>
+            <li><a href="#famille">Famille et parts fiscales</a></li>
+            <li><a href="#espace-salarie">Espace salarié (Mon espace)</a></li>
+            <li><a href="#mouvements">Mouvements et évolution de carrière</a></li>
+            <li><a href="#depart">Départ du salarié</a></li>
+            <li><a href="#depannage">Dépannage et FAQ</a></li>
         </ol>
     </div>
 
-    <!-- =============================================================== -->
-    <h2 id="vue-ensemble">📋 Vue d'ensemble du cycle de vie d'un salarié</h2>
+    <h2 id="vue-ensemble">1. Vue d'ensemble de la fiche</h2>
 
+    <h3>Les 5 blocs de la fiche</h3>
     <div class="workflow">
-        <div class="box">👤 Embauche</div>
-        <span class="arrow">→</span>
-        <div class="box">📄 Contrat</div>
-        <span class="arrow">→</span>
-        <div class="box">💰 Bulletins</div>
-        <span class="arrow">→</span>
-        <div class="box">🏖️ Congés</div>
-        <span class="arrow">→</span>
-        <div class="box">📊 Évaluation</div>
-        <span class="arrow">→</span>
-        <div class="box">📤 Sortie</div>
+        <div class="box">Identité</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Contrat<br>et poste</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Rémunération</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Famille</div>
+        <div class="arrow">&rsaquo;</div>
+        <div class="box">Pièces,<br>comptes, RH</div>
     </div>
 
-    <div class="info">
-        <strong>📌 La fiche salarié est le pivot</strong> qui alimente tous les
-        autres modules (bulletins, congés, missions, prêts, dashboards). Elle
-        doit être complète et à jour pour que la paie et les KPI RH soient corrects.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape1">👤 Étape 1 - Créer une fiche salarié</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Naviguer vers les Salariés</h3>
-        <p>Menu <strong>GRH</strong> → <strong>Salariés</strong> → <kbd>+ New</kbd>.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Choisir le mode de saisie</h3>
-        <ul>
-            <li><strong>Saisie manuelle</strong> (cas standard)</li>
-            <li><strong>Import en masse</strong> depuis Excel : voir
-            <a href="/help/import-salaries.html">Import Salariés</a></li>
-        </ul>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape2">📋 Étape 2 - Onglet Identification</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Renseigner l'état civil</h3>
-        <div class="field-list">
-            <dl>
-                <dt>Matricule *</dt><dd>Identifiant unique (ex: <code>SAL-2026-0042</code>)</dd>
-                <dt>Civilité</dt><dd>M. / Mme / Mlle</dd>
-                <dt>Nom *</dt><dd>En MAJUSCULES (auto-formaté)</dd>
-                <dt>Prénom *</dt><dd>Saisie libre</dd>
-                <dt>Sexe *</dt><dd>Masculin / Féminin (utilisé pour les KPI démographiques)</dd>
-                <dt>Date de naissance</dt><dd>Format JJ/MM/AAAA - alimente la pyramide des âges</dd>
-                <dt>Lieu de naissance</dt><dd>Ville</dd>
-                <dt>Nationalité</dt><dd>Sénégalaise par défaut</dd>
-                <dt>Situation familiale</dt><dd>Célibataire / Marié(e) / Divorcé(e) / Veuf(ve)</dd>
-            </dl>
-        </div>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">2</span>Renseigner les coordonnées et IDs</h3>
-        <div class="field-list">
-            <dl>
-                <dt>Email *</dt><dd>Email professionnel - clé pour l'envoi des bulletins par email + Espace Salarié XAF</dd>
-                <dt>Téléphone</dt><dd>Mobile</dd>
-                <dt>Adresse</dt><dd>Domicile</dd>
-                <dt>N° CNI / Passeport</dt><dd>Pièce d'identité</dd>
-                <dt>N° IPRES</dt><dd>Identifiant Caisse de retraite (obligatoire pour cotisations)</dd>
-                <dt>N° CSS</dt><dd>Identifiant Caisse de Sécurité Sociale</dd>
-            </dl>
-        </div>
-    </div>
-
-    <div class="exemple">
-        <strong>Exemple :</strong> Fiche d'Aminata SARR<br>
-        - Matricule : <code>SAL-2026-0042</code><br>
-        - Civilité : <code>Mme</code> · Nom : <code>SARR</code> · Prénom : <code>Aminata</code><br>
-        - Sexe : <code>Féminin</code> · Date naissance : <code>15/04/1991</code> (34 ans)<br>
-        - Email : <code>aminata.sarr@elton.sn</code><br>
-        - Tél : <code>+221 77 123 45 67</code><br>
-        - CNI : <code>1 234 5678 9012</code> · IPRES : <code>SN-12345678</code>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape3">📄 Étape 3 - Onglet Contrat &amp; Poste</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Affecter le salarié à un poste</h3>
-        <div class="field-list">
-            <dl>
-                <dt>Type de contrat *</dt><dd>CDI / CDD / Stage / Convention</dd>
-                <dt>Date d'embauche *</dt><dd>JJ/MM/AAAA - date d'entrée effective</dd>
-                <dt>Date fin contrat</dt><dd>Pour CDD/Stage - laisser vide pour CDI</dd>
-                <dt>Date de sortie</dt><dd>Renseignée à la fin de contrat (sortie effective)</dd>
-                <dt>Motif de départ</dt><dd>Démission / Licenciement / Retraite / Fin de CDD / Décès / Rupture conventionnelle / Autre</dd>
-                <dt>Site *</dt><dd>Lieu de travail (Station / Siège / Dépôt) - voir <a href="/help/dashboards/index.html">référentiel V1.1</a></dd>
-                <dt>Département</dt><dd>DSI / Commerciale / Admin Fin / RH / etc.</dd>
-                <dt>Fonction</dt><dd>Poste occupé (référentiel)</dd>
-                <dt>Catégorie *</dt><dd>Cadre / Non Cadre (impacte cotisations IPRES RC)</dd>
-                <dt>Échelon</dt><dd>Optionnel - alimente le salaire base depuis grille conventionnelle</dd>
-                <dt>Convention</dt><dd>Convention collective applicable</dd>
-            </dl>
-        </div>
-    </div>
-
-    <div class="alerte">
-        <strong>⚠️ Cohérence Catégorie/Échelon</strong> : si on renseigne un
-        Échelon, sa Catégorie DOIT correspondre à celle du salarié. Idem pour
-        la Convention. Le système contrôle à l'enregistrement.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape4">💰 Étape 4 - Onglet Rémunération</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Renseigner les composants du salaire</h3>
-        <div class="field-list">
-            <dl>
-                <dt>Salaire de base *</dt><dd>Montant mensuel en FCFA - proratisé par JoursTravailles dans les bulletins</dd>
-                <dt>Indemnité de logement</dt><dd>Mensuel, proratisée également</dd>
-                <dt>Sursalaire</dt><dd>Complément non proratisé</dd>
-                <dt>Indemnité transport</dt><dd>Forfait mensuel</dd>
-                <dt>Autres primes</dt><dd>Cf. lignes manuelles dans le modèle de bulletin</dd>
-                <dt>Parts fiscales *</dt><dd>1 part = célibataire sans enfant. +0,5 par enfant à charge (max 5)</dd>
-            </dl>
-        </div>
-    </div>
-
-    <div class="formule">
-        Brut Fiscal = Salaire base + Logement + Sursalaire + Transport (+ avantages)<br>
-        Brut Social = Salaire base + Logement + Sursalaire (sans transport)<br>
-        IPRES RG = Brut Social × 5,60% (plafonné à 432 000)<br>
-        IR = (Brut Fiscal − abattement 30%) × barème par parts fiscales
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape5">👨‍👩‍👧‍👦 Étape 5 - Onglet Famille</h2>
-
-    <div class="step">
-        <h3><span class="num">1</span>Saisir le conjoint et enfants</h3>
-        <p>Sous-grilles dans la fiche :</p>
-        <ul>
-            <li><strong>Conjoints</strong> : nom, profession, à charge fiscalement (oui/non)</li>
-            <li><strong>Enfants</strong> : nom, date naissance, à charge (oui/non), niveau d'études</li>
-        </ul>
-    </div>
-
-    <div class="info">
-        <strong>📌 Impact fiscal :</strong> chaque conjoint à charge ajoute
-        0,5 part fiscale. Chaque enfant à charge ajoute 0,5 part (max 5
-        parts au total). Le système recalcule auto si on coche/décoche.
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape6">🗂️ Étape 6 - Pièces, Comptes bancaires, Infos RH</h2>
-
-    <div class="step">
-        <h3><span class="num">A</span>Pièces d'identité</h3>
-        <p>Sous-grille avec uploads PDF/image : CNI recto-verso, passeport,
-        permis de conduire. Stockage en base via FileAttachments.</p>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">B</span>Comptes bancaires</h3>
-        <p>RIB pour virements salaires :</p>
-        <div class="field-list">
-            <dl>
-                <dt>Banque</dt><dd>BSIC / CBAO / Ecobank / SGBS / etc.</dd>
-                <dt>RIB / IBAN</dt><dd>Identifiant compte</dd>
-                <dt>Compte principal</dt><dd>Cocher 1 seul compte = compte de virement par défaut</dd>
-            </dl>
-        </div>
-    </div>
-
-    <div class="step">
-        <h3><span class="num">C</span>Informations RH</h3>
-        <div class="field-list">
-            <dl>
-                <dt>Responsable N+1</dt><dd>Manager direct (utilisé pour validation congés/missions/évaluations)</dd>
-                <dt>Notes RH</dt><dd>Texte libre confidentiel - visible RH/Admin uniquement</dd>
-                <dt>Date d'ancienneté reconnue</dt><dd>Si différente de DateEmbauche</dd>
-            </dl>
-        </div>
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="etape7">🔑 Étape 7 - Activer l'Espace Salarié (compte XAF)</h2>
-
-    <p>Pour que le salarié puisse se connecter à SunuPaie et voir ses bulletins :</p>
-
-    <div class="step">
-        <h3><span class="num">1</span>Créer un ApplicationUser</h3>
-        <p>Menu <strong>Administration</strong> → <strong>Users</strong> → <kbd>+ New</kbd>.</p>
-        <div class="field-list">
-            <dl>
-                <dt>UserName *</dt><dd><strong>DOIT être identique à l'Email</strong> de la fiche salarié - c'est la jointure</dd>
-                <dt>Mot de passe</dt><dd>Initial (le salarié devra le changer à la 1ère connexion)</dd>
-                <dt>Rôles</dt><dd>Ajouter <code>Default</code> + éventuellement <code>RH</code> / <code>RH_Manager</code> / <code>DAF</code> selon poste</dd>
-            </dl>
-        </div>
-    </div>
-
-    <div class="alerte">
-        <strong>⚠️ Lien UserName ↔ Email :</strong> si le UserName du compte
-        XAF ne correspond pas à l'Email de la fiche salarié, l'Espace Salarié
-        ne pourra pas afficher ses bulletins/congés (jointure cassée).
-    </div>
-
-    <!-- =============================================================== -->
-    <h2 id="cas-usage">💼 Cas d'usage concrets</h2>
-
-    <h3>Cas 1 - Embauche d'un nouveau salarié</h3>
-    <ol>
-        <li>RH crée la fiche salarié (Étapes 1-6 ci-dessus)</li>
-        <li>RH crée le compte XAF (Étape 7) avec UserName = Email</li>
-        <li>Le salarié reçoit son login + mot de passe initial</li>
-        <li>Au mois courant : le bulletin est créé avec prorata auto (cf. <a href="/help/bulletins.html">Bulletins</a>)</li>
-    </ol>
-
-    <h3>Cas 2 - Promotion / Changement d'échelon</h3>
-    <ol>
-        <li>Modifier l'Échelon dans l'onglet Contrat</li>
-        <li>Vérifier la cohérence Catégorie ↔ Échelon</li>
-        <li>Mettre à jour Salaire base si nécessaire</li>
-        <li>Le prochain bulletin tiendra compte du nouveau salaire</li>
-        <li>Tracer l'avancement dans le module <a href="/help/avancements.html">Avancements</a></li>
-    </ol>
-
-    <h3>Cas 3 - Sortie d'un salarié</h3>
-    <ol>
-        <li>Renseigner Date de sortie + Motif de départ</li>
-        <li>Le salarié n'apparaît plus dans la liste « Salariés actifs »</li>
-        <li>Créer le dossier offboarding (cf. <a href="/help/offboarding.html">Offboarding</a>)</li>
-        <li>Désactiver le compte XAF</li>
-    </ol>
-
-    <!-- =============================================================== -->
-    <h2 id="regles">📜 Règles métier et contrôles automatiques</h2>
-
-    <h3>Contrôles à l'enregistrement</h3>
+    <h3>Qui fait quoi</h3>
     <table>
-        <thead><tr><th>Règle</th><th>Message d'erreur</th></tr></thead>
-        <tbody>
-            <tr><td>Matricule obligatoire et unique</td><td>« Ce matricule est déjà utilisé »</td></tr>
-            <tr><td>Date sortie ≥ Date embauche</td><td>« La date de sortie ne peut pas être antérieure à la date d'embauche »</td></tr>
-            <tr><td>Salaire base ≥ 0 (sans échelon)</td><td>« Le salaire de base doit être positif (ou affectez un échelon) »</td></tr>
-            <tr><td>Rémunérations non négatives</td><td>« Les montants ne peuvent pas être négatifs »</td></tr>
-            <tr><td>Format email valide</td><td>« Format d'email invalide. Exemple : prenom.nom@domaine.sn »</td></tr>
-            <tr><td>Catégorie = échelon.catégorie</td><td>« La catégorie du salarié doit correspondre à celle de l'échelon »</td></tr>
-            <tr><td>Convention = échelon.convention</td><td>« La convention du salarié doit correspondre à celle de l'échelon »</td></tr>
-            <tr><td>Manager ≠ soi-même</td><td>« Un salarié ne peut pas être son propre responsable »</td></tr>
-        </tbody>
+        <tr><th>Acteur</th><th>Responsabilité</th></tr>
+        <tr><td>RH</td><td>Crée la fiche, maintient les données contractuelles, suit les mouvements, enregistre le départ</td></tr>
+        <tr><td>Admin</td><td>Crée le compte utilisateur ApplicationUser et assigne les rôles</td></tr>
+        <tr><td>Salarié</td><td>Consulte ses bulletins, congés, pièces et demandes dans <strong>Mon espace</strong></td></tr>
+        <tr><td>Manager N+1</td><td>Référencé sur la fiche de son équipe pour les validations de workflow</td></tr>
     </table>
 
-    <!-- =============================================================== -->
-    <h2 id="faq">📧 Notifications & FAQ</h2>
+    <h3>Champs clés</h3>
+    <dl class="field-list">
+        <dt>Matricule</dt>
+        <dd>Identifiant unique du salarié. En lecture seule après création.</dd>
 
-    <h3>Notifications email automatiques</h3>
-    <table>
-        <thead><tr><th>Événement</th><th>Destinataire</th></tr></thead>
-        <tbody>
-            <tr><td>Prêt suspendu / relance</td><td>Le salarié concerné</td></tr>
-            <tr><td>Dossier de sortie clôturé</td><td>Le salarié concerné</td></tr>
-            <tr><td>Entretien annuel créé (campagne)</td><td>Tous les salariés actifs</td></tr>
-            <tr><td>Congé accordé / refusé</td><td>Le salarié concerné</td></tr>
-            <tr><td>Bulletin envoyé</td><td>Le salarié concerné</td></tr>
-        </tbody>
-    </table>
+        <dt>Email</dt>
+        <dd>Clé de jointure avec le compte <code>ApplicationUser</code>. Le <code>UserName</code> du compte doit être identique à l'email de la fiche, sinon l'Espace salarié ne retrouve pas ses bulletins.</dd>
 
-    <h3>Q : Le salarié n'arrive pas à se connecter</h3>
-    <div class="erreur">
-        <strong>Causes possibles :</strong>
+        <dt>Catégorie et Échelon</dt>
+        <dd>Déterminent la grille conventionnelle appliquée. Contrôle automatique : la catégorie du salarié doit correspondre à celle de l'échelon, et la convention doit correspondre à celle de l'échelon.</dd>
+
+        <dt>DateEmbauche, DateSortie</dt>
+        <dd>Un salarié est <strong>actif</strong> si DateEmbauche &lt;= aujourd'hui ET (DateSortie vide OU DateSortie &gt; aujourd'hui). La case <code>IsActif</code> relaie ce statut.</dd>
+
+        <dt>Manager</dt>
+        <dd>Responsable N+1. Un salarié ne peut pas être son propre responsable (contrôle à l'enregistrement).</dd>
+    </dl>
+
+    <h2 id="creer">2. Créer une fiche salarié</h2>
+
+    <div class="step">
+        <h3><span class="num">2.1</span>Ouvrir le formulaire de création</h3>
+        <p>Menu : <strong>Gestion du personnel &rsaquo; Salariés</strong>, cliquer sur <strong>New</strong>.</p>
+        <p>A l'ouverture, le système applique les valeurs par défaut :</p>
         <ul>
-            <li>UserName du compte XAF ≠ Email de la fiche salarié</li>
-            <li>Compte XAF désactivé (case « Active » décochée)</li>
-            <li>Mot de passe incorrect (utiliser « Mot de passe oublié »)</li>
-            <li>Aucun rôle assigné (au minimum <code>Default</code>)</li>
+            <li><code>IsActif</code> = vrai</li>
+            <li><code>Base30Jour</code> = 30 (base de proratisation mensuelle)</li>
+            <li><code>DateCreation</code> = maintenant, <code>CreePar</code> = utilisateur courant</li>
         </ul>
     </div>
 
-    <h3>Q : Comment changer le matricule ?</h3>
-    <div class="info">
-        Le matricule est en lecture seule après création. Pour le changer,
-        il faut passer par un script SQL côté DBA, ou archiver l'ancien
-        salarié et en créer un nouveau (déconseillé car perd l'historique).
+    <div class="step">
+        <h3><span class="num">2.2</span>Renseigner l'identité</h3>
+        <ul>
+            <li><strong>Matricule</strong> : identifiant unique, obligatoire</li>
+            <li><strong>Civilité, Nom, Prénom, Sexe</strong></li>
+            <li><strong>DateNaissance, LieuNaissance, Nationalité</strong></li>
+            <li><strong>Situation maritale</strong> (<code>SatutMarital</code>) : Célibataire, Marié, Divorcé, Veuf</li>
+            <li><strong>Email</strong>, Téléphone, Adresse</li>
+            <li><strong>N° CNI</strong>, <strong>N° IPRES</strong>, <strong>N° CSS</strong></li>
+        </ul>
+        <div class="info">
+            Les dates <code>DateExpirationCNI</code> et <code>DateExpirationPasseport</code> déclenchent une alerte visuelle : rouge si la pièce est expirée, orange si l'échéance arrive dans 60 jours (CNI) ou 90 jours (passeport).
+        </div>
     </div>
 
-    <h3>Q : Le salarié n'apparaît pas dans la liste « Actifs »</h3>
-    <div class="info">
-        Vérifier qu'il n'a pas de Date de sortie renseignée. Un salarié est
-        considéré « actif » si : DateEmbauche ≤ aujourd'hui ET (DateSortie
-        est vide OU DateSortie &gt; aujourd'hui).
+    <div class="step">
+        <h3><span class="num">2.3</span>Renseigner le contrat et le poste</h3>
+        <ul>
+            <li><strong>TypeContrat</strong> : CDI, CDD, Stage, Convention</li>
+            <li><strong>DateEmbauche</strong> : date d'entrée effective</li>
+            <li><strong>DateFinContrat</strong> : pour CDD et Stage (laisser vide pour CDI)</li>
+            <li><strong>DateConfirmation</strong> : fin de période d'essai. Si elle est à moins de 15 jours, la fiche est badgée orange en liste.</li>
+            <li><strong>Site, Département, Fonction</strong> : affectation</li>
+            <li><strong>Convention, Catégorie, Échelon</strong> : grille applicable</li>
+            <li><strong>Manager</strong> : responsable N+1</li>
+        </ul>
+        <div class="alerte">
+            <strong>Cohérence Catégorie / Échelon / Convention :</strong> si un échelon est renseigné, sa catégorie doit correspondre à <code>Salarie.Categories</code> et sa convention à <code>Salarie.Convention</code>. Le système bloque l'enregistrement sinon.
+        </div>
     </div>
 
-    <div class="footer-help">
-        ELTON Oil Company / SunuPaie · Fiches Salariés · Guide v1.1 (mai 2026)<br>
-        Voir aussi : <a href="/help/bulletins.html">Bulletins</a> ·
-        <a href="/help/conges.html">Congés</a> ·
-        <a href="/help/dashboards/index.html">Tableaux de bord RH</a>
+    <div class="step">
+        <h3><span class="num">2.4</span>Renseigner la rémunération</h3>
+        <ul>
+            <li><strong>SalaireBase</strong> : mensuel, proratisé sur <code>Base30Jour</code></li>
+            <li><strong>IndemniteLogement</strong></li>
+            <li><strong>Sursalaire</strong> : complément non proratisé</li>
+            <li><strong>PrimeTransport</strong> : forfait mensuel</li>
+            <li><strong>PossedeVehicule</strong> et <strong>AvantageVehicule</strong> : si le salarié dispose d'un véhicule de fonction, la prime transport est désactivée automatiquement</li>
+        </ul>
+        <div class="info">
+            Si l'échelon est renseigné, le salaire de base peut rester à 0 : il sera déduit de la grille. Sans échelon, <code>SalaireBase &gt;= 0</code> est obligatoire. Les montants <code>IndemniteLogement</code>, <code>Sursalaire</code>, <code>PrimeTransport</code>, <code>AvantageVehicule</code> ne peuvent pas être négatifs.
+        </div>
     </div>
+
+    <div class="step">
+        <h3><span class="num">2.5</span>Enregistrer</h3>
+        <p>Cliquer sur <strong>Save</strong>. A l'enregistrement, les règles suivantes sont contrôlées :</p>
+        <ul>
+            <li>Matricule unique</li>
+            <li><code>DateSortie</code> &gt;= <code>DateEmbauche</code> (si renseignée)</li>
+            <li>Cohérence Catégorie / Échelon</li>
+            <li>Cohérence Convention / Échelon</li>
+            <li><code>Manager</code> différent du salarié lui-même</li>
+            <li>Montants de rémunération positifs ou nuls</li>
+        </ul>
+    </div>
+
+    <h2 id="modifier">3. Modifier une fiche existante</h2>
+
+    <div class="step">
+        <h3><span class="num">3.1</span>Ouvrir une fiche</h3>
+        <p>Menu : <strong>Gestion du personnel &rsaquo; Salariés</strong>, double-cliquer sur la ligne.</p>
+        <p>Le badge <strong>Statut</strong> indique l'état :</p>
+        <ul>
+            <li><strong>Vert</strong> : actif et période d'essai terminée (ou pas de <code>DateConfirmation</code>)</li>
+            <li><strong>Orange</strong> : période d'essai en cours (<code>DateConfirmation</code> future)</li>
+            <li><strong>Gris</strong> : inactif (<code>IsActif</code> = faux ou <code>DateSortie</code> dépassée)</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3.2</span>Modifier les données</h3>
+        <p>Les champs sont tous modifiables sauf <strong>Matricule</strong> (lecture seule après création). Les contrôles d'enregistrement de la section 2.5 s'appliquent à chaque sauvegarde.</p>
+        <p>Pour une évolution de carrière (promotion, mutation, changement d'échelon), passer par le module <strong>Mouvements</strong> plutôt que de modifier directement la fiche, afin de garder la traçabilité (voir section 6).</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">3.3</span>Actions disponibles sur la fiche</h3>
+        <p>Depuis la fiche salarié ou la liste des salariés, les actions suivantes sont exposées :</p>
+        <ul>
+            <li><strong>Dossier RH</strong> : ouvre une vue consolidée du salarié (identité, contrat, bulletins, congés, pièces)</li>
+            <li><strong>Nouvelle gratification</strong> : crée une gratification pour le salarié sélectionné</li>
+            <li><strong>Nouveau 13ième mois</strong> : crée une provision ou un rappel de 13e mois</li>
+            <li><strong>Saisir un congé</strong> : enregistre une prise de congé (voir le guide <a href="/help/conges.html">Congés</a>)</li>
+        </ul>
+    </div>
+
+    <h2 id="famille">4. Famille et parts fiscales</h2>
+
+    <div class="step">
+        <h3><span class="num">4.1</span>Saisir les conjoints</h3>
+        <p>Onglet <strong>Conjoints</strong> dans la fiche. Pour chaque conjoint :</p>
+        <ul>
+            <li>Nom, Profession</li>
+            <li><strong>DateDebutUnion</strong>, <strong>DateFinUnion</strong> (vide tant que l'union est en cours)</li>
+            <li>Indicateur <strong>à charge fiscalement</strong></li>
+        </ul>
+        <div class="alerte">
+            Tant qu'un conjoint est en cours (<code>DateFinUnion</code> vide), la situation maritale ne peut pas être changée de <strong>Marié</strong> vers autre chose. Clôturer d'abord l'union sur la ligne du conjoint.
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.2</span>Saisir les enfants</h3>
+        <p>Onglet <strong>Enfants</strong> dans la fiche. Pour chaque enfant :</p>
+        <ul>
+            <li>Nom, Prénom, DateNaissance, Sexe</li>
+            <li>Indicateur <strong>à charge</strong></li>
+            <li>Niveau d'études (si applicable)</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">4.3</span>Parts fiscales</h3>
+        <p>Les parts fiscales sont utilisées par le barème IR dans les bulletins. Règle usuelle appliquée :</p>
+        <ul>
+            <li>1 part pour un célibataire sans enfant à charge</li>
+            <li>+0,5 part par conjoint à charge</li>
+            <li>+0,5 part par enfant à charge, plafonné à 5 parts au total</li>
+        </ul>
+        <p>Toute modification de la case <strong>à charge</strong> d'un conjoint ou enfant est prise en compte dans le bulletin du mois courant.</p>
+    </div>
+
+    <h2 id="espace-salarie">5. Espace salarié (Mon espace)</h2>
+
+    <p>L'Espace salarié permet à chaque agent de consulter ses propres bulletins, congés, demandes et pièces, sans voir les données des autres. Il repose sur deux éléments.</p>
+
+    <div class="step">
+        <h3><span class="num">5.1</span>Pré-requis : compte utilisateur</h3>
+        <p>Menu : <strong>Administration &rsaquo; Users</strong>, cliquer sur <strong>New</strong>.</p>
+        <ul>
+            <li><strong>UserName</strong> : doit être <strong>identique à l'Email</strong> de la fiche salarié</li>
+            <li><strong>Mot de passe</strong> initial : le salarié le changera à la première connexion</li>
+            <li><strong>Rôles</strong> : au minimum <code>Employe</code>. Ajouter <code>RH</code>, <code>DAF</code> ou <code>DG</code> si le salarié a aussi un rôle manager</li>
+        </ul>
+        <div class="alerte">
+            <strong>Lien UserName - Email :</strong> la jointure se fait par <code>Salarie.Email = CurrentUserName()</code>. Si les deux ne correspondent pas, l'Espace salarié reste vide et le salarié ne voit ni ses bulletins ni ses congés.
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.2</span>Menu "Mon espace" côté salarié</h3>
+        <p>Après connexion, le salarié voit le groupe <strong>Mon espace</strong> avec :</p>
+        <ul>
+            <li>Mes bulletins (lecture seule)</li>
+            <li>Mes congés (soldes et demandes)</li>
+            <li>Mes pièces et attestations</li>
+            <li>Mes déplacements et missions</li>
+        </ul>
+        <div class="info">
+            Pour les utilisateurs qui ont un rôle <code>RH</code>, <code>DAF</code> ou <code>DG</code>, le menu <strong>Mon espace</strong> est masqué automatiquement même si le rôle <code>Employe</code> leur donne l'accès par ailleurs. Logique portée par <code>HideEspaceSalarieController</code>.
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.3</span>Demande d'inscription (futur salarié)</h3>
+        <p>Un futur salarié ou un candidat peut utiliser l'action <strong>S'inscrire</strong> depuis l'écran de login pour soumettre une demande d'inscription. La demande est traitée côté RH pour créer la fiche salarié et le compte utilisateur.</p>
+    </div>
+
+    <h2 id="mouvements">6. Mouvements et évolution de carrière</h2>
+
+    <p>Les évolutions de carrière passent par des demandes dédiées plutôt que par la modification directe de la fiche, afin de tracer qui a demandé quoi et quand.</p>
+
+    <div class="step">
+        <h3><span class="num">6.1</span>Demande d'avancement (promotion, changement d'échelon)</h3>
+        <p>Workflow <code>DemandeAvancement</code> :</p>
+        <div class="workflow">
+            <div class="box">RH charge<br>situation</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Soumettre</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Approuver<br>(ou Rejeter)</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Appliquer</div>
+        </div>
+        <p>L'action <strong>Appliquer</strong> met à jour l'échelon, la catégorie et le salaire de base sur la fiche. L'action <strong>Annuler</strong> est disponible tant que la demande n'est pas appliquée.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">6.2</span>Historique de poste</h3>
+        <p>Chaque changement d'affectation est enregistré dans <code>HistoriquePoste</code> : date, poste précédent, poste nouveau, motif. L'historique est consultable depuis la fiche salarié et alimente le dashboard <strong>Mouvements RH</strong>.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">6.3</span>Demande de déplacement et mission</h3>
+        <p>Les déplacements professionnels passent par le workflow <code>DemandeDeplacement</code>. Pour les ordres de mission formalisés, voir le guide <a href="/help/missions.html">Missions</a>.</p>
+    </div>
+
+    <h2 id="depart">7. Départ du salarié</h2>
+
+    <div class="step">
+        <h3><span class="num">7.1</span>Renseigner la sortie sur la fiche</h3>
+        <ul>
+            <li><strong>DateSortie</strong> : date de fin de contrat effective</li>
+            <li><strong>MotifDepart</strong> : Démission, Licenciement, Retraite, Fin de CDD, Décès, Rupture conventionnelle, Autre</li>
+        </ul>
+        <p>Le champ <code>MotifDepart</code> est masqué tant qu'aucune <code>DateSortie</code> n'est renseignée. Une fois la sortie saisie, le salarié bascule en statut gris et sort de la liste des actifs.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">7.2</span>Dossier d'offboarding</h3>
+        <p>Pour un départ qui déclenche un solde de tout compte (indemnité de congés non pris, gratification, 13e mois, préavis), créer un <strong>DossierOffboarding</strong>.</p>
+        <p>Workflow :</p>
+        <div class="workflow">
+            <div class="box">Charger<br>salarié</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Calculer<br>solde</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Valider<br>(RH)</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Valider<br>(DAF)</div>
+            <div class="arrow">&rsaquo;</div>
+            <div class="box">Clôturer</div>
+        </div>
+        <p>Les actions <strong>Calculer solde</strong> et les deux boutons <strong>Calculer gratification</strong> et <strong>Calculer 13ième</strong> alimentent les lignes du bulletin de solde de tout compte.</p>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">7.3</span>Désactiver le compte utilisateur</h3>
+        <p>Après clôture du dossier, désactiver le compte <code>ApplicationUser</code> (case <strong>Active</strong> décochée). Le salarié ne peut plus se connecter mais son historique reste consultable côté RH.</p>
+    </div>
+
+    <h2 id="depannage">8. Dépannage et FAQ</h2>
+
+    <div class="step">
+        <h3>Le salarié n'arrive pas à se connecter</h3>
+        <p>Vérifier dans l'ordre :</p>
+        <ol>
+            <li><code>UserName</code> du compte identique à <code>Salarie.Email</code></li>
+            <li>Case <strong>Active</strong> cochée sur le compte</li>
+            <li>Rôle <code>Employe</code> affecté</li>
+            <li>Mot de passe réinitialisé si nécessaire</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3>Le salarié se connecte mais Mon espace est vide</h3>
+        <p>La jointure <code>Salarie.Email = UserName</code> ne retrouve rien. Corriger l'email de la fiche salarié ou le UserName du compte pour qu'ils soient strictement identiques (casse comprise).</p>
+    </div>
+
+    <div class="step">
+        <h3>Impossible de changer le matricule</h3>
+        <p>Le matricule est en lecture seule après création. Pour un vrai changement, passer par un script DBA. Ne pas archiver et recréer : l'historique bulletins / congés serait perdu.</p>
+    </div>
+
+    <div class="step">
+        <h3>Le salarié n'apparaît pas dans la liste "Salariés actifs"</h3>
+        <p>Vérifier :</p>
+        <ul>
+            <li><code>IsActif</code> = vrai</li>
+            <li><code>DateSortie</code> vide ou postérieure à aujourd'hui</li>
+            <li><code>DateEmbauche</code> antérieure ou égale à aujourd'hui</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3>Erreur "La catégorie du salarié doit correspondre à celle de l'échelon"</h3>
+        <p>L'échelon choisi appartient à une catégorie différente de celle du salarié. Soit changer la catégorie du salarié, soit choisir un échelon de sa catégorie. Même logique pour la convention.</p>
+    </div>
+
+    <div class="step">
+        <h3>Un manager voit encore "Mon espace" alors qu'il est RH</h3>
+        <p>Le masquage est fait par <code>HideEspaceSalarieController</code> au login. Demander à l'utilisateur de se déconnecter puis de se reconnecter. Si le menu reste visible, vérifier que le rôle est bien nommé exactement <code>RH</code>, <code>DAF</code> ou <code>DG</code>.</p>
+    </div>
+
+    <div class="step">
+        <h3>Erreur "Un salarié ne peut pas être son propre responsable"</h3>
+        <p>Le champ <code>Manager</code> pointe sur la fiche elle-même. Choisir un autre salarié ou laisser le champ vide.</p>
+    </div>
+
+    <p class="footer-help">
+        SunuPaie - Guide Salariés - RH operationnel
+    </p>
 </body>
 </html>
