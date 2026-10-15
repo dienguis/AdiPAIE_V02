@@ -1512,39 +1512,49 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         }
         private void UpdateSyntheseFiscale()
         {
-            // --- MOIS COURANT (ce bulletin) ---
-            TRIMF_Mois = SumMontantByCriteria(
-                CriteriaOperator.Parse("Bulletin = ? AND Rubrique.Canonique = ?", this, RubriqueCanonique.TRIMF));
+            // V1.11.1 - Bug fix : SumMontantByCriteria utilise Session.Evaluate
+            // qui ne voit pas les BulletinLigne modifiees en memoire mais pas
+            // encore commitees. Resultat : apres Recalculer, les colonnes
+            // "TRIMF (mois)", "IR (mois)", "IPRES RG/RC (mois)" affichaient
+            // les anciennes valeurs (ou 0) alors que les lignes du bulletin
+            // avaient les bons montants.
+            //
+            // Solution : calculer les _Mois via la collection Lignes en memoire
+            // (meme pattern que V1.8.1 pour BrutFiscal_CumulAnnee).
 
-            IR_Mois = SumMontantByCriteria(
-                CriteriaOperator.Parse("Bulletin = ? AND Rubrique.Canonique = ?", this, RubriqueCanonique.IRPP));
+            // --- MOIS COURANT : LINQ sur Lignes en memoire ---
+            decimal SumLignesCourantes(RubriqueCanonique rc) =>
+                Lignes?.Where(l => l != null && !l.IsDeleted
+                                && l.Rubrique != null
+                                && l.Rubrique.Canonique == rc)
+                     .Sum(l => N(l.Montant)) ?? 0m;
 
-            IPRES_RG_Mois = SumMontantByCriteria(
-                CriteriaOperator.Parse("Bulletin = ? AND Rubrique.Canonique = ?", this, RubriqueCanonique.IPRES_RG));
+            TRIMF_Mois    = SumLignesCourantes(RubriqueCanonique.TRIMF);
+            IR_Mois       = SumLignesCourantes(RubriqueCanonique.IRPP);
+            IPRES_RG_Mois = SumLignesCourantes(RubriqueCanonique.IPRES_RG);
+            IPRES_RC_Mois = SumLignesCourantes(RubriqueCanonique.IPRES_RC);
 
-            IPRES_RC_Mois = SumMontantByCriteria(
-                CriteriaOperator.Parse("Bulletin = ? AND Rubrique.Canonique = ?", this, RubriqueCanonique.IPRES_RC));
+            // --- CUMUL ANNUEL : autres bulletins via XPQuery (voit dirty)
+            //     + bulletin courant via in-memory (vient d'etre calcule) ---
+            var autresBulletinsYtd = new XPQuery<Bulletin>(Session)
+                .Where(b => b.Salarie != null
+                         && b.Salarie.Oid == Salarie.Oid
+                         && b.Annee == Annee
+                         && b.Mois <= Mois
+                         && b.Oid != this.Oid)
+                .ToList();
 
-            // --- CUMUL ANNUEL (même salarié, même année, jusqu’au mois courant inclus) ---
-            TRIMF_CumulAnnee = SumMontantByCriteria(
-                CriteriaOperator.Parse(
-                    "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND Rubrique.Canonique = ?",
-                    Salarie, Annee, Mois, RubriqueCanonique.TRIMF));
+            decimal SumAutresBulletins(RubriqueCanonique rc) =>
+                autresBulletinsYtd.SelectMany(b => b.Lignes)
+                    .Where(l => l != null && !l.IsDeleted
+                             && l.Rubrique != null
+                             && l.Rubrique.Canonique == rc)
+                    .Sum(l => N(l.Montant));
 
-            IR_CumulAnnee = SumMontantByCriteria(
-                CriteriaOperator.Parse(
-                    "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND Rubrique.Canonique = ?",
-                    Salarie, Annee, Mois, RubriqueCanonique.IRPP));
-
-            IPRES_RG_CumulAnnee = SumMontantByCriteria(
-                CriteriaOperator.Parse(
-                    "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND Rubrique.Canonique = ?",
-                    Salarie, Annee, Mois, RubriqueCanonique.IPRES_RG));
-
-            IPRES_RC_CumulAnnee = SumMontantByCriteria(
-                CriteriaOperator.Parse(
-                    "Bulletin.Salarie = ? AND Bulletin.Annee = ? AND Bulletin.Mois <= ? AND Rubrique.Canonique = ?",
-                    Salarie, Annee, Mois, RubriqueCanonique.IPRES_RC));
+            TRIMF_CumulAnnee    = SumAutresBulletins(RubriqueCanonique.TRIMF)    + TRIMF_Mois;
+            IR_CumulAnnee       = SumAutresBulletins(RubriqueCanonique.IRPP)     + IR_Mois;
+            IPRES_RG_CumulAnnee = SumAutresBulletins(RubriqueCanonique.IPRES_RG) + IPRES_RG_Mois;
+            IPRES_RC_CumulAnnee = SumAutresBulletins(RubriqueCanonique.IPRES_RC) + IPRES_RC_Mois;
 
             // V1.8.1 - Bug fix : SumMontantByCriteria utilise Session.Evaluate
             // qui ne voit pas les BulletinLigne ajoutées en mémoire (ex : ligne

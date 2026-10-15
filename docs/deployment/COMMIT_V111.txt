@@ -169,6 +169,38 @@ Contenu audite contre le code (pas d'invention) :
   - interimaires.html: 7 entites RH + 9 enums + InterimaireImportService + SortirController
 
 ================================================================================
+6. FIX V1.11.1 : TRIMF_Mois / IR_Mois / IPRES_*_Mois desynchronises
+================================================================================
+
+Bug observe prod (bulletin Alpha Maalik DIA 06/2026) :
+  - Colonne "TRIMF (mois)" dans ListView : 0
+  - Ligne TRIMF du bulletin : 3 000
+  Incoherence entre champ synthetique et ligne detaillee.
+
+Cause racine : UpdateSyntheseFiscale() utilisait Session.Evaluate sur
+BulletinLigne qui ne voit pas les modifications en memoire (dirty) des
+lignes modifiees juste avant par CalculerTRIMF_Baremise / CalculerIPRES_CSS /
+CalculerIRPP. Le SELECT SUM retournait l'etat avant modification.
+
+Meme pattern que le bug corrige en V1.8.1 pour BrutFiscal_CumulAnnee /
+BrutSocial_CumulAnnee / NetAPayer_CumulAnnee, mais oublie pour les champs
+TRIMF_Mois, IR_Mois, IPRES_RG_Mois, IPRES_RC_Mois et leurs CumulAnnee.
+
+Correctif : UpdateSyntheseFiscale calcule :
+  - _Mois via LINQ sur la collection Lignes en memoire (voit les dirty)
+  - _CumulAnnee via XPQuery sur autres bulletins (voit dirty si charges)
+                + valeur _Mois du bulletin courant
+
+Fichier modifie :
+  AdiPAIE_V02.Module/BusinessObjects/Bulletin.cs (UpdateSyntheseFiscale)
+
+Impact utilisateur : apres rebuild + "Recalculer cotisations" sur un bulletin,
+les 8 colonnes synthetiques de la ListView Bulletins sont immediatement
+synchronisees avec les lignes du bulletin.
+
+Pas de migration SQL requise (les champs persistes existent deja).
+
+================================================================================
 DEPLOIEMENT PROD
 ================================================================================
 

@@ -3598,6 +3598,17 @@ Zero caractere non ASCII typique de l'IA. Contenu audite contre le code source
 structure : nav unifie, h1 "Guide RH" ou "Guide Admin", sommaire ancre,
 sections numerotees, callouts, FAQ depannage, footer-help.
 
+### Fix V1.11.1 - Synchro champs synthetiques Bulletin (teste OK en local)
+Bug observe : apres Recalculer un bulletin, les colonnes "TRIMF (mois)",
+"IR (mois)", "IPRES RG (mois)", "IPRES RC (mois)" affichaient 0 ou l'ancienne
+valeur alors que les lignes du bulletin avaient les bons montants.
+Cause : UpdateSyntheseFiscale utilisait Session.Evaluate qui ne voit pas
+les lignes modifiees en memoire (dirty) juste avant par CalculerTRIMF_Baremise
+/ CalculerIPRES_CSS / CalculerIRPP.
+Fix : LINQ sur Lignes en memoire pour _Mois, XPQuery sur autres bulletins +
+_Mois du bulletin courant pour _CumulAnnee. Meme pattern que V1.8.1.
+Fichier : Bulletin.cs methode UpdateSyntheseFiscale.
+
 ### Fichiers
 - `NonPersistent/RattraperAcquisitionsRequest.cs` (nouveau DTO)
 - `Controllers/SoldeCongeController.cs` (action ajoutee)
