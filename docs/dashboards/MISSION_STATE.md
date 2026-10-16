@@ -3598,6 +3598,38 @@ Zero caractere non ASCII typique de l'IA. Contenu audite contre le code source
 structure : nav unifie, h1 "Guide RH" ou "Guide Admin", sommaire ancre,
 sections numerotees, callouts, FAQ depannage, footer-help.
 
+### V1.12 - Mode NetCibleMois (gross-up iteratif) + fix ordre sections bulletin (15 oct. 2026)
+
+**Fix A - Nouveau mode Gratification NetCibleMois :**
+Permet au RH de saisir "N mois de net" directement, sans Excel externe.
+- Base = BrutSocial - cotisations sal. - IR - TRIMF (dernier bulletin valide)
+- Multiplicateur = nombre de mois
+- Gross-up iteratif (Newton-Raphson) sur IR annualise jusqu'a convergence 1 FCFA
+- Hypotheses : cotisations deja plafonnees, TRIMF constant
+- Teste sur Modou diop : base 4 670 204 x 2 -> brut gratif 16 386 389
+
+**Fix B - Ordre d'affichage des sections dans le DetailView Bulletin :**
+Avant : tri alphabetique (Autres Retenues avant Cotisations Sociales).
+Apres : ordre reglementaire du bulletin PDF (Salaire brut, Cotisations,
+Retenues Fiscales, Autres Retenues). SeedService force OrdreGroupe = 10/20/30/40.
+
+**Fix C - Ajout "13e & gratifications" dans la nav de 22 pages help**
+Le lien existait seulement dans sa propre page, invisible depuis les autres.
+
+**Enrichissement help primes-13mois.html :**
+Nouvelle section 5.3 "Comment choisir la bonne base de calcul" avec tableau
+mapping (ce que DG dit -> mode a choisir), exemple chiffre teste, decomposition
+IR/cotisations, dictionnaire des 3 bases (brut recurrent, net APayer, net reglementaire).
+
+Fichiers modifies :
+- Domain/DomainEnums.cs
+- BusinessObjects/Gratification.cs
+- Services/BrutRecurrentService.cs
+- Services/GratificationService.cs
+- Services/SeedService.cs
+- wwwroot/help/primes-13mois.html
+- wwwroot/help/*.html (22 fichiers avec nav mise a jour)
+
 ### Fix V1.11.1 - Synchro champs synthetiques Bulletin (teste OK en local)
 Bug observe : apres Recalculer un bulletin, les colonnes "TRIMF (mois)",
 "IR (mois)", "IPRES RG (mois)", "IPRES RC (mois)" affichaient 0 ou l'ancienne

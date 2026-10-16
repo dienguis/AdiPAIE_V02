@@ -169,6 +169,59 @@ Contenu audite contre le code (pas d'invention) :
   - interimaires.html: 7 entites RH + 9 enums + InterimaireImportService + SortirController
 
 ================================================================================
+7. V1.12 - Mode NetCibleMois (gross-up iteratif) + fix ordre sections bulletin
+================================================================================
+
+A - Nouveau mode GratificationBaseCalcul.NetCibleMois
+----------------------------------------------------------
+Permet au RH de saisir "N mois de net" et de laisser le systeme calculer
+le brut necessaire pour que le salarie recoive exactement ce montant net
+sur son bulletin cible.
+
+Formule :
+  Base          = BrutSocial - cotisations sal. - IR - TRIMF (dernier bulletin valide)
+  NetCible      = Base x Multiplicateur (= nombre de mois)
+  MontantCalcule = gross-up iteratif (Newton-Raphson) sur IR annualise
+                   jusqu'a |NetGain - NetCible| < 1 FCFA
+
+Hypotheses :
+  - Cotisations sociales (IPRES RG+RC) deja plafonnees (marginal = 0)
+  - TRIMF constante (forfait mensuel invariant)
+  - Bareme IR progressif annualise avec reduction famille du salarie
+  - Convergence 2 a 4 iterations typiquement
+
+Validation metier : correspond au calcul Excel manuel RH ELTON
+(ex. Abdoulaye DIENG, Multiplicateur=2 : Brut gratif ~10 552 000 FCFA
+pour 6 014 746 net additionnel cible).
+
+Fichiers modifies :
+  - Domain/DomainEnums.cs (enum GratificationBaseCalcul : NetCibleMois = 3)
+  - BusinessObjects/Gratification.cs (tooltip)
+  - Services/BrutRecurrentService.cs (GetDernierNetReglementaire)
+  - Services/GratificationService.cs (cas NetCibleMois + GrossUpVersBrut)
+  - wwwroot/help/primes-13mois.html (documentation 4e mode)
+
+B - Fix ordre d'affichage des sections dans le DetailView Bulletin
+----------------------------------------------------------
+Bug : les sections apparaissaient dans l'ordre
+  Salaire brut -> Autres Retenues -> Cotisations Sociales -> Retenues Fiscales
+au lieu de l'ordre reglementaire du bulletin PDF
+  Salaire brut -> Cotisations -> Retenues Fiscales -> Autres Retenues.
+
+Cause : les 4 GroupeImpressionRef avaient OrdreGroupe = null, le tri se
+faisait sur Libelle alphabetique ("Autres" < "Cotisations" < "Retenues" < "Salaire"
+mais Salaire etait traite a part).
+
+Fix : SeedService force OrdreGroupe = 10 / 20 / 30 / 40 lors du seed.
+Au prochain demarrage, les sections affichees sont bien triees.
+
+Fichiers modifies :
+  - Services/SeedService.cs (overload EnsureGroupe avec parametre ordre)
+
+Pas de migration SQL requise (le champ OrdreGroupe existe deja, le seed
+le remplit automatiquement).
+
+================================================================================
 6. FIX V1.11.1 : TRIMF_Mois / IR_Mois / IPRES_*_Mois desynchronises
 ================================================================================
 

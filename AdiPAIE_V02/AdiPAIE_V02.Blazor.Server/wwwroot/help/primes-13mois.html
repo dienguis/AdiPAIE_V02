@@ -52,7 +52,7 @@
         <tr><th>Caractéristique</th><th>13ieme mois (TreiziemeMois)</th><th>Gratification</th></tr>
         <tr><td>Nature</td><td>Droit conventionnel automatique</td><td>Prime discrétionnaire DG</td></tr>
         <tr><td>Bénéficiaires</td><td>Tous les salariés actifs</td><td>Désignés manuellement par le RH</td></tr>
-        <tr><td>Base</td><td>Brut récurrent du dernier bulletin</td><td>Brut récurrent, Net ou Forfait</td></tr>
+        <tr><td>Base</td><td>Brut récurrent du dernier bulletin</td><td>Brut récurrent, Net APayer, Net cible (N mois) ou Forfait</td></tr>
         <tr><td>Multiplicateur</td><td>Fixe (1 mois)</td><td>Libre</td></tr>
         <tr><td>Formule</td><td>BR x MoisPresence / 12</td><td>Base x Multiplicateur (ou Forfait)</td></tr>
         <tr><td>Versement</td><td>Bulletin de décembre ou STC</td><td>Mois de paiement choisi ou STC</td></tr>
@@ -211,22 +211,91 @@
 
     <div class="step">
         <h3><span class="num">5.2</span>Renseigner les paramètres</h3>
-        <p>Trois modes de calcul (champ <code>BaseCalcul</code>) :</p>
+        <p>Quatre modes de calcul (champ <code>BaseCalcul</code>) :</p>
         <dl class="field-list">
             <dt>BrutRecurrent</dt>
-            <dd>Montant = BR x Multiplicateur. Base la plus courante pour une prime bilan ou fin d'année.</dd>
+            <dd>Montant = BR x Multiplicateur. Base la plus courante pour une prime bilan ou fin d'année. Le montant calculé est intégré tel quel en brut, puis subit cotisations et IR.</dd>
 
             <dt>NetRecurrent</dt>
-            <dd>Montant = Net mensuel normal x Multiplicateur. Utile quand la DG raisonne en net.</dd>
+            <dd>Montant = Net APayer du dernier bulletin x Multiplicateur. Ce montant est intégré en BRUT dans le bulletin cible. Le net reçu par le salarié sera inférieur après cotisations et IR. Utile uniquement quand la DG veut un montant pivot calculé sur le net habituel.</dd>
+
+            <dt>NetCibleMois</dt>
+            <dd><strong>Mode recommandé pour "donner N mois de net"</strong>. Base = Net reglementaire mensuel (Brut Fiscal moins cotisations sociales salariales, IR et TRIMF, hors prêts et avances). Multiplicateur = nombre de mois cible. Le système fait un <strong>gross-up iteratif</strong> : il calcule par itération le brut nécessaire pour que le salarié reçoive exactement N mois de net reglementaire en plus sur son bulletin cible. Prend en compte le barème IR progressif annualisé et la réduction famille du salarié.</dd>
 
             <dt>Forfait</dt>
-            <dd>Montant = <code>MontantForfait</code> (en FCFA). Le Multiplicateur est ignoré. Utile pour une prime symbolique ou négociée en montant précis.</dd>
+            <dd>Montant = <code>MontantForfait</code> (en FCFA, brut). Le Multiplicateur est ignoré. Utile pour une prime symbolique ou négociée en montant précis.</dd>
         </dl>
+
         <p>Renseigner le <strong>Motif / commentaire</strong> (justification visible par la DAF au moment de la validation).</p>
     </div>
 
     <div class="step">
-        <h3><span class="num">5.3</span>Soumettre à la DAF</h3>
+        <h3><span class="num">5.3</span>Comment choisir la bonne base de calcul</h3>
+
+        <p>C'est la question la plus posée au RH. Voici le mapping direct entre ce que la DG dit et le mode à utiliser :</p>
+
+        <table>
+            <tr><th>Ce que la DG demande</th><th>Mode à choisir</th><th>Paramètres</th></tr>
+            <tr>
+                <td>"2 mois de salaire brut"</td>
+                <td>BrutRecurrent</td>
+                <td>Multiplicateur = 2</td>
+            </tr>
+            <tr>
+                <td>"2 mois de salaire net"</td>
+                <td><strong>NetCibleMois</strong></td>
+                <td>Multiplicateur = 2</td>
+            </tr>
+            <tr>
+                <td>"500 000 FCFA en brut"</td>
+                <td>Forfait</td>
+                <td>MontantForfait = 500 000</td>
+            </tr>
+            <tr>
+                <td>"Un pivot calculé sur son net habituel"</td>
+                <td>NetRecurrent</td>
+                <td>Multiplicateur selon pivot</td>
+            </tr>
+        </table>
+
+        <h4>Pourquoi NetCibleMois est le bon mode pour "2 mois de net"</h4>
+
+        <p>Les modes <strong>BrutRecurrent</strong> et <strong>NetRecurrent</strong> intègrent leur résultat en BRUT dans le bulletin. Le salarié reçoit donc toujours MOINS que ce qu'on a inscrit, parce que les cotisations et l'IR frappent.</p>
+
+        <p>Le mode <strong>NetCibleMois</strong> fait un <strong>gross-up iteratif</strong> : il calcule par itérations successives le brut nécessaire pour que le salarié reçoive EXACTEMENT le net cible après cotisations et IR.</p>
+
+        <div class="ok">
+            <strong>Exemple testé</strong> - Un salarié avec net reglementaire mensuel = 4 670 204 FCFA, Multiplicateur = 2 (2 mois de net) :
+            <ul>
+                <li>Base de référence = 4 670 204 (Net reglementaire mensuel)</li>
+                <li>Net cible additionnel = 9 340 408 (= 4 670 204 x 2)</li>
+                <li>Montant brut calcule = <strong>16 386 389 FCFA</strong></li>
+            </ul>
+            Décomposition de ce qui se passe quand la gratification est intégrée au bulletin :
+            <ul>
+                <li>Ligne GRATIF ajoutée : +16 386 389 brut</li>
+                <li>IR additionnel (environ 43% marginal) : -7 046 000</li>
+                <li>Cotisations IPRES/CSS : 0 (déjà plafonnées sur le bulletin de base)</li>
+                <li>TRIMF : 0 (forfait constant)</li>
+                <li><strong>Net additionnel versé : 9 340 408 FCFA = 2 mois de net cible</strong></li>
+            </ul>
+        </div>
+
+        <h4>Définitions des bases</h4>
+        <dl class="field-list">
+            <dt>Brut recurrent</dt>
+            <dd>Somme de SB + Sursalaire + Prime ancienneté + Indemnité logement + Prime transport + Avantage nature véhicule. C'est le salaire brut mensuel "normal", hors congés et primes exceptionnelles.</dd>
+
+            <dt>Net APayer</dt>
+            <dd>Ce que le salarié a reçu sur son dernier bulletin, après TOUTES les retenues (y compris prêts, avances, retenues optionnelles).</dd>
+
+            <dt>Net reglementaire</dt>
+            <dd>BrutSocial - cotisations sociales salariales - IR - TRIMF, du dernier bulletin valide. Autrement dit : le net cash HORS retenues optionnelles (prêts, avances, cohabel, entretien véhicule). C'est la base utilisée par NetCibleMois et correspond à la formule Excel manuelle que le RH ELTON utilisait.</dd>
+        </dl>
+    </div>
+
+    <div class="step">
+        <h3><span class="num">5.4</span>Soumettre à la DAF</h3>
         <p>Cliquer sur <strong>"Soumettre au DAF"</strong>. Le statut passe à <code>EnAttenteValidationDAF</code>. Le <code>BaseReference</code> et le <code>MontantCalcule</code> sont figés (snapshot). À partir de ce point, Salarie, BaseCalcul, Multiplicateur et MontantForfait deviennent en lecture seule.</p>
     </div>
 

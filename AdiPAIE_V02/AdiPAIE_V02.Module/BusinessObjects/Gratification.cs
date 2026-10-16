@@ -188,9 +188,11 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         // AfterConstruction initialise à GratificationBaseCalcul.BrutRecurrent.
         [XafDisplayName("Base de calcul")]
         [ModelDefault("ImmediatePostData", "True")]
-        [ToolTip("BrutRecurrent : multiple du brut hors congés. " +
-                 "NetRecurrent : multiple du net mensuel normal. " +
-                 "Forfait : montant fixe en FCFA (Multiplicateur ignoré).")]
+        [ToolTip("BrutRecurrent : multiple du brut recurrent. " +
+                 "NetRecurrent : multiple du Net APayer (brut, inclut retenues optionnelles). " +
+                 "NetCibleMois : N mois de net reglementaire avec gross-up iteratif " +
+                 "(le salarie recoit vraiment N mois de net). " +
+                 "Forfait : montant brut fixe en FCFA.")]
         public GratificationBaseCalcul BaseCalcul
         {
             get => baseCalcul;
@@ -204,7 +206,8 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [ModelDefault("DisplayFormat", "{0:N2}")]
         [ModelDefault("EditMask", "n2")]
         [ToolTip("Multiple du salaire (ex 2,5 = 2,5 mois ; 0,5 = 1/2 mois). " +
-                 "Ignoré si BaseCalcul = Forfait.")]
+                 "Pour NetCibleMois : represente le nombre de mois de net cible. " +
+                 "Ignore si BaseCalcul = Forfait.")]
         public decimal Multiplicateur
         {
             get => multiplicateur;

@@ -56,10 +56,14 @@ namespace AdiPAIE_V02.Module.Services
 
             if (opt.GroupesTypes)
             {
-                gSalaireBrut = EnsureGroupe(os, "Salaire brut (1)");
-                gCotSocial = EnsureGroupe(os, "Total Cotisations Sociales");
-                gRetFiscal = EnsureGroupe(os, "Total Retenues Fiscales");
-                gAutre = EnsureGroupe(os, "Total Autres Retenues");
+                // V1.12 - Ordre d'affichage des sections dans le bulletin (DetailView).
+                // Avant : OrdreGroupe = null partout, tri alphabetique du libelle
+                // mettait "Autres Retenues" (A) avant "Cotisations" (C).
+                // Apres : ordre reglementaire du bulletin PDF.
+                gSalaireBrut = EnsureGroupe(os, "Salaire brut (1)", ordre: 10);
+                gCotSocial   = EnsureGroupe(os, "Total Cotisations Sociales", ordre: 20);
+                gRetFiscal   = EnsureGroupe(os, "Total Retenues Fiscales", ordre: 30);
+                gAutre       = EnsureGroupe(os, "Total Autres Retenues", ordre: 40);
 
                 tBrute = EnsureTypeRef(os, "BRUTE", "Éléments bruts", gSalaireBrut,
                     RubriqueTypeCalcul.Gain, SensAssiette.Plus, bf: true, bs: true);
@@ -591,6 +595,15 @@ namespace AdiPAIE_V02.Module.Services
         // V1.7.2 - Surcharge backward-compatible : code auto-déduit du libellé.
         // GroupeImpressionRef.Code est obligatoire (validation XPO).
         // Format imposé : MAJUSCULES, 2-20 caractères, A-Z, 0-9, underscore.
+        // Overload avec ordre d'affichage (V1.12)
+        private static GroupeImpressionRef EnsureGroupe(IObjectSpace os, string libelle, int? ordre)
+        {
+            var g = EnsureGroupe(os, libelle);
+            if (ordre.HasValue && g.OrdreGroupe != ordre)
+                g.OrdreGroupe = ordre;
+            return g;
+        }
+
         private static GroupeImpressionRef EnsureGroupe(IObjectSpace os, string libelle)
         {
             // Mapping connu des libellés ELTON -> codes

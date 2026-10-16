@@ -105,12 +105,19 @@ namespace AdiPAIE_V02.Module.Domain
         // V1.7.2 - Base de calcul de la Gratification
         public enum GratificationBaseCalcul
         {
-            // Multiple du brut récurrent mensuel
+            // Multiple du brut recurrent mensuel
             BrutRecurrent = 0,
-            // Multiple du net récurrent (= BR - cotisations - impôt estimé)
+            // Multiple du net recurrent (NetAPayer brut, inclut deja les retenues optionnelles).
+            // Saisie BRUTE : montant calcule integre tel quel en brut dans le bulletin.
             NetRecurrent = 1,
-            // Forfait fixe en FCFA (saisie directe du montant)
-            Forfait = 2
+            // Forfait fixe en FCFA (saisie directe du montant brut)
+            Forfait = 2,
+            // V1.12 - Net cible (N mois de net reglementaire) avec gross-up iteratif.
+            // Base = Brut Social - cotisations sal. - IR - TRIMF (du dernier bulletin
+            // valide, hors retenues optionnelles). Multiplicateur = nombre de mois.
+            // Le systeme calcule le brut necessaire pour que le salarie recoive
+            // exactement N mois de net reglementaire en plus sur son bulletin cible.
+            NetCibleMois = 3
         }
 
         public enum TypeHeureSupplementaire

@@ -208,6 +208,65 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         /// <summary>
+        /// V1.12 - Recupere le "Net reglementaire" du dernier bulletin valide
+        /// du salarie dans l'annee, avant un mois de reference.
+        ///
+        /// "Net reglementaire" = Brut Fiscal - cotisations salariales
+        ///                       (IPRES RG+RC+CSS part sal.) - IR - TRIMF
+        ///
+        /// Exclut toutes les retenues optionnelles (prets, avances, cohabel,
+        /// entretien vehicule, etc.). C'est le net calcule par la RH ELTON
+        /// pour determiner la base d'un bonus "N mois de net".
+        ///
+        /// Retourne 0m si aucun bulletin valide n'est trouve.
+        /// </summary>
+        public static decimal GetDernierNetReglementaire(
+            Session session, Salarie salarie, int annee, int moisReference)
+        {
+            if (session == null || salarie == null) return 0m;
+
+            var bulletin = session.Query<Bulletin>()
+                .Where(b => b.Salarie.Oid == salarie.Oid
+                            && b.Annee == annee
+                            && b.Mois < moisReference
+                            && (b.Statut == BulletinStatut.Valide
+                                || b.Statut == BulletinStatut.Imprime
+                                || b.Statut == BulletinStatut.Envoye
+                                || b.Statut == BulletinStatut.Comptabilise
+                                || b.Statut == BulletinStatut.Cloture))
+                .OrderByDescending(b => b.Mois)
+                .FirstOrDefault();
+
+            bulletin ??= session.Query<Bulletin>()
+                .Where(b => b.Salarie.Oid == salarie.Oid
+                            && b.Annee == annee - 1
+                            && (b.Statut == BulletinStatut.Valide
+                                || b.Statut == BulletinStatut.Imprime
+                                || b.Statut == BulletinStatut.Envoye
+                                || b.Statut == BulletinStatut.Comptabilise
+                                || b.Statut == BulletinStatut.Cloture))
+                .OrderByDescending(b => b.Mois)
+                .FirstOrDefault();
+
+            if (bulletin == null) return 0m;
+
+            // V1.12 - Formule Excel RH ELTON :
+            //   Net reglementaire = BrutSocial - cotisations sal. - IR - TRIMF
+            //
+            // On utilise BrutSocial (et PAS BrutFiscal) parce que l'Avantage
+            // en nature est fiscal mais pas cash. Verification sur bulletin
+            // Abdoulaye DIENG juin 2026 :
+            //   4 499 839 - 55 296 - 1 434 170 - 3 000 = 3 007 373 (= Excel RH)
+            var brutSocial = bulletin.BrutSocial;
+            var cotisationsSal = bulletin.IPRES_RG_Mois
+                                + bulletin.IPRES_RC_Mois;
+            var ir = bulletin.IR_Mois;
+            var trimf = bulletin.TRIMF_Mois;
+
+            return brutSocial - cotisationsSal - ir - trimf;
+        }
+
+        /// <summary>
         /// Cumul du brut récurrent versé à un salarié sur l'année (utile
         /// pour reporting et provision moyenne).
         /// </summary>
