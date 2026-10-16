@@ -1251,7 +1251,10 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 obj.Code = code.Trim().ToUpperInvariant();
             if (string.IsNullOrWhiteSpace(obj.Libelle))
                 obj.Libelle = libelle;
-            if (!obj.OrdreGroupe.HasValue)
+            // V1.12 - Force la mise a jour de l'ordre (avant : seulement si null,
+            // mais les groupes existants pouvaient avoir OrdreGroupe = 0 par defaut
+            // ce qui faisait un tri alphabetique au lieu du tri reglementaire).
+            if (obj.OrdreGroupe != order)
                 obj.OrdreGroupe = order;
             // Ne force pas Actif si l’admin l’a désactivé volontairement
 
