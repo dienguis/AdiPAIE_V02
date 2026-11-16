@@ -1,0 +1,118 @@
+V1.12.2 - Alignement gross-up Gratification NetCibleMois sur Excel RH
+
+================================================================================
+1. GROSS-UP VIA DOUBLE SIMULATION SURSALAIRE (Option B)
+================================================================================
+
+Contexte : apres V1.12, le mode NetCibleMois donnait un ecart de 2 000 a
+30 000 FCFA avec le fichier Excel RH de reference (selon le salarie).
+
+Root cause :
+  - L'ancien gross-up iteratif maison (GrossUpVersBrut) ne prenait pas en
+    compte le TRIMF marginal, ni les effets d'anciennete sur limite, ni
+    l'Avantage Nature.
+  - La V1.12.1 avait deja switche sur SimulationSursalaireHelper qui integre
+    tous ces effets, mais l'ecart residuel montait jusqu'a 30 338 FCFA sur
+    les gros cas (ex. Abdoulahi KANE, 38M brut) a cause de legeres differences
+    de calcul d'anciennete et AV Nature entre la simulation et l'Excel.
+
+Solution V1.12.2 : double simulation
+  - Call 1 : SimulationSursalaire(NetCible = NetTotalCible)      -> BrutTotal
+  - Call 2 : SimulationSursalaire(NetCible = BaseReference)       -> BrutRef
+  - Bonus Brut = BrutTotal - BrutRef
+
+Avantage : les effets anciennete / AV Nature / arrondis apparaissent des DEUX
+cotes et se compensent exactement.
+
+Resultats validation (3 salaries, V1.12 vs V1.12.2 vs Excel RH) :
+
+  Salarie            | V1.12          | V1.12.2        | Excel RH       | Ecart final
+  -------------------|----------------|----------------|----------------|------------
+  Marie Antoinette   | 2 050 005      | 2 049 911      | 2 049 540      | +371 (0.018%)
+  Abdoulaye DIENG    | 10 517 731     | 10 552 186     | 10 552 536     | -350 (0.003%)
+  Abdoulahi KANE     | 37 898 683     | 37 933 358     | 37 929 021     | +4 337 (0.011%)
+
+Ecart maximal observe : 0.018%. Au niveau paie c'est totalement negligeable.
+L'ecart residuel vient de la precision bisection (1 FCFA step) + arrondi
+tranches IR, ni Excel ni SIRH ne sont "plus justes" l'un que l'autre.
+
+Fichiers modifies :
+  AdiPAIE_V02.Module/Services/GratificationService.cs
+    - GrossUpViaSimulationSursalaire : refactor en double simulation
+    - Nouveau helper SimulerBrutPourNetCible (DRY)
+
+================================================================================
+2. PERFORMANCE : BISECTION FINALE +/- 100 AU LIEU DE +/- 1000
+================================================================================
+
+La SimulationSursalaire apres bisection initiale faisait un balayage lineaire
+de +/- 1000 FCFA autour du candidat (= 2001 appels a CalculerNetAvecSursalaire).
+C'etait du gaspillage, la bisection a 1 FCFA pres suffit.
+
+Reduction : fenetre +/- 100 (= 201 appels, divise par 10). Combinee avec la
+double simulation (x2), le temps net de calcul est **divise par 5** environ.
+
+Fichiers modifies :
+  AdiPAIE_V02.Module/BusinessObjects/SimulationSursalaire.cs
+    - SimulationSursalaireHelper.CalculerSursalaire : fenetre finale /10
+
+================================================================================
+2bis. FIX ANCIENNETE : ALIGNEMENT FIN DE MOIS (comme Bulletin.cs)
+================================================================================
+
+Incoherence decouverte entre Bulletin.cs et SimulationSursalaire.cs :
+  - Bulletin.cs (ligne 782-783) calcule l'anciennete en FIN de mois
+    (date = 1er du mois + 1 mois - 1 jour)
+  - SimulationSursalaire.cs (InitialiserDepuisSalarie) utilisait DEBUT du mois
+
+Consequence : pour un salarie embauche en milieu de mois (ex. 22/07/2007),
+la simulation du mois de l'anniversaire sous-estimait l'anciennete d'un an.
+
+Exemple Abdoulahi KANE (embauche 22/07/2007), gratification juillet 2026 :
+  - Bulletin reel : anciennete = 19 ans (date calcul = 31/07/2026)
+  - Simulation avant fix : anciennete = 18 ans (date calcul = 01/07/2026)
+  - Simulation apres fix : anciennete = 19 ans (date calcul = 31/07/2026)
+
+Validation contre l'Excel RH (fichier bulletin.ods fourni) :
+L'Excel utilise DATEDIF(embauche, fin_mois, "Y") = meme logique fin de mois.
+Donc apres V1.12.3, SIRH et Excel RH utilisent EXACTEMENT la meme date de
+reference pour l'anciennete.
+
+Fichier modifie :
+  AdiPAIE_V02.Module/BusinessObjects/SimulationSursalaire.cs
+    - InitialiserDepuisSalarie : dateSimul = fin de mois
+
+================================================================================
+3. UI : NOUVEAUX CHAMPS "BONUS NET CIBLE" ET "NET TOTAL CIBLE"
+================================================================================
+
+En mode NetCibleMois, le RH voyait uniquement Base reference et Montant brut
+calcule. Il devait faire mentalement Base x Multiplicateur pour verifier le
+net cible.
+
+Ajout de 2 champs calcules non persistes visibles dans le DetailView :
+  - BonusNetCible   = Base reference x Multiplicateur
+    (ex. 6 014 746 pour Abdoulaye DIENG, Multiplicateur = 2)
+  - NetTotalCible   = Base reference + BonusNetCible
+    (ex. 9 022 119 = ce que le salarie recevra net ce mois)
+
+Ces champs sont vides pour les autres modes (BrutRecurrent, NetRecurrent,
+Forfait) car ils ne sont pertinents que pour NetCibleMois.
+
+Fichiers modifies :
+  AdiPAIE_V02.Module/BusinessObjects/Gratification.cs
+    - Nouveaux [NonPersistent] BonusNetCible, NetTotalCible
+
+================================================================================
+DEPLOIEMENT
+================================================================================
+
+1. git pull origin dev && dotnet build -c Release
+2. Publish AdiPAIE_V02.Blazor.Server -> sunuPaie.zip
+3. Serveur : Deploy-SunuPaie-Server.ps1 (stoppe IIS, deploie, redemarre)
+4. Pas de SQL, pas de restart special
+5. Verification : cree une Gratification NetCibleMois, verifier :
+   - Base ref snapshotee automatiquement
+   - Bonus net cible = Base x Multiplicateur
+   - Net total cible = Base + Bonus net cible
+   - Montant brut calcule proche de la valeur Excel RH (ecart < 5000 FCFA)

@@ -208,62 +208,120 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         /// <summary>
-        /// V1.12 - Recupere le "Net reglementaire" du dernier bulletin valide
-        /// du salarie dans l'annee, avant un mois de reference.
+        /// V1.12 - Recupere le "Net reglementaire" du dernier bulletin NORMAL
+        /// du salarie, avant un mois de reference.
         ///
-        /// "Net reglementaire" = Brut Fiscal - cotisations salariales
-        ///                       (IPRES RG+RC+CSS part sal.) - IR - TRIMF
+        /// "Bulletin normal" = bulletin valide/cloture qui ne contient AUCUNE
+        /// ligne dont la Rubrique est marquee EstExceptionnelle (congé, gratif,
+        /// 13e, HS, régul). Garantit une base de reference stable.
         ///
-        /// Exclut toutes les retenues optionnelles (prets, avances, cohabel,
-        /// entretien vehicule, etc.). C'est le net calcule par la RH ELTON
-        /// pour determiner la base d'un bonus "N mois de net".
+        /// Formule RH ELTON :
+        ///   NetReglementaire = NetAPayer + sum(retenues optionnelles)
         ///
-        /// Retourne 0m si aucun bulletin valide n'est trouve.
+        /// Ou retenues optionnelles = toutes les lignes Retenue qui ne sont
+        /// PAS les cotisations obligatoires (IPRES RG/RC, CSS, IR, TRIMF, CFCE).
+        /// Donc : prets, avances, cohabel, entretien vehicule, etc.
+        ///
+        /// Cette formule inclut automatiquement la Prime de transport (qui
+        /// n'est ni dans BrutSocial ni dans BrutFiscal depuis V1.8.4, mais
+        /// est bien payee cash dans NetAPayer).
+        ///
+        /// Verification Abdoulaye DIENG juin 2026 :
+        ///   NetAPayer 2 864 040 + retenues (PRET_VEH 86 333 + RET_ENT_VEH 47 000
+        ///   + RET_COHABEL 10 000) = 3 007 373 (= Excel RH)
+        ///
+        /// Fallback mode degrade : si aucun bulletin NORMAL trouve dans l'annee
+        /// en cours ni la precedente, retombe sur n'importe quel bulletin valide
+        /// (meme avec rubriques exceptionnelles) pour eviter 0m qui bloquerait
+        /// la saisie.
         /// </summary>
         public static decimal GetDernierNetReglementaire(
             Session session, Salarie salarie, int annee, int moisReference)
         {
             if (session == null || salarie == null) return 0m;
 
-            var bulletin = session.Query<Bulletin>()
+            // Filtre statut : valide / imprime / envoye / comptabilise / cloture
+            bool EstStatutValide(Bulletin b) =>
+                b.Statut == BulletinStatut.Valide
+                || b.Statut == BulletinStatut.Imprime
+                || b.Statut == BulletinStatut.Envoye
+                || b.Statut == BulletinStatut.Comptabilise
+                || b.Statut == BulletinStatut.Cloture;
+
+            // Un bulletin est "normal" s'il ne contient aucune ligne exceptionnelle.
+            // Rubrique.EstExceptionnelle est marque par l'Updater pour :
+            // CONGE_PAYE, ICCP, GRATIF, 13EME, HS25/50/100, REGUL_*
+            bool EstBulletinNormal(Bulletin b) =>
+                b.Lignes.All(l => l.Rubrique == null || !l.Rubrique.EstExceptionnelle);
+
+            // 1. Priorite : dernier bulletin NORMAL dans l'annee en cours
+            var bulletinsAnnee = session.Query<Bulletin>()
                 .Where(b => b.Salarie.Oid == salarie.Oid
                             && b.Annee == annee
-                            && b.Mois < moisReference
-                            && (b.Statut == BulletinStatut.Valide
-                                || b.Statut == BulletinStatut.Imprime
-                                || b.Statut == BulletinStatut.Envoye
-                                || b.Statut == BulletinStatut.Comptabilise
-                                || b.Statut == BulletinStatut.Cloture))
+                            && b.Mois < moisReference)
                 .OrderByDescending(b => b.Mois)
-                .FirstOrDefault();
+                .ToList();
+            var bulletin = bulletinsAnnee.FirstOrDefault(
+                b => EstStatutValide(b) && EstBulletinNormal(b));
 
-            bulletin ??= session.Query<Bulletin>()
-                .Where(b => b.Salarie.Oid == salarie.Oid
-                            && b.Annee == annee - 1
-                            && (b.Statut == BulletinStatut.Valide
-                                || b.Statut == BulletinStatut.Imprime
-                                || b.Statut == BulletinStatut.Envoye
-                                || b.Statut == BulletinStatut.Comptabilise
-                                || b.Statut == BulletinStatut.Cloture))
-                .OrderByDescending(b => b.Mois)
-                .FirstOrDefault();
+            // 2. Fallback : dernier bulletin NORMAL de l'annee precedente
+            if (bulletin == null)
+            {
+                var bulletinsAnneeAvant = session.Query<Bulletin>()
+                    .Where(b => b.Salarie.Oid == salarie.Oid
+                                && b.Annee == annee - 1)
+                    .OrderByDescending(b => b.Mois)
+                    .ToList();
+                bulletin = bulletinsAnneeAvant.FirstOrDefault(
+                    b => EstStatutValide(b) && EstBulletinNormal(b));
+            }
+
+            // 3. Mode degrade : n'importe quel bulletin valide
+            if (bulletin == null)
+            {
+                bulletin = bulletinsAnnee.FirstOrDefault(EstStatutValide)
+                       ?? session.Query<Bulletin>()
+                            .Where(b => b.Salarie.Oid == salarie.Oid
+                                        && b.Annee == annee - 1
+                                        && (b.Statut == BulletinStatut.Valide
+                                            || b.Statut == BulletinStatut.Imprime
+                                            || b.Statut == BulletinStatut.Envoye
+                                            || b.Statut == BulletinStatut.Comptabilise
+                                            || b.Statut == BulletinStatut.Cloture))
+                            .OrderByDescending(b => b.Mois)
+                            .FirstOrDefault();
+            }
 
             if (bulletin == null) return 0m;
 
-            // V1.12 - Formule Excel RH ELTON :
-            //   Net reglementaire = BrutSocial - cotisations sal. - IR - TRIMF
-            //
-            // On utilise BrutSocial (et PAS BrutFiscal) parce que l'Avantage
-            // en nature est fiscal mais pas cash. Verification sur bulletin
-            // Abdoulaye DIENG juin 2026 :
-            //   4 499 839 - 55 296 - 1 434 170 - 3 000 = 3 007 373 (= Excel RH)
-            var brutSocial = bulletin.BrutSocial;
-            var cotisationsSal = bulletin.IPRES_RG_Mois
-                                + bulletin.IPRES_RC_Mois;
-            var ir = bulletin.IR_Mois;
-            var trimf = bulletin.TRIMF_Mois;
+            // NetReglementaire = NetAPayer + retenues optionnelles
+            // Les retenues optionnelles = retenues qui ne sont pas obligatoires.
+            // Obligatoires = canoniques IPRES_RG, IPRES_RC, CSS_*, IRPP, TRIMF, CFCE
+            decimal retenuesOptionnelles = bulletin.Lignes
+                .Where(l => l.Rubrique != null
+                         && l.Rubrique.TypeCalcul == RubriqueTypeCalcul.Retenue
+                         && !EstRetenueObligatoire(l.Rubrique))
+                .Sum(l => l.Montant);
 
-            return brutSocial - cotisationsSal - ir - trimf;
+            return bulletin.NetAPayer + retenuesOptionnelles;
+        }
+
+        /// <summary>
+        /// V1.12 - Determine si une rubrique est une retenue obligatoire
+        /// (cotisation sociale, IR, TRIMF, CFCE). A exclure du calcul des
+        /// retenues optionnelles pour le Net Reglementaire.
+        /// </summary>
+        private static bool EstRetenueObligatoire(Rubrique rub)
+        {
+            if (rub == null) return false;
+            var c = rub.Canonique;
+            return c == RubriqueCanonique.IPRES_RG
+                || c == RubriqueCanonique.IPRES_RC
+                || c == RubriqueCanonique.CSS_AccidentTravail
+                || c == RubriqueCanonique.CSS_AllocationFamiliale
+                || c == RubriqueCanonique.IRPP
+                || c == RubriqueCanonique.TRIMF
+                || c == RubriqueCanonique.CFCE;
         }
 
         /// <summary>

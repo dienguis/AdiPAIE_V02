@@ -230,8 +230,15 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             SalaireBase = Salarie.Echelon?.SalaireBase ?? Salarie.SalaireBase;
             IndemniteLogement = Salarie.Echelon?.IdemniteLogement ?? Salarie.IndemniteLogement;
 
-            var dateSimul = new DateTime(Annee > 0 ? Annee : DateTime.Today.Year,
-                                         Mois > 0 ? Mois : DateTime.Today.Month, 1);
+            // V1.12.3 - Alignement avec Bulletin.cs : anciennete calculee en
+            // FIN de mois (comme le vrai bulletin paie), pas en debut.
+            // Avant : 01/07/2026 pour un embauche 22/07/2007 -> 18 ans
+            // Apres : 31/07/2026 pour le meme cas -> 19 ans (l'anniversaire du
+            // 22/07/2026 est passe). Aligne sur l'Excel RH (formule DATEDIF).
+            var anneeSimul = Annee > 0 ? Annee : DateTime.Today.Year;
+            var moisSimul = Mois > 0 ? Mois : DateTime.Today.Month;
+            var dateSimul = new DateTime(anneeSimul, moisSimul, 1)
+                              .AddMonths(1).AddDays(-1);
             var anc = AncienneteHelper.NombreAnnee(Salarie.DateEmbauche, dateSimul);
             PrimeAnciennete = (anc >= 2 && anc <= 25)
                 ? Math.Round(SalaireBase * anc / 100m, 0, MidpointRounding.AwayFromZero)
@@ -315,9 +322,13 @@ namespace AdiPAIE_V02.Module.BusinessObjects
 
             // 3) si pas "pile", on veut le plus petit sursalaire tel que Net >= target
             //    On inspecte autour de la borne haute finale pour trouver le premier >= target.
+            // V1.12.2 - Perf : fenetre finale reduite de +/- 1000 a +/- 100
+            // La bisection prealable converge deja a 1 FCFA pres, donc un
+            // balayage lineaire de 2001 valeurs etait du gaspillage. Divise
+            // le temps de calcul par ~10 sans perte de precision sensible.
             long candidate = Math.Max(0, Math.Min(lo, hi) + 0);
-            long start = Math.Max(0, candidate - 1000);
-            long end = candidate + 1000;
+            long start = Math.Max(0, candidate - 100);
+            long end = candidate + 100;
 
             ResultatCalcul chosenRes = null;
             long chosenS = -1;

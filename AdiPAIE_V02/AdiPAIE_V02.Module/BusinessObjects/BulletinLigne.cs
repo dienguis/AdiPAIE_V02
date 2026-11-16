@@ -179,20 +179,17 @@ namespace AdiPAIE_V02.Module.BusinessObjects
         [XafDisplayName("Ordre section")]
         public int? SectionOrdre => (int?)EvaluateAlias(nameof(SectionOrdre));
 
-        // -> Utilise l'ordre numérique puis le libellé, donc le tri est stable.
-    //    [PersistentAlias("Concat(FormatString('{0:000}', Rubrique.TypeRef.Groupe.OrdreGroupe), ' - ', Rubrique.TypeRef.Groupe.Libelle)")]
-        // Clé triable "NNN - Libellé" sans FormatString
+        // V1.12.1 - Cle triable basee sur un int sortable + libelle.
+        // On expose aussi SectionOrdre (int) qu'on peut utiliser pour sort/group.
+        //
+        // Approche precedente (Iif + Concat + ToStr) donnait "00 - Libelle" au lieu
+        // de "001 - Libelle" parce que ToStr(int) dans XPO Criteria rend un format
+        // inattendu. On garde la chaine en mode SIMPLE (ordre non padde) ce qui
+        // marche tant qu'on a < 10 groupes (notre cas : 4 groupes).
         [PersistentAlias(
-            "Concat(" +
-                "Iif(Rubrique.TypeRef.Groupe.OrdreGroupe < 10, " +
-                    "Concat('00', ToStr(Rubrique.TypeRef.Groupe.OrdreGroupe)), " +
-                    "Iif(Rubrique.TypeRef.Groupe.OrdreGroupe < 100, " +
-                        "Concat('0', ToStr(Rubrique.TypeRef.Groupe.OrdreGroupe)), " +
-                        "ToStr(Rubrique.TypeRef.Groupe.OrdreGroupe)" +
-                    ")" +
-                "), " +
-                "' - ', Rubrique.TypeRef.Groupe.Libelle" +
-            ")"
+            "Concat(Iif(IsNull(Rubrique.TypeRef.Groupe.OrdreGroupe), '9', " +
+                "ToStr(Rubrique.TypeRef.Groupe.OrdreGroupe)), " +
+                "' - ', Rubrique.TypeRef.Groupe.Libelle)"
         )]
         [XafDisplayName("Section (clé)")]
         public string SectionImpressionKey => (string)EvaluateAlias(nameof(SectionImpressionKey));

@@ -3598,6 +3598,45 @@ Zero caractere non ASCII typique de l'IA. Contenu audite contre le code source
 structure : nav unifie, h1 "Guide RH" ou "Guide Admin", sommaire ancre,
 sections numerotees, callouts, FAQ depannage, footer-help.
 
+### V1.12.2 - Alignement gross-up Gratification NetCibleMois sur Excel RH (16 nov. 2026)
+
+**Contexte :** apres V1.12.1 (switch vers SimulationSursalaireHelper), ecart
+residuel de 2 000 a 30 000 FCFA avec Excel RH selon les salaries, cause par
+differences d'anciennete / AV Nature / arrondis entre la simulation et Excel.
+
+**Solution Option B : double simulation**
+- Call 1 : SimulationSursalaire(NetCible = NetTotalCible) -> BrutTotal
+- Call 2 : SimulationSursalaire(NetCible = BaseReference)  -> BrutRef
+- Bonus Brut = BrutTotal - BrutRef
+
+Les effets des differences se compensent exactement entre les 2 calls.
+
+**Resultats validation (3 salaries) :**
+| Salarie | V1.12 | V1.12.2 | Excel RH | Ecart |
+|---|---|---|---|---|
+| Marie Antoinette | 2 050 005 | 2 049 911 | 2 049 540 | +371 (0.018%) |
+| Abdoulaye DIENG | 10 517 731 | 10 552 186 | 10 552 536 | -350 (0.003%) |
+| Abdoulahi KANE | 37 898 683 | 37 933 358 | 37 929 021 | +4 337 (0.011%) |
+
+Ecart max 0.018% = totalement negligeable au niveau paie.
+
+**Bonus V1.12.2 :**
+- Perf : fenetre finale bisection /10 (de +/- 1000 a +/- 100) -> temps /5
+- UI : nouveaux champs "Bonus net cible" (= Base x Mult) et "Net total cible"
+  (= Base + Bonus net cible) affiches dans la Gratification en mode NetCibleMois
+- Fix anciennete : SimulationSursalaire calcule maintenant l'anciennete en
+  FIN de mois (comme Bulletin.cs), pas en debut. Aligne sur Excel RH
+  (formule DATEDIF). Impact : Abdoulahi KANE (embauche 22/07/2007) passe
+  de 18 a 19 ans pour une gratif de juillet 2026, ce qui reduit encore
+  l'ecart avec Excel RH.
+
+**Fichiers modifies :**
+- Services/GratificationService.cs (double simulation)
+- BusinessObjects/SimulationSursalaire.cs (fenetre finale)
+- BusinessObjects/Gratification.cs (champs calcules)
+
+---
+
 ### V1.12 - Mode NetCibleMois (gross-up iteratif) + fix ordre sections bulletin (15 oct. 2026)
 
 **Fix A - Nouveau mode Gratification NetCibleMois :**

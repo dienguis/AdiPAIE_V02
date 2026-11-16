@@ -249,6 +249,29 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(MontantCalcule), ref montantCalcule, value);
         }
 
+        // V1.12.2 - Champs calcules (non persistes) affiches dans le DetailView
+        // pour que le RH voit directement le net cible et le net total.
+
+        [NonPersistent]
+        [XafDisplayName("Bonus net cible")]
+        [ModelDefault("DisplayFormat", "{0:N0} FCFA")]
+        [ToolTip("Net additionnel que le salarie recevra = Base reference x Multiplicateur. " +
+                 "Visible uniquement en mode NetCibleMois.")]
+        public decimal BonusNetCible =>
+            BaseCalcul == GratificationBaseCalcul.NetCibleMois
+                ? Math.Round(BaseReference * Multiplicateur, 0, MidpointRounding.AwayFromZero)
+                : 0m;
+
+        [NonPersistent]
+        [XafDisplayName("Net total cible")]
+        [ModelDefault("DisplayFormat", "{0:N0} FCFA")]
+        [ToolTip("Net total que le salarie recevra ce mois = Base reference + Bonus net cible. " +
+                 "Visible uniquement en mode NetCibleMois.")]
+        public decimal NetTotalCible =>
+            BaseCalcul == GratificationBaseCalcul.NetCibleMois
+                ? BaseReference + BonusNetCible
+                : 0m;
+
         // ─────────────────────────────────────────────────────────
         // Workflow
         // ─────────────────────────────────────────────────────────

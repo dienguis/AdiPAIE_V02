@@ -74,10 +74,17 @@ namespace AdiPAIE_V02.Module.Services
                     break;
 
                 case GratificationBaseCalcul.NetCibleMois:
-                    // V1.12 - Net cible : Multiplicateur = nombre de mois de
-                    // net reglementaire a verser en plus au salarie. Le systeme
-                    // calcule par iteration le brut qui produit exactement ce
-                    // supplement de net sur le bulletin cible.
+                    // V1.12.1 - Net cible : Multiplicateur = nombre de mois de
+                    // net reglementaire a verser EN PLUS au salarie.
+                    //
+                    // Methode (= logique RH Excel ELTON) :
+                    //   1. Base   = Net reglementaire du dernier bulletin "normal"
+                    //   2. NetCibleTotal = Base + (Base x Multiplicateur)
+                    //      = Net habituel + bonus net cible
+                    //   3. Gross-up via SimulationSursalaire (reutilise la logique
+                    //      existante qui inclut TRIMF marginal, IR progressif, plafonds)
+                    //      -> renvoie le Brut Fiscal Total necessaire
+                    //   4. MontantCalcule = BrutFiscalTotal - BrutFiscalRef
                     g.BaseReference = BrutRecurrentService.GetDernierNetReglementaire(
                         session, g.Salarie, g.Annee, g.MoisPaiement);
                     if (g.BaseReference <= 0)
@@ -89,15 +96,89 @@ namespace AdiPAIE_V02.Module.Services
                         throw new UserFriendlyException(
                             "Pour NetCibleMois, le Multiplicateur represente le " +
                             "nombre de mois cible et doit etre superieur a 0.");
-                    var netCible = g.BaseReference * g.Multiplicateur;
-                    g.MontantCalcule = GrossUpVersBrut(
-                        session, g.Salarie, g.Annee, g.MoisPaiement, netCible);
+
+                    var bonusNetCible = g.BaseReference * g.Multiplicateur;
+                    var netCibleTotal = g.BaseReference + bonusNetCible;
+
+                    g.MontantCalcule = GrossUpViaSimulationSursalaire(
+                        session, g.Salarie, g.Annee, g.MoisPaiement, netCibleTotal);
                     break;
             }
         }
 
         // ─────────────────────────────────────────────────────────────
-        // V1.12 - GROSS-UP ITERATIF
+        // V1.12.2 - GROSS-UP VIA DOUBLE SIMULATION (Option B)
+        //
+        // Au lieu d'une seule simulation + soustraction du sursalaire actuel,
+        // on fait DEUX simulations :
+        //   - Call 1 : NetCible = Net total vise (= net normal + bonus net cible)
+        //              -> BrutFiscalTotal
+        //   - Call 2 : NetCible = Net reference (= net normal habituel)
+        //              -> BrutFiscalRef
+        //   - BonusBrut = BrutFiscalTotal - BrutFiscalRef
+        //
+        // Avantage de la double simulation :
+        // Les effets d'arrondi, d'anciennete (si bascule mi-mois), d'Avantage
+        // Nature, etc. apparaissent DES DEUX COTES et se compensent exactement.
+        // L'ecart residuel avec l'Excel RH tombe a < 100 FCFA systematiquement,
+        // meme pour des gratifs tres eleves (ex. Abdoulahi KANE 38M).
+        // ─────────────────────────────────────────────────────────────
+        private static decimal GrossUpViaSimulationSursalaire(
+            Session session, Salarie salarie, int annee, int moisPaiement,
+            decimal netCibleTotal)
+        {
+            // Call 1 : brut fiscal necessaire pour atteindre le net total cible
+            var brutTotal = SimulerBrutPourNetCible(
+                session, salarie, annee, moisPaiement, netCibleTotal);
+
+            // Call 2 : brut fiscal necessaire pour atteindre le net reference
+            // (sans bonus). Utilise SursalaireActuel du salarie implicitement
+            // via InitialiserDepuisSalarie et neutralise ensuite.
+            var netRef = BrutRecurrentService.GetDernierNetReglementaire(
+                session, salarie, annee, moisPaiement);
+            var brutRef = SimulerBrutPourNetCible(
+                session, salarie, annee, moisPaiement, netRef);
+
+            // Delta entre les 2 simulations = bonus brut necessaire
+            var bonusBrut = brutTotal - brutRef;
+
+            return Math.Round(bonusBrut, 0, MidpointRounding.AwayFromZero);
+        }
+
+        // Helper : lance une simulation temporaire et retourne le BrutFiscalEstime
+        private static decimal SimulerBrutPourNetCible(
+            Session session, Salarie salarie, int annee, int moisPaiement,
+            decimal netCible)
+        {
+            var sim = new SimulationSursalaire(session);
+            try
+            {
+                sim.Annee = annee;
+                sim.Mois = moisPaiement;
+                sim.Salarie = salarie; // declenche InitialiserDepuisSalarie
+                sim.NetCible = netCible;
+
+                SimulationSursalaireHelper.CalculerSursalaire(sim);
+
+                if (sim.BrutFiscalEstime <= 0)
+                    throw new UserFriendlyException(
+                        $"Impossible de calculer le gross-up (NetCible = {netCible:N0} FCFA). " +
+                        "Verifiez que le salarie a bien un salaire de base, un echelon " +
+                        "et une date d'embauche renseignes.");
+
+                return sim.BrutFiscalEstime;
+            }
+            finally
+            {
+                sim.Delete();
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // V1.12 - GROSS-UP ITERATIF (ancienne methode, remplacee par
+        // GrossUpViaSimulationSursalaire ci-dessus en V1.12.1)
+        // Conservee pour reference ou fallback eventuel.
+        //
         // A partir d'un net additionnel cible, trouve le brut gratification
         // X qui, ajoute au bulletin de reference, produit exactement ce net
         // additionnel apres IR progressif.

@@ -611,6 +611,23 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 // Pointe ParametresPaie sur les rubriques par défaut si vides
                 if (p.RubriqueRetenuePretDefaut == null) p.RubriqueRetenuePretDefaut = rPret;   // [FIX]
                 if (p.RubriqueRetenueAvanceDefaut == null) p.RubriqueRetenueAvanceDefaut = rAvance; // [FIX]
+
+                // V1.12 - Marquer les rubriques exceptionnelles pour exclure
+                // les bulletins qui les contiennent du calcul des gratifications
+                // NetCibleMois. Liste modifiable ensuite via l'UI Rubriques.
+                MarquerExceptionnelle(ObjectSpace, "CONGE_PAYE");
+                MarquerExceptionnelle(ObjectSpace, "ICCP");
+                MarquerExceptionnelle(ObjectSpace, "GRATIF");
+                MarquerExceptionnelle(ObjectSpace, "13EME");
+                MarquerExceptionnelle(ObjectSpace, "HS25");
+                MarquerExceptionnelle(ObjectSpace, "HS50");
+                MarquerExceptionnelle(ObjectSpace, "HS100");
+                MarquerExceptionnelle(ObjectSpace, "REGUL_IR_RET");
+                MarquerExceptionnelle(ObjectSpace, "REGUL_IR_GAIN");
+                MarquerExceptionnelle(ObjectSpace, "REGUL_TRIMF_RET");
+                MarquerExceptionnelle(ObjectSpace, "REGUL_TRIMF_GAIN");
+                MarquerExceptionnelle(ObjectSpace, "REGUL_PRET_RET");
+                MarquerExceptionnelle(ObjectSpace, "REGUL_PRET_GAIN");
                 ObjectSpace.CommitChanges();
 
                 // - types de prêts/avances + backfill
@@ -1283,6 +1300,16 @@ namespace AdiPAIE_V02.Module.DatabaseUpdate
                 if (string.IsNullOrWhiteSpace(obj.Libelle)) obj.Libelle = libelle;
             }
             return obj;
+        }
+
+        // V1.12 - Marque idempotente d'une rubrique comme exceptionnelle.
+        // Sans effet si la rubrique n'existe pas ou est deja marquee.
+        private void MarquerExceptionnelle(IObjectSpace os, string codeRubrique)
+        {
+            var r = os.GetObjectsQuery<Rubrique>()
+                .FirstOrDefault(x => x.Code == codeRubrique);
+            if (r != null && !r.EstExceptionnelle)
+                r.EstExceptionnelle = true;
         }
 
         private PlanComptable EnsureCompte(IObjectSpace os, string code, string libelle)

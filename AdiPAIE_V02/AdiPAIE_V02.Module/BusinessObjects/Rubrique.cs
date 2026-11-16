@@ -121,6 +121,22 @@ namespace AdiPAIE_V02.Module.BusinessObjects
             set => SetPropertyValue(nameof(BrutSocial), ref brutSocial, value);
         }
 
+        // V1.12 - Marque les rubriques exceptionnelles (congé, gratification, 13e,
+        // HS, régul). Un bulletin qui contient au moins une ligne exceptionnelle
+        // n'est PAS considéré "normal" et ne sert pas de référence pour le
+        // calcul des gratifications NetCibleMois ni du 13ieme mois sur STC.
+        bool estExceptionnelle;
+        [XafDisplayName("Rubrique exceptionnelle")]
+        [ToolTip("Cocher si cette rubrique est exceptionnelle (congé, gratif, " +
+                 "13e, HS, régul). Les bulletins qui la contiennent ne servent " +
+                 "pas de référence pour les calculs NetCibleMois.")]
+        [VisibleInLookupListView(false)]
+        public bool EstExceptionnelle
+        {
+            get => estExceptionnelle;
+            set => SetPropertyValue(nameof(EstExceptionnelle), ref estExceptionnelle, value);
+        }
+
         int? ordreAffichage;
         [XafDisplayName("Ordre (impr.)")]
         [VisibleInLookupListView(true)]
