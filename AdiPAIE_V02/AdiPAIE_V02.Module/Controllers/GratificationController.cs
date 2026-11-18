@@ -98,16 +98,21 @@ namespace AdiPAIE_V02.Module.Controllers
             rejeterAction.Execute += RejeterAction_Execute;
 
             // ──── 5. Intégrer au bulletin (RH) ────
+            // V1.12.3 - Workflow DAF court-circuité : le RH peut intégrer
+            // directement depuis Brouillon (ou après validation DAF pour compat).
             integrerAction = new SimpleAction(this,
                 "Gratif_Integrer", PredefinedCategory.RecordEdit)
             {
                 Caption = "Intégrer au bulletin",
                 ImageName = "Action_Document_New",
-                ToolTip = "Crée une ligne GRATIF sur le bulletin du mois de paiement.",
+                ToolTip = "Crée une ligne GRATIF sur le bulletin du mois de paiement. " +
+                          "Accessible directement depuis Brouillon (sans passer par DAF).",
                 ConfirmationMessage = "Intégrer cette gratification au bulletin ? " +
                                       "Une ligne GRATIF sera ajoutée au bulletin du mois.",
                 TargetObjectsCriteria =
-                    "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+GratificationStatut,ValideeDAF#",
+                    "Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+GratificationStatut,BrouillonRH# " +
+                    "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+GratificationStatut,EnAttenteValidationDAF# " +
+                    "OR Statut = ##Enum#AdiPAIE_V02.Module.Domain.DomainEnums+GratificationStatut,ValideeDAF#",
                 SelectionDependencyType = SelectionDependencyType.RequireSingleObject
             };
             integrerAction.Execute += IntegrerAction_Execute;

@@ -107,21 +107,24 @@ namespace AdiPAIE_V02.Module.Services
         }
 
         // ─────────────────────────────────────────────────────────────
-        // V1.12.2 - GROSS-UP VIA DOUBLE SIMULATION (Option B)
+        // V1.12.2 - GROSS-UP VIA DOUBLE SIMULATION (Option B, robuste)
         //
-        // Au lieu d'une seule simulation + soustraction du sursalaire actuel,
-        // on fait DEUX simulations :
+        // Au lieu d'utiliser le BrutFiscal du bulletin (sensible aux effets
+        // d'anniversaire entre bulletin ref et mois gratif), on fait DEUX
+        // simulations avec la MEME date (celle du mois gratif) :
         //   - Call 1 : NetCible = Net total vise (= net normal + bonus net cible)
         //              -> BrutFiscalTotal
         //   - Call 2 : NetCible = Net reference (= net normal habituel)
         //              -> BrutFiscalRef
         //   - BonusBrut = BrutFiscalTotal - BrutFiscalRef
         //
-        // Avantage de la double simulation :
-        // Les effets d'arrondi, d'anciennete (si bascule mi-mois), d'Avantage
-        // Nature, etc. apparaissent DES DEUX COTES et se compensent exactement.
-        // L'ecart residuel avec l'Excel RH tombe a < 100 FCFA systematiquement,
-        // meme pour des gratifs tres eleves (ex. Abdoulahi KANE 38M).
+        // Avantage : les 2 simulations utilisent la MEME anciennete (celle du
+        // mois gratif), donc l'effet "anniversaire mi-mois" entre bulletin ref
+        // et mois gratif ne cree pas de biais. Ecart avec Excel RH < 5 000 FCFA.
+        //
+        // Essaye V1.12.3 (brut normal depuis bulletin) a introduit regressions
+        // dans les cas ou l'anciennete change entre le bulletin et la gratif.
+        // Donc retour sur V1.12.2 plus robuste.
         // ─────────────────────────────────────────────────────────────
         private static decimal GrossUpViaSimulationSursalaire(
             Session session, Salarie salarie, int annee, int moisPaiement,
@@ -132,8 +135,6 @@ namespace AdiPAIE_V02.Module.Services
                 session, salarie, annee, moisPaiement, netCibleTotal);
 
             // Call 2 : brut fiscal necessaire pour atteindre le net reference
-            // (sans bonus). Utilise SursalaireActuel du salarie implicitement
-            // via InitialiserDepuisSalarie et neutralise ensuite.
             var netRef = BrutRecurrentService.GetDernierNetReglementaire(
                 session, salarie, annee, moisPaiement);
             var brutRef = SimulerBrutPourNetCible(
@@ -407,7 +408,8 @@ namespace AdiPAIE_V02.Module.Services
 
         // ─────────────────────────────────────────────────────────────
         // ÉTAPE 3 - INTÉGRER AU BULLETIN (par RH)
-        // ValideeDAF → IntegreeBulletin
+        // V1.12.3 - Workflow DAF court-circuite : RH peut integrer directement
+        // depuis BrouillonRH (ou toujours depuis ValideeDAF pour compat).
         // Crée une BulletinLigne GRATIF sur le bulletin du mois choisi.
         // ─────────────────────────────────────────────────────────────
         public static void IntegrerAuBulletin(IObjectSpace os, Gratification g)
@@ -415,10 +417,28 @@ namespace AdiPAIE_V02.Module.Services
             if (os == null) throw new ArgumentNullException(nameof(os));
             if (g == null) throw new ArgumentNullException(nameof(g));
 
-            if (g.Statut != GratificationStatut.ValideeDAF)
+            // V1.12.3 - Accepter aussi BrouillonRH et EnAttenteValidationDAF.
+            // La validation DAF n'est plus requise avant integration.
+            bool statutOk = g.Statut == GratificationStatut.BrouillonRH
+                         || g.Statut == GratificationStatut.EnAttenteValidationDAF
+                         || g.Statut == GratificationStatut.ValideeDAF;
+            if (!statutOk)
                 throw new UserFriendlyException(
-                    $"La gratification doit être ValideeDAF pour être " +
-                    $"intégrée (actuel : {g.Statut}).");
+                    $"Impossible d'integrer une gratification en statut " +
+                    $"{g.Statut}. Attendu : BrouillonRH, EnAttenteValidationDAF " +
+                    $"ou ValideeDAF.");
+
+            // Si pas encore valide, recalculer le montant avant integration
+            // (etait fait auparavant dans Soumettre, maintenant on le fait ici
+            // pour couvrir le cas BrouillonRH direct).
+            if (g.Statut == GratificationStatut.BrouillonRH)
+            {
+                RecalculerMontant(g);
+                if (g.MontantCalcule <= 0)
+                    throw new UserFriendlyException(
+                        "Montant calcule nul ou negatif. Verifiez la base " +
+                        "de calcul, le multiplicateur, ou le bulletin de reference.");
+            }
 
             // Trouver la rubrique GRATIF
             var rubriqueGratif = os.FirstOrDefault<Rubrique>(

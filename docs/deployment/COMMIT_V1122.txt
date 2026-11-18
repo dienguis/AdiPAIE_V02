@@ -57,6 +57,31 @@ Fichiers modifies :
     - SimulationSursalaireHelper.CalculerSursalaire : fenetre finale /10
 
 ================================================================================
+2ter. WORKFLOW DAF COURT-CIRCUITE (demande RH)
+================================================================================
+
+A la demande du RH, la validation DAF n'est plus requise pour integrer une
+gratification au bulletin. Le RH peut passer directement de BrouillonRH a
+IntegreeBulletin.
+
+Changements :
+  - Services/GratificationService.cs : IntegrerAuBulletin accepte maintenant
+    les statuts BrouillonRH, EnAttenteValidationDAF et ValideeDAF (avant :
+    uniquement ValideeDAF). Quand BrouillonRH, RecalculerMontant est appele
+    automatiquement avant integration.
+  - Controllers/GratificationController.cs : bouton "Integrer au bulletin"
+    visible depuis BrouillonRH (avant : seulement ValideeDAF).
+
+Boutons Soumettre/Valider/Rejeter DAF restent presents pour compat et pour
+le cas ou le DAF voudrait reprendre la main plus tard (ex. via activation
+d'un parametre de configuration).
+
+Workflow reel RH apres ce changement :
+  1. Saisir la gratification (BrouillonRH)
+  2. Clic "Integrer au bulletin" (aucun passage par DAF)
+  3. La ligne GRATIF est creee sur le bulletin du mois cible
+
+================================================================================
 2bis. FIX ANCIENNETE : ALIGNEMENT FIN DE MOIS (comme Bulletin.cs)
 ================================================================================
 
